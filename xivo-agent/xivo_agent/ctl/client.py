@@ -22,7 +22,7 @@ from xivo_agent.ctl.transport import Transport
 from xivo_agent.exception import AgentError
 
 
-class Client(object):
+class AgentClient(object):
 
     _TIMEOUT = 10
 

@@ -19,19 +19,19 @@ import argparse
 import readline
 import time
 import traceback
-from xivo_agent.ctl.client import Client
+from xivo_agent.ctl.client import AgentClient
 from xivo_agent.exception import AgentError
 
 
 def main():
     parsed_args = _parse_args()
 
-    ctl_client = Client()
+    agent_client = AgentClient()
     try:
-        ctl_client.connect(parsed_args.hostname)
-        _loop(ctl_client)
+        agent_client.connect(parsed_args.hostname)
+        _loop(agent_client)
     finally:
-        ctl_client.close()
+        agent_client.close()
 
 
 def _parse_args():
@@ -40,7 +40,7 @@ def _parse_args():
     return parser.parse_args()
 
 
-def _loop(ctl_client):
+def _loop(agent_client):
     try:
         while True:
             try:
@@ -54,13 +54,13 @@ def _loop(ctl_client):
                 if cmd_name == 'login':
                     agent_num = int(args[0])
                     agent_interface = args[1]
-                    ctl_client.login_agent(agent_num, agent_interface)
+                    agent_client.login_agent(agent_num, agent_interface)
                 elif cmd_name == 'logoff':
                     agent_num = int(args[0])
-                    ctl_client.logoff_agent(agent_num)
+                    agent_client.logoff_agent(agent_num)
                 elif cmd_name == 'status':
                     agent_num = int(args[0])
-                    status = ctl_client.get_agent_status(agent_num)
+                    status = agent_client.get_agent_status(agent_num)
                     print status
                 else:
                     print 'unknown command:', cmd_name
