@@ -19,7 +19,7 @@ def main():
 
     dao.init('postgresql://asterisk:proformatique@localhost/asterisk')
 
-    ami_client = ami.new_client('localhost', 'foobar', 'foobar')
+    ami_client = ami.new_client('localhost', 'xivo_agent', 'die0Ahn8tae')
     try:
         ctl_server = Server()
         try:
