@@ -17,6 +17,8 @@
 
 import argparse
 import logging
+import signal
+import sys
 from xivo_agent import ami
 from xivo_agent import dao
 from xivo_agent.ctl.server import AgentServer
@@ -32,13 +34,15 @@ def main():
         logger = logging.getLogger()
         logger.setLevel(logging.DEBUG)
 
+    signal.signal(signal.SIGTERM, _handle_sigterm)
+
     dao.init('postgresql://asterisk:proformatique@localhost/asterisk')
 
     ami_client = ami.new_client('localhost', 'xivo_agent', 'die0Ahn8tae')
     try:
         agent_server = AgentServer()
         try:
-            agent_server.bind('0.0.0.0')
+            agent_server.bind('localhost')
             agent_service = AgentService(ami_client, agent_server)
             agent_service.init()
             agent_service.run()
@@ -51,7 +55,7 @@ def main():
 def _init_logging():
     logger = logging.getLogger()
     handler = logging.StreamHandler()
-    handler.setFormatter(logging.Formatter('%(asctime)s %(message)s'))
+    handler.setFormatter(logging.Formatter('%(asctime)s (%(levelname)s): %(message)s'))
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
 
@@ -61,6 +65,10 @@ def _parse_args():
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='increase verbosity')
     return parser.parse_args()
+
+
+def _handle_sigterm(signum, frame):
+    raise SystemExit(0)
 
 
 if __name__ == '__main__':

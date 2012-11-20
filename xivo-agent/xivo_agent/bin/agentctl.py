@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import argparse
 import readline
 import time
 import traceback
@@ -24,20 +23,12 @@ from xivo_agent.exception import AgentError
 
 
 def main():
-    parsed_args = _parse_args()
-
     agent_client = AgentClient()
     try:
-        agent_client.connect(parsed_args.hostname)
+        agent_client.connect('localhost')
         _loop(agent_client)
     finally:
         agent_client.close()
-
-
-def _parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('hostname')
-    return parser.parse_args()
 
 
 def _loop(agent_client):
