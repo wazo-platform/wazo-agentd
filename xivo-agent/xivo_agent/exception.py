@@ -18,3 +18,10 @@
 
 class AgentError(Exception):
     pass
+
+
+class AgentClientError(AgentError):
+
+    def __init__(self, error):
+        AgentError.__init__(self, error)
+        self.error = error

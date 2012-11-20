@@ -19,7 +19,7 @@ import socket
 from xivo_agent.ctl.server import AgentServer
 from xivo_agent.ctl.commands import LoginCommand, LogoffCommand, StatusCommand
 from xivo_agent.ctl.transport import Transport
-from xivo_agent.exception import AgentError
+from xivo_agent.exception import AgentClientError
 
 
 class AgentClient(object):
@@ -72,5 +72,5 @@ class AgentClient(object):
     def _recv_response(self):
         response = self._transport.recv_response()
         if response.error is not None:
-            raise AgentError(response.error)
+            raise AgentClientError(response.error)
         return response.value
