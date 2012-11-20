@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import socket
-from xivo_agent.ctl.server import Server
+from xivo_agent.ctl.server import AgentServer
 from xivo_agent.ctl.commands import LoginCommand, LogoffCommand, StatusCommand
 from xivo_agent.ctl.transport import Transport
 from xivo_agent.exception import AgentError
@@ -41,7 +41,7 @@ class AgentClient(object):
         if self._transport is not None:
             raise Exception('already connected')
 
-        self._addr = (hostname, Server.PORT)
+        self._addr = (hostname, AgentServer.PORT)
         self._transport = Transport(self._new_socket())
 
     def _new_socket(self):

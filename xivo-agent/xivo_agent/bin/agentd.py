@@ -19,7 +19,7 @@ import argparse
 import logging
 from xivo_agent import ami
 from xivo_agent import dao
-from xivo_agent.ctl.server import Server
+from xivo_agent.ctl.server import AgentServer
 from xivo_agent.service import AgentService
 
 
@@ -36,14 +36,14 @@ def main():
 
     ami_client = ami.new_client('localhost', 'xivo_agent', 'die0Ahn8tae')
     try:
-        ctl_server = Server()
+        agent_server = AgentServer()
         try:
-            ctl_server.bind('0.0.0.0')
-            agent_service = AgentService(ami_client, ctl_server)
+            agent_server.bind('0.0.0.0')
+            agent_service = AgentService(ami_client, agent_server)
             agent_service.init()
             agent_service.run()
         finally:
-            ctl_server.close()
+            agent_server.close()
     finally:
         ami_client.close()
 

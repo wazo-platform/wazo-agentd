@@ -24,7 +24,7 @@ from xivo_agent.ctl.transport import Transport
 logger = logging.getLogger(__name__)
 
 
-class Server(object):
+class AgentServer(object):
 
     PORT = 6741
 
