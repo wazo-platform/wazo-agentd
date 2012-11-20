@@ -17,6 +17,7 @@
 
 import logging
 import socket
+from xivo_agent.ctl import error
 from xivo_agent.ctl.response import CommandResponse
 from xivo_agent.ctl.transport import Transport
 
@@ -68,7 +69,7 @@ class Server(object):
             callback(command, response)
         except Exception:
             logger.warning('Error while processing cmd: %s', exc_info=True)
-            self._reply_error(CommandResponse.ERR_SERVER, address)
+            self._reply_error(error.SERVER_ERROR, address)
             return
 
         self._reply_response(response, address)

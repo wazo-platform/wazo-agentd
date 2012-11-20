@@ -17,6 +17,7 @@
 
 import json
 import logging
+from xivo_agent.ctl import error
 from xivo_agent.ctl.response import CommandResponse
 
 logger = logging.getLogger(__name__)
@@ -46,7 +47,7 @@ class Transport(object):
             command = self._unmarshal_command(data, command_registry)
         except Exception:
             logger.warning('Could not unmarshal command:', exc_info=True)
-            self._send_error_response(CommandResponse.ERR_CLIENT, addr)
+            self._send_error_response(error.CLIENT_ERROR, addr)
             return None, None
         else:
             return command, addr
