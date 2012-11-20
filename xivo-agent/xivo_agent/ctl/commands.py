@@ -20,50 +20,50 @@ class LoginCommand(object):
 
     name = 'login'
 
-    def __init__(self, agent_number, interface):
-        self.agent_number = int(agent_number)
+    def __init__(self, agent_id, interface):
+        self.agent_id = int(agent_id)
         self.interface = unicode(interface)
 
     def marshal(self):
         return {
-            'number': self.agent_number,
+            'id': self.agent_id,
             'interface': self.interface,
         }
 
     @classmethod
     def unmarshal(cls, msg):
-        return cls(msg['number'], msg['interface'])
+        return cls(msg['id'], msg['interface'])
 
 
 class LogoffCommand(object):
 
     name = 'logoff'
 
-    def __init__(self, agent_number):
-        self.agent_number = int(agent_number)
+    def __init__(self, agent_id):
+        self.agent_id = int(agent_id)
 
     def marshal(self):
         return {
-            'number': self.agent_number,
+            'id': self.agent_id,
         }
 
     @classmethod
     def unmarshal(cls, msg):
-        return cls(msg['number'])
+        return cls(msg['id'])
 
 
 class StatusCommand(object):
 
     name = 'status'
 
-    def __init__(self, agent_number):
-        self.agent_number = int(agent_number)
+    def __init__(self, agent_id):
+        self.agent_id = int(agent_id)
 
     def marshal(self):
         return {
-            'number': self.agent_number
+            'id': self.agent_id,
         }
 
     @classmethod
     def unmarshal(cls, msg):
-        return cls(msg['number'])
+        return cls(msg['id'])

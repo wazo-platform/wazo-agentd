@@ -42,23 +42,23 @@ def init(url):
     _queuemember = Table('queuemember', metadata, autoload=True, autoload_with=_engine)
 
 
-def agent_with_number(agent_number):
-    agent_number = unicode(agent_number)
+def agent_with_id(agent_id):
+    agent_id = int(agent_id)
 
     conn = _engine.connect()
     try:
-        agent = _get_agent_with_number(conn, agent_number)
+        agent = _get_agent_with_id(conn, agent_id)
         _add_queues_to_agent(conn, agent)
         return agent
     finally:
         conn.close()
 
 
-def _get_agent_with_number(conn, agent_number):
-    query = select([_agentfeatures.c.id], _agentfeatures.c.number == agent_number)
+def _get_agent_with_id(conn, agent_id):
+    query = select([_agentfeatures.c.id], _agentfeatures.c.id == agent_id)
     row = conn.execute(query).first()
     if row is None:
-        raise Exception('no agent with number %r' % agent_number)
+        raise Exception('no agent with id %r' % agent_id)
     return _Agent(row['id'], [])
 
 

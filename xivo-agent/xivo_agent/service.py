@@ -24,24 +24,24 @@ logger = logging.getLogger(__name__)
 
 class AgentService(object):
 
-    def __init__(self, ami_client, ctl_server):
+    def __init__(self, ami_client, agent_server):
         self._ami_client = ami_client
-        self._ctl_server = ctl_server
+        self._agent_server = agent_server
 
     def init(self):
-        self._ctl_server.add_command(commands.LoginCommand, self._exec_login_cmd)
-        self._ctl_server.add_command(commands.LogoffCommand, self._exec_logoff_cmd)
-        self._ctl_server.add_command(commands.StatusCommand, self._exec_status_cmd)
+        self._agent_server.add_command(commands.LoginCommand, self._exec_login_cmd)
+        self._agent_server.add_command(commands.LogoffCommand, self._exec_logoff_cmd)
+        self._agent_server.add_command(commands.StatusCommand, self._exec_status_cmd)
 
     def run(self):
         while True:
-            self._ctl_server.process_next_command()
+            self._agent_server.process_next_command()
 
     def _exec_login_cmd(self, login_cmd, response):
         # TODO don't log the agent if he's already logged
         # TODO don't log 2 agents on the same interface (this would be easier if
         #      it was in postgres than ast db)
-        agent = dao.agent_with_number(login_cmd.agent_number)
+        agent = dao.agent_with_id(login_cmd.agent_id)
 
         member_name = 'Agent/%s' % agent.id
 
@@ -53,7 +53,7 @@ class AgentService(object):
                 logger.warning('Failure to add interface %r to queue %r', login_cmd.interface, queue.name)
 
     def _exec_logoff_cmd(self, logoff_cmd, response):
-        agent = dao.agent_with_number(logoff_cmd.agent_number)
+        agent = dao.agent_with_id(logoff_cmd.agent_id)
 
         action = self._ami_client.db_get('xivo/agents', agent.id)
         if action.success:
@@ -64,7 +64,7 @@ class AgentService(object):
             self._ami_client.db_del('xivo/agents', agent.id)
 
     def _exec_status_cmd(self, status_cmd, response):
-        agent = dao.agent_with_number(status_cmd.agent_number)
+        agent = dao.agent_with_id(status_cmd.agent_id)
 
         action = self._ami_client.db_get('xivo/agents', agent.id)
         if action.success:
