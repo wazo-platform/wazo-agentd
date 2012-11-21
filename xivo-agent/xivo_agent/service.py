@@ -85,10 +85,5 @@ class AgentService(object):
         self._agent_login_dao.log_off_agent(agent.id)
 
     def _exec_status_cmd(self, status_cmd, response):
-        agent = dao.agent_with_id(status_cmd.agent_id)
-
-        action = self._ami_client.db_get('xivo/agents', agent.id)
-        if action.success:
-            response.value = {'logged': True}
-        else:
-            response.value = {'logged': False}
+        logged = self._is_agent_logged_in(status_cmd.agent_id)
+        response.value = {'logged': True}

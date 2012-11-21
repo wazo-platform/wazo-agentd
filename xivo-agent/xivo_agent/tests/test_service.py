@@ -105,6 +105,23 @@ class TestService(unittest.TestCase):
         self.assertEqual(error.NOT_LOGGED, response.error)
         self.agent_login_dao.is_agent_logged_in.assert_called_with(logoff_cmd.agent_id)
 
+
+    @patch('xivo_agent.dao.agent_with_id')
+    def test_status_cmd(self, dao_agent_with_id):
+        status_cmd = Mock()
+        status_cmd.agent_id = 1
+        agent = self._new_agent(1)
+        self._setup_dao(dao_agent_with_id, agent, True)
+
+        expected = {'logged': True}
+
+        response = Mock()
+
+        self.service._exec_status_cmd(status_cmd, response)
+
+        self.assertEqual(expected, response.value)
+        self.agent_login_dao.is_agent_logged_in.assert_called_with(status_cmd.agent_id)
+
     def _new_login_cmd(self, agent_id, extension='1001', context='default'):
         login_cmd = Mock()
         login_cmd.agent_id = agent_id
