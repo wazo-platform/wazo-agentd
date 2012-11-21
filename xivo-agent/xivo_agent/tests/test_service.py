@@ -79,12 +79,43 @@ class TestService(unittest.TestCase):
         self.assertEqual(error.ALREADY_LOGGED, response.error)
         self.agent_login_dao.is_agent_logged_in.assert_called_with(login_cmd.agent_id)
 
+    @patch('xivo_agent.dao.agent_with_id')
+    def test_logoff_cmd(self, dao_agent_with_id):
+        logoff_cmd = self._new_logoff_cmd(1)
+        agent = self._new_agent(1)
+        self._setup_dao(dao_agent_with_id, agent, True)
+
+        response = Mock()
+
+        self.service._exec_logoff_cmd(logoff_cmd, response)
+
+        self.agent_login_dao.log_off_agent.assert_called_with(logoff_cmd.agent_id)
+        self.agent_login_dao.is_agent_logged_in.assert_called_with(logoff_cmd.agent_id)
+
+    @patch('xivo_agent.dao.agent_with_id')
+    def test_logout_cmd_set_error_to_not_logged_when_agent_not_logged(self, dao_agent_with_id):
+        logoff_cmd = self._new_logoff_cmd(1)
+        agent = self._new_agent(1)
+        self._setup_dao(dao_agent_with_id, agent, False)
+
+        response = Mock()
+
+        self.service._exec_logoff_cmd(logoff_cmd, response)
+
+        self.assertEqual(error.NOT_LOGGED, response.error)
+        self.agent_login_dao.is_agent_logged_in.assert_called_with(logoff_cmd.agent_id)
+
     def _new_login_cmd(self, agent_id, extension='1001', context='default'):
         login_cmd = Mock()
         login_cmd.agent_id = agent_id
         login_cmd.extension = extension
         login_cmd.context = context
         return login_cmd
+
+    def _new_logoff_cmd(self, agent_id):
+        logoff_cmd = Mock()
+        logoff_cmd.agent_id = 1
+        return logoff_cmd
 
     def _new_agent(self, agent_id):
         agent = Mock()
