@@ -68,6 +68,12 @@ class AgentService(object):
     def _exec_logoff_cmd(self, logoff_cmd, response):
         agent = dao.agent_with_id(logoff_cmd.agent_id)
 
+        if self._is_agent_logged_in(agent.id):
+            self._log_off_agent(agent)
+        else:
+            response.error = error.NOT_LOGGED
+
+    def _log_off_agent(self, agent):
         action = self._ami_client.db_get('xivo/agents', agent.id)
         if action.success:
             # agent is logged
@@ -75,6 +81,8 @@ class AgentService(object):
             for queue in agent.queues:
                 action = self._ami_client.queue_remove(queue.name, interface)
             self._ami_client.db_del('xivo/agents', agent.id)
+
+        self._agent_login_dao.log_off_agent(agent.id)
 
     def _exec_status_cmd(self, status_cmd, response):
         agent = dao.agent_with_id(status_cmd.agent_id)

@@ -5,3 +5,4 @@ CLIENT_ERROR = 'client error'
 
 NO_SUCH_AGENT = 'no such agent'
 ALREADY_LOGGED = 'already logged'
+NOT_LOGGED = 'not logged in'
