@@ -23,7 +23,7 @@ from sqlalchemy.sql import select, and_
 _engine = None
 _agentfeatures = None
 _queuemember = None
-_Agent = namedtuple('_Agent', ['id', 'queues'])
+_Agent = namedtuple('_Agent', ['id', 'number', 'queues'])
 _Queue = namedtuple('_Queue', ['name'])
 
 
@@ -55,11 +55,11 @@ def agent_with_id(agent_id):
 
 
 def _get_agent_with_id(conn, agent_id):
-    query = select([_agentfeatures.c.id], _agentfeatures.c.id == agent_id)
+    query = select([_agentfeatures.c.id, _agentfeatures.c.number], _agentfeatures.c.id == agent_id)
     row = conn.execute(query).first()
     if row is None:
         raise Exception('no agent with id %r' % agent_id)
-    return _Agent(row['id'], [])
+    return _Agent(row['id'], row['number'], [])
 
 
 def _add_queues_to_agent(conn, agent):

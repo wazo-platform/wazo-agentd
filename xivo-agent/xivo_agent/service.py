@@ -24,9 +24,10 @@ logger = logging.getLogger(__name__)
 
 class AgentService(object):
 
-    def __init__(self, ami_client, agent_server):
+    def __init__(self, ami_client, agent_server, queue_log_manager):
         self._ami_client = ami_client
         self._agent_server = agent_server
+        self._queue_log_manager = queue_log_manager
 
     def init(self):
         self._agent_server.add_command(commands.LoginCommand, self._exec_login_cmd)

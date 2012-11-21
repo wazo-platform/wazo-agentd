@@ -18,11 +18,16 @@
 import argparse
 import logging
 import signal
-import sys
+from contextlib import contextmanager
 from xivo_agent import ami
 from xivo_agent import dao
 from xivo_agent.ctl.server import AgentServer
+from xivo_agent.queuelog import QueueLogManager
 from xivo_agent.service import AgentService
+from xivo_dao import queue_log_dao
+from xivo_dao.alchemy import dbconnection
+
+_DB_URI = 'postgresql://asterisk:proformatique@localhost/asterisk'
 
 
 def main():
@@ -34,22 +39,15 @@ def main():
         logger = logging.getLogger()
         logger.setLevel(logging.DEBUG)
 
-    signal.signal(signal.SIGTERM, _handle_sigterm)
+    _init_signal()
+    _init_dao()
+    with _new_ami_client() as ami_client:
+        with _new_agent_server() as agent_server:
+            queue_log_manager = QueueLogManager(queue_log_dao)
 
-    dao.init('postgresql://asterisk:proformatique@localhost/asterisk')
-
-    ami_client = ami.new_client('localhost', 'xivo_agent', 'die0Ahn8tae')
-    try:
-        agent_server = AgentServer()
-        try:
-            agent_server.bind('localhost')
-            agent_service = AgentService(ami_client, agent_server)
+            agent_service = AgentService(ami_client, agent_server, queue_log_manager)
             agent_service.init()
             agent_service.run()
-        finally:
-            agent_server.close()
-    finally:
-        ami_client.close()
 
 
 def _init_logging():
@@ -67,8 +65,39 @@ def _parse_args():
     return parser.parse_args()
 
 
+def _init_signal():
+    signal.signal(signal.SIGTERM, _handle_sigterm)
+
+
+def _init_dao():
+    dao.init(_DB_URI)
+
+    db_connection_pool = dbconnection.DBConnectionPool(dbconnection.DBConnection)
+    dbconnection.register_db_connection_pool(db_connection_pool)
+    dbconnection.add_connection_as(_DB_URI, 'asterisk')
+
+
 def _handle_sigterm(signum, frame):
     raise SystemExit(0)
+
+
+@contextmanager
+def _new_ami_client():
+    ami_client = ami.new_client('localhost', 'xivo_agent', 'die0Ahn8tae')
+    try:
+        yield ami_client
+    finally:
+        ami_client.close()
+
+
+@contextmanager
+def _new_agent_server():
+    agent_server = AgentServer()
+    try:
+        agent_server.bind('localhost')
+        yield agent_server
+    finally:
+        agent_server.close()
 
 
 if __name__ == '__main__':
