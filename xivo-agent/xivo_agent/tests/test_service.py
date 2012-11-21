@@ -66,6 +66,11 @@ class TestService(unittest.TestCase):
         self.assertEqual(error.ALREADY_LOGGED, response.error)
         self.agent_login_dao.is_agent_logged_in.assert_called_with(login_cmd.agent_id)
 
+    @patch('xivo_agent.dao.agent_with_id')
+    def test_login_cmd_set_error_to_already_logged_when_logging_on_different_interface(self, dao_agent_with_id):
+        login_cmd = self._new_login_cmd(1, '1002', 'default')
+        agent = self._new_agent(1)
+        self._setup_dao(dao_agent_with_id, agent, True)
 
         response = Mock()
 
