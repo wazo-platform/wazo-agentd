@@ -43,14 +43,15 @@ class AgentService(object):
         #      it was in postgres than ast db)
         agent = dao.agent_with_id(login_cmd.agent_id)
 
+        interface = 'Local/%s@%s' % (login_cmd.extension, login_cmd.context)
         member_name = 'Agent/%s' % agent.id
 
-        self._ami_client.db_put('xivo/agents', agent.id, login_cmd.interface)
+        self._ami_client.db_put('xivo/agents', agent.id, interface)
 
         for queue in agent.queues:
-            action = self._ami_client.queue_add(queue.name, login_cmd.interface, member_name)
+            action = self._ami_client.queue_add(queue.name, interface, member_name)
             if not action.success:
-                logger.warning('Failure to add interface %r to queue %r', login_cmd.interface, queue.name)
+                logger.warning('Failure to add interface %r to queue %r', interface, queue.name)
 
     def _exec_logoff_cmd(self, logoff_cmd, response):
         agent = dao.agent_with_id(logoff_cmd.agent_id)

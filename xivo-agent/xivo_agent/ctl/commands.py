@@ -20,19 +20,21 @@ class LoginCommand(object):
 
     name = 'login'
 
-    def __init__(self, agent_id, interface):
+    def __init__(self, agent_id, extension, context):
         self.agent_id = int(agent_id)
-        self.interface = unicode(interface)
+        self.extension = unicode(extension)
+        self.context = unicode(context)
 
     def marshal(self):
         return {
             'id': self.agent_id,
-            'interface': self.interface,
+            'extension': self.extension,
+            'context': self.context,
         }
 
     @classmethod
     def unmarshal(cls, msg):
-        return cls(msg['id'], msg['interface'])
+        return cls(msg['id'], msg['extension'], msg['context'])
 
 
 class LogoffCommand(object):

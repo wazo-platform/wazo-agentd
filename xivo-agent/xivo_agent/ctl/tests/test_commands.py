@@ -23,14 +23,16 @@ class TestCommands(unittest.TestCase):
 
     def test_marshal_unmarshal_login(self):
         agent_id = 1
-        interface = 'Local/123@foo'
-        expected = {'id': agent_id, 'interface': interface}
+        extension = '123'
+        context = 'foo'
+        expected = {'id': agent_id, 'extension': extension, 'context': context}
 
-        data = LoginCommand(agent_id, interface).marshal()
+        data = LoginCommand(agent_id, extension, context).marshal()
 
         self.assertEqual(expected, data)
 
         cmd = LoginCommand.unmarshal(data)
 
         self.assertEqual(cmd.agent_id, agent_id)
-        self.assertEqual(cmd.interface, interface)
+        self.assertEqual(cmd.extension, extension)
+        self.assertEqual(cmd.context, context)

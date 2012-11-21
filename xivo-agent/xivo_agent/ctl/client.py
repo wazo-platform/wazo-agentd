@@ -50,8 +50,8 @@ class AgentClient(object):
         sock.connect(self._addr)
         return sock
 
-    def login_agent(self, agent_id, interface):
-        cmd = LoginCommand(agent_id, interface)
+    def login_agent(self, agent_id, extension, context):
+        cmd = LoginCommand(agent_id, extension, context)
         return self._execute_command(cmd)
 
     def logoff_agent(self, agent_id):

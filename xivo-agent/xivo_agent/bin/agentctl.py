@@ -44,8 +44,9 @@ def _loop(agent_client):
                 start_time = time.time()
                 if cmd_name == 'login':
                     agent_num = int(args[0])
-                    agent_interface = args[1]
-                    agent_client.login_agent(agent_num, agent_interface)
+                    extension = args[1]
+                    context = args[2]
+                    agent_client.login_agent(agent_num, extension, context)
                 elif cmd_name == 'logoff':
                     agent_num = int(args[0])
                     agent_client.logoff_agent(agent_num)
