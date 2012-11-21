@@ -44,13 +44,13 @@ class AgentService(object):
         # TODO don't log 2 agents on the same interface (this would be easier if
         #      it was in postgres than ast db)
         agent = dao.agent_with_id(login_cmd.agent_id)
-        if self._is_agent_logged_in(agent):
+        if self._is_agent_logged_in(agent.id):
             response.error = error.ALREADY_LOGGED
         else:
             self._log_in_agent(agent, login_cmd.extension, login_cmd.context)
 
-    def _is_agent_logged_in(self, agent):
-        return self._agent_login_dao.is_agent_logged_in(agent.id)
+    def _is_agent_logged_in(self, agent_id):
+        return self._agent_login_dao.is_agent_logged_in(agent_id)
 
     def _log_in_agent(self, agent, extension, context):
         interface = 'Local/%s@%s' % (extension, context)
