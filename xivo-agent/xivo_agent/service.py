@@ -77,7 +77,7 @@ class AgentService(object):
         interface = 'Local/%s@%s' % (extension, context)
         member_name = 'Agent/%s' % agent.number
 
-        self._agent_login_dao.log_in_agent(agent.id, interface)
+        self._agent_login_dao.log_in_agent(agent.id, extension, context)
 
         self._queue_log_manager.on_agent_logged_in(agent.number, extension, context)
 
@@ -89,9 +89,10 @@ class AgentService(object):
     def _log_off_agent(self, agent):
         agent_login_status = self._agent_login_dao.get_status(agent.id)
         login_time = self._compute_login_time(agent_login_status.login_at)
+        interface = 'Local/%s@%s' % (agent_login_status.extension, agent_login_status.context)
 
         for queue in agent.queues:
-            self._ami_client.queue_remove(queue.name, agent_login_status.interface)
+            self._ami_client.queue_remove(queue.name, interface)
 
         self._queue_log_manager.on_agent_logged_off(agent.number, agent_login_status.extension,
                                                     agent_login_status.context, login_time)
