@@ -67,7 +67,6 @@ class AgentService(object):
 
     def _exec_logoff_cmd(self, logoff_cmd, response):
         agent = dao.agent_with_id(logoff_cmd.agent_id)
-
         if self._is_agent_logged_in(agent.id):
             self._log_off_agent(agent)
         else:
@@ -86,4 +85,4 @@ class AgentService(object):
 
     def _exec_status_cmd(self, status_cmd, response):
         logged = self._is_agent_logged_in(status_cmd.agent_id)
-        response.value = {'logged': True}
+        response.value = {'logged': logged}
