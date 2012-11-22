@@ -16,7 +16,6 @@ class TestService(unittest.TestCase):
         self.service = AgentService(self.ami_client, self.agent_server,
                                     self.queue_log_manager, self.agent_login_dao)
 
-
     @patch('xivo_agent.dao.agent_with_id')
     def test_login_cmd(self, dao_agent_with_id):
         login_cmd = self._new_login_cmd(1, '1001', 'default')
@@ -104,7 +103,6 @@ class TestService(unittest.TestCase):
 
         self.assertEqual(error.NOT_LOGGED, response.error)
         self.agent_login_dao.is_agent_logged_in.assert_called_with(logoff_cmd.agent_id)
-
 
     @patch('xivo_agent.dao.agent_with_id')
     def test_status_cmd(self, dao_agent_with_id):
