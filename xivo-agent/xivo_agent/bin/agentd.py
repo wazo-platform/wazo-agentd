@@ -45,7 +45,6 @@ def main():
         with _new_agent_server() as agent_server:
             queue_log_manager = QueueLogManager(queue_log_dao)
             agentfeatures_dao = AgentFeaturesDAO.new_from_uri('asterisk')
-            agent_login_dao = agent_login_dao
 
             agent_service = AgentService(ami_client, agent_server, queue_log_manager,
                                          agent_login_dao, agentfeatures_dao)

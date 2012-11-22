@@ -43,11 +43,25 @@ class AgentService(object):
     def _exec_login_cmd(self, login_cmd, response):
         # TODO don't log 2 agents on the same interface (this would be easier if
         #      it was in postgres than ast db)
-        agent = self._agentfeatures_dao.agent_with_id(login_cmd.agent_id)
+        agent = self._agent_with_id(login_cmd.agent_id)
         if self._is_agent_logged_in(agent.id):
             response.error = error.ALREADY_LOGGED
         else:
             self._log_in_agent(agent, login_cmd.extension, login_cmd.context)
+
+    def _exec_logoff_cmd(self, logoff_cmd, response):
+        agent = self._agent_with_id(logoff_cmd.agent_id)
+        if self._is_agent_logged_in(agent.id):
+            self._log_off_agent(agent)
+        else:
+            response.error = error.NOT_LOGGED
+
+    def _exec_status_cmd(self, status_cmd, response):
+        logged = self._is_agent_logged_in(status_cmd.agent_id)
+        response.value = {'logged': logged}
+
+    def _agent_with_id(self, agent_id):
+        return self._agentfeatures_dao.agent_with_id(agent_id)
 
     def _is_agent_logged_in(self, agent_id):
         return self._agent_login_dao.is_agent_logged_in(agent_id)
@@ -56,8 +70,6 @@ class AgentService(object):
         interface = 'Local/%s@%s' % (extension, context)
         member_name = 'Agent/%s' % agent.number
 
-        self._ami_client.db_put('xivo/agents', agent.id, interface)
-
         self._agent_login_dao.log_in_agent(agent.id, interface)
 
         for queue in agent.queues:
@@ -65,24 +77,9 @@ class AgentService(object):
             if not action.success:
                 logger.warning('Failure to add interface %r to queue %r', interface, queue.name)
 
-    def _exec_logoff_cmd(self, logoff_cmd, response):
-        agent = self._agentfeatures_dao.agent_with_id(logoff_cmd.agent_id)
-        if self._is_agent_logged_in(agent.id):
-            self._log_off_agent(agent)
-        else:
-            response.error = error.NOT_LOGGED
-
     def _log_off_agent(self, agent):
-        action = self._ami_client.db_get('xivo/agents', agent.id)
-        if action.success:
-            # agent is logged
-            interface = action.val
-            for queue in agent.queues:
-                action = self._ami_client.queue_remove(queue.name, interface)
-            self._ami_client.db_del('xivo/agents', agent.id)
+        agent_login_status = self._agent_login_dao.get_status(agent.id)
+        for queue in agent.queues:
+            self._ami_client.queue_remove(queue.name, agent_login_status.interface)
 
         self._agent_login_dao.log_off_agent(agent.id)
-
-    def _exec_status_cmd(self, status_cmd, response):
-        logged = self._is_agent_logged_in(status_cmd.agent_id)
-        response.value = {'logged': logged}
