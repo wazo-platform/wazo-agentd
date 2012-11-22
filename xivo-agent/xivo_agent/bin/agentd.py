@@ -20,12 +20,12 @@ import logging
 import signal
 from contextlib import contextmanager
 from xivo_agent import ami
-from xivo_agent import dao
 from xivo_agent.ctl.server import AgentServer
 from xivo_agent.queuelog import QueueLogManager
 from xivo_agent.service import AgentService
-from xivo_dao import queue_log_dao
+from xivo_dao import queue_log_dao, agent_login_dao
 from xivo_dao.alchemy import dbconnection
+from xivo_dao.agentfeaturesdao import AgentFeaturesDAO
 
 _DB_URI = 'postgresql://asterisk:proformatique@localhost/asterisk'
 
@@ -44,8 +44,11 @@ def main():
     with _new_ami_client() as ami_client:
         with _new_agent_server() as agent_server:
             queue_log_manager = QueueLogManager(queue_log_dao)
+            agentfeatures_dao = AgentFeaturesDAO.new_from_uri('asterisk')
+            agent_login_dao = agent_login_dao
 
-            agent_service = AgentService(ami_client, agent_server, queue_log_manager)
+            agent_service = AgentService(ami_client, agent_server, queue_log_manager,
+                                         agent_login_dao, agentfeatures_dao)
             agent_service.init()
             agent_service.run()
 
@@ -70,8 +73,6 @@ def _init_signal():
 
 
 def _init_dao():
-    dao.init(_DB_URI)
-
     db_connection_pool = dbconnection.DBConnectionPool(dbconnection.DBConnection)
     dbconnection.register_db_connection_pool(db_connection_pool)
     dbconnection.add_connection_as(_DB_URI, 'asterisk')

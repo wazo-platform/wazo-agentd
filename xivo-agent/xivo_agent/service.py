@@ -16,7 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import logging
-from xivo_agent import dao
 from xivo_agent.ctl import commands
 from xivo_agent.ctl import error
 
@@ -25,11 +24,12 @@ logger = logging.getLogger(__name__)
 
 class AgentService(object):
 
-    def __init__(self, ami_client, agent_server, queue_log_manager, agent_login_dao):
+    def __init__(self, ami_client, agent_server, queue_log_manager, agent_login_dao, agentfeatures_dao):
         self._ami_client = ami_client
         self._agent_server = agent_server
         self._queue_log_manager = queue_log_manager
         self._agent_login_dao = agent_login_dao
+        self._agentfeatures_dao = agentfeatures_dao
 
     def init(self):
         self._agent_server.add_command(commands.LoginCommand, self._exec_login_cmd)
@@ -43,7 +43,7 @@ class AgentService(object):
     def _exec_login_cmd(self, login_cmd, response):
         # TODO don't log 2 agents on the same interface (this would be easier if
         #      it was in postgres than ast db)
-        agent = dao.agent_with_id(login_cmd.agent_id)
+        agent = self._agentfeatures_dao.agent_with_id(login_cmd.agent_id)
         if self._is_agent_logged_in(agent.id):
             response.error = error.ALREADY_LOGGED
         else:
@@ -54,7 +54,7 @@ class AgentService(object):
 
     def _log_in_agent(self, agent, extension, context):
         interface = 'Local/%s@%s' % (extension, context)
-        member_name = 'Agent/%s' % agent.id
+        member_name = 'Agent/%s' % agent.number
 
         self._ami_client.db_put('xivo/agents', agent.id, interface)
 
@@ -66,7 +66,7 @@ class AgentService(object):
                 logger.warning('Failure to add interface %r to queue %r', interface, queue.name)
 
     def _exec_logoff_cmd(self, logoff_cmd, response):
-        agent = dao.agent_with_id(logoff_cmd.agent_id)
+        agent = self._agentfeatures_dao.agent_with_id(logoff_cmd.agent_id)
         if self._is_agent_logged_in(agent.id):
             self._log_off_agent(agent)
         else:
