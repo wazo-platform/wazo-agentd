@@ -41,13 +41,16 @@ class AgentService(object):
         while True:
             self._agent_server.process_next_command()
 
-    def _exec_login_cmd(self, login_cmd, response):
-        # TODO don't log 2 agents on the same interface (this would be easier if
-        #      it was in postgres than ast db)
-        agent = self._agent_with_id(login_cmd.agent_id)
-        if self._is_agent_logged_in(agent.id):
+    def _validate_login_command(self, login_cmd, response):
+        if self._is_extension_in_use(login_cmd.extension, login_cmd.context):
+            response.error = error.ALREADY_IN_USE
+        elif self._is_agent_logged_in(login_cmd.agent_id):
             response.error = error.ALREADY_LOGGED
-        else:
+
+    def _exec_login_cmd(self, login_cmd, response):
+        self._validate_login_command(login_cmd, response)
+        if not response.error:
+            agent = self._agent_with_id(login_cmd.agent_id)
             self._log_in_agent(agent, login_cmd.extension, login_cmd.context)
 
     def _exec_logoff_cmd(self, logoff_cmd, response):
@@ -63,6 +66,9 @@ class AgentService(object):
 
     def _agent_with_id(self, agent_id):
         return self._agentfeatures_dao.agent_with_id(agent_id)
+
+    def _is_extension_in_use(self, extension, context):
+        return self._agent_login_dao.is_extension_in_use(extension, context)
 
     def _is_agent_logged_in(self, agent_id):
         return self._agent_login_dao.is_agent_logged_in(agent_id)

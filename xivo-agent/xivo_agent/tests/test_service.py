@@ -14,6 +14,7 @@ class TestService(unittest.TestCase):
         self.agent_server = Mock()
         self.queue_log_manager = Mock()
         self.agent_login_dao = Mock()
+        self.agent_login_dao.is_extension_in_use.return_value = False
         self.agent_features_dao = Mock()
 
         self.service = AgentService(self.ami_client,
@@ -27,7 +28,7 @@ class TestService(unittest.TestCase):
         agent = self._new_agent(1, number='11')
         self._setup_dao(agent)
 
-        response = Mock()
+        response = self._new_response()
 
         self.service._exec_login_cmd(login_cmd, response)
 
@@ -39,7 +40,7 @@ class TestService(unittest.TestCase):
         agent = self._new_agent(2)
         self._setup_dao(agent)
 
-        response = Mock()
+        response = self._new_response()
 
         self.service._exec_login_cmd(login_cmd, response)
 
@@ -50,7 +51,7 @@ class TestService(unittest.TestCase):
         agent = self._new_agent(1)
         self._setup_dao(agent, True)
 
-        response = Mock()
+        response = self._new_response()
 
         self.service._exec_login_cmd(login_cmd, response)
 
@@ -61,7 +62,7 @@ class TestService(unittest.TestCase):
         agent = self._new_agent(1)
         self._setup_dao(agent, True)
 
-        response = Mock()
+        response = self._new_response()
 
         self.service._exec_login_cmd(login_cmd, response)
 
@@ -73,12 +74,24 @@ class TestService(unittest.TestCase):
         agent = self._new_agent(1)
         self._setup_dao(agent, True)
 
-        response = Mock()
+        response = self._new_response()
 
         self.service._exec_login_cmd(login_cmd, response)
 
         self.assertEqual(error.ALREADY_LOGGED, response.error)
         self.agent_login_dao.is_agent_logged_in.assert_called_with(login_cmd.agent_id)
+
+    def test_login_cmd_cant_logged_two_agents_on_same_extension(self):
+        agent = self._new_agent(1)
+        login_cmd = self._new_login_cmd(agent.id, '1001', 'default')
+        response = self._new_response()
+        self.agent_features_dao.agent_with_id.return_value = agent
+        self.agent_login_dao.is_agent_logged_in.return_value = False
+        self.agent_login_dao.is_extension_in_use.return_value = True
+
+        self.service._exec_login_cmd(login_cmd, response)
+
+        self.assertEqual(error.ALREADY_IN_USE, response.error)
 
     def test_logoff_cmd_when_logged_in(self):
         logged_time = 10
@@ -112,7 +125,7 @@ class TestService(unittest.TestCase):
         agent = self._new_agent(1)
         self._setup_dao(agent, False)
 
-        response = Mock()
+        response = self._new_response()
 
         self.service._exec_logoff_cmd(logoff_cmd, response)
 
@@ -126,7 +139,7 @@ class TestService(unittest.TestCase):
 
         expected = {'logged': True}
 
-        response = Mock()
+        response = self._new_response()
 
         self.service._exec_status_cmd(status_cmd, response)
 
@@ -140,7 +153,7 @@ class TestService(unittest.TestCase):
 
         expected = {'logged': False}
 
-        response = Mock()
+        response = self._new_response()
 
         self.service._exec_status_cmd(status_cmd, response)
 
@@ -179,6 +192,11 @@ class TestService(unittest.TestCase):
         queue = Mock()
         queue.name = name
         return queue
+
+    def _new_response(self):
+        response = Mock()
+        response.error = False
+        return response
 
     def _setup_dao(self, agent, logged_in=False):
         self.agent_features_dao.agent_with_id.return_value = agent
