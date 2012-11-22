@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+import datetime
 import logging
 from xivo_agent.ctl import commands
 from xivo_agent.ctl import error
@@ -72,6 +73,8 @@ class AgentService(object):
 
         self._agent_login_dao.log_in_agent(agent.id, interface)
 
+        self._queue_log_manager.on_agent_logged_in(agent.number, extension, context)
+
         for queue in agent.queues:
             action = self._ami_client.queue_add(queue.name, interface, member_name)
             if not action.success:
@@ -79,7 +82,19 @@ class AgentService(object):
 
     def _log_off_agent(self, agent):
         agent_login_status = self._agent_login_dao.get_status(agent.id)
+        login_time = self._compute_login_time(agent_login_status.login_at)
+
         for queue in agent.queues:
             self._ami_client.queue_remove(queue.name, agent_login_status.interface)
 
+        self._queue_log_manager.on_agent_logged_off(agent.number, agent_login_status.extension,
+                                                    agent_login_status.context, login_time)
+
         self._agent_login_dao.log_off_agent(agent.id)
+
+    def _compute_login_time(self, login_at):
+        delta = datetime.datetime.now() - login_at
+        return self._timedelta_to_seconds(delta)
+
+    def _timedelta_to_seconds(self, delta):
+        return delta.days * 60 * 60 * 24 + delta.seconds

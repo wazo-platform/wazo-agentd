@@ -1,9 +1,11 @@
 # -*- coding: UTF-8 -*-
 
+import datetime
 import unittest
-from mock import Mock
+from mock import Mock, patch
 from xivo_agent.service import AgentService
 from xivo_agent.ctl import error
+
 
 class TestService(unittest.TestCase):
 
@@ -20,9 +22,9 @@ class TestService(unittest.TestCase):
                                     self.agent_login_dao,
                                     self.agent_features_dao)
 
-    def test_login_cmd(self):
+    def test_login_cmd_when_logged_off(self):
         login_cmd = self._new_login_cmd(1, '1001', 'default')
-        agent = self._new_agent(1)
+        agent = self._new_agent(1, number='11')
         self._setup_dao(agent)
 
         response = Mock()
@@ -30,6 +32,7 @@ class TestService(unittest.TestCase):
         self.service._exec_login_cmd(login_cmd, response)
 
         self.agent_login_dao.log_in_agent.assert_called_with(1, 'Local/1001@default')
+        self.queue_log_manager.on_agent_logged_in.assert_called_with('11', '1001', 'default')
 
     def test_login_cmd_second_agent(self):
         login_cmd = self._new_login_cmd(2, '1002', 'othercontext')
@@ -78,22 +81,31 @@ class TestService(unittest.TestCase):
         self.agent_login_dao.is_agent_logged_in.assert_called_with(login_cmd.agent_id)
 
     def test_logoff_cmd_when_logged_in(self):
-        logoff_cmd = self._new_logoff_cmd(1)
-        agent = self._new_agent(1, [self._new_queue('1201')])
-        self._setup_dao(agent, True)
+        logged_time = 10
+        dt_login_at = datetime.datetime(2012, 1, 1)
+        dt_now = dt_login_at + datetime.timedelta(seconds=logged_time)
+        with patch('datetime.datetime') as datetime_mock:
+            datetime_mock.now.return_value = dt_now
+            logoff_cmd = self._new_logoff_cmd(1)
+            agent = self._new_agent(1, number='11', queues=[self._new_queue('1201')])
+            self._setup_dao(agent, True)
 
-        agent_login_status = Mock()
-        agent_login_status.interface = 'Local/1001@default'
-        self.agent_login_dao.get_status.return_value = agent_login_status
+            agent_login_status = Mock()
+            agent_login_status.interface = 'Local/1001@default'
+            agent_login_status.login_at = dt_login_at
+            agent_login_status.extension = '1001'
+            agent_login_status.context = 'default'
+            self.agent_login_dao.get_status.return_value = agent_login_status
 
-        response = Mock()
+            response = Mock()
 
-        self.service._exec_logoff_cmd(logoff_cmd, response)
+            self.service._exec_logoff_cmd(logoff_cmd, response)
 
-        self.agent_login_dao.is_agent_logged_in.assert_called_with(logoff_cmd.agent_id)
-        self.agent_login_dao.get_status.assert_called_with(logoff_cmd.agent_id)
-        self.ami_client.queue_remove.assert_called_with('1201', 'Local/1001@default')
-        self.agent_login_dao.log_off_agent.assert_called_with(logoff_cmd.agent_id)
+            self.agent_login_dao.is_agent_logged_in.assert_called_with(logoff_cmd.agent_id)
+            self.agent_login_dao.get_status.assert_called_with(logoff_cmd.agent_id)
+            self.ami_client.queue_remove.assert_called_with('1201', 'Local/1001@default')
+            self.queue_log_manager.on_agent_logged_off.assert_called_with('11', '1001', 'default', logged_time)
+            self.agent_login_dao.log_off_agent.assert_called_with(logoff_cmd.agent_id)
 
     def test_logoff_cmd_set_error_to_not_logged_when_agent_not_logged(self):
         logoff_cmd = self._new_logoff_cmd(1)
@@ -152,11 +164,14 @@ class TestService(unittest.TestCase):
         status_cmd.agent_id = agent_id
         return status_cmd
 
-    def _new_agent(self, agent_id, queues=None):
+    def _new_agent(self, agent_id, number=None, queues=None):
+        if number is None:
+            number = str(agent_id)
         if queues is None:
             queues = []
         agent = Mock()
         agent.id = agent_id
+        agent.number = number
         agent.queues = queues
         return agent
 
