@@ -168,7 +168,7 @@ class TestService(unittest.TestCase):
 
     def _new_logoff_cmd(self, agent_id):
         logoff_cmd = Mock()
-        logoff_cmd.agent_id = 1
+        logoff_cmd.agent_id = agent_id
         return logoff_cmd
 
     def _new_status_cmd(self, agent_id):

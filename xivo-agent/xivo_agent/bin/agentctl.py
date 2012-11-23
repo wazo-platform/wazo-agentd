@@ -43,16 +43,16 @@ def _loop(agent_client):
                 cmd_name, args = tokens[0], tokens[1:]
                 start_time = time.time()
                 if cmd_name == 'login':
-                    agent_num = int(args[0])
+                    agent_id = int(args[0])
                     extension = args[1]
                     context = args[2]
-                    agent_client.login_agent(agent_num, extension, context)
+                    agent_client.login_agent(agent_id, extension, context)
                 elif cmd_name == 'logoff':
-                    agent_num = int(args[0])
-                    agent_client.logoff_agent(agent_num)
+                    agent_id = int(args[0])
+                    agent_client.logoff_agent(agent_id)
                 elif cmd_name == 'status':
-                    agent_num = int(args[0])
-                    status = agent_client.get_agent_status(agent_num)
+                    agent_id = int(args[0])
+                    status = agent_client.get_agent_status(agent_id)
                     print status
                 else:
                     print 'unknown command:', cmd_name
