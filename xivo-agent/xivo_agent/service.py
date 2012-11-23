@@ -48,12 +48,14 @@ class AgentService(object):
             response.error = error.ALREADY_LOGGED
 
     def _exec_login_cmd(self, login_cmd, response):
+        logger.info('Executing login command with ID %s on %s@%s', login_cmd.agent_id, login_cmd.extension, login_cmd.context)
         self._validate_login_command(login_cmd, response)
         if not response.error:
             agent = self._agent_with_id(login_cmd.agent_id)
             self._log_in_agent(agent, login_cmd.extension, login_cmd.context)
 
     def _exec_logoff_cmd(self, logoff_cmd, response):
+        logger.info('Executing logoff command with ID %s', logoff_cmd.agent_id)
         agent = self._agent_with_id(logoff_cmd.agent_id)
         if self._is_agent_logged_in(agent.id):
             self._log_off_agent(agent)
@@ -61,6 +63,7 @@ class AgentService(object):
             response.error = error.NOT_LOGGED
 
     def _exec_status_cmd(self, status_cmd, response):
+        logger.info('Executing status command with ID %s', status_cmd.agent_id)
         logged = self._is_agent_logged_in(status_cmd.agent_id)
         response.value = {'logged': logged}
 
