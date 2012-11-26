@@ -15,11 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from .common.action import BaseAction
-from .dbdel import DBDelAction
-from .dbget import DBGetAction
-from .dbput import DBPutAction
-from .login import LoginAction
-from .queueadd import QueueAddAction
-from .queueremove import QueueRemoveAction
-from .userevent import UserEventAction
+from xivo_agent.ami.actions.common.action import BaseAction
+
+
+def UserEventAction(user_event, headers):
+    params = [('UserEvent', user_event)]
+    params.extend(headers)
+    return BaseAction('UserEvent', params)

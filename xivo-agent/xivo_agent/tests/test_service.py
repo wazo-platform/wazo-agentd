@@ -34,6 +34,8 @@ class TestService(unittest.TestCase):
 
         self.agent_login_dao.log_in_agent.assert_called_with(1, '1001', 'default')
         self.queue_log_manager.on_agent_logged_in.assert_called_with('11', '1001', 'default')
+        self.ami_client.agent_login.assert_called_once_with(login_cmd.agent_id, login_cmd.extension,
+                                                            login_cmd.context)
 
     def test_login_cmd_second_agent(self):
         login_cmd = self._new_login_cmd(2, '1002', 'othercontext')
@@ -118,6 +120,7 @@ class TestService(unittest.TestCase):
             self.ami_client.queue_remove.assert_called_with('1201', 'Local/1001@default')
             self.queue_log_manager.on_agent_logged_off.assert_called_with('11', '1001', 'default', logged_time)
             self.agent_login_dao.log_off_agent.assert_called_with(logoff_cmd.agent_id)
+            self.ami_client.agent_logoff.assert_called_once_with(logoff_cmd.agent_id)
 
     def test_logoff_cmd_set_error_to_not_logged_when_agent_not_logged(self):
         logoff_cmd = self._new_logoff_cmd(1)

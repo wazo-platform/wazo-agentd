@@ -89,6 +89,8 @@ class AgentService(object):
             if not action.success:
                 logger.warning('Failure to add interface %r to queue %r', interface, queue.name)
 
+        self._ami_client.agent_login(agent.id, extension, context)
+
     def _log_off_agent(self, agent):
         agent_login_status = self._agent_login_dao.get_status(agent.id)
         login_time = self._compute_login_time(agent_login_status.login_at)
@@ -101,6 +103,8 @@ class AgentService(object):
                                                     agent_login_status.context, login_time)
 
         self._agent_login_dao.log_off_agent(agent.id)
+
+        self._ami_client.agent_logoff(agent.id)
 
     def _compute_login_time(self, login_at):
         delta = datetime.datetime.now() - login_at

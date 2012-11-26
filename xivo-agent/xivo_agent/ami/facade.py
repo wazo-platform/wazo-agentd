@@ -26,6 +26,7 @@ class FacadeAMIClient(object):
         ('db_put', actions.DBPutAction),
         ('queue_add', actions.QueueAddAction),
         ('queue_remove', actions.QueueRemoveAction),
+        ('user_event', actions.UserEventAction),
     ]
 
     def __init__(self, hostname, username, password):
@@ -62,3 +63,18 @@ class FacadeAMIClient(object):
 
     def close(self):
         self._ami_client.close()
+
+    def agent_login(self, agent_id, extension, context):
+        headers = [
+            ('AgentID', agent_id),
+            ('Extension', extension),
+            ('Context', context)
+        ]
+        action = actions.UserEventAction('AgentLogin', headers)
+        self._ami_client.execute(action)
+        return action
+
+    def agent_logoff(self, agent_id):
+        action = actions.UserEventAction('AgentLogoff', [('AgentID', agent_id)])
+        self._ami_client.execute(action)
+        return action
