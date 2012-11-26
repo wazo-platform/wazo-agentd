@@ -64,17 +64,22 @@ class FacadeAMIClient(object):
     def close(self):
         self._ami_client.close()
 
-    def agent_login(self, agent_id, extension, context):
+    def agent_login(self, agent_id, agent_number, extension, context):
         headers = [
             ('AgentID', agent_id),
+            ('AgentNumber', agent_number),
             ('Extension', extension),
-            ('Context', context)
+            ('Context', context),
         ]
         action = actions.UserEventAction('AgentLogin', headers)
         self._ami_client.execute(action)
         return action
 
-    def agent_logoff(self, agent_id):
-        action = actions.UserEventAction('AgentLogoff', [('AgentID', agent_id)])
+    def agent_logoff(self, agent_id, agent_number):
+        headers = [
+            ('AgentID', agent_id),
+            ('AgentNumber', agent_number),
+        ]
+        action = actions.UserEventAction('AgentLogoff', headers)
         self._ami_client.execute(action)
         return action
