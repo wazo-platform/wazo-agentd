@@ -111,7 +111,7 @@ class TestService(unittest.TestCase):
             agent_login_status.context = 'default'
             self.agent_login_dao.get_status.return_value = agent_login_status
 
-            response = Mock()
+            response = self._new_response()
 
             self.service._exec_logoff_cmd(logoff_cmd, response)
 
