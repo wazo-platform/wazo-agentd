@@ -19,6 +19,7 @@ import argparse
 import logging
 import signal
 from contextlib import contextmanager
+from xivo import daemonize
 from xivo_agent import ami
 from xivo_agent.ctl.server import AgentServer
 from xivo_agent.queuelog import QueueLogManager
@@ -28,17 +29,26 @@ from xivo_dao.alchemy import dbconnection
 from xivo_dao.agentfeaturesdao import AgentFeaturesDAO
 
 _DB_URI = 'postgresql://asterisk:proformatique@localhost/asterisk'
+_LOG_FILENAME = '/var/log/xivo-agentd.log'
+_PIDFILE = '/var/run/xivo-agentd.pid'
 
 
 def main():
-    _init_logging()
-
     parsed_args = _parse_args()
 
-    if parsed_args.verbose:
-        logger = logging.getLogger()
-        logger.setLevel(logging.DEBUG)
+    _init_logging(parsed_args)
 
+    if not parsed_args.foreground:
+        daemonize.daemonize()
+
+    daemonize.lock_pidfile_or_die(_PIDFILE)
+    try:
+        _run()
+    finally:
+        daemonize.unlock_pidfile(_PIDFILE)
+
+
+def _run():
     _init_signal()
     _init_dao()
     with _new_ami_client() as ami_client:
@@ -52,18 +62,25 @@ def main():
             agent_service.run()
 
 
-def _init_logging():
+def _init_logging(parsed_args):
     logger = logging.getLogger()
-    handler = logging.StreamHandler()
-    handler.setFormatter(logging.Formatter('%(asctime)s (%(levelname)s): %(message)s'))
+    level = logging.DEBUG if parsed_args.verbose else logging.INFO
+    logger.setLevel(level)
+    if parsed_args.foreground:
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter('%(asctime)s (%(levelname)s): %(message)s'))
+    else:
+        handler = logging.FileHandler(_LOG_FILENAME)
+        handler.setFormatter(logging.Formatter('%(asctime)s [%(process)d] (%(levelname)s): %(message)s'))
     logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
 
 
 def _parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='increase verbosity')
+    parser.add_argument('-f', '--foreground', action='store_true',
+                        help='run in foreground')
     return parser.parse_args()
 
 
