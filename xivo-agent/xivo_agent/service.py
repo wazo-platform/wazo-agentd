@@ -41,12 +41,6 @@ class AgentService(object):
         while True:
             self._agent_server.process_next_command()
 
-    def _validate_login_command(self, login_cmd, response):
-        if self._is_extension_in_use(login_cmd.extension, login_cmd.context):
-            response.error = error.ALREADY_IN_USE
-        elif self._is_agent_logged_in(login_cmd.agent_id):
-            response.error = error.ALREADY_LOGGED
-
     def _exec_login_cmd(self, login_cmd, response):
         logger.info('Executing login command with ID %s on %s@%s', login_cmd.agent_id, login_cmd.extension, login_cmd.context)
         self._validate_login_command(login_cmd, response)
@@ -56,16 +50,25 @@ class AgentService(object):
 
     def _exec_logoff_cmd(self, logoff_cmd, response):
         logger.info('Executing logoff command with ID %s', logoff_cmd.agent_id)
-        agent = self._agent_with_id(logoff_cmd.agent_id)
-        if self._is_agent_logged_in(agent.id):
+        self._validate_logoff_command(logoff_cmd, response)
+        if not response.error:
+            agent = self._agent_with_id(logoff_cmd.agent_id)
             self._log_off_agent(agent)
-        else:
-            response.error = error.NOT_LOGGED
 
     def _exec_status_cmd(self, status_cmd, response):
         logger.info('Executing status command with ID %s', status_cmd.agent_id)
         logged = self._is_agent_logged_in(status_cmd.agent_id)
         response.value = {'logged': logged}
+
+    def _validate_login_command(self, login_cmd, response):
+        if self._is_extension_in_use(login_cmd.extension, login_cmd.context):
+            response.error = error.ALREADY_IN_USE
+        elif self._is_agent_logged_in(login_cmd.agent_id):
+            response.error = error.ALREADY_LOGGED
+
+    def _validate_logoff_command(self, logoff_cmd, response):
+        if not self._is_agent_logged_in(logoff_cmd.agent_id):
+            response.error = error.NOT_LOGGED
 
     def _agent_with_id(self, agent_id):
         return self._agentfeatures_dao.agent_with_id(agent_id)
