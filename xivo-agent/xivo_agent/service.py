@@ -61,10 +61,10 @@ class AgentService(object):
         response.value = {'logged': logged}
 
     def _validate_login_command(self, login_cmd, response):
-        if self._is_extension_in_use(login_cmd.extension, login_cmd.context):
-            response.error = error.ALREADY_IN_USE
-        elif self._is_agent_logged_in(login_cmd.agent_id):
+        if self._is_agent_logged_in(login_cmd.agent_id):
             response.error = error.ALREADY_LOGGED
+        elif self._is_extension_in_use(login_cmd.extension, login_cmd.context):
+            response.error = error.ALREADY_IN_USE
 
     def _validate_logoff_command(self, logoff_cmd, response):
         if not self._is_agent_logged_in(logoff_cmd.agent_id):
