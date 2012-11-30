@@ -10,29 +10,33 @@ from xivo_agent.ctl import error
 class TestService(unittest.TestCase):
 
     def setUp(self):
+        self.interface = 'sip/abcdef'
         self.ami_client = Mock()
         self.agent_server = Mock()
         self.queue_log_manager = Mock()
         self.agent_login_dao = Mock()
         self.agent_login_dao.is_extension_in_use.return_value = False
         self.agent_features_dao = Mock()
+        self.linefeatures_dao = Mock()
 
         self.service = AgentService(self.ami_client,
                                     self.agent_server,
                                     self.queue_log_manager,
                                     self.agent_login_dao,
-                                    self.agent_features_dao)
+                                    self.agent_features_dao,
+                                    self.linefeatures_dao)
 
     def test_login_cmd_when_logged_off(self):
         login_cmd = self._new_login_cmd(1, '1001', 'default')
         agent = self._new_agent(1, number='11')
         self._setup_dao(agent)
+        self.linefeatures_dao.get_interface_from_exten_and_context.return_value = self.interface
 
         response = self._new_response()
 
         self.service._exec_login_cmd(login_cmd, response)
 
-        self.agent_login_dao.log_in_agent.assert_called_with(1, '1001', 'default')
+        self.agent_login_dao.log_in_agent.assert_called_with(1, '1001', 'default', self.interface)
         self.queue_log_manager.on_agent_logged_in.assert_called_with('11', '1001', 'default')
         self.ami_client.agent_login.assert_called_once_with(login_cmd.agent_id, agent.number, login_cmd.extension,
                                                             login_cmd.context)
@@ -41,12 +45,13 @@ class TestService(unittest.TestCase):
         login_cmd = self._new_login_cmd(2, '1002', 'othercontext')
         agent = self._new_agent(2)
         self._setup_dao(agent)
+        self.linefeatures_dao.get_interface_from_exten_and_context.return_value = self.interface
 
         response = self._new_response()
 
         self.service._exec_login_cmd(login_cmd, response)
 
-        self.agent_login_dao.log_in_agent.assert_called_with(2, '1002', 'othercontext')
+        self.agent_login_dao.log_in_agent.assert_called_with(2, '1002', 'othercontext', self.interface)
 
     def test_login_cmd_same_agent_twice(self):
         login_cmd = self._new_login_cmd(1)
@@ -109,6 +114,7 @@ class TestService(unittest.TestCase):
             agent_login_status.login_at = dt_login_at
             agent_login_status.extension = '1001'
             agent_login_status.context = 'default'
+            agent_login_status.interface = self.interface
             self.agent_login_dao.get_status.return_value = agent_login_status
 
             response = self._new_response()
@@ -117,7 +123,7 @@ class TestService(unittest.TestCase):
 
             self.agent_login_dao.is_agent_logged_in.assert_called_with(logoff_cmd.agent_id)
             self.agent_login_dao.get_status.assert_called_with(logoff_cmd.agent_id)
-            self.ami_client.queue_remove.assert_called_with('1201', 'Local/1001@default')
+            self.ami_client.queue_remove.assert_called_with('1201', self.interface)
             self.queue_log_manager.on_agent_logged_off.assert_called_with('11', '1001', 'default', logged_time)
             self.agent_login_dao.log_off_agent.assert_called_with(logoff_cmd.agent_id)
             self.ami_client.agent_logoff.assert_called_once_with(logoff_cmd.agent_id, agent.number)
