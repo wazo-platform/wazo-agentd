@@ -27,6 +27,7 @@ from xivo_agent.service import AgentService
 from xivo_dao import queue_log_dao, agent_login_dao
 from xivo_dao.alchemy import dbconnection
 from xivo_dao.agentfeaturesdao import AgentFeaturesDAO
+from xivo_dao.linefeaturesdao import LineFeaturesDAO
 
 _DB_URI = 'postgresql://asterisk:proformatique@localhost/asterisk'
 _LOG_FILENAME = '/var/log/xivo-agentd.log'
@@ -55,9 +56,10 @@ def _run():
         with _new_agent_server() as agent_server:
             queue_log_manager = QueueLogManager(queue_log_dao)
             agentfeatures_dao = AgentFeaturesDAO.new_from_uri('asterisk')
+            linefeatures_dao = LineFeaturesDAO.new_from_uri('asterisk')
 
             agent_service = AgentService(ami_client, agent_server, queue_log_manager,
-                                         agent_login_dao, agentfeatures_dao)
+                                         agent_login_dao, agentfeatures_dao, linefeatures_dao)
             agent_service.init()
             agent_service.run()
 

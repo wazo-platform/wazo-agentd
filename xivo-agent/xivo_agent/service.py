@@ -25,12 +25,13 @@ logger = logging.getLogger(__name__)
 
 class AgentService(object):
 
-    def __init__(self, ami_client, agent_server, queue_log_manager, agent_login_dao, agentfeatures_dao):
+    def __init__(self, ami_client, agent_server, queue_log_manager, agent_login_dao, agentfeatures_dao, linefeatures_dao):
         self._ami_client = ami_client
         self._agent_server = agent_server
         self._queue_log_manager = queue_log_manager
         self._agent_login_dao = agent_login_dao
         self._agentfeatures_dao = agentfeatures_dao
+        self._linefeatures_dao = linefeatures_dao
 
     def init(self):
         self._agent_server.add_command(commands.LoginCommand, self._exec_login_cmd)
@@ -80,13 +81,13 @@ class AgentService(object):
         return self._agent_login_dao.is_agent_logged_in(agent_id)
 
     def _log_in_agent(self, agent, extension, context):
-        interface = 'Local/%s@%s' % (extension, context)
-        member_name = 'Agent/%s' % agent.number
+        interface = self._linefeatures_dao.get_interface_from_exten_and_context(extension, context)
 
-        self._agent_login_dao.log_in_agent(agent.id, extension, context)
+        self._agent_login_dao.log_in_agent(agent.id, extension, context, interface)
 
         self._queue_log_manager.on_agent_logged_in(agent.number, extension, context)
 
+        member_name = 'Agent/%s' % agent.number
         for queue in agent.queues:
             action = self._ami_client.queue_add(queue.name, interface, member_name)
             if not action.success:
@@ -96,11 +97,11 @@ class AgentService(object):
 
     def _log_off_agent(self, agent):
         agent_login_status = self._agent_login_dao.get_status(agent.id)
+
         login_time = self._compute_login_time(agent_login_status.login_at)
-        interface = 'Local/%s@%s' % (agent_login_status.extension, agent_login_status.context)
 
         for queue in agent.queues:
-            self._ami_client.queue_remove(queue.name, interface)
+            self._ami_client.queue_remove(queue.name, agent_login_status.interface)
 
         self._queue_log_manager.on_agent_logged_off(agent.number, agent_login_status.extension,
                                                     agent_login_status.context, login_time)
