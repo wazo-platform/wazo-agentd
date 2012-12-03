@@ -32,7 +32,7 @@ from xivo_dao.linefeaturesdao import LineFeaturesDAO
 
 _DB_URI = 'postgresql://asterisk:proformatique@localhost/asterisk'
 _LOG_FILENAME = '/var/log/xivo-agentd.log'
-_PIDFILE = '/var/run/xivo-agentd.pid'
+_PID_FILENAME = '/var/run/xivo-agentd.pid'
 
 
 def main():
@@ -43,11 +43,11 @@ def main():
     if not parsed_args.foreground:
         daemonize.daemonize()
 
-    daemonize.lock_pidfile_or_die(_PIDFILE)
+    daemonize.lock_pidfile_or_die(_PID_FILENAME)
     try:
         _run()
     finally:
-        daemonize.unlock_pidfile(_PIDFILE)
+        daemonize.unlock_pidfile(_PID_FILENAME)
 
 
 def _run():
@@ -81,10 +81,10 @@ def _init_logging(parsed_args):
 
 def _parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-v', '--verbose', action='store_true',
-                        help='increase verbosity')
     parser.add_argument('-f', '--foreground', action='store_true',
                         help='run in foreground')
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        help='increase verbosity')
     return parser.parse_args()
 
 
