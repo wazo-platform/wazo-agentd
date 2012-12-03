@@ -23,7 +23,8 @@ from xivo import daemonize
 from xivo_agent import ami
 from xivo_agent.ctl.server import AgentServer
 from xivo_agent.queuelog import QueueLogManager
-from xivo_agent.service import AgentService
+from xivo_agent.service.service import AgentService
+from xivo_agent.service.factory import StepFactory
 from xivo_dao import queue_log_dao, agent_login_dao
 from xivo_dao.alchemy import dbconnection
 from xivo_dao.agentfeaturesdao import AgentFeaturesDAO
@@ -58,9 +59,10 @@ def _run():
             agentfeatures_dao = AgentFeaturesDAO.new_from_uri('asterisk')
             linefeatures_dao = LineFeaturesDAO.new_from_uri('asterisk')
 
-            agent_service = AgentService(ami_client, agent_server, queue_log_manager,
-                                         agent_login_dao, agentfeatures_dao, linefeatures_dao)
-            agent_service.init()
+            step_factory = StepFactory(ami_client, queue_log_manager, agent_login_dao, agentfeatures_dao, linefeatures_dao)
+
+            agent_service = AgentService(agent_server)
+            agent_service.init(step_factory)
             agent_service.run()
 
 
