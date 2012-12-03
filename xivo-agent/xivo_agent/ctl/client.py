@@ -51,15 +51,27 @@ class AgentClient(object):
         return sock
 
     def login_agent(self, agent_id, extension, context):
-        cmd = LoginCommand(agent_id, extension, context)
+        cmd = LoginCommand(extension, context).by_id(agent_id)
+        return self._execute_command(cmd)
+
+    def login_agent_by_number(self, agent_number, extension, context):
+        cmd = LoginCommand(extension, context).by_number(agent_number)
         return self._execute_command(cmd)
 
     def logoff_agent(self, agent_id):
-        cmd = LogoffCommand(agent_id)
+        cmd = LogoffCommand().by_id(agent_id)
+        return self._execute_command(cmd)
+
+    def logoff_agent_by_number(self, agent_number):
+        cmd = LogoffCommand().by_number(agent_number)
         return self._execute_command(cmd)
 
     def get_agent_status(self, agent_id):
-        cmd = StatusCommand(agent_id)
+        cmd = StatusCommand().by_id(agent_id)
+        return self._execute_command(cmd)
+
+    def get_agent_status_by_number(self, agent_number):
+        cmd = StatusCommand().by_number(agent_number)
         return self._execute_command(cmd)
 
     def _execute_command(self, cmd):

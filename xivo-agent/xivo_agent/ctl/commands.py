@@ -16,56 +16,80 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 
-class LoginCommand(object):
+class _AbstractAgentCommand(object):
+
+    def __init__(self):
+        self.agent_id = None
+        self.agent_number = None
+
+    def by_id(self, agent_id):
+        self.agent_id = int(agent_id)
+        return self
+
+    def by_number(self, agent_number):
+        self.agent_number = unicode(agent_number)
+        return self
+
+    def _set_agent_id_and_number(self, agent_id, agent_number):
+        if agent_id is not None:
+            self.agent_id = int(agent_id)
+        if agent_number is not None:
+            self.agent_number = unicode(agent_number)
+
+
+class LoginCommand(_AbstractAgentCommand):
 
     name = 'login'
 
-    def __init__(self, agent_id, extension, context):
-        self.agent_id = int(agent_id)
+    def __init__(self, extension, context):
+        _AbstractAgentCommand.__init__(self)
         self.extension = unicode(extension)
         self.context = unicode(context)
 
     def marshal(self):
         return {
-            'id': self.agent_id,
+            'agent_id': self.agent_id,
+            'agent_number': self.agent_number,
             'extension': self.extension,
             'context': self.context,
         }
 
     @classmethod
     def unmarshal(cls, msg):
-        return cls(msg['id'], msg['extension'], msg['context'])
+        cmd = cls(msg['extension'], msg['context'])
+        cmd._set_agent_id_and_number(msg['agent_id'], msg['agent_number'])
+        return cmd
 
 
-class LogoffCommand(object):
+class LogoffCommand(_AbstractAgentCommand):
 
     name = 'logoff'
 
-    def __init__(self, agent_id):
-        self.agent_id = int(agent_id)
-
     def marshal(self):
         return {
-            'id': self.agent_id,
+            'agent_id': self.agent_id,
+            'agent_number': self.agent_number,
         }
 
     @classmethod
     def unmarshal(cls, msg):
-        return cls(msg['id'])
+        cmd = cls()
+        cmd._set_agent_id_and_number(msg['agent_id'], msg['agent_number'])
+        return cmd
 
 
-class StatusCommand(object):
+class StatusCommand(_AbstractAgentCommand):
 
     name = 'status'
 
-    def __init__(self, agent_id):
-        self.agent_id = int(agent_id)
-
     def marshal(self):
         return {
-            'id': self.agent_id,
+            'agent_id': self.agent_id,
+            'agent_number': self.agent_number,
         }
 
     @classmethod
     def unmarshal(cls, msg):
-        return cls(msg['id'])
+        cmd = cls()
+        cmd._set_agent_id_and_number(msg['agent_id'], msg['agent_number'])
+        return cmd

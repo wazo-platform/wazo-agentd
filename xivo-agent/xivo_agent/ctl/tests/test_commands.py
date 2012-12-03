@@ -25,14 +25,15 @@ class TestCommands(unittest.TestCase):
         agent_id = 1
         extension = '123'
         context = 'foo'
-        expected = {'id': agent_id, 'extension': extension, 'context': context}
+        expected = {'agent_id': agent_id, 'agent_number': None, 'extension': extension, 'context': context}
 
-        data = LoginCommand(agent_id, extension, context).marshal()
+        data = LoginCommand(extension, context).by_id(agent_id).marshal()
 
         self.assertEqual(expected, data)
 
         cmd = LoginCommand.unmarshal(data)
 
         self.assertEqual(cmd.agent_id, agent_id)
+        self.assertEqual(cmd.agent_number, None)
         self.assertEqual(cmd.extension, extension)
         self.assertEqual(cmd.context, context)
