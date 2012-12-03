@@ -93,3 +93,15 @@ class StatusCommand(_AbstractAgentCommand):
         cmd = cls()
         cmd._set_agent_id_and_number(msg['agent_id'], msg['agent_number'])
         return cmd
+
+
+class PingCommand(object):
+
+    name = 'ping'
+
+    def marshal(self):
+        return {}
+
+    @classmethod
+    def unmarshal(cls, msg):
+        return cls()

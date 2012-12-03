@@ -31,7 +31,8 @@ class AgentService(object):
     def init(self, step_factory):
         self._add_login_cmd(step_factory)
         self._add_logoff_cmd(step_factory)
-        self._add_status_command(step_factory)
+        self._add_status_cmd(step_factory)
+        self._add_ping_cmd()
 
     def run(self):
         while True:
@@ -63,12 +64,15 @@ class AgentService(object):
         ]
         self._add_cmd(commands.LogoffCommand, self._exec_logoff_cmd, steps)
 
-    def _add_status_command(self, step_factory):
+    def _add_status_cmd(self, step_factory):
         steps = [
             step_factory.get_agent(),
             step_factory.get_agent_status(),
         ]
         self._add_cmd(commands.StatusCommand, self._exec_status_cmd, steps)
+
+    def _add_ping_cmd(self):
+        self._agent_server.add_command(commands.PingCommand, self._exec_ping_cmd)
 
     def _add_cmd(self, cmd_class, callback, steps):
         self._steps[cmd_class.name] = steps
@@ -97,6 +101,9 @@ class AgentService(object):
         if not response.error:
             is_logged = blackboard.agent_status is not None
             response.value = {'logged': is_logged}
+
+    def _exec_ping_cmd(self, ping_cmd, response):
+        response.value = 'pong'
 
     def _exec_cmd(self, cmd, response, blackboard):
         steps = self._steps[cmd.name]
