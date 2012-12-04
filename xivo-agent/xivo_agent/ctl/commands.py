@@ -100,7 +100,7 @@ class PingCommand(object):
     name = 'ping'
 
     def marshal(self):
-        return {}
+        return None
 
     @classmethod
     def unmarshal(cls, msg):
