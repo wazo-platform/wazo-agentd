@@ -56,8 +56,8 @@ def _run():
     with _new_ami_client() as ami_client:
         with _new_agent_server() as agent_server:
             queue_log_manager = QueueLogManager(queue_log_dao)
-            agentfeatures_dao = AgentFeaturesDAO.new_from_uri('asterisk')
-            linefeatures_dao = LineFeaturesDAO.new_from_uri('asterisk')
+            agentfeatures_dao = AgentFeaturesDAO()
+            linefeatures_dao = LineFeaturesDAO()
 
             step_factory = StepFactory(ami_client, queue_log_manager, agent_login_dao, agentfeatures_dao, linefeatures_dao)
 
