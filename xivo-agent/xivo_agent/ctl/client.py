@@ -16,10 +16,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import socket
+from collections import namedtuple
+from xivo_agent.ctl import commands
 from xivo_agent.ctl.server import AgentServer
-from xivo_agent.ctl.commands import LoginCommand, LogoffCommand, StatusCommand
 from xivo_agent.ctl.transport import Transport
 from xivo_agent.exception import AgentClientError
+
+_AgentStatus = namedtuple('_AgentStatus', ['id', 'number', 'logged'])
 
 
 class AgentClient(object):
@@ -51,27 +54,38 @@ class AgentClient(object):
         return sock
 
     def login_agent(self, agent_id, extension, context):
-        cmd = LoginCommand(extension, context).by_id(agent_id)
-        return self._execute_command(cmd)
+        cmd = commands.LoginCommand(extension, context).by_id(agent_id)
+        self._execute_command(cmd)
 
     def login_agent_by_number(self, agent_number, extension, context):
-        cmd = LoginCommand(extension, context).by_number(agent_number)
-        return self._execute_command(cmd)
+        cmd = commands.LoginCommand(extension, context).by_number(agent_number)
+        self._execute_command(cmd)
 
     def logoff_agent(self, agent_id):
-        cmd = LogoffCommand().by_id(agent_id)
-        return self._execute_command(cmd)
+        cmd = commands.LogoffCommand().by_id(agent_id)
+        self._execute_command(cmd)
 
     def logoff_agent_by_number(self, agent_number):
-        cmd = LogoffCommand().by_number(agent_number)
-        return self._execute_command(cmd)
+        cmd = commands.LogoffCommand().by_number(agent_number)
+        self._execute_command(cmd)
 
     def get_agent_status(self, agent_id):
-        cmd = StatusCommand().by_id(agent_id)
-        return self._execute_command(cmd)
+        cmd = commands.StatusCommand().by_id(agent_id)
+        status = self._execute_command(cmd)
+        return self._convert_agent_status(status)
 
     def get_agent_status_by_number(self, agent_number):
-        cmd = StatusCommand().by_number(agent_number)
+        cmd = commands.StatusCommand().by_number(agent_number)
+        status = self._execute_command(cmd)
+        return self._convert_agent_status(status)
+
+    def get_agent_statuses(self):
+        cmd = commands.StatusesCommand()
+        statuses = self._execute_command(cmd)
+        return [self._convert_agent_status(status) for status in statuses]
+
+    def ping(self):
+        cmd = commands.PingCommand()
         return self._execute_command(cmd)
 
     def _execute_command(self, cmd):
@@ -86,3 +100,6 @@ class AgentClient(object):
         if response.error is not None:
             raise AgentClientError(response.error)
         return response.value
+
+    def _convert_agent_status(self, status):
+        return _AgentStatus(status['id'], status['number'], status['logged'])

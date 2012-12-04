@@ -33,6 +33,9 @@ class StepFactory(object):
     def get_agent_status(self):
         return steps.GetAgentStatusStep(self._agent_login_dao)
 
+    def get_agent_statuses(self):
+        return steps.GetAgentStatusesStep(self._agent_login_dao)
+
     def check_agent_is_logged(self):
         return steps.CheckAgentIsLoggedStep()
 

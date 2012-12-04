@@ -32,6 +32,7 @@ class AgentService(object):
         self._add_login_cmd(step_factory)
         self._add_logoff_cmd(step_factory)
         self._add_status_cmd(step_factory)
+        self._add_statuses_cmd(step_factory)
         self._add_ping_cmd()
 
     def run(self):
@@ -71,6 +72,12 @@ class AgentService(object):
         ]
         self._add_cmd(commands.StatusCommand, self._exec_status_cmd, steps)
 
+    def _add_statuses_cmd(self, step_factory):
+        steps = [
+            step_factory.get_agent_statuses(),
+        ]
+        self._add_cmd(commands.StatusesCommand, self._exec_statuses_cmd, steps)
+
     def _add_ping_cmd(self):
         self._agent_server.add_command(commands.PingCommand, self._exec_ping_cmd)
 
@@ -99,8 +106,22 @@ class AgentService(object):
         self._exec_cmd(status_cmd, response, blackboard)
 
         if not response.error:
-            is_logged = blackboard.agent_status is not None
-            response.value = {'logged': is_logged}
+            response.value = {
+                'id': blackboard.agent.id,
+                'number': blackboard.agent.number,
+                'logged': blackboard.agent_status is not None,
+            }
+
+    def _exec_statuses_cmd(self, statuses_cmd, response):
+        logger.info('Executing statuses command')
+        blackboard = Blackboard()
+
+        self._exec_cmd(statuses_cmd, response, blackboard)
+
+        response.value = [
+            {'id': status.agent_id, 'number': status.agent_number, 'logged': status.logged} for
+            status in blackboard.agent_statuses
+        ]
 
     def _exec_ping_cmd(self, ping_cmd, response):
         response.value = 'pong'

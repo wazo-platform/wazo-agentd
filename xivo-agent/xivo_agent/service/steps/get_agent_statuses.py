@@ -15,13 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from .check_agent_status import CheckAgentIsLoggedStep, CheckAgentIsNotLoggedStep
-from .check_extension import CheckExtensionIsNotInUseStep
-from .get_agent_status import GetAgentStatusStep
-from .get_agent_statuses import GetAgentStatusesStep
-from .get_agent import GetAgentStep
-from .get_interface import GetInterfaceForExtensionStep
-from .manage_events import SendAgentLoginEventStep, SendAgentLogoffEventStep
-from .manage_queues import AddAgentsToQueuesStep, RemoveAgentsFromQueuesStep
-from .update_agent_status import UpdateAgentStatusStep
-from .update_queue_log import UpdateQueueLogStep
+
+class GetAgentStatusesStep(object):
+
+    def __init__(self, agent_login_dao):
+        self._agent_login_dao = agent_login_dao
+
+    def execute(self, command, response, blackboard):
+        blackboard.agent_statuses = self._agent_login_dao.get_statuses()

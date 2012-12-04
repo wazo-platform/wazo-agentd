@@ -95,6 +95,18 @@ class StatusCommand(_AbstractAgentCommand):
         return cmd
 
 
+class StatusesCommand(object):
+
+    name = 'statuses'
+
+    def marshal(self):
+        return None
+
+    @classmethod
+    def unmarshal(cls, msg):
+        return cls()
+
+
 class PingCommand(object):
 
     name = 'ping'

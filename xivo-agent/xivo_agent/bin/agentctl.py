@@ -52,8 +52,11 @@ def _loop(agent_client):
                     agent_client.logoff_agent_by_number(agent_number)
                 elif cmd_name == 'status':
                     agent_number = args[0]
-                    status = agent_client.get_agent_status_by_number(agent_number)
-                    print status
+                    print agent_client.get_agent_status_by_number(agent_number)
+                elif cmd_name == 'statuses':
+                    print agent_client.get_agent_statuses()
+                elif cmd_name == 'ping':
+                    print agent_client.ping()
                 else:
                     print 'unknown command:', cmd_name
                     continue
