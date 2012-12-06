@@ -70,7 +70,7 @@ class AgentServer(object):
         except Exception:
             logger.warning('Error while processing cmd: %s', exc_info=True)
             self._reply_error(error.SERVER_ERROR, address)
-            return
+            raise
 
         self._reply_response(response, address)
 
