@@ -15,23 +15,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import socket
 from collections import namedtuple
 from xivo_agent.ctl import commands
 from xivo_agent.ctl.server import AgentServer
-from xivo_agent.ctl.transport import Transport
+from xivo_agent.ctl.marshaler import Marshaler
 from xivo_agent.exception import AgentClientError
+from xivo_agent.ctl.amqp_transport_client import AMQPTransportClient
 
 _AgentStatus = namedtuple('_AgentStatus', ['id', 'number', 'logged'])
 
 
 class AgentClient(object):
 
-    _TIMEOUT = 10
+    _HOST = 'localhost'
 
     def __init__(self):
         self._transport = None
-        self._addr = None
+        self._marshaler = Marshaler()
 
     def close(self):
         if self._transport is None:
@@ -44,14 +44,12 @@ class AgentClient(object):
         if self._transport is not None:
             raise Exception('already connected')
 
-        self._addr = (hostname, AgentServer.PORT)
-        self._transport = Transport(self._new_socket())
+        self._transport = self._setup_transport()
 
-    def _new_socket(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.settimeout(self._TIMEOUT)
-        sock.connect(self._addr)
-        return sock
+    def _setup_transport(self):
+        connection_parameters = pika.ConnectionParameters(host=self._HOST)
+        transport = AMQPTransportClient(connection_parameters)
+        return transport
 
     def login_agent(self, agent_id, extension, context):
         cmd = commands.LoginCommand(extension, context).by_id(agent_id)
@@ -89,14 +87,8 @@ class AgentClient(object):
         return self._execute_command(cmd)
 
     def _execute_command(self, cmd):
-        self._send_command(cmd)
-        return self._recv_response()
-
-    def _send_command(self, cmd):
-        self._transport.send_command(cmd, self._addr)
-
-    def _recv_response(self):
-        response = self._transport.recv_response()
+        request = self._marshaler.marshal_command(cmd)
+        response = self._transport.rpc_call(request)
         if response.error is not None:
             raise AgentClientError(response.error)
         return response.value
