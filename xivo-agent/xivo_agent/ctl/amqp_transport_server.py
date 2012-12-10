@@ -33,7 +33,7 @@ class AMQPTransportServer(object):
         self._channel = self._connection.channel()
 
     def _setup_queue(self):
-        self._channel.queue_declare(queue='xivo_agent')
+        self._channel.queue_declare(queue=self._QUEUE_NAME)
         self._channel.basic_qos(prefetch_count=1)
         self._channel.basic_consume(self._on_request, self._QUEUE_NAME)
 
@@ -43,16 +43,16 @@ class AMQPTransportServer(object):
 
         response_properties = pika.BasicProperties(
             correlation_id=properties.correlation_id,
+        )
+
+        self._channel.basic_publish(
+            exchange='',
+            routing_key=properties.reply_to,
+            properties=response_properties,
             body=self._marshal_response(response)
         )
 
-        self.channel.basic_publish(
-            exchange='',
-            routing_key=properties.reply_to,
-            properties=response_properties
-        )
-
-        self.channel.basic_ack(delivery_tag=method.delivery_tag)
+        self._channel.basic_ack(delivery_tag=method.delivery_tag)
 
     def _unmarshal_command(self, data):
         msg = json.loads(data)

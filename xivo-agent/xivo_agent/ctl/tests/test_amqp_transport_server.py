@@ -78,6 +78,37 @@ class TestAMQPTransportServer(unittest.TestCase):
         response.marshal.assert_called_once_with()
         self.assertEquals(result, json)
 
+    def test_on_request(self):
+        channel = Mock()
+        method = Mock()
+        properties = Mock()
+
+        FoobarCommand = Mock()
+        FoobarCommand.unmarshal.return_value = 'fake'
+
+        response = Mock()
+        response.marshal.return_value = {'error': None, 'value': None}
+
+        command_callback = Mock()
+        command_callback.return_value = response
+
+        body = '{"cmd": {"a": 1}, "name": "foobar"}'
+
+        command_registry = {
+            'foobar': FoobarCommand
+        }
+
+        transport = self._new_transport(command_registry, command_callback)
+        transport._on_request(channel, method, properties, body)
+
+        FoobarCommand.unmarshal.assert_called_once_with({'a': 1})
+
+        command_callback.assert_called_once()
+
+        self.channel.basic_publish.assert_called_once()
+
+        self.channel.basic_ack.assert_called_once()
+
 
     def _new_transport(self, registry={}, callback=None):
         host = 'localhost'

@@ -28,6 +28,7 @@ class AMQPTransportClient(object):
         self._connect()
         self._setup_queue()
         self._correlation_id = None
+        self._response = None
 
     def _connect(self, host):
         params = pika.ConnectionParameters(host=host)
@@ -51,7 +52,7 @@ class AMQPTransportClient(object):
 
     def send_command(self, command):
         if self._response:
-            raise Exception("already waiting after command")
+            raise Exception("already waiting after command %r" % command)
 
         self._response = None
         self._correlation_id = str(uuid.uuid4())
