@@ -54,4 +54,3 @@ class AMQPTransportServer(object):
 
     def run(self):
         self._channel.start_consuming()
-

@@ -43,21 +43,21 @@ class TestAMQPTransportServer(unittest.TestCase):
 
     def test_setup_queue(self):
         transport = self._new_transport()
-        
+
         self.channel.queue_declare.assert_called_once_with(queue='xivo_agent')
         self.channel.basic_qos.assert_called_once_with(prefetch_count=1)
         self.channel.basic_consume.assert_called_once_with(ANY, 'xivo_agent')
 
     def test_on_request(self):
         response = "{'response': 'success'}"
-        
+
         request_callback = Mock()
         request_callback.return_value = response
-        
+
         properties = Mock()
         properties.correlation_id = 1
         properties.reply_to = 'consumer1'
-        
+
         method = Mock()
         method.delivery_tag = 'delivery_tag'
 
@@ -68,7 +68,7 @@ class TestAMQPTransportServer(unittest.TestCase):
 
         self.channel.basic_publish.assert_called_once_with(
             exchange='',
-            routing_key = properties.reply_to,
+            routing_key=properties.reply_to,
             properties=ANY,
             body=response)
 
