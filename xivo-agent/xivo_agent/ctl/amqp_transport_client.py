@@ -16,74 +16,65 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import pika
-import json
 import uuid
-from xivo_agent.ctl.response import CommandResponse
 
 class AMQPTransportClient(object):
 
     _QUEUE_NAME = 'xivo_agent'
 
-    def __init__(self):
-        self._connect()
+    def __init__(self, connection_params):
+        self._connect(connection_params)
         self._setup_queue()
         self._correlation_id = None
         self._response = None
 
-    def _connect(self, host):
-        params = pika.ConnectionParameters(host=host)
+    def _connect(self, params):
         self._connection = pika.BlockingConnection(params)
-        self._channel = self.connection.channel()
+        self._channel = self._connection.channel()
 
     def _setup_queue(self):
         result = self._channel.queue_declare(exclusive=True)
         self._callback_queue = result.method.queue
 
-        self.channel.basic_consume(
+        self._channel.basic_consume(
             self._on_response,
             no_ack=True,
-            queue=self.callback_queue
+            queue=self._callback_queue
         )
 
     def _on_response(self, channel, method, properties, body):
         if self._correlation_id == properties.correlation_id:
-            response = self._unmarshal_response(body)
-            self._process_response(response)
+            self._response = body
 
-    def send_command(self, command):
-        if self._response:
-            raise Exception("already waiting after command %r" % command)
-
+    def rpc_call(self, request):
         self._response = None
-        self._correlation_id = str(uuid.uuid4())
+        request_id = str(uuid.uuid4())
 
-        body = self._marshal_command(command)
+        self._send_request(request_id, request)
+        return self._wait_for_response()
 
-        properties = pika.BasicProperties(
-            reply_to=self._callback_queue,
-            correlation_id=self._correlation_id
-        )
+    def _send_request(self, request_id, request):
+        self._correlation_id = request_id
+
+        properties = self._build_properties(request_id)
 
         self._channel.basic_publish(
             exchange='',
             routing_key=self._QUEUE_NAME,
             properties=properties,
-            body=body
+            body=request
         )
 
+    def _build_properties(self, request_id):
+        properties = pika.BasicProperties(
+            reply_to=self._callback_queue,
+            correlation_id=self._correlation_id
+        )
+
+        return properties
+
+    def _wait_for_response(self):
         while self._response is None:
             self._connection.process_data_events()
 
-        response = self._unmarshal_response(self._response)
-        self._response = None
-        return response
-
-    def _marshal_command(self, command):
-        return json.dumps({'name': command.name, 'cmd': command.marshal()})
-
-    def _unmarshal_response(self, data):
-        msg = json.loads(data)
-        return CommandResponse.unmarshal(msg)
-
-
-
+        return self._response
