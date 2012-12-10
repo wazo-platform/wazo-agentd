@@ -112,7 +112,6 @@ def _new_ami_client():
 def _new_agent_server():
     agent_server = AgentServer()
     try:
-        agent_server.bind('localhost')
         yield agent_server
     finally:
         agent_server.close()

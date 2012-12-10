@@ -36,8 +36,7 @@ class AgentService(object):
         self._add_ping_cmd()
 
     def run(self):
-        while True:
-            self._agent_server.process_next_command()
+        self._agent_server.run()
 
     def _add_login_cmd(self, step_factory):
         steps = [
