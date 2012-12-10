@@ -17,14 +17,9 @@
 
 import pika
 import unittest
-import logging
-import subprocess
 
 from mock import Mock, patch, ANY
 from xivo_agent.ctl.amqp_transport_server import AMQPTransportServer
-
-def phony_callback():
-    pass
 
 class TestAMQPTransportServer(unittest.TestCase):
 
@@ -48,79 +43,45 @@ class TestAMQPTransportServer(unittest.TestCase):
 
     def test_setup_queue(self):
         transport = self._new_transport()
+        
         self.channel.queue_declare.assert_called_once_with(queue='xivo_agent')
         self.channel.basic_qos.assert_called_once_with(prefetch_count=1)
         self.channel.basic_consume.assert_called_once_with(ANY, 'xivo_agent')
 
-    def test_unmarshal_command(self):
-        json = '{"cmd": {"a": 1}, "name": "foobar"}'
-        FoobarCommand = Mock()
-        FoobarCommand.unmarshal.return_value = 'fake'
-
-        registry = {
-            'foobar': FoobarCommand
-        }
-
-        transport = self._new_transport(registry=registry)
-        command = transport._unmarshal_command(json)
-
-        FoobarCommand.unmarshal.assert_called_once_with({'a': 1})
-        self.assertEqual('fake', command)
-
-    def test_marshal_response(self):
-        json = '{"value": null, "error": null}'
-        response = Mock()
-        response.marshal.return_value = {'error': None, 'value': None}
-
-        transport = self._new_transport()
-        result = transport._marshal_response(response)
-
-        response.marshal.assert_called_once_with()
-        self.assertEquals(result, json)
-
     def test_on_request(self):
-        channel = Mock()
-        method = Mock()
+        response = "{'response': 'success'}"
+        
+        request_callback = Mock()
+        request_callback.return_value = response
+        
         properties = Mock()
-
-        FoobarCommand = Mock()
-        FoobarCommand.unmarshal.return_value = 'fake'
-
-        response = Mock()
-        response.marshal.return_value = {'error': None, 'value': None}
-
-        command_callback = Mock()
-        command_callback.return_value = response
+        properties.correlation_id = 1
+        properties.reply_to = 'consumer1'
+        
+        method = Mock()
+        method.delivery_tag = 'delivery_tag'
 
         body = '{"cmd": {"a": 1}, "name": "foobar"}'
 
-        command_registry = {
-            'foobar': FoobarCommand
-        }
+        transport = self._new_transport(request_callback)
+        transport._on_request(None, method, properties, body)
 
-        transport = self._new_transport(command_registry, command_callback)
-        transport._on_request(channel, method, properties, body)
-
-        FoobarCommand.unmarshal.assert_called_once_with({'a': 1})
-
-        command_callback.assert_called_once()
-
-        self.channel.basic_publish.assert_called_once()
+        self.channel.basic_publish.assert_called_once_with(
+            exchange='',
+            routing_key = properties.reply_to,
+            properties=ANY,
+            body=response)
 
         self.channel.basic_ack.assert_called_once()
 
-
-    def _new_transport(self, registry={}, callback=None):
+    def _new_transport(self, request_callback=None):
+        request_callback = request_callback or Mock()
         host = 'localhost'
         params = pika.ConnectionParameters(host=host)
 
-        if not callback:
-            callback = phony_callback
-
-        transport = AMQPTransportServer(params, registry, callback)
+        transport = AMQPTransportServer(params, request_callback)
 
         return transport
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.WARN)
     unittest.main()

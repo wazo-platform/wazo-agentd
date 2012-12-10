@@ -22,9 +22,8 @@ class AMQPTransportServer(object):
 
     _QUEUE_NAME = 'xivo_agent'
 
-    def __init__(self, connection_params, commands_registry, command_callback):
-        self._commands_registry = commands_registry
-        self._command_callback = command_callback
+    def __init__(self, connection_params, request_callback):
+        self._request_callback = request_callback
         self._connect(connection_params)
         self._setup_queue()
 
@@ -38,8 +37,7 @@ class AMQPTransportServer(object):
         self._channel.basic_consume(self._on_request, self._QUEUE_NAME)
 
     def _on_request(self, channel, method, properties, body):
-        command = self._unmarshal_command(body)
-        response = self._command_callback(command)
+        response = self._request_callback(body)
 
         response_properties = pika.BasicProperties(
             correlation_id=properties.correlation_id,
@@ -49,20 +47,10 @@ class AMQPTransportServer(object):
             exchange='',
             routing_key=properties.reply_to,
             properties=response_properties,
-            body=self._marshal_response(response)
+            body=response
         )
 
         self._channel.basic_ack(delivery_tag=method.delivery_tag)
-
-    def _unmarshal_command(self, data):
-        msg = json.loads(data)
-        msg_name = msg['name']
-        msg_cmd = msg['cmd']
-        cmd_class = self._commands_registry[msg_name]
-        return cmd_class.unmarshal(msg_cmd)
-
-    def _marshal_response(self, response):
-        return json.dumps(response.marshal())
 
     def run(self):
         self._channel.start_consuming()
