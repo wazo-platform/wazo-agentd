@@ -30,11 +30,14 @@ class AMQPTransportServer(object):
     def __init__(self, connection_params, request_callback):
         self._request_callback = request_callback
         self._connect(connection_params)
-        self._setup_queue()
 
     def _connect(self, params):
         self._connection = pika.BlockingConnection(params)
         self._channel = self._connection.channel()
+
+    def run(self):
+        self._setup_queue()
+        self._channel.start_consuming()
 
     def _setup_queue(self):
         self._channel.queue_declare(queue=self._QUEUE_NAME)
@@ -56,9 +59,6 @@ class AMQPTransportServer(object):
         )
 
         self._channel.basic_ack(delivery_tag=method.delivery_tag)
-
-    def run(self):
-        self._channel.start_consuming()
 
     def close(self):
         self._channel.stop_consuming()
