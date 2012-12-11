@@ -42,13 +42,13 @@ class TestAMQPTransportServer(unittest.TestCase):
     @patch('pika.ConnectionParameters')
     def test_create_and_connect(self, connection_params, constructor):
         callback = Mock()
-        transport = AMQPTransportServer.create_and_connect('localhost', callback)
+        AMQPTransportServer.create_and_connect('localhost', callback)
 
         connection_params.assert_called_once_with(host='localhost')
         constructor.assert_called_once()
 
     def test_connect(self):
-        transport = self._new_transport()
+        self._new_transport()
 
         self.connection.channel.assert_called_once_with()
 
@@ -98,13 +98,13 @@ class TestAMQPTransportServer(unittest.TestCase):
         self.channel.stop_consuming.assert_called_once()
         self.connection.close.assert_called_once()
 
-
     def _new_transport(self, request_callback=None):
         request_callback = request_callback or Mock()
         params = pika.ConnectionParameters(host='localhost')
         transport = AMQPTransportServer(params, request_callback)
 
         return transport
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -17,10 +17,7 @@
 
 
 import json
-import logging
 from xivo_agent.ctl.response import CommandResponse
-
-logger = logging.getLogger(__name__)
 
 
 class Marshaler(object):

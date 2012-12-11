@@ -18,7 +18,6 @@
 
 from collections import namedtuple
 from xivo_agent.ctl import commands
-from xivo_agent.ctl.server import AgentServer
 from xivo_agent.ctl.marshaler import Marshaler
 from xivo_agent.exception import AgentClientError
 from xivo_agent.ctl.amqp_transport_client import AMQPTransportClient
