@@ -48,12 +48,12 @@ class BaseAction(object):
         if not self._completed:
             self._amiclient.wait_for_completion(self)
 
-    # package private function
+    # package private method
     def _on_response_received(self, response):
         # may be overridden
         self._completed = True
 
-    # package function
+    # package private method
     def _on_event_received(self, event):
         # may be overridden
         pass
