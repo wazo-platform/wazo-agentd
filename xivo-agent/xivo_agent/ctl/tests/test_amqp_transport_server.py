@@ -15,11 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+
 import pika
 import unittest
 
 from mock import Mock, patch, ANY
 from xivo_agent.ctl.amqp_transport_server import AMQPTransportServer
+
 
 class TestAMQPTransportServer(unittest.TestCase):
 
@@ -52,6 +54,7 @@ class TestAMQPTransportServer(unittest.TestCase):
 
     def test_setup_queue(self):
         transport = self._new_transport()
+        transport._setup_queue()
 
         self.channel.queue_declare.assert_called_once_with(queue='xivo_agent')
         self.channel.basic_qos.assert_called_once_with(prefetch_count=1)
@@ -59,7 +62,6 @@ class TestAMQPTransportServer(unittest.TestCase):
 
     def test_on_request(self):
         response = "{'response': 'success'}"
-
         request_callback = Mock()
         request_callback.return_value = response
 
@@ -86,6 +88,7 @@ class TestAMQPTransportServer(unittest.TestCase):
     def test_run(self):
         transport = self._new_transport()
         transport.run()
+
         self.channel.start_consuming.assert_called_once()
 
     def test_close(self):
@@ -98,9 +101,7 @@ class TestAMQPTransportServer(unittest.TestCase):
 
     def _new_transport(self, request_callback=None):
         request_callback = request_callback or Mock()
-        host = 'localhost'
-        params = pika.ConnectionParameters(host=host)
-
+        params = pika.ConnectionParameters(host='localhost')
         transport = AMQPTransportServer(params, request_callback)
 
         return transport

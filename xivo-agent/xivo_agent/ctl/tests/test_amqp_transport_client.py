@@ -15,11 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+
 import unittest
 import pika
 
 from mock import Mock, patch, ANY
 from xivo_agent.ctl.amqp_transport_client import AMQPTransportClient
+
 
 class TestAMQPTransportClient(unittest.TestCase):
 
@@ -46,6 +48,7 @@ class TestAMQPTransportClient(unittest.TestCase):
 
     def test_connect(self):
         transport = self._new_transport()
+
         self.blocking_connection.assert_called_once()
         self.connection.channel.assert_called_once()
 
@@ -64,6 +67,7 @@ class TestAMQPTransportClient(unittest.TestCase):
         transport = self._new_transport()
         with patch.object(transport, '_send_request') as send_request:
             with patch.object(transport, '_wait_for_response') as wait_for_response:
+                transport.rpc_call('blah')
                 send_request.assert_called_once()
                 wait_for_response.assert_called_once()
 
@@ -84,7 +88,6 @@ class TestAMQPTransportClient(unittest.TestCase):
     def test_build_properties(self):
         transport = self._new_transport()
         transport._callback_queue = Mock()
-
         properties = transport._build_properties(1)
 
         self.assertTrue(isinstance(properties, pika.BasicProperties))
@@ -95,10 +98,7 @@ class TestAMQPTransportClient(unittest.TestCase):
         self.connection.close.assert_called_once()
 
     def _new_transport(self):
-        host = 'localhost'
-
-        params = pika.ConnectionParameters(host=host)
-
+        params = pika.ConnectionParameters(host='localhost')
         transport = AMQPTransportClient(params)
 
         return transport

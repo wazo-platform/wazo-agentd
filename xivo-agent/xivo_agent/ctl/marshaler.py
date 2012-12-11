@@ -15,15 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+
 import json
 import logging
-from xivo_agent.ctl import error
 from xivo_agent.ctl.response import CommandResponse
 
 logger = logging.getLogger(__name__)
 
-class Marshaler(object):
 
+class Marshaler(object):
 
     def __init__(self, commands_registry=None):
         self._commands_registry = commands_registry
@@ -44,6 +44,3 @@ class Marshaler(object):
     def unmarshal_response(self, data):
         msg = json.loads(data)
         return CommandResponse.unmarshal(msg)
-
-    def error_response(self, error):
-        return CommandResponse(error=error)

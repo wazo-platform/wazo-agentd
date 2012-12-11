@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+
 import logging
 from xivo_agent.ctl import error
 from xivo_agent.ctl.response import CommandResponse
@@ -51,8 +52,6 @@ class AgentServer(object):
 
     def _process_next_command(self, request):
         command = self._marshaler.unmarshal_command(request)
-        if command is None:
-            return
 
         callback = self._commands_callback[command.name]
         response = CommandResponse()

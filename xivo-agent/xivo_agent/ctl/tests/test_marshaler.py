@@ -15,8 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+
 import unittest
-from mock import Mock, MagicMock
+
+from mock import Mock
 from xivo_agent.ctl.marshaler import Marshaler
 from xivo_agent.ctl.response import CommandResponse
 
@@ -53,7 +55,7 @@ class TestMarshaler(unittest.TestCase):
         registry = {'foobar': command}
 
         marshal = Marshaler(registry)
-        result = marshal.unmarshal_command(json)
+        marshal.unmarshal_command(json)
 
         command.unmarshal.assert_called_once_with({'a': 1})
 
