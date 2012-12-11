@@ -36,6 +36,15 @@ class TestAMQPTransportServer(unittest.TestCase):
     def tearDown(self):
         self.patcher.stop()
 
+    @patch('xivo_agent.ctl.amqp_transport_server.AMQPTransportServer')
+    @patch('pika.ConnectionParameters')
+    def test_create_and_connect(self, connection_params, constructor):
+        callback = Mock()
+        transport = AMQPTransportServer.create_and_connect('localhost', callback)
+
+        connection_params.assert_called_once_with(host='localhost')
+        constructor.assert_called_once()
+
     def test_connect(self):
         transport = self._new_transport()
 
@@ -73,6 +82,19 @@ class TestAMQPTransportServer(unittest.TestCase):
             body=response)
 
         self.channel.basic_ack.assert_called_once()
+
+    def test_run(self):
+        transport = self._new_transport()
+        transport.run()
+        self.channel.start_consuming.assert_called_once()
+
+    def test_close(self):
+        transport = self._new_transport()
+        transport.close()
+
+        self.channel.stop_consuming.assert_called_once()
+        self.connection.close.assert_called_once()
+
 
     def _new_transport(self, request_callback=None):
         request_callback = request_callback or Mock()

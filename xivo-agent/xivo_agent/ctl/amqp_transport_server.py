@@ -16,11 +16,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import pika
-import json
+
 
 class AMQPTransportServer(object):
 
     _QUEUE_NAME = 'xivo_agent'
+
+    @classmethod
+    def create_and_connect(cls, host, request_callback):
+        connection_params = pika.ConnectionParameters(host=host)
+        return cls(connection_params, request_callback)
 
     def __init__(self, connection_params, request_callback):
         self._request_callback = request_callback
@@ -54,3 +59,9 @@ class AMQPTransportServer(object):
 
     def run(self):
         self._channel.start_consuming()
+
+    def close(self):
+        self._channel.stop_consuming()
+        self._connection.close()
+        self._channel = None
+        self._connection = None
