@@ -76,9 +76,9 @@ class TestAMQPTransportClient(unittest.TestCase):
         transport = self._new_transport()
         transport._send_request(1, 'blah')
 
-        self.channel.basic_publish.asset_called_once(
+        self.channel.basic_publish.assert_called_once_with(
             exchange='',
-            queue='xivo_agent',
+            routing_key='xivo_agent',
             properties=ANY,
             body='blah'
         )
