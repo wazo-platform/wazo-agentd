@@ -16,7 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import logging
-import pika
 from xivo_agent.ctl import error
 from xivo_agent.ctl.response import CommandResponse
 from xivo_agent.ctl.marshaler import Marshaler
@@ -40,8 +39,7 @@ class AgentServer(object):
         self._transport = None
 
     def _setup_transport(self):
-        connection_parameters = pika.ConnectionParameters(host=self._HOST)
-        transport = AMQPTransportServer(connection_parameters, self._process_next_command)
+        transport = AMQPTransportServer.create_and_connect(self._HOST, self._process_next_command)
         return transport
 
     def add_command(self, cmd_class, callback):

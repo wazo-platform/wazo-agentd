@@ -47,8 +47,7 @@ class AgentClient(object):
         self._transport = self._setup_transport()
 
     def _setup_transport(self):
-        connection_parameters = pika.ConnectionParameters(host=self._HOST)
-        transport = AMQPTransportClient(connection_parameters)
+        transport = AMQPTransportClient.create_and_connect(self._HOST)
         return transport
 
     def login_agent(self, agent_id, extension, context):
