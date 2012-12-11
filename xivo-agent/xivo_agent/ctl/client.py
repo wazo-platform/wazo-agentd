@@ -87,7 +87,8 @@ class AgentClient(object):
 
     def _execute_command(self, cmd):
         request = self._marshaler.marshal_command(cmd)
-        response = self._transport.rpc_call(request)
+        raw_response = self._transport.rpc_call(request)
+        response = self._marshaler.unmarshal_response(raw_response)
         if response.error is not None:
             raise AgentClientError(response.error)
         return response.value
