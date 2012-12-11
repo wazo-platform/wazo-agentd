@@ -33,8 +33,21 @@ class TestAMQPTransportClient(unittest.TestCase):
         self.blocking_connection.return_value = self.connection
         self.connection.channel.return_value = self.channel
 
+    def tearDown(self):
+        self.patcher.stop()
+
+    @patch('xivo_agent.ctl.amqp_transport_server.AMQPTransportServer')
+    @patch('pika.ConnectionParameters')
+    def test_create_and_connect(self, connection_params, constructor):
+        transport = AMQPTransportClient.create_and_connect('localhost')
+
+        connection_params.assert_called_once_with(host='localhost')
+        constructor.assert_called_once()
+
     def test_connect(self):
         transport = self._new_transport()
+        self.blocking_connection.assert_called_once()
+        self.connection.channel.assert_called_once()
 
     def test_setup_queue(self):
         result = Mock()
@@ -75,6 +88,11 @@ class TestAMQPTransportClient(unittest.TestCase):
         properties = transport._build_properties(1)
 
         self.assertTrue(isinstance(properties, pika.BasicProperties))
+
+    def test_close(self):
+        transport = self._new_transport()
+        transport.close()
+        self.connection.close.assert_called_once()
 
     def _new_transport(self):
         host = 'localhost'
