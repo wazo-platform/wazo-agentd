@@ -35,10 +35,6 @@ class AgentServer(object):
         self._commands_registry = {}
         self._commands_callback = {}
 
-    def close(self):
-        self._transport.close()
-        self._transport = None
-
     def _setup_transport(self):
         transport = AMQPTransportServer.create_and_connect(self._HOST, self._process_next_command)
         return transport
@@ -72,3 +68,7 @@ class AgentServer(object):
     def run(self):
         self._marshaler = Marshaler(self._commands_registry)
         self._transport.run()
+
+    def close(self):
+        self._transport.close()
+        self._transport = None
