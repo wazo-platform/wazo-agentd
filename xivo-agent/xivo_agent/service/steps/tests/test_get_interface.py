@@ -16,13 +16,13 @@ class TestGetAgentStep(unittest.TestCase):
         blackboard.context = 'default'
 
         interface = Mock()
-        linefeatures_dao = Mock()
-        linefeatures_dao.get_interface_from_exten_and_context.return_value = interface
+        line_dao = Mock()
+        line_dao.get_interface_from_exten_and_context.return_value = interface
 
-        step = GetInterfaceForExtensionStep(linefeatures_dao)
+        step = GetInterfaceForExtensionStep(line_dao)
         step.execute(command, response, blackboard)
 
-        linefeatures_dao.get_interface_from_exten_and_context.assert_called_once_with(blackboard.extension, blackboard.context)
+        line_dao.get_interface_from_exten_and_context.assert_called_once_with(blackboard.extension, blackboard.context)
         self.assertEqual(blackboard.interface, interface)
 
     def test_execute_with_unknown_exten(self):
@@ -32,11 +32,11 @@ class TestGetAgentStep(unittest.TestCase):
         blackboard.extension = '1001'
         blackboard.context = 'default'
 
-        linefeatures_dao = Mock()
-        linefeatures_dao.get_interface_from_exten_and_context.side_effect = LookupError()
+        line_dao = Mock()
+        line_dao.get_interface_from_exten_and_context.side_effect = LookupError()
 
-        step = GetInterfaceForExtensionStep(linefeatures_dao)
+        step = GetInterfaceForExtensionStep(line_dao)
         step.execute(command, response, blackboard)
 
-        linefeatures_dao.get_interface_from_exten_and_context.assert_called_once_with(blackboard.extension, blackboard.context)
+        line_dao.get_interface_from_exten_and_context.assert_called_once_with(blackboard.extension, blackboard.context)
         self.assertEqual(response.error, error.NO_SUCH_EXTEN)

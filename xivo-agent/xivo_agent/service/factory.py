@@ -20,12 +20,12 @@ from xivo_agent.service import steps
 
 class StepFactory(object):
 
-    def __init__(self, ami_client, queue_log_manager, agent_login_dao, agentfeatures_dao, linefeatures_dao):
+    def __init__(self, ami_client, queue_log_manager, agent_login_dao, agentfeatures_dao, line_dao):
         self._ami_client = ami_client
         self._queue_log_manager = queue_log_manager
         self._agent_login_dao = agent_login_dao
         self._agentfeatures_dao = agentfeatures_dao
-        self._linefeatures_dao = linefeatures_dao
+        self._line_dao = line_dao
 
     def get_agent(self):
         return steps.GetAgentStep(self._agentfeatures_dao)
@@ -46,7 +46,7 @@ class StepFactory(object):
         return steps.CheckExtensionIsNotInUseStep(self._agent_login_dao)
 
     def get_interface_for_extension(self):
-        return steps.GetInterfaceForExtensionStep(self._linefeatures_dao)
+        return steps.GetInterfaceForExtensionStep(self._line_dao)
 
     def update_agent_status(self):
         return steps.UpdateAgentStatusStep(self._agent_login_dao)

@@ -20,11 +20,11 @@ from xivo_agent.ctl import error
 
 class GetInterfaceForExtensionStep(object):
 
-    def __init__(self, linefeatures_dao):
-        self._linefeatures_dao = linefeatures_dao
+    def __init__(self, line_dao):
+        self._line_dao = line_dao
 
     def execute(self, command, response, blackboard):
         try:
-            blackboard.interface = self._linefeatures_dao.get_interface_from_exten_and_context(blackboard.extension, blackboard.context)
+            blackboard.interface = self._line_dao.get_interface_from_exten_and_context(blackboard.extension, blackboard.context)
         except LookupError:
             response.error = error.NO_SUCH_EXTEN
