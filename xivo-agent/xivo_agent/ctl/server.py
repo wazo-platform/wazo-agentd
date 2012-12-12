@@ -21,6 +21,8 @@ from xivo_agent.ctl import error
 from xivo_agent.ctl.response import CommandResponse
 from xivo_agent.ctl.marshaler import Marshaler
 from xivo_agent.ctl.amqp_transport_server import AMQPTransportServer
+from xivo_agent.exception import AgentServerError
+
 
 logger = logging.getLogger(__name__)
 
@@ -55,12 +57,14 @@ class AgentServer(object):
             callback(command, response)
         except Exception:
             logger.warning('Error while processing cmd: %s', exc_info=True)
-            return self._reply_error(error.SERVER_ERROR)
+            error_response = self._reply_error(error.SERVER_ERROR)
+            raise AgentServerError(error_response)
 
         return self._reply_response(response)
 
     def _reply_error(self, error):
-        return self._reply_response(CommandResponse(error=error))
+        resp = CommandResponse(error=error)
+        return self._reply_response(resp)
 
     def _reply_response(self, response):
         return self._marshaler.marshal_response(response)
