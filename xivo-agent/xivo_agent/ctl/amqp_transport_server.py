@@ -17,6 +17,7 @@
 
 
 import pika
+from xivo_agent.exception import AgentServerError
 
 
 class AMQPTransportServer(object):
@@ -46,7 +47,16 @@ class AMQPTransportServer(object):
         self._channel.basic_consume(self._on_request, self._QUEUE_NAME)
 
     def _on_request(self, channel, method, properties, body):
-        response = self._request_callback(body)
+        try:
+            response = self._request_callback(body)
+        except AgentServerError as e:
+            response = self._error_response(e)
+            self._send_response(response, properties, method)
+            raise
+
+        self._send_response(response, properties, method)
+
+    def _send_response(self, body, properties, method):
 
         response_properties = pika.BasicProperties(
             correlation_id=properties.correlation_id,
@@ -56,7 +66,7 @@ class AMQPTransportServer(object):
             exchange='',
             routing_key=properties.reply_to,
             properties=response_properties,
-            body=response
+            body=body
         )
 
         self._channel.basic_ack(delivery_tag=method.delivery_tag)
@@ -66,3 +76,6 @@ class AMQPTransportServer(object):
         self._connection.close()
         self._channel = None
         self._connection = None
+
+    def _error_response(self, error):
+        return error.message

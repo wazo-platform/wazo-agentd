@@ -21,6 +21,7 @@ import unittest
 
 from mock import Mock, patch, ANY
 from xivo_agent.ctl.amqp_transport_server import AMQPTransportServer
+from xivo_agent.exception import AgentServerError
 
 
 class TestAMQPTransportServer(unittest.TestCase):
@@ -105,6 +106,25 @@ class TestAMQPTransportServer(unittest.TestCase):
 
         return transport
 
+    def test_when_callback_raises_exception_that_exception_is_propagated(self):
+        callback = Mock()
+        callback.side_effect = AgentServerError('raise me!')
+        transport = self._new_transport(callback)
+
+        properties = Mock()
+        properties.correlation_id = 1
+        properties.reply_to = 'consumer1'
+
+        method = Mock()
+        method.delivery_tag = 'delivery_tag'
+
+        body = 'serious body'
+
+        self.assertRaises(AgentServerError, transport._on_request, Mock(), method, properties, body)
+        self.channel.basic_publish.assert_called_once_with(exchange='',
+                                                           routing_key=properties.reply_to,
+                                                           properties=ANY,
+                                                           body='raise me!')
 
 if __name__ == "__main__":
     unittest.main()

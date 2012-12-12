@@ -25,3 +25,7 @@ class AgentClientError(AgentError):
     def __init__(self, error):
         AgentError.__init__(self, error)
         self.error = error
+
+
+class AgentServerError(AgentError):
+    pass
