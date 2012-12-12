@@ -14,11 +14,11 @@ class TestGetAgentStep(unittest.TestCase):
         blackboard = Mock()
 
         agent = Mock()
-        agentfeatures_dao = Mock()
-        agentfeatures_dao.agent_with_id.return_value = agent
+        agent_dao = Mock()
+        agent_dao.agent_with_id.return_value = agent
 
-        step = GetAgentStep(agentfeatures_dao)
+        step = GetAgentStep(agent_dao)
         step.execute(command, response, blackboard)
 
-        agentfeatures_dao.agent_with_id.assert_called_once_with(command.agent_id)
+        agent_dao.agent_with_id.assert_called_once_with(command.agent_id)
         self.assertEqual(blackboard.agent, agent)
