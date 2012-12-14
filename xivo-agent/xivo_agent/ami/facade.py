@@ -74,6 +74,16 @@ class FacadeAMIClient(object):
         self._ami_client.execute(action)
         return action
 
+    def agent_removed_from_queue(self, agent_id, agent_number, queue_name):
+        headers = [
+            ('AgentID', agent_id),
+            ('AgentNumber', agent_number),
+            ('QueueName', queue_name),
+        ]
+        action = actions.UserEventAction('AgentRemovedFromQueue', headers)
+        self._ami_client.execute(action)
+        return action
+
     def agent_login(self, agent_id, agent_number, extension, context):
         headers = [
             ('AgentID', agent_id),

@@ -55,6 +55,10 @@ def _execute_command(line, agent_client):
         agent_id = args[0]
         queue_id = args[1]
         agent_client.add_agent_to_queue(agent_id, queue_id)
+    elif cmd_name == 'remove_agent':
+        agent_id = args[0]
+        queue_id = args[1]
+        agent_client.remove_agent_from_queue(agent_id, queue_id)
     elif cmd_name == 'login':
         agent_number = args[0]
         extension = args[1]

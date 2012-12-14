@@ -27,3 +27,15 @@ class InsertAgentIntoQueuememberStep(object):
         queue_name = blackboard.queue.name
 
         self._queue_member_dao.add_agent_to_queue(agent_id, agent_number, queue_name)
+
+
+class DeleteAgentFromQueuememberStep(object):
+
+    def __init__(self, queue_member_dao):
+        self._queue_member_dao = queue_member_dao
+
+    def execute(self, command, response, blackboard):
+        agent_id = blackboard.agent.id
+        queue_name = blackboard.queue.name
+
+        self._queue_member_dao.remove_agent_from_queue(agent_id, queue_name)

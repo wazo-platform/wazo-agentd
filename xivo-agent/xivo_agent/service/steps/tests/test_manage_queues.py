@@ -3,6 +3,7 @@
 import unittest
 from mock import Mock
 from xivo_agent.service.steps import AddAgentToQueueStep
+from xivo_agent.service.steps.manage_queues import RemoveAgentFromQueueStep
 
 
 class TestAddAgentToQueueStep(unittest.TestCase):
@@ -34,3 +35,33 @@ class TestAddAgentToQueueStep(unittest.TestCase):
         step.execute(self.command, self.response, self.blackboard)
 
         self.assertFalse(agent_client.queue_add.called)
+
+
+class TestRemoveAgentFromQueueStep(unittest.TestCase):
+
+    def setUp(self):
+        self.command = Mock()
+        self.response = Mock()
+        self.response.error = None
+        self.blackboard = Mock()
+        self.blackboard.queue.name = 'foobar1'
+        self.blackboard.agent.number = '456'
+
+    def test_execute_when_logged(self):
+        self.blackboard.agent_status.interface = 'SIP/abcdef'
+        agent_client = Mock()
+
+        step = RemoveAgentFromQueueStep(agent_client)
+        step.execute(self.command, self.response, self.blackboard)
+
+        agent_client.queue_remove.assert_called_once_with(self.blackboard.queue.name,
+                                                          self.blackboard.agent_status.interface)
+
+    def test_execute_when_not_logged(self):
+        self.blackboard.agent_status = None
+        agent_client = Mock()
+
+        step = RemoveAgentFromQueueStep(agent_client)
+        step.execute(self.command, self.response, self.blackboard)
+
+        self.assertFalse(agent_client.queue_remove.called)

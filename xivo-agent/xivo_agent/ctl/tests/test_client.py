@@ -37,3 +37,16 @@ class TestAgentClient(unittest.TestCase):
 
         AddToQueueCommand.assert_called_once_with(agent_id, queue_id)
         self.agent_client._execute_command.assert_called_once_with(command)
+
+    @patch('xivo_agent.ctl.commands.RemoveFromQueueCommand')
+    def test_remove_agent_from_queue(self, RemoveFromQueueCommand):
+        agent_id = 42
+        queue_id = 1
+        command = Mock()
+        RemoveFromQueueCommand.return_value = command
+        self.agent_client._execute_command = Mock()
+
+        self.agent_client.remove_agent_from_queue(agent_id, queue_id)
+
+        RemoveFromQueueCommand.assert_called_once_with(agent_id, queue_id)
+        self.agent_client._execute_command.assert_called_once_with(command)

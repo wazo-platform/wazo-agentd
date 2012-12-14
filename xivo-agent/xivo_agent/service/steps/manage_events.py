@@ -29,6 +29,19 @@ class SendAgentAddedToQueueEventStep(object):
         self._ami_client.agent_added_to_queue(agent_id, agent_number, queue_name)
 
 
+class SendAgentRemovedFromQueueEventStep(object):
+
+    def __init__(self, ami_client):
+        self._ami_client = ami_client
+
+    def execute(self, command, response, blackboard):
+        agent_id = blackboard.agent.id
+        agent_number = blackboard.agent.number
+        queue_name = blackboard.queue.name
+
+        self._ami_client.agent_removed_from_queue(agent_id, agent_number, queue_name)
+
+
 class SendAgentLoginEventStep(object):
 
     def __init__(self, ami_client):

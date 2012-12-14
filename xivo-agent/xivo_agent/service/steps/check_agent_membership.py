@@ -18,6 +18,16 @@
 from xivo_agent.ctl import error
 
 
+class CheckAgentIsMemberOfQueueStep(object):
+
+    def execute(self, command, response, blackboard):
+        queue_name = blackboard.queue.name
+        for queue in blackboard.agent.queues:
+            if queue.name == queue_name:
+                return
+        response.error = error.NOT_IN_QUEUE
+
+
 class CheckAgentIsNotMemberOfQueueStep(object):
 
     def execute(self, command, response, blackboard):

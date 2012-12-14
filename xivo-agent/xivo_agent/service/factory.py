@@ -48,6 +48,9 @@ class StepFactory(object):
     def check_agent_is_not_logged(self):
         return steps.CheckAgentIsNotLoggedStep()
 
+    def check_agent_is_member_of_queue(self):
+        return steps.CheckAgentIsMemberOfQueueStep()
+
     def check_agent_is_not_member_of_queue(self):
         return steps.CheckAgentIsNotMemberOfQueueStep()
 
@@ -59,6 +62,9 @@ class StepFactory(object):
 
     def insert_agent_into_queuemember(self):
         return steps.InsertAgentIntoQueuememberStep(self._queue_member_dao)
+
+    def delete_agent_from_queuemember(self):
+        return steps.DeleteAgentFromQueuememberStep(self._queue_member_dao)
 
     def update_agent_status(self):
         return steps.UpdateAgentStatusStep(self._agent_login_dao)
@@ -72,11 +78,17 @@ class StepFactory(object):
     def add_agent_to_queues(self):
         return steps.AddAgentsToQueuesStep(self._ami_client)
 
+    def remove_agent_from_queue(self):
+        return steps.RemoveAgentFromQueueStep(self._ami_client)
+
     def remove_agent_from_queues(self):
         return steps.RemoveAgentsFromQueuesStep(self._ami_client)
 
     def send_agent_added_to_queue_event(self):
         return steps.SendAgentAddedToQueueEventStep(self._ami_client)
+
+    def send_agent_removed_from_queue_event(self):
+        return steps.SendAgentRemovedFromQueueEventStep(self._ami_client)
 
     def send_agent_login_event(self):
         return steps.SendAgentLoginEventStep(self._ami_client)

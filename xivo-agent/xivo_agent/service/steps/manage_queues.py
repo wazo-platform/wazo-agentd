@@ -52,6 +52,19 @@ class AddAgentsToQueuesStep(object):
                 logger.warning('Failure to add interface %r to queue %r', blackboard.interface, queue.name)
 
 
+class RemoveAgentFromQueueStep(object):
+
+    def __init__(self, ami_client):
+        self._ami_client = ami_client
+
+    def execute(self, command, response, blackboard):
+        agent_status = blackboard.agent_status
+        queue = blackboard.queue
+
+        if agent_status is not None:
+            self._ami_client.queue_remove(queue.name, agent_status.interface)
+
+
 class RemoveAgentsFromQueuesStep(object):
 
     def __init__(self, ami_client):

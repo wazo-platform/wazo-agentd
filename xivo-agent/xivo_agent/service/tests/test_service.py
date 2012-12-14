@@ -44,3 +44,19 @@ class TestAgentService(unittest.TestCase):
         self.agent_service._add_add_to_queue_cmd(self.step_factory)
 
         self.assertEqual(self.step_factory.mock_calls, expected)
+
+    def test_add_remove_from_queue_cmd(self):
+        self.agent_service._add_cmd = Mock()
+        expected = [
+            call.get_agent(),
+            call.get_agent_status(),
+            call.get_queue(),
+            call.check_agent_is_member_of_queue(),
+            call.delete_agent_from_queuemember(),
+            call.remove_agent_from_queue(),
+            call.send_agent_removed_from_queue_event(),
+        ]
+
+        self.agent_service._add_remove_from_queue_cmd(self.step_factory)
+
+        self.assertEqual(self.step_factory.mock_calls, expected)

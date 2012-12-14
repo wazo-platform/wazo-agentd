@@ -54,6 +54,10 @@ class AgentClient(object):
         cmd = commands.AddToQueueCommand(agent_id, queue_id)
         self._execute_command(cmd)
 
+    def remove_agent_from_queue(self, agent_id, queue_id):
+        cmd = commands.RemoveFromQueueCommand(agent_id, queue_id)
+        self._execute_command(cmd)
+
     def login_agent(self, agent_id, extension, context):
         cmd = commands.LoginCommand(extension, context).by_id(agent_id)
         self._execute_command(cmd)
