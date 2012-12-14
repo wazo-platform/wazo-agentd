@@ -15,19 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import unittest
-from mock import Mock, patch
-from xivo_agent.ami.facade import FacadeAMIClient
+from collections import namedtuple
+from xivo_agent.ctl import error
+
+_Queue = namedtuple('_Queue', ['name'])
 
 
-class TestFacade(unittest.TestCase):
+class GetQueueStep(object):
 
-    @patch('xivo_agent.ami.client.AMIClient')
-    @patch('xivo_agent.ami.actions.LoginAction')
-    def test_new(self, AMIClient, login_action):
-        facade = FacadeAMIClient('foo', '1', '2')
-        facade._ami_client = Mock()
+    def __init__(self, queue_dao):
+        self._queue_dao = queue_dao
 
-        facade.db_del('foo', 'bar')
-
-        self.assertTrue(facade._ami_client.execute.called)
+    def execute(self, command, response, blackboard):
+        try:
+            queue_name = self._queue_dao.queue_name(command.queue_id)
+        except LookupError:
+            response.error = error.NO_SUCH_QUEUE
+        else:
+            blackboard.queue = _Queue(queue_name)

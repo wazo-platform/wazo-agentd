@@ -15,13 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+from .check_agent_membership import CheckAgentIsNotMemberOfQueueStep
 from .check_agent_status import CheckAgentIsLoggedStep, CheckAgentIsNotLoggedStep
 from .check_extension import CheckExtensionIsNotInUseStep
+from .get_agent import GetAgentStep
 from .get_agent_status import GetAgentStatusStep
 from .get_agent_statuses import GetAgentStatusesStep
-from .get_agent import GetAgentStep
 from .get_interface import GetInterfaceForExtensionStep
-from .manage_events import SendAgentLoginEventStep, SendAgentLogoffEventStep
-from .manage_queues import AddAgentsToQueuesStep, RemoveAgentsFromQueuesStep
+from .get_queue import GetQueueStep
+from .manage_events import SendAgentAddedToQueueEventStep, SendAgentLoginEventStep,\
+    SendAgentLogoffEventStep
+from .manage_queue_member import InsertAgentIntoQueuememberStep
+from .manage_queues import AddAgentToQueueStep, AddAgentsToQueuesStep,\
+    RemoveAgentsFromQueuesStep
 from .update_agent_status import UpdateAgentStatusStep
 from .update_queue_log import UpdateQueueLogStep

@@ -25,10 +25,13 @@ from xivo_agent.ctl.server import AgentServer
 from xivo_agent.queuelog import QueueLogManager
 from xivo_agent.service.service import AgentService
 from xivo_agent.service.factory import StepFactory
-from xivo_dao import queue_log_dao, agent_login_dao
-from xivo_dao import line_dao
-from xivo_dao.alchemy import dbconnection
 from xivo_dao import agent_dao
+from xivo_dao import agent_login_dao
+from xivo_dao import line_dao
+from xivo_dao import queue_dao
+from xivo_dao import queue_log_dao
+from xivo_dao import queue_member_dao
+from xivo_dao.alchemy import dbconnection
 
 _DB_URI = 'postgresql://asterisk:proformatique@localhost/asterisk'
 _LOG_FILENAME = '/var/log/xivo-agentd.log'
@@ -57,7 +60,8 @@ def _run():
         with _new_agent_server() as agent_server:
             queue_log_manager = QueueLogManager(queue_log_dao)
 
-            step_factory = StepFactory(ami_client, queue_log_manager, agent_login_dao, agent_dao, line_dao)
+            step_factory = StepFactory(ami_client, queue_log_manager, agent_login_dao,
+                                       agent_dao, line_dao, queue_dao, queue_member_dao)
 
             agent_service = AgentService(agent_server)
             agent_service.init(step_factory)

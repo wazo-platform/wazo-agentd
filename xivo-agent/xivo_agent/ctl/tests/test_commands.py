@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import unittest
-from xivo_agent.ctl.commands import LoginCommand
+from xivo_agent.ctl.commands import LoginCommand, AddToQueueCommand
 
 
 class TestCommands(unittest.TestCase):
@@ -37,3 +37,22 @@ class TestCommands(unittest.TestCase):
         self.assertEqual(cmd.agent_number, None)
         self.assertEqual(cmd.extension, extension)
         self.assertEqual(cmd.context, context)
+
+    def test_marshal_add_to_queue_command(self):
+        agent_id = 42
+        queue_id = 1
+        command = AddToQueueCommand(agent_id, queue_id)
+
+        msg = command.marshal()
+
+        self.assertEqual(msg, {'agent_id': agent_id, 'queue_id': queue_id})
+
+    def test_unmarshal_add_to_queue_command(self):
+        agent_id = 42
+        queue_id = 1
+        msg = {'agent_id': agent_id, 'queue_id': queue_id}
+
+        command = AddToQueueCommand.unmarshal(msg)
+
+        self.assertEqual(command.agent_id, agent_id)
+        self.assertEqual(command.queue_id, queue_id)

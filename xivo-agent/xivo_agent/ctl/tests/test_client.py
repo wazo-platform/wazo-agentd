@@ -17,17 +17,23 @@
 
 import unittest
 from mock import Mock, patch
-from xivo_agent.ami.facade import FacadeAMIClient
+from xivo_agent.ctl.client import AgentClient
 
 
-class TestFacade(unittest.TestCase):
+class TestAgentClient(unittest.TestCase):
 
-    @patch('xivo_agent.ami.client.AMIClient')
-    @patch('xivo_agent.ami.actions.LoginAction')
-    def test_new(self, AMIClient, login_action):
-        facade = FacadeAMIClient('foo', '1', '2')
-        facade._ami_client = Mock()
+    def setUp(self):
+        self.agent_client = AgentClient()
 
-        facade.db_del('foo', 'bar')
+    @patch('xivo_agent.ctl.commands.AddToQueueCommand')
+    def test_add_agent_to_queue(self, AddToQueueCommand):
+        agent_id = 42
+        queue_id = 1
+        command = Mock()
+        AddToQueueCommand.return_value = command
+        self.agent_client._execute_command = Mock()
 
-        self.assertTrue(facade._ami_client.execute.called)
+        self.agent_client.add_agent_to_queue(agent_id, queue_id)
+
+        AddToQueueCommand.assert_called_once_with(agent_id, queue_id)
+        self.agent_client._execute_command.assert_called_once_with(command)

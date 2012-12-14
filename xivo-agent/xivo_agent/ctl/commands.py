@@ -37,6 +37,25 @@ class _AbstractAgentCommand(object):
             self.agent_number = unicode(agent_number)
 
 
+class AddToQueueCommand(object):
+
+    name = 'add_to_queue'
+
+    def __init__(self, agent_id, queue_id):
+        self.agent_id = int(agent_id)
+        self.queue_id = int(queue_id)
+
+    def marshal(self):
+        return {
+            'agent_id': self.agent_id,
+            'queue_id': self.queue_id,
+        }
+
+    @classmethod
+    def unmarshal(cls, msg):
+        return cls(msg['agent_id'], msg['queue_id'])
+
+
 class LoginCommand(_AbstractAgentCommand):
 
     name = 'login'

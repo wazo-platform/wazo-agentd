@@ -15,19 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import unittest
-from mock import Mock, patch
-from xivo_agent.ami.facade import FacadeAMIClient
+from xivo_agent.ctl import error
 
 
-class TestFacade(unittest.TestCase):
+class CheckAgentIsNotMemberOfQueueStep(object):
 
-    @patch('xivo_agent.ami.client.AMIClient')
-    @patch('xivo_agent.ami.actions.LoginAction')
-    def test_new(self, AMIClient, login_action):
-        facade = FacadeAMIClient('foo', '1', '2')
-        facade._ami_client = Mock()
-
-        facade.db_del('foo', 'bar')
-
-        self.assertTrue(facade._ami_client.execute.called)
+    def execute(self, command, response, blackboard):
+        queue_name = blackboard.queue.name
+        for queue in blackboard.agent.queues:
+            if queue.name == queue_name:
+                response.error = error.ALREADY_IN_QUEUE
+                return

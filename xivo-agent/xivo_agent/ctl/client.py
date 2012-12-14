@@ -18,9 +18,9 @@
 
 from collections import namedtuple
 from xivo_agent.ctl import commands
+from xivo_agent.ctl.amqp_transport_client import AMQPTransportClient
 from xivo_agent.ctl.marshaler import Marshaler
 from xivo_agent.exception import AgentClientError
-from xivo_agent.ctl.amqp_transport_client import AMQPTransportClient
 
 _AgentStatus = namedtuple('_AgentStatus', ['id', 'number', 'logged'])
 
@@ -49,6 +49,10 @@ class AgentClient(object):
     def _setup_transport(self):
         transport = AMQPTransportClient.create_and_connect(self._HOST)
         return transport
+
+    def add_agent_to_queue(self, agent_id, queue_id):
+        cmd = commands.AddToQueueCommand(agent_id, queue_id)
+        self._execute_command(cmd)
 
     def login_agent(self, agent_id, extension, context):
         cmd = commands.LoginCommand(extension, context).by_id(agent_id)

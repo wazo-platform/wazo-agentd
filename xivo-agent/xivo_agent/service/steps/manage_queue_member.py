@@ -16,32 +16,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 
-class SendAgentAddedToQueueEventStep(object):
+class InsertAgentIntoQueuememberStep(object):
 
-    def __init__(self, ami_client):
-        self._ami_client = ami_client
+    def __init__(self, queue_member_dao):
+        self._queue_member_dao = queue_member_dao
 
     def execute(self, command, response, blackboard):
         agent_id = blackboard.agent.id
         agent_number = blackboard.agent.number
         queue_name = blackboard.queue.name
 
-        self._ami_client.agent_added_to_queue(agent_id, agent_number, queue_name)
-
-
-class SendAgentLoginEventStep(object):
-
-    def __init__(self, ami_client):
-        self._ami_client = ami_client
-
-    def execute(self, command, response, blackboard):
-        self._ami_client.agent_login(blackboard.agent.id, blackboard.agent.number, blackboard.extension, blackboard.context)
-
-
-class SendAgentLogoffEventStep(object):
-
-    def __init__(self, ami_client):
-        self._ami_client = ami_client
-
-    def execute(self, command, response, blackboard):
-        self._ami_client.agent_logoff(blackboard.agent.id, blackboard.agent.number)
+        self._queue_member_dao.add_agent_to_queue(agent_id, agent_number, queue_name)

@@ -32,6 +32,7 @@ class AgentService(object):
     def init(self, step_factory):
         self._add_login_cmd(step_factory)
         self._add_logoff_cmd(step_factory)
+        self._add_add_to_queue_cmd(step_factory)
         self._add_status_cmd(step_factory)
         self._add_statuses_cmd(step_factory)
         self._add_ping_cmd()
@@ -64,6 +65,18 @@ class AgentService(object):
             step_factory.send_agent_logoff_event(),
         ]
         self._add_cmd(commands.LogoffCommand, self._exec_logoff_cmd, steps)
+
+    def _add_add_to_queue_cmd(self, step_factory):
+        steps = [
+            step_factory.get_agent(),
+            step_factory.get_agent_status(),
+            step_factory.get_queue(),
+            step_factory.check_agent_is_not_member_of_queue(),
+            step_factory.insert_agent_into_queuemember(),
+            step_factory.add_agent_to_queue(),
+            step_factory.send_agent_added_to_queue_event(),
+        ]
+        self._add_cmd(commands.AddToQueueCommand, self._exec_add_to_queue_cmd, steps)
 
     def _add_status_cmd(self, step_factory):
         steps = [
@@ -98,6 +111,12 @@ class AgentService(object):
         blackboard = Blackboard()
 
         self._exec_cmd(logoff_cmd, response, blackboard)
+
+    def _exec_add_to_queue_cmd(self, add_to_queue_cmd, response):
+        logger.info('Executing add to queue command with ID %s', add_to_queue_cmd.agent_id)
+        blackboard = Blackboard()
+
+        self._exec_cmd(add_to_queue_cmd, response, blackboard)
 
     def _exec_status_cmd(self, status_cmd, response):
         logger.info('Executing status command with ID %s', status_cmd.agent_id)

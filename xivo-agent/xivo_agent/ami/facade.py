@@ -64,6 +64,16 @@ class FacadeAMIClient(object):
     def close(self):
         self._ami_client.close()
 
+    def agent_added_to_queue(self, agent_id, agent_number, queue_name):
+        headers = [
+            ('AgentID', agent_id),
+            ('AgentNumber', agent_number),
+            ('QueueName', queue_name),
+        ]
+        action = actions.UserEventAction('AgentAddedToQueue', headers)
+        self._ami_client.execute(action)
+        return action
+
     def agent_login(self, agent_id, agent_number, extension, context):
         headers = [
             ('AgentID', agent_id),

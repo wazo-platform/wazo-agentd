@@ -20,6 +20,23 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+class AddAgentToQueueStep(object):
+
+    def __init__(self, ami_client):
+        self._ami_client = ami_client
+
+    def execute(self, command, response, blackboard):
+        agent = blackboard.agent
+        agent_status = blackboard.agent_status
+        queue = blackboard.queue
+
+        if agent_status is not None:
+            member_name = 'Agent/%s' % agent.number
+            action = self._ami_client.queue_add(queue.name, agent_status.interface, member_name)
+            if not action.success:
+                logger.warning('Failure to add interface %r to queue %r', agent_status.interface, queue.name)
+
+
 class AddAgentsToQueuesStep(object):
 
     def __init__(self, ami_client):

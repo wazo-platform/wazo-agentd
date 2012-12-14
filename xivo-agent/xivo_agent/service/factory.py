@@ -20,12 +20,15 @@ from xivo_agent.service import steps
 
 class StepFactory(object):
 
-    def __init__(self, ami_client, queue_log_manager, agent_login_dao, agent_dao, line_dao):
+    def __init__(self, ami_client, queue_log_manager, agent_login_dao, agent_dao,
+                 line_dao, queue_dao, queue_member_dao):
         self._ami_client = ami_client
         self._queue_log_manager = queue_log_manager
         self._agent_login_dao = agent_login_dao
         self._agent_dao = agent_dao
         self._line_dao = line_dao
+        self._queue_dao = queue_dao
+        self._queue_member_dao = queue_member_dao
 
     def get_agent(self):
         return steps.GetAgentStep(self._agent_dao)
@@ -36,11 +39,17 @@ class StepFactory(object):
     def get_agent_statuses(self):
         return steps.GetAgentStatusesStep(self._agent_login_dao)
 
+    def get_queue(self):
+        return steps.GetQueueStep(self._queue_dao)
+
     def check_agent_is_logged(self):
         return steps.CheckAgentIsLoggedStep()
 
     def check_agent_is_not_logged(self):
         return steps.CheckAgentIsNotLoggedStep()
+
+    def check_agent_is_not_member_of_queue(self):
+        return steps.CheckAgentIsNotMemberOfQueueStep()
 
     def check_extension_is_not_in_use(self):
         return steps.CheckExtensionIsNotInUseStep(self._agent_login_dao)
@@ -48,17 +57,26 @@ class StepFactory(object):
     def get_interface_for_extension(self):
         return steps.GetInterfaceForExtensionStep(self._line_dao)
 
+    def insert_agent_into_queuemember(self):
+        return steps.InsertAgentIntoQueuememberStep(self._queue_member_dao)
+
     def update_agent_status(self):
         return steps.UpdateAgentStatusStep(self._agent_login_dao)
 
     def update_queue_log(self):
         return steps.UpdateQueueLogStep(self._queue_log_manager)
 
+    def add_agent_to_queue(self):
+        return steps.AddAgentToQueueStep(self._ami_client)
+
     def add_agent_to_queues(self):
         return steps.AddAgentsToQueuesStep(self._ami_client)
 
     def remove_agent_from_queues(self):
         return steps.RemoveAgentsFromQueuesStep(self._ami_client)
+
+    def send_agent_added_to_queue_event(self):
+        return steps.SendAgentAddedToQueueEventStep(self._ami_client)
 
     def send_agent_login_event(self):
         return steps.SendAgentLoginEventStep(self._ami_client)

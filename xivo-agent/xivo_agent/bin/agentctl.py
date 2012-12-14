@@ -51,7 +51,11 @@ def _execute_command(line, agent_client):
     tokens = line.split()
     cmd_name, args = tokens[0], tokens[1:]
     start_time = time.time()
-    if cmd_name == 'login':
+    if cmd_name == 'add_agent':
+        agent_id = args[0]
+        queue_id = args[1]
+        agent_client.add_agent_to_queue(agent_id, queue_id)
+    elif cmd_name == 'login':
         agent_number = args[0]
         extension = args[1]
         context = args[2]
