@@ -18,11 +18,11 @@
 import unittest
 from xivo_agent.ctl.server import AgentServer
 from mock import Mock, patch, ANY
-import json
-from xivo_agent.exception import AgentServerError
 from xivo_agent.ctl.response import CommandResponse
 from xivo_agent.ctl.marshaler import Marshaler
 from xivo_agent.ctl.commands import _AbstractAgentCommand
+from xivo_agent.exception import AgentServerError
+
 
 class TestServer(unittest.TestCase):
 
@@ -79,7 +79,7 @@ class TestServer(unittest.TestCase):
         try:
             server._process_next_command(request)
         except AgentServerError as e:
-            self.assertEquals(e.message, expected)
+            self.assertEquals(str(e), expected)
         else:
             self.fail("no ServerError raised")
 

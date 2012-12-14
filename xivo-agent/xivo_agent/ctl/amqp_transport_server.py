@@ -78,4 +78,4 @@ class AMQPTransportServer(object):
         self._connection = None
 
     def _error_response(self, error):
-        return error.message
+        return str(error)
