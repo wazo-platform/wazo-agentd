@@ -19,10 +19,13 @@ import argparse
 import readline
 import time
 import traceback
+from contextlib import contextmanager
+from operator import attrgetter
 from xivo_agent.ctl.client import AgentClient
 from xivo_agent.exception import AgentError
 
-from contextlib import contextmanager
+verbose = False
+
 
 @contextmanager
 def _agent_client():
@@ -36,15 +39,44 @@ def _agent_client():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--command', help='Run command')
+    parser.add_argument('-c', '--command', help='run command')
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        help='increase verbosity')
 
-    opts = parser.parse_args()
+    parsed_args = parser.parse_args()
+
+    if parsed_args.verbose:
+        global verbose
+        verbose = True
 
     with _agent_client() as agent_client:
-        if opts.command:
-            _execute_command(opts.command, agent_client)
+        if parsed_args.command:
+            _execute_command(parsed_args.command, agent_client)
         else:
             _loop(agent_client)
+
+
+def _loop(agent_client):
+    try:
+        while True:
+            try:
+                line = raw_input('agentctl> ').strip()
+                if not line:
+                    continue
+
+                _execute_command(line, agent_client)
+
+            except KeyboardInterrupt:
+                print
+            except EOFError:
+                raise
+            except AgentError as e:
+                print 'Agent error:', e
+            except Exception:
+                print 'Unexpected exception:'
+                traceback.print_exc()
+    except EOFError:
+        print
 
 
 def _execute_command(line, agent_client):
@@ -69,37 +101,24 @@ def _execute_command(line, agent_client):
         agent_client.logoff_agent_by_number(agent_number)
     elif cmd_name == 'status':
         agent_number = args[0]
-        print agent_client.get_agent_status_by_number(agent_number)
+        agent_status = agent_client.get_agent_status_by_number(agent_number)
+        _print_agent_status(agent_status)
     elif cmd_name == 'statuses':
-        print agent_client.get_agent_statuses()
+        agent_statuses = agent_client.get_agent_statuses()
+        for agent_status in sorted(agent_statuses, key=attrgetter('number')):
+            _print_agent_status(agent_status)
     elif cmd_name == 'ping':
         print agent_client.ping()
     else:
         print 'unknown command:', cmd_name
-    print 'request took %s ms' % ((time.time() - start_time) * 1000)
+
+    if verbose:
+        print 'request took %s ms' % ((time.time() - start_time) * 1000)
 
 
-def _loop(agent_client):
-    try:
-        while True:
-            try:
-                line = raw_input('agentctl> ').strip()
-                if not line:
-                    continue
-
-                _execute_command(line, agent_client)
-
-            except KeyboardInterrupt:
-                print
-            except EOFError:
-                raise
-            except AgentError as e:
-                print 'Agent error:', e
-            except Exception:
-                print 'Unexpected exception:'
-                traceback.print_exc()
-    except EOFError:
-        print
+def _print_agent_status(agent_status):
+    print 'Agent/%s (ID %s)' % (agent_status.number, agent_status.id)
+    print '    logged: %s' % agent_status.logged
 
 
 if __name__ == '__main__':
