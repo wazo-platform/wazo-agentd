@@ -95,3 +95,7 @@ class StepFactory(object):
 
     def send_agent_logoff_event(self):
         return steps.SendAgentLogoffEventStep(self._ami_client)
+
+    def get_logged_in_agents(self):
+        return steps.GetLoggedInAgentsStep(self._agent_login_dao, self._agent_dao)
+
