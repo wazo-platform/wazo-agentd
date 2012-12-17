@@ -23,9 +23,14 @@ class GetLoggedInAgentsStep(object):
         self._agent_dao = agent_dao
 
     def execute(self, command, response, blackboard):
-        statuses = self._agent_login_dao.get_statuses()
-        statuses = (s for s in statuses if s.logged)
-        blackboard.logged_in_agents = [
-            (self._agent_dao.agent_with_id(status.agent_id), status)
-            for status in statuses
-        ]
+        agent_ids = self._logged_in_agent_ids()
+        blackboard.logged_in_agents = map(self._get_agent_and_status, agent_ids)
+
+    def _logged_in_agent_ids(self):
+        return (status.agent_id for status in self._agent_login_dao.get_statuses() if status.logged)
+
+    def _get_agent_and_status(self, agent_id):
+        return (
+            self._agent_dao.agent_with_id(agent_id),
+            self._agent_login_dao.get_status(agent_id)
+        )
