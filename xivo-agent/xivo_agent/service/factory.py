@@ -99,3 +99,10 @@ class StepFactory(object):
     def get_logged_in_agents(self):
         return steps.GetLoggedInAgentsStep(self._agent_login_dao, self._agent_dao)
 
+    def logoff_all_agents(self):
+        return steps.LogoffAllAgentsStep(
+            self.remove_agent_from_queues(),
+            self.update_queue_log(),
+            self.update_agent_status(),
+            self.send_agent_logoff_event()
+        )

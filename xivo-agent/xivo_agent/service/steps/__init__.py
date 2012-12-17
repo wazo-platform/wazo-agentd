@@ -31,3 +31,4 @@ from .manage_queues import AddAgentToQueueStep, AddAgentsToQueuesStep,\
 from .update_agent_status import UpdateAgentStatusStep
 from .update_queue_log import UpdateQueueLogStep
 from .get_logged_in_agents import GetLoggedInAgentsStep
+from .logoff_all_agents import LogoffAllAgentsStep
