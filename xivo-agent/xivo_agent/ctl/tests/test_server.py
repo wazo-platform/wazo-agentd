@@ -18,6 +18,7 @@
 import unittest
 from xivo_agent.ctl.server import AgentServer
 from mock import Mock, patch, ANY
+from xivo_agent.exception import AgentServerError
 from xivo_agent.ctl.response import CommandResponse
 from xivo_agent.ctl.marshaler import Marshaler
 from xivo_agent.ctl.commands import _AbstractAgentCommand
