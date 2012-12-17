@@ -116,6 +116,18 @@ class LogoffCommand(_AbstractAgentCommand):
         return cmd
 
 
+class LogoffAllCommand(_AbstractAgentCommand):
+
+    name = 'logoff_all'
+
+    def marshal(self):
+        return None
+
+    @classmethod
+    def unmarshal(cls, msg):
+        return cls()
+
+
 class StatusCommand(_AbstractAgentCommand):
 
     name = 'status'
