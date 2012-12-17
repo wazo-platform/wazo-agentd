@@ -99,6 +99,8 @@ def _execute_command(line, agent_client):
     elif cmd_name == 'logoff':
         agent_number = args[0]
         agent_client.logoff_agent_by_number(agent_number)
+    elif cmd_name == 'logoff_all':
+        agent_client.logoff_all_agents()
     elif cmd_name == 'status':
         agent_number = args[0]
         agent_status = agent_client.get_agent_status_by_number(agent_number)

@@ -74,6 +74,10 @@ class AgentClient(object):
         cmd = commands.LogoffCommand().by_number(agent_number)
         self._execute_command(cmd)
 
+    def logoff_all_agents(self):
+        cmd = commands.LogoffAllCommand()
+        self._execute_command(cmd)
+
     def get_agent_status(self, agent_id):
         cmd = commands.StatusCommand().by_id(agent_id)
         status = self._execute_command(cmd)
