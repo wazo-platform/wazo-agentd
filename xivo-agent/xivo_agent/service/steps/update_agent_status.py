@@ -25,6 +25,12 @@ class UpdateAgentStatusStep(object):
 
     def execute(self, command, response, blackboard):
         if command.name == commands.LoginCommand.name:
-            self._agent_login_dao.log_in_agent(blackboard.agent.id, blackboard.extension, blackboard.context, blackboard.interface)
+            self.log_in_agent(blackboard.agent, blackboard.extension, blackboard.context, blackboard.interface)
         elif command.name == commands.LogoffCommand.name:
-            self._agent_login_dao.log_off_agent(blackboard.agent.id)
+            self.log_off_agent(blackboard.agent)
+
+    def log_in_agent(self, agent, extension, context, interface):
+        self._agent_login_dao.log_in_agent(agent.id, extension, context, interface)
+
+    def log_off_agent(self, agent):
+        self._agent_login_dao.log_off_agent(agent.id)

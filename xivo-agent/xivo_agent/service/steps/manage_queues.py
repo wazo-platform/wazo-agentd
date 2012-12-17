@@ -70,8 +70,11 @@ class RemoveAgentsFromQueuesStep(object):
     def __init__(self, ami_client):
         self._ami_client = ami_client
 
+    def remove_agent_from_queues(self, agent, agent_status):
+        for queue in agent.queues:
+            self._ami_client.queue_remove(queue.name, agent_status.interface)
+
     def execute(self, command, response, blackboard):
         agent = blackboard.agent
-
-        for queue in agent.queues:
-            self._ami_client.queue_remove(queue.name, blackboard.agent_status.interface)
+        agent_status = blackboard.agent_status
+        self.remove_agent_from_queues(agent, agent_status)

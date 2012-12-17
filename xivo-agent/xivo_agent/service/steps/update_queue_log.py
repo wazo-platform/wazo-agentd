@@ -26,10 +26,16 @@ class UpdateQueueLogStep(object):
 
     def execute(self, command, response, blackboard):
         if command.name == commands.LoginCommand.name:
-            self._queue_log_manager.on_agent_logged_in(blackboard.agent.number, blackboard.extension, blackboard.context)
+            self.log_in_agent(blackboard.agent, blackboard.extension, blackboard.context)
         elif command.name == commands.LogoffCommand.name:
-            login_time = self._compute_login_time(blackboard.agent_status.login_at)
-            self._queue_log_manager.on_agent_logged_off(blackboard.agent.number, blackboard.agent_status.extension, blackboard.agent_status.context, login_time)
+            self.log_off_agent(blackboard.agent, blackboard.agent_status)
+
+    def log_in_agent(self, agent, extension, context):
+        self._queue_log_manager.on_agent_logged_in(agent.number, extension, context)
+
+    def log_off_agent(self, agent, agent_status):
+        login_time = self._compute_login_time(agent_status.login_at)
+        self._queue_log_manager.on_agent_logged_off(agent.number, agent_status.extension, agent_status.context, login_time)
 
     def _compute_login_time(self, login_at):
         delta = datetime.datetime.now() - login_at

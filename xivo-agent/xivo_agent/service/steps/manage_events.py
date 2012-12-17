@@ -57,4 +57,7 @@ class SendAgentLogoffEventStep(object):
         self._ami_client = ami_client
 
     def execute(self, command, response, blackboard):
-        self._ami_client.agent_logoff(blackboard.agent.id, blackboard.agent.number)
+        self.send_agent_logoff(blackboard.agent)
+
+    def send_agent_logoff(self, agent):
+        self._ami_client.agent_logoff(agent.id, agent.number)
