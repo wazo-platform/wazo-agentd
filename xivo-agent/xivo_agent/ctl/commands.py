@@ -116,7 +116,7 @@ class LogoffCommand(_AbstractAgentCommand):
         return cmd
 
 
-class LogoffAllCommand(_AbstractAgentCommand):
+class LogoffAllCommand(object):
 
     name = 'logoff_all'
 

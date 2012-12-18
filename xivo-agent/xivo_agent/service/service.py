@@ -120,7 +120,7 @@ class AgentService(object):
         self._agent_server.add_command(cmd_class, callback)
 
     def _exec_login_cmd(self, login_cmd, response):
-        logger.info('Executing login command with ID %s on %s@%s', login_cmd.agent_id, login_cmd.extension, login_cmd.context)
+        logger.info('Executing login command (ID %s, number %s) on %s@%s', login_cmd.agent_id, login_cmd.agent_number, login_cmd.extension, login_cmd.context)
         blackboard = Blackboard()
         blackboard.extension = login_cmd.extension
         blackboard.context = login_cmd.context
@@ -128,7 +128,7 @@ class AgentService(object):
         self._exec_cmd(login_cmd, response, blackboard)
 
     def _exec_logoff_cmd(self, logoff_cmd, response):
-        logger.info('Executing logoff command with ID %s', logoff_cmd.agent_id)
+        logger.info('Executing logoff command (ID %s, number %s)', logoff_cmd.agent_id, logoff_cmd.agent_number)
         blackboard = Blackboard()
 
         self._exec_cmd(logoff_cmd, response, blackboard)
@@ -140,19 +140,19 @@ class AgentService(object):
         self._exec_cmd(logoff_all_cmd, response, blackboard)
 
     def _exec_add_to_queue_cmd(self, add_to_queue_cmd, response):
-        logger.info('Executing add to queue command with ID %s', add_to_queue_cmd.agent_id)
+        logger.info('Executing add to queue command (ID %s)', add_to_queue_cmd.agent_id)
         blackboard = Blackboard()
 
         self._exec_cmd(add_to_queue_cmd, response, blackboard)
 
     def _exec_remove_from_queue_cmd(self, remove_from_queue_cmd, response):
-        logger.info('Executing remove from queue command with ID %s', remove_from_queue_cmd.agent_id)
+        logger.info('Executing remove from queue command (ID %s)', remove_from_queue_cmd.agent_id)
         blackboard = Blackboard()
 
         self._exec_cmd(remove_from_queue_cmd, response, blackboard)
 
     def _exec_status_cmd(self, status_cmd, response):
-        logger.info('Executing status command with ID %s', status_cmd.agent_id)
+        logger.info('Executing status command (ID %s, number %s)', status_cmd.agent_id, status_cmd.agent_number)
         blackboard = Blackboard()
 
         self._exec_cmd(status_cmd, response, blackboard)
