@@ -28,22 +28,25 @@ class FacadeAMIClient(object):
         ('queue_remove', actions.QueueRemoveAction),
         ('user_event', actions.UserEventAction),
     ]
+    _PORT = 5038
 
     def __init__(self, hostname, username, password):
-        self._ami_client = client.AMIClient()
+        self._ami_client = client.AMIClient(hostname, self._PORT)
+        self._username = username
+        self._password = password
         try:
-            self._connect(hostname)
-            self._login(username, password)
+            self._connect()
+            self._login()
             self._add_action_functions()
         except Exception:
             self._ami_client.close()
             raise
 
-    def _connect(self, hostname):
-        self._ami_client.connect(hostname, 5038)
+    def _connect(self):
+        self._ami_client.connect()
 
-    def _login(self, username, password):
-        action = actions.LoginAction(username, password)
+    def _login(self):
+        action = actions.LoginAction(self._username, self._password)
         self._ami_client.execute(action)
         if not action.success:
             raise Exception('AMI authentication failed')

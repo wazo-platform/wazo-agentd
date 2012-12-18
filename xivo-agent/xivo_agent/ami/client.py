@@ -25,19 +25,14 @@ from xivo_agent.ami.parser import parse_msg
 logger = logging.getLogger(__name__)
 
 
-def _action_id_generator():
-    n = 0
-    while True:
-        yield str(n)
-        n += 1
-
-
 class AMIClient(object):
 
     _BUFSIZE = 4096
     _TIMEOUT = 10
 
-    def __init__(self):
+    def __init__(self, hostname, port):
+        self._hostname = hostname
+        self._port = port
         self._sock = None
         self._new_action_id = _action_id_generator().next
         self._action_ids = {}
@@ -52,14 +47,14 @@ class AMIClient(object):
         self._sock.close()
         self._sock = None
 
-    def connect(self, hostname, port):
+    def connect(self):
         if self._sock is not None:
             raise Exception('already connected')
 
-        logger.info('Connecting AMI client to %s:%s', hostname, port)
+        logger.info('Connecting AMI client to %s:%s', self._hostname, self._port)
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._sock.settimeout(self._TIMEOUT)
-        self._sock.connect((hostname, port))
+        self._sock.connect((self._hostname, self._port))
         # discard the AMI protocol version
         self._sock.recv(self._BUFSIZE)
 
@@ -123,3 +118,10 @@ class AMIClient(object):
                     raise AssertionError('unexpected msg type: %r' % msg.msg_type)
                 if action._completed:
                     del self._action_ids[msg.action_id]
+
+
+def _action_id_generator():
+    n = 0
+    while True:
+        yield str(n)
+        n += 1

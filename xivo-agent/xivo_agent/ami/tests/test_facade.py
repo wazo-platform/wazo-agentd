@@ -24,10 +24,11 @@ class TestFacade(unittest.TestCase):
 
     @patch('xivo_agent.ami.client.AMIClient')
     @patch('xivo_agent.ami.actions.LoginAction')
-    def test_new(self, AMIClient, login_action):
-        facade = FacadeAMIClient('foo', '1', '2')
+    def test_new(self, LoginAction, AMIClient):
+        facade = FacadeAMIClient('example.org', '1', '2')
         facade._ami_client = Mock()
 
         facade.db_del('foo', 'bar')
 
+        AMIClient.assert_called_once_with('example.org', 5038)
         self.assertTrue(facade._ami_client.execute.called)
