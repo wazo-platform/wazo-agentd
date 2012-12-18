@@ -22,20 +22,20 @@ from xivo_agent.ami.facade import FacadeAMIClient
 
 class TestFacade(unittest.TestCase):
 
-    @patch('xivo_agent.ami.client.AMIClient')
+    @patch('xivo_agent.ami.client.ReconnectingAMIClient')
     @patch('xivo_agent.ami.actions.LoginAction')
-    def test_new(self, LoginAction, AMIClient):
+    def test_new(self, LoginAction, ReconnectingAMIClient):
         facade = FacadeAMIClient('example.org', '1', '2')
         facade._ami_client = Mock()
 
         facade.db_del('foo', 'bar')
 
-        AMIClient.assert_called_once_with('example.org', 5038)
+        ReconnectingAMIClient.assert_called_once_with('example.org', 5038, facade._login)
         self.assertTrue(facade._ami_client.execute.called)
 
-    @patch('xivo_agent.ami.client.AMIClient')
+    @patch('xivo_agent.ami.client.ReconnectingAMIClient')
     @patch('xivo_agent.ami.actions.LoginAction')
-    def test_close_call_ami_client_disconnect(self, LoginAction, AMIClient):
+    def test_close_call_ami_client_disconnect(self, LoginAction, ReconnectingAMIClient):
         facade = FacadeAMIClient('example.org', '1', '2')
         facade._ami_client = Mock()
 

@@ -51,8 +51,6 @@ class AMQPTransportServer(object):
             response = self._request_callback(body)
         except AgentServerError as e:
             response = self._error_response(e)
-            self._send_response(response, properties, method)
-            raise
 
         self._send_response(response, properties, method)
 

@@ -15,9 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+import socket
 import unittest
-from mock import Mock
-from xivo_agent.ami.client import AMIClient
+from mock import Mock, patch
+from xivo_agent.ami.client import AMIClient, ReconnectingAMIClient
 from xivo_agent.ami.response import Response
 
 
@@ -91,3 +92,43 @@ class TestAMIClient(unittest.TestCase):
 
         self.assertFalse(self.ami_client._msgs_queue)
         action._on_response_received.assert_called_once_with(response)
+
+
+class TestReconnectingAMIClient(unittest.TestCase):
+
+    def setUp(self):
+        self.sock = Mock()
+        self.on_reconnection_callback = Mock()
+        self.ami_client = ReconnectingAMIClient('example.org', 5038, self.on_reconnection_callback)
+        self.ami_client._sock = self.sock
+
+    @patch('socket.socket')
+    def test_on_recv_socket_no_data_and_reconnection_ok(self, socket_mock):
+        action = Mock()
+        action_ids = {'1': action}
+        self.ami_client._action_ids = dict(action_ids)
+        self.ami_client._buffer = 'foobar'
+        self.sock.recv.return_value = ''
+
+        data = self.ami_client._recv_data_from_socket()
+
+        self.assertTrue(socket_mock.called)
+        self.on_reconnection_callback.assert_called_once_with()
+        self.assertEqual('', self.ami_client._buffer)
+        self.assertEqual(action_ids, self.ami_client._action_ids)
+        self.assertEqual('', data)
+
+    @patch('socket.socket')
+    def test_on_send_socket_error_and_reconnection_ok(self, socket_mock):
+        action = Mock()
+        action_ids = {'1': action}
+        self.ami_client._action_ids = dict(action_ids)
+        self.ami_client._buffer = 'foobar'
+        self.sock.sendall.side_effect = socket.error('test')
+
+        self.ami_client._send_data_to_socket('42 x 42')
+
+        self.assertTrue(socket_mock.called)
+        self.on_reconnection_callback.assert_called_once_with()
+        self.assertEqual('', self.ami_client._buffer)
+        self.assertEqual(action_ids, self.ami_client._action_ids)

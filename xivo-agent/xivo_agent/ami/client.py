@@ -127,8 +127,62 @@ class AMIClient(object):
         return data
 
 
+class ReconnectingAMIClient(AMIClient):
+
+    def __init__(self, hostname, port, on_reconnection_callback):
+        AMIClient.__init__(self, hostname, port)
+        self._on_reconnection_callback = on_reconnection_callback
+        self._try_reconnection = True
+
+    def _send_data_to_socket(self, data):
+        try:
+            self._sock.sendall(data)
+        except socket.error as e:
+            logger.error('Could not write data to socket: %s', e)
+            self._reconnect()
+            self._sock.sendall(data)
+
+    def _recv_data_from_socket(self):
+        try:
+            data = self._sock.recv(self._BUFSIZE)
+        except socket.error as e:
+            logger.error('Could not read data from socket: %s', e)
+            self._reconnect()
+            return ''
+        else:
+            if not data:
+                logger.error('Could not read data from socket: remote connection closed')
+                self._reconnect()
+                return ''
+            return data
+
+    def _reconnect(self):
+        if not self._try_reconnection:
+            raise ReconnectionFailedError('flag is cleared')
+
+        self._try_reconnection = False
+        try:
+            self._do_reconnect()
+        finally:
+            self._try_reconnection = True
+
+    def _do_reconnect(self):
+        self._process_msgs_queue()
+        self._buffer = ''
+        self.disconnect()
+        self.connect()
+        self._on_reconnection_callback()
+        for action in self._action_ids.itervalues():
+            data = action.format()
+            self._send_data_to_socket(data)
+
+
 def _action_id_generator():
     n = 0
     while True:
         yield str(n)
         n += 1
+
+
+class ReconnectionFailedError(Exception):
+    pass

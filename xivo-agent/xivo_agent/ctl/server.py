@@ -56,7 +56,7 @@ class AgentServer(object):
         try:
             callback(command, response)
         except Exception:
-            logger.warning('Error while processing cmd: %s', exc_info=True)
+            logger.warning('Error while processing command', exc_info=True)
             error_response = self._reply_error(error.SERVER_ERROR)
             raise AgentServerError(error_response)
 

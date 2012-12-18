@@ -31,15 +31,15 @@ class FacadeAMIClient(object):
     _PORT = 5038
 
     def __init__(self, hostname, username, password):
-        self._ami_client = client.AMIClient(hostname, self._PORT)
+        self._ami_client = client.ReconnectingAMIClient(hostname, self._PORT, self._login)
         self._username = username
         self._password = password
+        self._add_action_functions()
         try:
             self._connect()
             self._login()
-            self._add_action_functions()
         except Exception:
-            self._ami_client.close()
+            self._ami_client.disconnect()
             raise
 
     def _connect(self):
