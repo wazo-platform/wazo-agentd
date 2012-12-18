@@ -63,13 +63,13 @@ class TestAMIClient(unittest.TestCase):
         action.format.assert_called_once_with()
         self.assertEqual({'foo': action}, ami_client._action_ids)
 
-    def test_recv_data(self):
+    def test_add_data_to_buffer(self):
         ami_client = self._new_mocked_amiclient(None, [
             'Response: Success',
             ''
         ])
 
-        ami_client._recv_data()
+        ami_client._add_data_to_buffer()
 
         self.assertEqual('Response: Success\r\n\r\n', ami_client._buffer)
 

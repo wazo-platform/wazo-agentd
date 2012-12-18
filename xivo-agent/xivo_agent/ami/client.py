@@ -35,9 +35,9 @@ class AMIClient(object):
         self._port = port
         self._sock = None
         self._new_action_id = _action_id_generator().next
+        self._msgs_queue = collections.deque()
         self._action_ids = {}
         self._buffer = ''
-        self._msgs_queue = collections.deque()
 
     def connect(self):
         if self._sock is not None:
@@ -64,7 +64,7 @@ class AMIClient(object):
 
     def _send_action(self, action):
         data = action.format()
-        self._sock.sendall(data)
+        self._send_data_to_socket(data)
         if action._action_id is None:
             action._completed = True
         else:
@@ -80,14 +80,12 @@ class AMIClient(object):
 
     def _process_msgs(self):
         if not self._msgs_queue:
-            self._recv_data()
+            self._add_data_to_buffer()
             self._parse_next_msgs()
         self._process_msgs_queue()
 
-    def _recv_data(self):
-        data = self._sock.recv(self._BUFSIZE)
-        if not data:
-            raise Exception('remote connection closed')
+    def _add_data_to_buffer(self):
+        data = self._recv_data_from_socket()
         self._buffer += data
 
     def _parse_next_msgs(self):
@@ -118,6 +116,15 @@ class AMIClient(object):
                     raise AssertionError('unexpected msg type: %r' % msg.msg_type)
                 if action._completed:
                     del self._action_ids[msg.action_id]
+
+    def _send_data_to_socket(self, data):
+        self._sock.sendall(data)
+
+    def _recv_data_from_socket(self):
+        data = self._sock.recv(self._BUFSIZE)
+        if not data:
+            raise Exception('remote connection closed')
+        return data
 
 
 def _action_id_generator():
