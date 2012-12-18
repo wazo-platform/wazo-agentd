@@ -65,7 +65,7 @@ class FacadeAMIClient(object):
         return aux
 
     def close(self):
-        self._ami_client.close()
+        self._ami_client.disconnect()
 
     def agent_added_to_queue(self, agent_id, agent_number, queue_name):
         headers = [

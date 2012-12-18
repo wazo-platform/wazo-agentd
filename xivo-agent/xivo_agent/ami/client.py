@@ -39,17 +39,9 @@ class AMIClient(object):
         self._buffer = ''
         self._msgs_queue = collections.deque()
 
-    def close(self):
-        if self._sock is None:
-            return
-
-        logger.info('Disconnecting AMI client')
-        self._sock.close()
-        self._sock = None
-
     def connect(self):
         if self._sock is not None:
-            raise Exception('already connected')
+            raise Exception('AMI client already connected')
 
         logger.info('Connecting AMI client to %s:%s', self._hostname, self._port)
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -57,6 +49,14 @@ class AMIClient(object):
         self._sock.connect((self._hostname, self._port))
         # discard the AMI protocol version
         self._sock.recv(self._BUFSIZE)
+
+    def disconnect(self):
+        if self._sock is None:
+            return
+
+        logger.info('Disconnecting AMI client')
+        self._sock.close()
+        self._sock = None
 
     def execute(self, action):
         action._action_id = self._new_action_id()

@@ -39,8 +39,12 @@ class TestAMIClient(unittest.TestCase):
     def test_sock_is_none_after_init(self):
         self.assertEqual(None, self.ami_client._sock)
 
-    def test_close_can_be_called_after_init(self):
-        self.ami_client.close()
+    def test_disconnect_can_be_called_after_init(self):
+        self.ami_client.disconnect()
+
+    def test_disconnect_can_be_called_multiple_times(self):
+        self.ami_client.disconnect()
+        self.ami_client.disconnect()
 
     def test_execute(self):
         ami_client = self._new_mocked_amiclient('foo', [
