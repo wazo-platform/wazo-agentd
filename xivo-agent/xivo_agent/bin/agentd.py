@@ -31,11 +31,12 @@ from xivo_dao import line_dao
 from xivo_dao import queue_dao
 from xivo_dao import queue_log_dao
 from xivo_dao import queue_member_dao
-from xivo_dao.alchemy import dbconnection
+from xivo_agent.db_manager import DBManager
 
-_DB_URI = 'postgresql://asterisk:proformatique@localhost/asterisk'
 _LOG_FILENAME = '/var/log/xivo-agentd.log'
 _PID_FILENAME = '/var/run/xivo-agentd.pid'
+
+logger = logging.getLogger(__name__)
 
 
 def main():
@@ -46,18 +47,21 @@ def main():
     if not parsed_args.foreground:
         daemonize.daemonize()
 
+    logger.info('Starting xivo-agentd')
     daemonize.lock_pidfile_or_die(_PID_FILENAME)
     try:
         _run()
     finally:
+        logger.info('Stopping xivo-agentd')
         daemonize.unlock_pidfile(_PID_FILENAME)
 
 
 def _run():
     _init_signal()
-    _init_dao()
+    db_manager = DBManager()
+    db_manager.connect()
     with _new_ami_client() as ami_client:
-        with _new_agent_server() as agent_server:
+        with _new_agent_server(db_manager) as agent_server:
             queue_log_manager = QueueLogManager(queue_log_dao)
 
             step_factory = StepFactory(ami_client, queue_log_manager, agent_login_dao,
@@ -69,16 +73,16 @@ def _run():
 
 
 def _init_logging(parsed_args):
-    logger = logging.getLogger()
     level = logging.DEBUG if parsed_args.verbose else logging.INFO
-    logger.setLevel(level)
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
     if parsed_args.foreground:
         handler = logging.StreamHandler()
         handler.setFormatter(logging.Formatter('%(asctime)s (%(levelname)s): %(message)s'))
     else:
         handler = logging.FileHandler(_LOG_FILENAME)
         handler.setFormatter(logging.Formatter('%(asctime)s [%(process)d] (%(levelname)s): %(message)s'))
-    logger.addHandler(handler)
+    root_logger.addHandler(handler)
 
 
 def _parse_args():
@@ -92,12 +96,6 @@ def _parse_args():
 
 def _init_signal():
     signal.signal(signal.SIGTERM, _handle_sigterm)
-
-
-def _init_dao():
-    db_connection_pool = dbconnection.DBConnectionPool(dbconnection.DBConnection)
-    dbconnection.register_db_connection_pool(db_connection_pool)
-    dbconnection.add_connection_as(_DB_URI, 'asterisk')
 
 
 def _handle_sigterm(signum, frame):
@@ -114,8 +112,8 @@ def _new_ami_client():
 
 
 @contextmanager
-def _new_agent_server():
-    agent_server = AgentServer()
+def _new_agent_server(db_manager):
+    agent_server = AgentServer(db_manager)
     try:
         yield agent_server
     finally:
