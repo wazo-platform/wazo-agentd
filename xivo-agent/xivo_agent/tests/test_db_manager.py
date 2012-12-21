@@ -6,7 +6,7 @@ from xivo_agent import config
 from xivo_agent.db_manager import DBManager
 
 
-class TestDBErrorHandler(unittest.TestCase):
+class TestDBManager(unittest.TestCase):
 
     @patch('xivo_dao.alchemy.dbconnection.register_db_connection_pool')
     @patch('xivo_dao.alchemy.dbconnection.add_connection_as')
