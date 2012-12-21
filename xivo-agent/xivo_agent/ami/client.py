@@ -30,9 +30,10 @@ class AMIClient(object):
     _BUFSIZE = 4096
     _TIMEOUT = 10
 
-    def __init__(self, hostname, port):
+    def __init__(self, hostname, port, on_connect_callback):
         self._hostname = hostname
         self._port = port
+        self._on_connect_callback = on_connect_callback
         self._sock = None
         self._new_action_id = _action_id_generator().next
         self._msgs_queue = collections.deque()
@@ -40,25 +41,15 @@ class AMIClient(object):
         self._buffer = ''
 
     def connect(self):
-        if self._sock is not None:
-            raise Exception('AMI client already connected')
-
-        logger.info('Connecting AMI client to %s:%s', self._hostname, self._port)
-        self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._sock.settimeout(self._TIMEOUT)
-        self._sock.connect((self._hostname, self._port))
-        # discard the AMI protocol version
-        self._sock.recv(self._BUFSIZE)
+        if self._sock is None:
+            self._connect_socket()
 
     def disconnect(self):
-        if self._sock is None:
-            return
-
-        logger.info('Disconnecting AMI client')
-        self._sock.close()
-        self._sock = None
+        if self._sock is not None:
+            self._disconnect_socket()
 
     def execute(self, action):
+        self.connect()
         action._action_id = self._new_action_id()
         self._send_action(action)
 
@@ -117,6 +108,21 @@ class AMIClient(object):
                 if action._completed:
                     del self._action_ids[msg.action_id]
 
+    def _connect_socket(self):
+        logger.info('Connecting AMI client to %s:%s', self._hostname, self._port)
+        self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._sock.settimeout(self._TIMEOUT)
+        self._sock.connect((self._hostname, self._port))
+        # discard the AMI protocol version
+        self._sock.recv(self._BUFSIZE)
+        self._on_connect_callback()
+
+    def _disconnect_socket(self):
+        logger.info('Disconnecting AMI client')
+        self._sock.close()
+        self._sock = None
+        self._buffer = ''
+
     def _send_data_to_socket(self, data):
         self._sock.sendall(data)
 
@@ -129,9 +135,8 @@ class AMIClient(object):
 
 class ReconnectingAMIClient(AMIClient):
 
-    def __init__(self, hostname, port, on_reconnection_callback):
-        AMIClient.__init__(self, hostname, port)
-        self._on_reconnection_callback = on_reconnection_callback
+    def __init__(self, hostname, port, on_connect_callback):
+        AMIClient.__init__(self, hostname, port, on_connect_callback)
         self._try_reconnection = True
 
     def _send_data_to_socket(self, data):
@@ -168,10 +173,8 @@ class ReconnectingAMIClient(AMIClient):
 
     def _do_reconnect(self):
         self._process_msgs_queue()
-        self._buffer = ''
-        self.disconnect()
-        self.connect()
-        self._on_reconnection_callback()
+        self._disconnect_socket()
+        self._connect_socket()
         for action in self._action_ids.itervalues():
             data = action.format()
             self._send_data_to_socket(data)

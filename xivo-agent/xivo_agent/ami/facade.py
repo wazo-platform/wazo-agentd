@@ -35,15 +35,6 @@ class FacadeAMIClient(object):
         self._username = username
         self._password = password
         self._add_action_functions()
-        try:
-            self._connect()
-            self._login()
-        except Exception:
-            self._ami_client.disconnect()
-            raise
-
-    def _connect(self):
-        self._ami_client.connect()
 
     def _login(self):
         action = actions.LoginAction(self._username, self._password)

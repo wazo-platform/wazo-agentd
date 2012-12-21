@@ -27,10 +27,11 @@ class TestAMIClient(unittest.TestCase):
     def setUp(self):
         self.hostname = 'example.org'
         self.port = 5038
-        self.ami_client = AMIClient(self.hostname, self.port)
+        self.on_connect_callback = Mock()
+        self.ami_client = AMIClient(self.hostname, self.port, self.on_connect_callback)
 
     def _new_mocked_amiclient(self, action_id, lines):
-        ami_client = AMIClient(self.hostname, self.port)
+        ami_client = AMIClient(self.hostname, self.port, self.on_connect_callback)
         ami_client._new_action_id = Mock()
         ami_client._new_action_id.return_value = action_id
         ami_client._sock = Mock()
@@ -63,6 +64,24 @@ class TestAMIClient(unittest.TestCase):
         self.assertEqual('foo', action._action_id)
         action.format.assert_called_once_with()
         self.assertEqual({'foo': action}, ami_client._action_ids)
+
+    @patch('socket.socket')
+    def test_execute_connect_socket_if_not_connected(self, socket_mock):
+        action = Mock()
+
+        self.ami_client.execute(action)
+
+        socket_mock.assert_called_once_with(socket.AF_INET, socket.SOCK_STREAM)
+        self.assertNotEqual(None, self.ami_client._sock)
+
+    @patch('socket.socket')
+    def test_execute_dont_connect_socket_if_connected(self, socket_mock):
+        action = Mock()
+        self.ami_client._sock = Mock()
+
+        self.ami_client.execute(action)
+
+        self.assertFalse(socket_mock.called)
 
     def test_add_data_to_buffer(self):
         ami_client = self._new_mocked_amiclient(None, [
@@ -98,8 +117,8 @@ class TestReconnectingAMIClient(unittest.TestCase):
 
     def setUp(self):
         self.sock = Mock()
-        self.on_reconnection_callback = Mock()
-        self.ami_client = ReconnectingAMIClient('example.org', 5038, self.on_reconnection_callback)
+        self.on_connect_callback = Mock()
+        self.ami_client = ReconnectingAMIClient('example.org', 5038, self.on_connect_callback)
         self.ami_client._sock = self.sock
 
     @patch('socket.socket')
@@ -113,7 +132,7 @@ class TestReconnectingAMIClient(unittest.TestCase):
         data = self.ami_client._recv_data_from_socket()
 
         self.assertTrue(socket_mock.called)
-        self.on_reconnection_callback.assert_called_once_with()
+        self.on_connect_callback.assert_called_once_with()
         self.assertEqual('', self.ami_client._buffer)
         self.assertEqual(action_ids, self.ami_client._action_ids)
         self.assertEqual('', data)
@@ -129,6 +148,6 @@ class TestReconnectingAMIClient(unittest.TestCase):
         self.ami_client._send_data_to_socket('42 x 42')
 
         self.assertTrue(socket_mock.called)
-        self.on_reconnection_callback.assert_called_once_with()
+        self.on_connect_callback.assert_called_once_with()
         self.assertEqual('', self.ami_client._buffer)
         self.assertEqual(action_ids, self.ami_client._action_ids)
