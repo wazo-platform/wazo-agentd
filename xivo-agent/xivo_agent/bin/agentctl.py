@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import argparse
 import readline
 import time
@@ -67,16 +70,16 @@ def _loop(agent_client):
                 _execute_command(line, agent_client)
 
             except KeyboardInterrupt:
-                print
+                print()
             except EOFError:
                 raise
             except AgentError as e:
-                print 'Agent error:', e
+                print('Agent error:', e)
             except Exception:
-                print 'Unexpected exception:'
+                print('Unexpected exception:')
                 traceback.print_exc()
     except EOFError:
-        print
+        print()
 
 
 def _execute_command(line, agent_client):
@@ -110,17 +113,18 @@ def _execute_command(line, agent_client):
         for agent_status in sorted(agent_statuses, key=attrgetter('number')):
             _print_agent_status(agent_status)
     elif cmd_name == 'ping':
-        print agent_client.ping()
+        print(agent_client.ping())
     else:
-        print 'unknown command:', cmd_name
+        print('unknown command:', cmd_name)
 
     if verbose:
-        print 'request took %s ms' % ((time.time() - start_time) * 1000)
+        request_time = (time.time() - start_time) * 1000
+        print('request took {0} ms'.format(request_time))
 
 
 def _print_agent_status(agent_status):
-    print 'Agent/%s (ID %s)' % (agent_status.number, agent_status.id)
-    print '    logged: %s' % agent_status.logged
+    print('Agent/{0.number} (ID {0.id})'.format(agent_status))
+    print('    logged: {0.logged}'.format(agent_status))
 
 
 if __name__ == '__main__':
