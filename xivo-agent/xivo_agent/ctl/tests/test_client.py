@@ -50,3 +50,21 @@ class TestAgentClient(unittest.TestCase):
 
         RemoveFromQueueCommand.assert_called_once_with(agent_id, queue_id)
         self.agent_client._execute_command.assert_called_once_with(command)
+
+    @patch('xivo_agent.ctl.client.AMQPTransportClient')
+    def test_connect_no_transport(self, amqp_client_constructor):
+        hostname = 'localhost'
+        port = 5672
+
+        client = AgentClient()
+        client.connect(hostname, port)
+        amqp_client_constructor.create_and_connect.assert_called_once_with(hostname, port)
+
+    @patch('xivo_agent.ctl.client.AMQPTransportClient')
+    def test_connect_already_connected(self, amqp_client_constructor):
+        hostname = 'localhost'
+        port = 5672
+
+        client = AgentClient()
+        client.connect(hostname, port)
+        self.assertRaises(Exception, client.connect, hostname, port)

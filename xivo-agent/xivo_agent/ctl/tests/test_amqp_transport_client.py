@@ -41,9 +41,9 @@ class TestAMQPTransportClient(unittest.TestCase):
     @patch('xivo_agent.ctl.amqp_transport_server.AMQPTransportServer')
     @patch('pika.ConnectionParameters')
     def test_create_and_connect(self, connection_params, constructor):
-        AMQPTransportClient.create_and_connect('localhost')
+        AMQPTransportClient.create_and_connect('localhost', 5672)
 
-        connection_params.assert_called_once_with(host='localhost')
+        connection_params.assert_called_once_with(host='localhost', port=5672)
         constructor.assert_called_once()
 
     def test_connect(self):

@@ -25,8 +25,8 @@ class AMQPTransportClient(object):
     _QUEUE_NAME = 'xivo_agent'
 
     @classmethod
-    def create_and_connect(cls, host):
-        connection_params = pika.ConnectionParameters(host=host)
+    def create_and_connect(cls, host, port):
+        connection_params = pika.ConnectionParameters(host=host, port=port)
         return cls(connection_params)
 
     def __init__(self, connection_params):
