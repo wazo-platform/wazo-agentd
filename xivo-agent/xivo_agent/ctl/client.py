@@ -27,8 +27,6 @@ _AgentStatus = namedtuple('_AgentStatus', ['id', 'number', 'logged'])
 
 class AgentClient(object):
 
-    _HOST = 'localhost'
-
     def __init__(self):
         self._transport = None
         self._marshaler = Marshaler()
@@ -41,13 +39,14 @@ class AgentClient(object):
         self._transport = None
 
     def connect(self, hostname):
+        self._hostname = hostname
         if self._transport is not None:
             raise Exception('already connected')
 
         self._transport = self._setup_transport()
 
     def _setup_transport(self):
-        transport = AMQPTransportClient.create_and_connect(self._HOST)
+        transport = AMQPTransportClient.create_and_connect(self._hostname)
         return transport
 
     def add_agent_to_queue(self, agent_id, queue_id):
