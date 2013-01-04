@@ -38,11 +38,11 @@ class AgentClient(object):
         self._transport.close()
         self._transport = None
 
-    def connect(self, hostname, port):
-        self._hostname = hostname
-        self._port = port
+    def connect(self, hostname='localhost', port=5672):
         if self._transport is not None:
             raise Exception('already connected')
+        self._hostname = hostname
+        self._port = port
 
         self._transport = self._setup_transport()
 
