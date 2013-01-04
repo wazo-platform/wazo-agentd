@@ -29,9 +29,6 @@ from xivo_agent.exception import AgentError
 
 verbose = False
 
-DEFAULT_HOST = 'localhost'
-DEFAULT_PORT = 5672
-
 
 @contextmanager
 def _agent_client(host, port):
@@ -45,11 +42,14 @@ def _agent_client(host, port):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--command', help='run command')
+    parser.add_argument('-c', '--command',
+                        help='run command')
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='increase verbosity')
-    parser.add_argument('-H', '--host', help='rabbitmq host', default=DEFAULT_HOST)
-    parser.add_argument('-p', '--port', help='rabbitmq port', default=DEFAULT_PORT)
+    parser.add_argument('-H', '--host', default=AgentClient.DEFAULT_HOST,
+                        help='rabbitmq host')
+    parser.add_argument('-p', '--port', type=int, default=AgentClient.DEFAULT_PORT,
+                        help='rabbitmq port')
 
     parsed_args = parser.parse_args()
 
@@ -57,10 +57,7 @@ def main():
         global verbose
         verbose = True
 
-    host = parsed_args.host
-    port = int(parsed_args.port)
-
-    with _agent_client(host, port) as agent_client:
+    with _agent_client(parsed_args.host, parsed_args.port) as agent_client:
         if parsed_args.command:
             _execute_command(parsed_args.command, agent_client)
         else:

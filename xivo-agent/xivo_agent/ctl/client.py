@@ -27,6 +27,9 @@ _AgentStatus = namedtuple('_AgentStatus', ['id', 'number', 'logged'])
 
 class AgentClient(object):
 
+    DEFAULT_HOST = 'localhost'
+    DEFAULT_PORT = 5672
+
     def __init__(self):
         self._transport = None
         self._marshaler = Marshaler()
@@ -38,7 +41,7 @@ class AgentClient(object):
         self._transport.close()
         self._transport = None
 
-    def connect(self, hostname='localhost', port=5672):
+    def connect(self, hostname=DEFAULT_HOST, port=DEFAULT_PORT):
         if self._transport is not None:
             raise Exception('already connected')
         self._hostname = hostname
