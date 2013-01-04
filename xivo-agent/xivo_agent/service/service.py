@@ -171,8 +171,12 @@ class AgentService(object):
         self._exec_cmd(statuses_cmd, response, blackboard)
 
         response.value = [
-            {'id': status.agent_id, 'number': status.agent_number, 'logged': status.logged} for
-            status in blackboard.agent_statuses
+            {'id': status.agent_id,
+             'number': status.agent_number,
+             'logged': status.logged,
+             'extension': status.extension,
+             'context': status.context}
+            for status in blackboard.agent_statuses
         ]
 
     def _exec_ping_cmd(self, ping_cmd, response):

@@ -16,10 +16,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import unittest
-from mock import Mock, call
+from mock import Mock, call, patch
+from xivo_agent.ctl.commands import StatusesCommand
+from xivo_agent.ctl.response import CommandResponse
 from xivo_agent.ctl.server import AgentServer
-from xivo_agent.service.service import AgentService
+from xivo_agent.service.blackboard import Blackboard
 from xivo_agent.service.factory import StepFactory
+from xivo_agent.service.service import AgentService
+from xivo_agent.service.steps import GetAgentStatusesStep
 
 
 class TestAgentService(unittest.TestCase):
@@ -60,3 +64,20 @@ class TestAgentService(unittest.TestCase):
         self.agent_service._add_remove_from_queue_cmd(self.step_factory)
 
         self.assertEqual(self.step_factory.mock_calls, expected)
+
+    @patch('xivo_agent.service.service.Blackboard')
+    def test_exec_statuses_cmd(self, mock_blackboard):
+        mock_blackboard_instance = Mock()
+        mock_blackboard.return_value = mock_blackboard_instance
+        mock_blackboard_instance.agent_statuses = []
+        statuses_command = StatusesCommand()
+        response = CommandResponse()
+
+        mock_step = Mock(GetAgentStatusesStep)
+        self.agent_service._steps['statuses'] = [mock_step]
+
+        self.agent_service._exec_statuses_cmd(statuses_command, response)
+
+        mock_step.execute.assert_called_once_with(statuses_command,
+                                                  response,
+                                                  mock_blackboard_instance)

@@ -17,7 +17,7 @@
 
 import unittest
 from mock import Mock, patch
-from xivo_agent.ctl.client import AgentClient
+from xivo_agent.ctl.client import AgentClient, _AgentStatus
 
 
 class TestAgentClient(unittest.TestCase):
@@ -68,3 +68,78 @@ class TestAgentClient(unittest.TestCase):
         client = AgentClient()
         client.connect(hostname, port)
         self.assertRaises(Exception, client.connect, hostname, port)
+
+    @patch('xivo_agent.ctl.commands.StatusesCommand')
+    def test_get_agent_statuses(self, StatusesCommand):
+        agent1 = {
+            'id': 1,
+            'number': '1001',
+            'extension': '9001',
+            'context': 'default',
+            'logged': True,
+        }
+
+        agent2 = {
+            'id': 2,
+            'number': '1002',
+            'extension': None,
+            'context': None,
+            'logged': False,
+        }
+
+        command = Mock()
+        StatusesCommand.return_value = command
+
+        execute_command = Mock()
+        execute_command.return_value = [agent1, agent2]
+        self.agent_client._execute_command = execute_command
+
+        statuses = self.agent_client.get_agent_statuses()
+
+        self.assertTrue(isinstance(statuses[0], _AgentStatus))
+        self.assertEquals(statuses[0].id, agent1['id'])
+        self.assertEquals(statuses[0].number, agent1['number'])
+        self.assertEquals(statuses[0].extension, agent1['extension'])
+        self.assertEquals(statuses[0].context, agent1['context'])
+        self.assertEquals(statuses[0].logged, agent1['logged'])
+
+        self.assertTrue(isinstance(statuses[1], _AgentStatus))
+        self.assertEquals(statuses[1].id, agent2['id'])
+        self.assertEquals(statuses[1].number, agent2['number'])
+        self.assertEquals(statuses[1].extension, agent2['extension'])
+        self.assertEquals(statuses[1].context, agent2['context'])
+        self.assertEquals(statuses[1].logged, agent2['logged'])
+
+        StatusesCommand.assert_called_once_with()
+        self.agent_client._execute_command.assert_called_once_with(command)
+
+    @patch('xivo_agent.ctl.commands.StatusCommand')
+    def test_get_agent_status_by_number(self, StatusCommand):
+        agent = {
+            'id': 1,
+            'number': '1001',
+            'extension': '9001',
+            'context': 'default',
+            'logged': True,
+        }
+
+        agent_number = '1001'
+
+        command = Mock()
+        StatusCommand.return_value.by_number.return_value = command
+
+        execute_command = Mock()
+        execute_command.return_value = agent
+        self.agent_client._execute_command = execute_command
+
+        status = self.agent_client.get_agent_status_by_number(agent_number)
+
+        self.assertTrue(isinstance(status, _AgentStatus))
+        self.assertEquals(status.id, agent['id'])
+        self.assertEquals(status.number, agent['number'])
+        self.assertEquals(status.extension, agent['extension'])
+        self.assertEquals(status.context, agent['context'])
+        self.assertEquals(status.logged, agent['logged'])
+
+        StatusCommand.assert_called_once_with()
+        self.agent_client._execute_command.assert_called_once_with(command)

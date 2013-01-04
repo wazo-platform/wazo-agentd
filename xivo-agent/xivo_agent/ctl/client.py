@@ -22,7 +22,7 @@ from xivo_agent.ctl.amqp_transport_client import AMQPTransportClient
 from xivo_agent.ctl.marshaler import Marshaler
 from xivo_agent.exception import AgentClientError
 
-_AgentStatus = namedtuple('_AgentStatus', ['id', 'number', 'logged'])
+_AgentStatus = namedtuple('_AgentStatus', ['id', 'number', 'extension', 'context', 'logged'])
 
 
 class AgentClient(object):
@@ -109,4 +109,5 @@ class AgentClient(object):
         return response.value
 
     def _convert_agent_status(self, status):
-        return _AgentStatus(status['id'], status['number'], status['logged'])
+        return _AgentStatus(status['id'], status['number'], status['extension'],
+                            status['context'], status['logged'])
