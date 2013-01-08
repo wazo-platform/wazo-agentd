@@ -128,8 +128,11 @@ def _execute_command(line, agent_client):
 
 
 def _print_agent_status(agent_status):
-    print('Agent/{0.number} (ID {0.id}) (Extension {0.extension}) (Context {0.context})'.format(agent_status))
+    print('Agent/{0.number} (ID {0.id})'.format(agent_status))
     print('    logged: {0.logged}'.format(agent_status))
+    if agent_status.logged:
+        print('    extension: {0.extension}'.format(agent_status))
+        print('    context: {0.context}'.format(agent_status))
 
 
 if __name__ == '__main__':
