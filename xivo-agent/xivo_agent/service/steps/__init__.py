@@ -26,8 +26,8 @@ from .get_queue import GetQueueStep
 from .manage_events import SendAgentAddedToQueueEventStep, SendAgentRemovedFromQueueEventStep,\
     SendAgentLoginEventStep, SendAgentLogoffEventStep
 from .manage_queue_member import InsertAgentIntoQueuememberStep, DeleteAgentFromQueuememberStep
-from .manage_queues import AddAgentToQueueStep, AddAgentsToQueuesStep,\
-    RemoveAgentFromQueueStep, RemoveAgentsFromQueuesStep
+from .manage_queues import AddAgentToQueueStep, AddAgentToQueuesStep,\
+    RemoveAgentFromQueueStep, RemoveAgentFromQueuesStep
 from .update_agent_status import UpdateAgentStatusStep
 from .update_queue_log import UpdateQueueLogStep
 from .get_logged_in_agents import GetLoggedInAgentsStep

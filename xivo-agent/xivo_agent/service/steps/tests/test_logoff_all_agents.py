@@ -2,7 +2,7 @@
 
 import unittest
 from mock import Mock
-from xivo_agent.service.steps.manage_queues import RemoveAgentsFromQueuesStep
+from xivo_agent.service.steps.manage_queues import RemoveAgentFromQueuesStep
 from xivo_agent.service.steps.update_queue_log import UpdateQueueLogStep
 from xivo_agent.service.steps.update_agent_status import UpdateAgentStatusStep
 from xivo_agent.service.steps.manage_events import SendAgentLogoffEventStep
@@ -13,7 +13,7 @@ class TestLogoffAllAgentsStep(unittest.TestCase):
 
     def test_execute(self):
 
-        queue_manager_step = Mock(RemoveAgentsFromQueuesStep)
+        queue_manager_step = Mock(RemoveAgentFromQueuesStep)
         update_queue_log_step = Mock(UpdateQueueLogStep)
         update_agent_status_step = Mock(UpdateAgentStatusStep)
         send_agent_logoff_step = Mock(SendAgentLogoffEventStep)
