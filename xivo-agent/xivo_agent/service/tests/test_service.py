@@ -17,10 +17,9 @@
 
 import unittest
 from mock import Mock, call, patch
-from xivo_agent.ctl.commands import StatusesCommand
+from xivo_agent.ctl import commands
 from xivo_agent.ctl.response import CommandResponse
 from xivo_agent.ctl.server import AgentServer
-from xivo_agent.service.blackboard import Blackboard
 from xivo_agent.service.factory import StepFactory
 from xivo_agent.service.service import AgentService
 from xivo_agent.service.steps import GetAgentStatusesStep
@@ -66,11 +65,50 @@ class TestAgentService(unittest.TestCase):
         self.assertEqual(self.step_factory.mock_calls, expected)
 
     @patch('xivo_agent.service.service.Blackboard')
+    def test_exec_status_cmd_when_logged_in(self, mock_blackboard):
+        mock_blackboard_instance = Mock()
+        mock_blackboard.return_value = mock_blackboard_instance
+        mock_blackboard_instance.agent.id = 42
+        mock_blackboard_instance.agent.number = '1'
+        mock_blackboard_instance.agent_status.extension = '1001'
+        mock_blackboard_instance.agent_status.context = 'default'
+        command = commands.StatusCommand()
+        response = CommandResponse()
+        self.agent_service._steps[command.name] = []
+
+        self.agent_service._exec_status_cmd(command, response)
+
+        self.assertEqual(response.value['id'], mock_blackboard_instance.agent.id)
+        self.assertEqual(response.value['number'], mock_blackboard_instance.agent.number)
+        self.assertEqual(response.value['logged'], True)
+        self.assertEqual(response.value['extension'], mock_blackboard_instance.agent_status.extension)
+        self.assertEqual(response.value['context'], mock_blackboard_instance.agent_status.context)
+
+    @patch('xivo_agent.service.service.Blackboard')
+    def test_exec_status_cmd_when_not_logged_in(self, mock_blackboard):
+        mock_blackboard_instance = Mock()
+        mock_blackboard.return_value = mock_blackboard_instance
+        mock_blackboard_instance.agent.id = 42
+        mock_blackboard_instance.agent.number = '1'
+        mock_blackboard_instance.agent_status = None
+        command = commands.StatusCommand()
+        response = CommandResponse()
+        self.agent_service._steps[command.name] = []
+
+        self.agent_service._exec_status_cmd(command, response)
+
+        self.assertEqual(response.value['id'], mock_blackboard_instance.agent.id)
+        self.assertEqual(response.value['number'], mock_blackboard_instance.agent.number)
+        self.assertEqual(response.value['logged'], False)
+        self.assertEqual(response.value['extension'], None)
+        self.assertEqual(response.value['context'], None)
+
+    @patch('xivo_agent.service.service.Blackboard')
     def test_exec_statuses_cmd(self, mock_blackboard):
         mock_blackboard_instance = Mock()
         mock_blackboard.return_value = mock_blackboard_instance
         mock_blackboard_instance.agent_statuses = []
-        statuses_command = StatusesCommand()
+        statuses_command = commands.StatusesCommand()
         response = CommandResponse()
 
         mock_step = Mock(GetAgentStatusesStep)

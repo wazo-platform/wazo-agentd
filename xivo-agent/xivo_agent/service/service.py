@@ -158,10 +158,21 @@ class AgentService(object):
         self._exec_cmd(status_cmd, response, blackboard)
 
         if not response.error:
+            status = blackboard.agent_status
+            if status is None:
+                logged = False
+                extension = None
+                context = None
+            else:
+                logged = True
+                extension = status.extension
+                context = status.context
             response.value = {
                 'id': blackboard.agent.id,
                 'number': blackboard.agent.number,
-                'logged': blackboard.agent_status is not None,
+                'logged': logged,
+                'extension': extension,
+                'context': context,
             }
 
     def _exec_statuses_cmd(self, statuses_cmd, response):
