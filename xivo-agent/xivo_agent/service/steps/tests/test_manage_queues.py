@@ -17,7 +17,8 @@ class TestAddAgentToQueueStep(unittest.TestCase):
         self.blackboard.agent.number = '456'
 
     def test_execute_when_logged(self):
-        self.blackboard.agent_status.interface = 'SIP/abcdef'
+        self.blackboard.agent_status.interface = 'Local/2@foobar'
+        self.blackboard.agent_status.state_interface = 'SIP/abcdef'
         agent_client = Mock()
 
         step = AddAgentToQueueStep(agent_client)
@@ -25,7 +26,8 @@ class TestAddAgentToQueueStep(unittest.TestCase):
 
         agent_client.queue_add.assert_called_once_with(self.blackboard.queue.name,
                                                        self.blackboard.agent_status.interface,
-                                                       'Agent/%s' % self.blackboard.agent.number)
+                                                       'Agent/%s' % self.blackboard.agent.number,
+                                                       self.blackboard.agent_status.state_interface)
 
     def test_execute_when_not_logged(self):
         self.blackboard.agent_status = None

@@ -18,13 +18,24 @@
 from xivo_agent.ctl import error
 
 
-class GetInterfaceForExtensionStep(object):
+class GetInterfaceStep(object):
+
+    _INTERFACE = 'Local/id-{0}@agentcallback'
+
+    def execute(self, command, response, blackboard):
+        blackboard.interface = self._build_interface(blackboard.agent.id)
+
+    def _build_interface(self, agent_id):
+        return self._INTERFACE.format(agent_id)
+
+
+class GetStateInterfaceForExtensionStep(object):
 
     def __init__(self, line_dao):
         self._line_dao = line_dao
 
     def execute(self, command, response, blackboard):
         try:
-            blackboard.interface = self._line_dao.get_interface_from_exten_and_context(blackboard.extension, blackboard.context)
+            blackboard.state_interface = self._line_dao.get_interface_from_exten_and_context(blackboard.extension, blackboard.context)
         except LookupError:
             response.error = error.NO_SUCH_EXTEN

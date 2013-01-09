@@ -32,7 +32,7 @@ class AddAgentToQueueStep(object):
 
         if agent_status is not None:
             member_name = 'Agent/%s' % agent.number
-            action = self._ami_client.queue_add(queue.name, agent_status.interface, member_name)
+            action = self._ami_client.queue_add(queue.name, agent_status.interface, member_name, agent_status.state_interface)
             if not action.success:
                 logger.warning('Failure to add interface %r to queue %r', agent_status.interface, queue.name)
 
@@ -47,7 +47,7 @@ class AddAgentToQueuesStep(object):
 
         member_name = 'Agent/%s' % agent.number
         for queue in agent.queues:
-            action = self._ami_client.queue_add(queue.name, blackboard.interface, member_name)
+            action = self._ami_client.queue_add(queue.name, blackboard.interface, member_name, blackboard.state_interface)
             if not action.success:
                 logger.warning('Failure to add interface %r to queue %r', blackboard.interface, queue.name)
 

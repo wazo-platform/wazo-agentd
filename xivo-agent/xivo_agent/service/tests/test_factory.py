@@ -29,6 +29,12 @@ class TestStepFactory(unittest.TestCase):
 
         GetQueueStep.assert_called_once_with(self.queue_dao)
 
+    @patch('xivo_agent.service.steps.GetInterfaceStep')
+    def test_get_interface(self, GetInterfaceStep):
+        self.step_factory.get_interface()
+
+        GetInterfaceStep.assert_called_once_with()
+
     @patch('xivo_agent.service.steps.CheckAgentIsNotMemberOfQueueStep')
     def test_check_agent_is_not_member_of_queue(self, CheckAgentIsNotMemberOfQueueStep):
         self.step_factory.check_agent_is_not_member_of_queue()

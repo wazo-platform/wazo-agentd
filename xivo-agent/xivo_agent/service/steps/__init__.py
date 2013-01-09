@@ -21,7 +21,7 @@ from .check_extension import CheckExtensionIsNotInUseStep
 from .get_agent import GetAgentStep
 from .get_agent_status import GetAgentStatusStep
 from .get_agent_statuses import GetAgentStatusesStep
-from .get_interface import GetInterfaceForExtensionStep
+from .get_interface import GetInterfaceStep, GetStateInterfaceForExtensionStep
 from .get_queue import GetQueueStep
 from .manage_events import SendAgentAddedToQueueEventStep, SendAgentRemovedFromQueueEventStep,\
     SendAgentLoginEventStep, SendAgentLogoffEventStep

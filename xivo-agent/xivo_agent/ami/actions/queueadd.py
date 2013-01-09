@@ -18,9 +18,10 @@
 from xivo_agent.ami.actions.common.action import BaseAction
 
 
-def QueueAddAction(queue, interface, member_name=None):
+def QueueAddAction(queue, interface, member_name=None, state_interface=None):
     return BaseAction('QueueAdd', [
         ('Queue', queue),
         ('Interface', interface),
         ('MemberName', member_name),
+        ('StateInterface', state_interface),
     ])

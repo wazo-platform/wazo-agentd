@@ -57,8 +57,11 @@ class StepFactory(object):
     def check_extension_is_not_in_use(self):
         return steps.CheckExtensionIsNotInUseStep(self._agent_login_dao)
 
-    def get_interface_for_extension(self):
-        return steps.GetInterfaceForExtensionStep(self._line_dao)
+    def get_interface(self):
+        return steps.GetInterfaceStep()
+
+    def get_state_interface_for_extension(self):
+        return steps.GetStateInterfaceForExtensionStep(self._line_dao)
 
     def insert_agent_into_queuemember(self):
         return steps.InsertAgentIntoQueuememberStep(self._queue_member_dao)
