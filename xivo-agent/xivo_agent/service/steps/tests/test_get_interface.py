@@ -6,7 +6,7 @@ from xivo_agent.ctl import error
 from xivo_agent.service.steps import GetInterfaceForExtensionStep
 
 
-class TestGetAgentStep(unittest.TestCase):
+class TestGetInterfaceForExtensionStep(unittest.TestCase):
 
     def test_execute_with_known_exten(self):
         command = Mock()
