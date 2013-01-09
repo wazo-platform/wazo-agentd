@@ -34,3 +34,13 @@ class AbstractAgentCommand(object):
             self.agent_id = int(agent_id)
         if agent_number is not None:
             self.agent_number = unicode(agent_number)
+
+
+class AbstractNoDataCommand(object):
+
+    def marshal(self):
+        return None
+
+    @classmethod
+    def unmarshal(cls, msg):
+        return cls()

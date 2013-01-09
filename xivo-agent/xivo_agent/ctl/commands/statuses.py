@@ -15,14 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+from xivo_agent.ctl.commands.abstract import AbstractNoDataCommand
 
-class StatusesCommand(object):
+
+class StatusesCommand(AbstractNoDataCommand):
 
     name = 'statuses'
-
-    def marshal(self):
-        return None
-
-    @classmethod
-    def unmarshal(cls, msg):
-        return cls()
