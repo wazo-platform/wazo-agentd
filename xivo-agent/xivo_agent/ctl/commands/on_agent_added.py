@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright (C) 2012-2013  Avencall
+# Copyright (C) 2013  Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,13 +15,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from .add_to_queue import AddToQueueCommand
-from .login import LoginCommand
-from .logoff_all import LogoffAllCommand
-from .logoff import LogoffCommand
-from .on_agent_added import OnAgentAddedCommand
-from .on_agent_deleted import OnAgentDeletedCommand
-from .ping import PingCommand
-from .remove_from_queue import RemoveFromQueueCommand
-from .status import StatusCommand
-from .statuses import StatusesCommand
+from __future__ import unicode_literals
+
+
+class OnAgentAddedCommand(object):
+
+    name = 'on_agent_added'
+
+    def __init__(self, agent_id):
+        self.agent_id = int(agent_id)
+
+    def marshal(self):
+        return {'agent_id': self.agent_id}
+
+    @classmethod
+    def unmarshal(cls, msg):
+        return cls(msg['agent_id'])
