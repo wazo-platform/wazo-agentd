@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright (C) 2012-2013  Avencall
+# Copyright (C) 2013  Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,12 +15,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from .add_to_queue import AddToQueueCommand
-from .login import LoginCommand
-from .logoff_all import LogoffAllCommand
-from .logoff import LogoffCommand
-from .on_agent_deleted import OnAgentDeletedCommand
-from .ping import PingCommand
-from .remove_from_queue import RemoveFromQueueCommand
-from .status import StatusCommand
-from .statuses import StatusesCommand
+import unittest
+from xivo_agent.ctl.commands import OnAgentDeletedCommand
+
+
+class TestOnAgentDeletedCommand(unittest.TestCase):
+
+    def test_marshal(self):
+        agent_id = 42
+        command = OnAgentDeletedCommand(agent_id)
+
+        msg = command.marshal()
+
+        self.assertEqual(msg, {'agent_id': agent_id})
+
+    def test_unmarshal(self):
+        agent_id = 42
+        msg = {'agent_id': agent_id}
+
+        command = OnAgentDeletedCommand.unmarshal(msg)
+
+        self.assertEqual(command.agent_id, agent_id)
