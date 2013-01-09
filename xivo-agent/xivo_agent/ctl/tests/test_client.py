@@ -144,8 +144,20 @@ class TestAgentClient(unittest.TestCase):
         StatusCommand.assert_called_once_with()
         self.agent_client._execute_command.assert_called_once_with(command)
 
+    @patch('xivo_agent.ctl.commands.OnAgentAddedCommand')
+    def test_on_agent_added_command(self, OnAgentAddedCommand):
+        agent_id = 42
+        self.agent_client._execute_command = Mock()
+        command = Mock()
+        OnAgentAddedCommand.return_value = command
+
+        self.agent_client.on_agent_added(agent_id)
+
+        OnAgentAddedCommand.assert_called_once_with(agent_id)
+        self.agent_client._execute_command.assert_called_once_with(command)
+
     @patch('xivo_agent.ctl.commands.OnAgentDeletedCommand')
-    def test_on_agent_deleted_commend(self, OnAgentDeletedCommand):
+    def test_on_agent_deleted_command(self, OnAgentDeletedCommand):
         agent_id = 42
         self.agent_client._execute_command = Mock()
         command = Mock()

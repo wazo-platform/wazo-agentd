@@ -64,6 +64,15 @@ class TestAgentService(unittest.TestCase):
 
         self.assertEqual(self.step_factory.mock_calls, expected)
 
+    def test_add_on_agent_added_cmd(self):
+        self.agent_service._add_cmd = Mock()
+        expected = [
+        ]
+
+        self.agent_service._add_on_agent_added_cmd(self.step_factory)
+
+        self.assertEqual(self.step_factory.mock_calls, expected)
+
     def test_add_on_agent_deleted_cmd(self):
         self.agent_service._add_cmd = Mock()
         expected = [
@@ -128,6 +137,16 @@ class TestAgentService(unittest.TestCase):
         mock_step.execute.assert_called_once_with(statuses_command,
                                                   response,
                                                   mock_blackboard_instance)
+
+    def test_exec_on_agent_added_cmd(self):
+        command = commands.OnAgentAddedCommand(42)
+        response = CommandResponse()
+        step = Mock()
+        self.agent_service._steps[command.name] = [step]
+
+        self.agent_service._exec_on_agent_added_cmd(command, response)
+
+        step.execute.assert_called_once_with(command, response, ANY)
 
     def test_exec_on_agent_deleted_cmd(self):
         command = commands.OnAgentDeletedCommand(42)

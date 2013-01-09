@@ -37,6 +37,7 @@ class AgentService(object):
         self._add_remove_from_queue_cmd(step_factory)
         self._add_status_cmd(step_factory)
         self._add_statuses_cmd(step_factory)
+        self._add_on_agent_added_cmd(step_factory)
         self._add_on_agent_deleted_cmd(step_factory)
         self._add_ping_cmd()
 
@@ -112,6 +113,10 @@ class AgentService(object):
             step_factory.get_agent_statuses(),
         ]
         self._add_cmd(commands.StatusesCommand, self._exec_statuses_cmd, steps)
+
+    def _add_on_agent_added_cmd(self, step_factory):
+        steps = []
+        self._add_cmd(commands.OnAgentAddedCommand, self._exec_on_agent_added_cmd, steps)
 
     def _add_on_agent_deleted_cmd(self, step_factory):
         steps = []
@@ -194,6 +199,12 @@ class AgentService(object):
              'context': status.context}
             for status in blackboard.agent_statuses
         ]
+
+    def _exec_on_agent_added_cmd(self, on_agent_added_cmd, response):
+        logger.info('Executing on agent added command (ID %s)', on_agent_added_cmd.agent_id)
+        blackboard = Blackboard()
+
+        self._exec_cmd(on_agent_added_cmd, response, blackboard)
 
     def _exec_on_agent_deleted_cmd(self, on_agent_deleted_cmd, response):
         logger.info('Executing on agent deleted command (ID %s)', on_agent_deleted_cmd.agent_id)
