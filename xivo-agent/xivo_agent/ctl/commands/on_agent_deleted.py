@@ -17,17 +17,9 @@
 
 from __future__ import unicode_literals
 
+from xivo_agent.ctl.commands.abstract import AbstractAgentIDCommand
 
-class OnAgentDeletedCommand(object):
+
+class OnAgentDeletedCommand(AbstractAgentIDCommand):
 
     name = 'on_agent_deleted'
-
-    def __init__(self, agent_id):
-        self.agent_id = int(agent_id)
-
-    def marshal(self):
-        return {'agent_id': self.agent_id}
-
-    @classmethod
-    def unmarshal(cls, msg):
-        return cls(msg['agent_id'])

@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+from __future__ import unicode_literals
+
+
 class AbstractAgentCommand(object):
 
     def __init__(self):
@@ -44,3 +47,16 @@ class AbstractNoDataCommand(object):
     @classmethod
     def unmarshal(cls, msg):
         return cls()
+
+
+class AbstractAgentIDCommand(object):
+
+    def __init__(self, agent_id):
+        self.agent_id = int(agent_id)
+
+    def marshal(self):
+        return {'agent_id': self.agent_id}
+
+    @classmethod
+    def unmarshal(cls, msg):
+        return cls(msg['agent_id'])

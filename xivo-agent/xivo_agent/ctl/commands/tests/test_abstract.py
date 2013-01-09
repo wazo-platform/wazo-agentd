@@ -18,7 +18,8 @@
 from __future__ import unicode_literals
 
 import unittest
-from xivo_agent.ctl.commands.abstract import AbstractNoDataCommand
+from xivo_agent.ctl.commands.abstract import AbstractNoDataCommand, \
+    AbstractAgentIDCommand
 
 
 class ConcreteNoDataCommand(AbstractNoDataCommand):
@@ -41,3 +42,29 @@ class TestAbstractNoDataCommand(unittest.TestCase):
         command = ConcreteNoDataCommand.unmarshal(msg)
 
         self.assertEqual(command.name, ConcreteNoDataCommand.name)
+
+
+class ConcreteAgentIDCommand(AbstractAgentIDCommand):
+
+    name = 'foo'
+
+
+class TestAbstractAgentIDCommand(unittest.TestCase):
+
+    def setUp(self):
+        self.agent_id = 42
+
+    def test_marshal(self):
+        command = ConcreteAgentIDCommand(self.agent_id)
+
+        msg = command.marshal()
+
+        self.assertEqual(msg, {'agent_id': self.agent_id})
+
+    def test_unmarshal(self):
+        msg = {'agent_id': self.agent_id}
+
+        command = ConcreteAgentIDCommand.unmarshal(msg)
+
+        self.assertEqual(command.name, ConcreteAgentIDCommand.name)
+        self.assertEqual(command.agent_id, self.agent_id)
