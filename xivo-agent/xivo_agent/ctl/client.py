@@ -100,6 +100,10 @@ class AgentClient(object):
         cmd = commands.OnAgentAddedCommand(agent_id)
         self._execute_command(cmd)
 
+    def on_agent_updated(self, agent_id):
+        cmd = commands.OnAgentUpdatedCommand(agent_id)
+        self._execute_command(cmd)
+
     def on_agent_deleted(self, agent_id):
         cmd = commands.OnAgentDeletedCommand(agent_id)
         self._execute_command(cmd)
