@@ -20,7 +20,7 @@ from __future__ import unicode_literals
 
 class OnAgentDeletedCommand(object):
 
-    name = 'on_agent_removed'
+    name = 'on_agent_deleted'
 
     def __init__(self, agent_id):
         self.agent_id = int(agent_id)

@@ -117,6 +117,9 @@ def _execute_command(line, agent_client):
         agent_statuses = agent_client.get_agent_statuses()
         for agent_status in sorted(agent_statuses, key=attrgetter('number')):
             _print_agent_status(agent_status)
+    elif cmd_name == 'on_agent_deleted':
+        agent_id = args[0]
+        agent_client.on_agent_deleted(agent_id)
     elif cmd_name == 'ping':
         print(agent_client.ping())
     else:

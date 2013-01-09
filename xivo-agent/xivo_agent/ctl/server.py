@@ -50,11 +50,10 @@ class AgentServer(object):
         self._commands_callback[cmd_class.name] = callback
 
     def _process_next_command(self, request):
-        command = self._marshaler.unmarshal_command(request)
-
-        callback = self._commands_callback[command.name]
         response = CommandResponse()
         try:
+            command = self._marshaler.unmarshal_command(request)
+            callback = self._commands_callback[command.name]
             self._call_callback(callback, command, response)
         except Exception:
             logger.warning('Error while processing command', exc_info=True)
