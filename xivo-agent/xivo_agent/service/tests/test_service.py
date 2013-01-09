@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import unittest
-from mock import Mock, call, patch
+from mock import Mock, call, patch, ANY
 from xivo_agent.ctl import commands
 from xivo_agent.ctl.response import CommandResponse
 from xivo_agent.ctl.server import AgentServer
@@ -61,6 +61,15 @@ class TestAgentService(unittest.TestCase):
         ]
 
         self.agent_service._add_remove_from_queue_cmd(self.step_factory)
+
+        self.assertEqual(self.step_factory.mock_calls, expected)
+
+    def test_add_on_agent_deleted_cmd(self):
+        self.agent_service._add_cmd = Mock()
+        expected = [
+        ]
+
+        self.agent_service._add_on_agent_deleted_cmd(self.step_factory)
 
         self.assertEqual(self.step_factory.mock_calls, expected)
 
@@ -119,3 +128,13 @@ class TestAgentService(unittest.TestCase):
         mock_step.execute.assert_called_once_with(statuses_command,
                                                   response,
                                                   mock_blackboard_instance)
+
+    def test_exec_on_agent_deleted_cmd(self):
+        command = commands.OnAgentDeletedCommand(42)
+        response = CommandResponse()
+        step = Mock()
+        self.agent_service._steps[command.name] = [step]
+
+        self.agent_service._exec_on_agent_deleted_cmd(command, response)
+
+        step.execute.assert_called_once_with(command, response, ANY)
