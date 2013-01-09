@@ -19,7 +19,7 @@ import unittest
 from mock import Mock, call, patch, ANY
 from xivo_agent.ctl.response import CommandResponse
 from xivo_agent.ctl.marshaler import Marshaler
-from xivo_agent.ctl.commands import _AbstractAgentCommand
+from xivo_agent.ctl.commands.abstract import AbstractAgentCommand
 from xivo_agent.ctl.server import AgentServer
 from xivo_agent.exception import AgentServerError
 from sqlalchemy.exc import OperationalError
@@ -70,7 +70,7 @@ class TestAgentServer(unittest.TestCase):
         server = AgentServer(db_manager)
         server._marshaler = marshaler
 
-        command = Mock(_AbstractAgentCommand)
+        command = Mock(AbstractAgentCommand)
         command.name = "foobar"
         marshaler.unmarshal_command.return_value = command
         marshaler.marshal_response.return_value = expected
