@@ -23,19 +23,64 @@ from xivo_agent.ctl.commands import LoginCommand
 
 class TestLoginCommand(unittest.TestCase):
 
-    def test_marshal_unmarshal(self):
-        agent_id = 1
-        extension = '123'
-        context = 'foo'
-        expected = {'agent_id': agent_id, 'agent_number': None, 'extension': extension, 'context': context}
+    def setUp(self):
+        self.agent_id = 1
+        self.agent_number = '2'
+        self.extension = '123'
+        self.context = 'foo'
 
-        data = LoginCommand(extension, context).by_id(agent_id).marshal()
+    def test_marshal_by_id(self):
+        command = LoginCommand(self.extension, self.context).by_id(self.agent_id)
 
-        self.assertEqual(expected, data)
+        msg = command.marshal()
 
-        cmd = LoginCommand.unmarshal(data)
+        expected_msg = {
+            'agent_id': self.agent_id,
+            'agent_number': None,
+            'extension': self.extension,
+            'context': self.context,
+        }
+        self.assertEqual(msg, expected_msg)
 
-        self.assertEqual(cmd.agent_id, agent_id)
-        self.assertEqual(cmd.agent_number, None)
-        self.assertEqual(cmd.extension, extension)
-        self.assertEqual(cmd.context, context)
+    def test_marshal_by_number(self):
+        command = LoginCommand(self.extension, self.context).by_number(self.agent_number)
+
+        msg = command.marshal()
+
+        expected_msg = {
+            'agent_id': None,
+            'agent_number': self.agent_number,
+            'extension': self.extension,
+            'context': self.context,
+        }
+        self.assertEqual(msg, expected_msg)
+
+    def test_unmarshal_by_id(self):
+        msg = {
+            'agent_id': self.agent_id,
+            'agent_number': None,
+            'extension': self.extension,
+            'context': self.context,
+        }
+
+        command = LoginCommand.unmarshal(msg)
+
+        self.assertEqual(command.agent_id, self.agent_id)
+        self.assertEqual(command.agent_number, None)
+        self.assertEqual(command.extension, self.extension)
+        self.assertEqual(command.context, self.context)
+
+    def test_unmarshal_by_number(self):
+        msg = {
+            'agent_id': None,
+            'agent_number': self.agent_number,
+            'extension': self.extension,
+            'context': self.context,
+        }
+
+        command = LoginCommand.unmarshal(msg)
+
+        self.assertEqual(command.agent_id, None)
+        self.assertEqual(command.agent_number, self.agent_number)
+        self.assertEqual(command.extension, self.extension)
+        self.assertEqual(command.context, self.context)
