@@ -29,8 +29,10 @@ class TestQueueAddAction(unittest.TestCase):
         interface = 'Local/1@foobar'
         member_name = 'Agent/234'
         state_interface = 'SIP/abcdef'
+        penalty = '1'
+        skills = 'agent-12'
 
-        action = QueueAddAction(queue, interface, member_name, state_interface)
+        action = QueueAddAction(queue, interface, member_name, state_interface, penalty, skills)
 
         self.assertTrue(action is not None)
         mock_base_action.assert_called_once_with('QueueAdd', [
@@ -38,4 +40,6 @@ class TestQueueAddAction(unittest.TestCase):
             ('Interface', interface),
             ('MemberName', member_name),
             ('StateInterface', state_interface),
+            ('Penalty', penalty),
+            ('Skills', skills)
         ])
