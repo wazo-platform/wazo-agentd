@@ -35,3 +35,4 @@ class UpdateAgentStatusStep(object):
 
     def log_off_agent(self, agent):
         self._agent_status_dao.log_off_agent(agent.id)
+        self._agent_status_dao.remove_agent_from_all_queues(agent.id)

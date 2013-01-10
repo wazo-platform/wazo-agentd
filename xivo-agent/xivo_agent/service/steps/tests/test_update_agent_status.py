@@ -18,7 +18,7 @@
 import unittest
 
 from mock import Mock
-from xivo_agent.ctl.commands.login import LoginCommand
+from xivo_agent.ctl.commands import LoginCommand, LogoffCommand
 from xivo_agent.service.steps.update_agent_status import UpdateAgentStatusStep
 
 
@@ -53,3 +53,11 @@ class TestUpdateAgentStatusStep(unittest.TestCase):
                                                                    self.blackboard.state_interface)
         self.agent_status_dao.add_agent_to_queues.assert_called_once_with(self.agent.id,
                                                                           self.agent.queues)
+
+    def test_execute_logoff_command(self):
+        self.command.name = LogoffCommand.name
+
+        self.step.execute(self.command, self.response, self.blackboard)
+
+        self.agent_status_dao.log_off_agent.assert_called_once_with(self.agent.id)
+        self.agent_status_dao.remove_agent_from_all_queues.assert_called_once_with(self.agent.id)
