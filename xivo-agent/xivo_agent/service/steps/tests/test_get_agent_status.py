@@ -14,11 +14,11 @@ class TestGetAgentStatusStep(unittest.TestCase):
         blackboard.agent.id = 12
 
         agent_status = Mock()
-        agent_login_dao = Mock()
-        agent_login_dao.get_status.return_value = agent_status
+        agent_status_dao = Mock()
+        agent_status_dao.get_status.return_value = agent_status
 
-        step = GetAgentStatusStep(agent_login_dao)
+        step = GetAgentStatusStep(agent_status_dao)
         step.execute(command, response, blackboard)
 
-        agent_login_dao.get_status.assert_called_once_with(blackboard.agent.id)
+        agent_status_dao.get_status.assert_called_once_with(blackboard.agent.id)
         self.assertEqual(blackboard.agent_status, agent_status)

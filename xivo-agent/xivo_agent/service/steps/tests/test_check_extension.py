@@ -16,13 +16,13 @@ class TestCheckExtensionIsNotInUseStep(unittest.TestCase):
         blackboard.extension = '1001'
         blackboard.context = 'default'
 
-        agent_login_dao = Mock()
-        agent_login_dao.is_extension_in_use.return_value = False
+        agent_status_dao = Mock()
+        agent_status_dao.is_extension_in_use.return_value = False
 
-        step = CheckExtensionIsNotInUseStep(agent_login_dao)
+        step = CheckExtensionIsNotInUseStep(agent_status_dao)
         step.execute(command, response, blackboard)
 
-        agent_login_dao.is_extension_in_use.assert_called_once_with(blackboard.extension, blackboard.context)
+        agent_status_dao.is_extension_in_use.assert_called_once_with(blackboard.extension, blackboard.context)
         self.assertEqual(response.error, None)
 
     def test_execute_when_in_use(self):
@@ -33,11 +33,11 @@ class TestCheckExtensionIsNotInUseStep(unittest.TestCase):
         blackboard.extension = '1001'
         blackboard.context = 'default'
 
-        agent_login_dao = Mock()
-        agent_login_dao.is_extension_in_use.return_value = True
+        agent_status_dao = Mock()
+        agent_status_dao.is_extension_in_use.return_value = True
 
-        step = CheckExtensionIsNotInUseStep(agent_login_dao)
+        step = CheckExtensionIsNotInUseStep(agent_status_dao)
         step.execute(command, response, blackboard)
 
-        agent_login_dao.is_extension_in_use.assert_called_once_with(blackboard.extension, blackboard.context)
+        agent_status_dao.is_extension_in_use.assert_called_once_with(blackboard.extension, blackboard.context)
         self.assertEqual(response.error, error.ALREADY_IN_USE)

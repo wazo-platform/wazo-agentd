@@ -20,8 +20,8 @@ from xivo_agent.ctl import commands
 
 class UpdateAgentStatusStep(object):
 
-    def __init__(self, agent_login_dao):
-        self._agent_login_dao = agent_login_dao
+    def __init__(self, agent_status_dao):
+        self._agent_status_dao = agent_status_dao
 
     def execute(self, command, response, blackboard):
         if command.name == commands.LoginCommand.name:
@@ -30,7 +30,7 @@ class UpdateAgentStatusStep(object):
             self.log_off_agent(blackboard.agent)
 
     def log_in_agent(self, agent, extension, context, interface, state_interface):
-        self._agent_login_dao.log_in_agent(agent.id, extension, context, interface, state_interface)
+        self._agent_status_dao.log_in_agent(agent.id, extension, context, interface, state_interface)
 
     def log_off_agent(self, agent):
-        self._agent_login_dao.log_off_agent(agent.id)
+        self._agent_status_dao.log_off_agent(agent.id)

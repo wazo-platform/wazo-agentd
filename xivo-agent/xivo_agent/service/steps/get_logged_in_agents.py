@@ -18,8 +18,8 @@
 
 class GetLoggedInAgentsStep(object):
 
-    def __init__(self, agent_login_dao, agent_dao):
-        self._agent_login_dao = agent_login_dao
+    def __init__(self, agent_status_dao, agent_dao):
+        self._agent_status_dao = agent_status_dao
         self._agent_dao = agent_dao
 
     def execute(self, command, response, blackboard):
@@ -27,10 +27,10 @@ class GetLoggedInAgentsStep(object):
         blackboard.logged_in_agents = map(self._get_agent_and_status, agent_ids)
 
     def _logged_in_agent_ids(self):
-        return (status.agent_id for status in self._agent_login_dao.get_statuses() if status.logged)
+        return (status.agent_id for status in self._agent_status_dao.get_statuses() if status.logged)
 
     def _get_agent_and_status(self, agent_id):
         return (
             self._agent_dao.agent_with_id(agent_id),
-            self._agent_login_dao.get_status(agent_id)
+            self._agent_status_dao.get_status(agent_id)
         )

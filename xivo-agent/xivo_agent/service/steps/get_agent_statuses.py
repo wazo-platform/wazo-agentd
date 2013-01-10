@@ -18,8 +18,8 @@
 
 class GetAgentStatusesStep(object):
 
-    def __init__(self, agent_login_dao):
-        self._agent_login_dao = agent_login_dao
+    def __init__(self, agent_status_dao):
+        self._agent_status_dao = agent_status_dao
 
     def execute(self, command, response, blackboard):
-        blackboard.agent_statuses = self._agent_login_dao.get_statuses()
+        blackboard.agent_statuses = self._agent_status_dao.get_statuses()

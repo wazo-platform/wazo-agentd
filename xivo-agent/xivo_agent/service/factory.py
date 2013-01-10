@@ -20,11 +20,11 @@ from xivo_agent.service import steps
 
 class StepFactory(object):
 
-    def __init__(self, ami_client, queue_log_manager, agent_login_dao, agent_dao,
+    def __init__(self, ami_client, queue_log_manager, agent_status_dao, agent_dao,
                  line_dao, queue_dao, queue_member_dao):
         self._ami_client = ami_client
         self._queue_log_manager = queue_log_manager
-        self._agent_login_dao = agent_login_dao
+        self._agent_status_dao = agent_status_dao
         self._agent_dao = agent_dao
         self._line_dao = line_dao
         self._queue_dao = queue_dao
@@ -34,10 +34,10 @@ class StepFactory(object):
         return steps.GetAgentStep(self._agent_dao)
 
     def get_agent_status(self):
-        return steps.GetAgentStatusStep(self._agent_login_dao)
+        return steps.GetAgentStatusStep(self._agent_status_dao)
 
     def get_agent_statuses(self):
-        return steps.GetAgentStatusesStep(self._agent_login_dao)
+        return steps.GetAgentStatusesStep(self._agent_status_dao)
 
     def get_queue(self):
         return steps.GetQueueStep(self._queue_dao)
@@ -55,7 +55,7 @@ class StepFactory(object):
         return steps.CheckAgentIsNotMemberOfQueueStep()
 
     def check_extension_is_not_in_use(self):
-        return steps.CheckExtensionIsNotInUseStep(self._agent_login_dao)
+        return steps.CheckExtensionIsNotInUseStep(self._agent_status_dao)
 
     def get_interface(self):
         return steps.GetInterfaceStep()
@@ -70,7 +70,7 @@ class StepFactory(object):
         return steps.DeleteAgentFromQueuememberStep(self._queue_member_dao)
 
     def update_agent_status(self):
-        return steps.UpdateAgentStatusStep(self._agent_login_dao)
+        return steps.UpdateAgentStatusStep(self._agent_status_dao)
 
     def update_queue_log(self):
         return steps.UpdateQueueLogStep(self._queue_log_manager)
@@ -100,7 +100,7 @@ class StepFactory(object):
         return steps.SendAgentLogoffEventStep(self._ami_client)
 
     def get_logged_in_agents(self):
-        return steps.GetLoggedInAgentsStep(self._agent_login_dao, self._agent_dao)
+        return steps.GetLoggedInAgentsStep(self._agent_status_dao, self._agent_dao)
 
     def logoff_all_agents(self):
         return steps.LogoffAllAgentsStep(
