@@ -31,6 +31,7 @@ class UpdateAgentStatusStep(object):
 
     def log_in_agent(self, agent, extension, context, interface, state_interface):
         self._agent_status_dao.log_in_agent(agent.id, extension, context, interface, state_interface)
+        self._agent_status_dao.add_agent_to_queues(agent.id, agent.queues)
 
     def log_off_agent(self, agent):
         self._agent_status_dao.log_off_agent(agent.id)
