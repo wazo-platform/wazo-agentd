@@ -27,12 +27,12 @@ class UpdateAgentStatusStep(object):
         if command.name == commands.LoginCommand.name:
             self.log_in_agent(blackboard.agent, blackboard.extension, blackboard.context, blackboard.interface, blackboard.state_interface)
         elif command.name == commands.LogoffCommand.name:
-            self.log_off_agent(blackboard.agent)
+            self.log_off_agent(blackboard.agent.id)
 
     def log_in_agent(self, agent, extension, context, interface, state_interface):
         self._agent_status_dao.log_in_agent(agent.id, agent.number, extension, context, interface, state_interface)
         self._agent_status_dao.add_agent_to_queues(agent.id, agent.queues)
 
-    def log_off_agent(self, agent):
-        self._agent_status_dao.log_off_agent(agent.id)
-        self._agent_status_dao.remove_agent_from_all_queues(agent.id)
+    def log_off_agent(self, agent_id):
+        self._agent_status_dao.log_off_agent(agent_id)
+        self._agent_status_dao.remove_agent_from_all_queues(agent_id)

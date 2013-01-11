@@ -33,5 +33,5 @@ class LogoffAllAgentsStep(object):
             logger.info("logging off agent %s", agent)
             self._remove_agents_from_queues_step.remove_agent_from_queues(status)
             self._update_queue_log_step.log_off_agent(status)
-            self._update_agent_status_step.log_off_agent(agent)
+            self._update_agent_status_step.log_off_agent(agent.id)
             self._send_agent_logoff_step.send_agent_logoff(agent)

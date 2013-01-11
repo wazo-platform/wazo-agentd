@@ -43,5 +43,5 @@ class TestLogoffAllAgentsStep(unittest.TestCase):
 
             queue_manager_step.remove_agent_from_queues.assert_any_call(status)
             update_queue_log_step.log_off_agent.assert_any_call(status)
-            update_agent_status_step.log_off_agent.assert_any_call(agent)
+            update_agent_status_step.log_off_agent.assert_any_call(agent.id)
             send_agent_logoff_step.send_agent_logoff.assert_any_call(agent)
