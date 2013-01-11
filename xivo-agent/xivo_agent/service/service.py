@@ -19,6 +19,7 @@
 import logging
 from xivo_agent.ctl import commands
 from xivo_agent.service.blackboard import Blackboard
+from xivo_agent.service.manager.on_agent_deleted import OnAgentDeletedManager
 
 logger = logging.getLogger(__name__)
 
@@ -125,8 +126,8 @@ class AgentService(object):
         self._add_cmd(commands.OnAgentUpdatedCommand, self._exec_on_agent_updated_cmd, steps)
 
     def _add_on_agent_deleted_cmd(self, step_factory):
-        steps = []
-        self._add_cmd(commands.OnAgentDeletedCommand, self._exec_on_agent_deleted_cmd, steps)
+        self._on_agent_deleted_manager = OnAgentDeletedManager(step_factory)
+        self._agent_server.add_command(commands.OnAgentDeletedCommand, self._exec_on_agent_deleted_cmd)
 
     def _add_ping_cmd(self):
         self._agent_server.add_command(commands.PingCommand, self._exec_ping_cmd)
@@ -220,9 +221,9 @@ class AgentService(object):
 
     def _exec_on_agent_deleted_cmd(self, on_agent_deleted_cmd, response):
         logger.info('Executing on agent deleted command (ID %s)', on_agent_deleted_cmd.agent_id)
-        blackboard = Blackboard()
 
-        self._exec_cmd(on_agent_deleted_cmd, response, blackboard)
+        agent_id = on_agent_deleted_cmd.agent_id
+        self._on_agent_deleted_manager.on_agent_deleted(agent_id)
 
     def _exec_ping_cmd(self, ping_cmd, response):
         response.value = 'pong'

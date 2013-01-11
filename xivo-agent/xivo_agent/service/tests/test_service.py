@@ -83,13 +83,11 @@ class TestAgentService(unittest.TestCase):
         self.assertEqual(self.step_factory.mock_calls, expected)
 
     def test_add_on_agent_deleted_cmd(self):
-        self.agent_service._add_cmd = Mock()
-        expected = [
-        ]
-
         self.agent_service._add_on_agent_deleted_cmd(self.step_factory)
 
-        self.assertEqual(self.step_factory.mock_calls, expected)
+        self.agent_server.add_command.assert_called_once_with(
+            commands.OnAgentDeletedCommand,
+            self.agent_service._exec_on_agent_deleted_cmd)
 
     @patch('xivo_agent.service.service.Blackboard')
     def test_exec_status_cmd_when_logged_in(self, mock_blackboard):
@@ -168,11 +166,12 @@ class TestAgentService(unittest.TestCase):
         step.execute.assert_called_once_with(command, response, ANY)
 
     def test_exec_on_agent_deleted_cmd(self):
-        command = commands.OnAgentDeletedCommand(42)
+        agent_id = 42
+        command = commands.OnAgentDeletedCommand(agent_id)
         response = CommandResponse()
-        step = Mock()
-        self.agent_service._steps[command.name] = [step]
+        on_agent_deleted_manager = Mock()
+        self.agent_service._on_agent_deleted_manager = on_agent_deleted_manager
 
         self.agent_service._exec_on_agent_deleted_cmd(command, response)
 
-        step.execute.assert_called_once_with(command, response, ANY)
+        on_agent_deleted_manager.on_agent_deleted.assert_called_once_with(agent_id)

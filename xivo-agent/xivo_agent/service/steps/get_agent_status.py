@@ -22,4 +22,7 @@ class GetAgentStatusStep(object):
         self._agent_status_dao = agent_status_dao
 
     def execute(self, command, response, blackboard):
-        blackboard.agent_status = self._agent_status_dao.get_status(blackboard.agent.id)
+        blackboard.agent_status = self.get_status(blackboard.agent.id)
+
+    def get_status(self, agent_id):
+        return self._agent_status_dao.get_status(agent_id)
