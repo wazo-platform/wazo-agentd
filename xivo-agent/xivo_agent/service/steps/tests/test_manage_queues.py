@@ -4,7 +4,7 @@ import unittest
 from mock import Mock
 from xivo_agent.service.steps import AddAgentToQueueStep
 from xivo_agent.service.steps.manage_queues import RemoveAgentFromQueueStep, \
-    AddAgentToQueuesStep
+    AddAgentToQueuesStep, RemoveAgentFromQueuesStep
 
 
 class TestAddAgentToQueueStep(unittest.TestCase):
@@ -106,3 +106,26 @@ class TestRemoveAgentFromQueueStep(unittest.TestCase):
         step.execute(self.command, self.response, self.blackboard)
 
         self.assertFalse(agent_client.queue_remove.called)
+
+
+class TestRemoveAgentFromQueuesStep(unittest.TestCase):
+
+    def setUp(self):
+        self.ami_client = Mock()
+        self.step = RemoveAgentFromQueuesStep(self.ami_client)
+        self.command = Mock()
+        self.response = Mock()
+        self.response.error = None
+        self.blackboard = Mock()
+        self.queue = Mock()
+        self.queue.name = 'queue1'
+        self.agent_status = Mock()
+        self.agent_status.interface = 'Local/1@foo'
+        self.agent_status.queues = [self.queue]
+        self.blackboard.agent_status = self.agent_status
+
+    def test_execute(self):
+        self.step.execute(self.command, self.response, self.blackboard)
+
+        self.ami_client.queue_remove.assert_called_once_with(self.queue.name,
+                                                             self.agent_status.interface)
