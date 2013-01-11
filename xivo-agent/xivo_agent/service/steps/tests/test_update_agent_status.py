@@ -33,6 +33,7 @@ class TestUpdateAgentStatusStep(unittest.TestCase):
         self.blackboard = Mock()
         self.agent = Mock()
         self.agent.id = 42
+        self.agent.number = '2'
         self.queue = Mock()
         self.agent.queues = [self.queue]
         self.blackboard.agent = self.agent
@@ -47,6 +48,7 @@ class TestUpdateAgentStatusStep(unittest.TestCase):
         self.step.execute(self.command, self.response, self.blackboard)
 
         self.agent_status_dao.log_in_agent.assert_called_once_with(self.agent.id,
+                                                                   self.agent.number,
                                                                    self.blackboard.extension,
                                                                    self.blackboard.context,
                                                                    self.blackboard.interface,
