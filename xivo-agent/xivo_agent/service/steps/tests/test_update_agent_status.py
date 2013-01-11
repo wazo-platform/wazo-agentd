@@ -18,7 +18,7 @@
 import unittest
 
 from mock import Mock
-from xivo_agent.ctl.commands import LoginCommand, LogoffCommand
+from xivo_agent.ctl import commands
 from xivo_agent.service.steps.update_agent_status import UpdateAgentStatusStep
 
 
@@ -35,15 +35,17 @@ class TestUpdateAgentStatusStep(unittest.TestCase):
         self.agent.id = 42
         self.agent.number = '2'
         self.queue = Mock()
+        self.queue.id = 10
         self.agent.queues = [self.queue]
         self.blackboard.agent = self.agent
+        self.blackboard.queue = self.queue
         self.blackboard.extension = '1001'
         self.blackboard.context = 'default'
         self.blackboard.interface = 'Local/2@foobar'
         self.blackboard.state_interface = 'SIP/abcdef'
 
     def test_execute_login_command(self):
-        self.command.name = LoginCommand.name
+        self.command.name = commands.LoginCommand.name
 
         self.step.execute(self.command, self.response, self.blackboard)
 
@@ -57,9 +59,23 @@ class TestUpdateAgentStatusStep(unittest.TestCase):
                                                                           self.agent.queues)
 
     def test_execute_logoff_command(self):
-        self.command.name = LogoffCommand.name
+        self.command.name = commands.LogoffCommand.name
 
         self.step.execute(self.command, self.response, self.blackboard)
 
         self.agent_status_dao.log_off_agent.assert_called_once_with(self.agent.id)
         self.agent_status_dao.remove_agent_from_all_queues.assert_called_once_with(self.agent.id)
+
+    def test_execute_add_to_queue_command(self):
+        self.command.name = commands.AddToQueueCommand.name
+
+        self.step.execute(self.command, self.response, self.blackboard)
+
+        self.agent_status_dao.add_agent_to_queues.assert_called_once_with(self.agent.id, [self.queue])
+
+    def test_execute_remove_from_queue_command(self):
+        self.command.name = commands.RemoveFromQueueCommand.name
+
+        self.step.execute(self.command, self.response, self.blackboard)
+
+        self.agent_status_dao.remove_agent_from_queues.assert_called_once_with(self.agent.id, [self.queue.id])

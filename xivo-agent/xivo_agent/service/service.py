@@ -88,6 +88,7 @@ class AgentService(object):
             step_factory.check_agent_is_not_member_of_queue(),
             step_factory.insert_agent_into_queuemember(),
             step_factory.add_agent_to_queue(),
+            step_factory.update_agent_status(),
             step_factory.send_agent_added_to_queue_event(),
         ]
         self._add_cmd(commands.AddToQueueCommand, self._exec_add_to_queue_cmd, steps)
@@ -100,6 +101,7 @@ class AgentService(object):
             step_factory.check_agent_is_member_of_queue(),
             step_factory.delete_agent_from_queuemember(),
             step_factory.remove_agent_from_queue(),
+            step_factory.update_agent_status(),
             step_factory.send_agent_removed_from_queue_event(),
         ]
         self._add_cmd(commands.RemoveFromQueueCommand, self._exec_remove_from_queue_cmd, steps)

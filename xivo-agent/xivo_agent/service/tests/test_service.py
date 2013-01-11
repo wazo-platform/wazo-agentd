@@ -41,6 +41,7 @@ class TestAgentService(unittest.TestCase):
             call.check_agent_is_not_member_of_queue(),
             call.insert_agent_into_queuemember(),
             call.add_agent_to_queue(),
+            call.update_agent_status(),
             call.send_agent_added_to_queue_event(),
         ]
 
@@ -57,6 +58,7 @@ class TestAgentService(unittest.TestCase):
             call.check_agent_is_member_of_queue(),
             call.delete_agent_from_queuemember(),
             call.remove_agent_from_queue(),
+            call.update_agent_status(),
             call.send_agent_removed_from_queue_event(),
         ]
 

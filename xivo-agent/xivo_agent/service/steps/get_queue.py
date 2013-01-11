@@ -18,7 +18,7 @@
 from collections import namedtuple
 from xivo_agent.ctl import error
 
-_Queue = namedtuple('_Queue', ['name'])
+_Queue = namedtuple('_Queue', ['id', 'name'])
 
 
 class GetQueueStep(object):
@@ -32,4 +32,4 @@ class GetQueueStep(object):
         except LookupError:
             response.error = error.NO_SUCH_QUEUE
         else:
-            blackboard.queue = _Queue(queue_name)
+            blackboard.queue = _Queue(command.queue_id, queue_name)
