@@ -96,10 +96,6 @@ class AgentClient(object):
         statuses = self._execute_command(cmd)
         return [self._convert_agent_status(status) for status in statuses]
 
-    def on_agent_added(self, agent_id):
-        cmd = commands.OnAgentAddedCommand(agent_id)
-        self._execute_command(cmd)
-
     def on_agent_updated(self, agent_id):
         cmd = commands.OnAgentUpdatedCommand(agent_id)
         self._execute_command(cmd)

@@ -19,7 +19,6 @@ from .add_to_queue import AddToQueueCommand
 from .login import LoginCommand
 from .logoff_all import LogoffAllCommand
 from .logoff import LogoffCommand
-from .on_agent_added import OnAgentAddedCommand
 from .on_agent_deleted import OnAgentDeletedCommand
 from .on_agent_updated import OnAgentUpdatedCommand
 from .ping import PingCommand
