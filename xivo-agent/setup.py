@@ -19,6 +19,7 @@ setup(
               'xivo_agent.ctl',
               'xivo_agent.ctl.commands',
               'xivo_agent.service',
+              'xivo_agent.service.manager',
               'xivo_agent.service.steps'],
     scripts=['bin/xivo-agentd',
              'bin/xivo-agentctl'],
