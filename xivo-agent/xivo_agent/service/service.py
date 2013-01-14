@@ -20,6 +20,7 @@ import logging
 from xivo_agent.ctl import commands
 from xivo_agent.service.blackboard import Blackboard
 from xivo_agent.service.manager.on_agent_deleted import OnAgentDeletedManager
+from xivo_agent.service.manager.on_agent_updated import OnAgentUpdatedManager
 
 logger = logging.getLogger(__name__)
 
@@ -119,8 +120,8 @@ class AgentService(object):
         self._add_cmd(commands.StatusesCommand, self._exec_statuses_cmd, steps)
 
     def _add_on_agent_updated_cmd(self, step_factory):
-        steps = []
-        self._add_cmd(commands.OnAgentUpdatedCommand, self._exec_on_agent_updated_cmd, steps)
+        self._on_agent_updated_manager = OnAgentUpdatedManager(step_factory)
+        self._agent_server.add_command(commands.OnAgentUpdatedCommand, self._exec_on_agent_updated_cmd)
 
     def _add_on_agent_deleted_cmd(self, step_factory):
         self._on_agent_deleted_manager = OnAgentDeletedManager(step_factory)
@@ -206,9 +207,9 @@ class AgentService(object):
 
     def _exec_on_agent_updated_cmd(self, on_agent_updated_cmd, response):
         logger.info('Executing on agent updated command (ID %s)', on_agent_updated_cmd.agent_id)
-        blackboard = Blackboard()
 
-        self._exec_cmd(on_agent_updated_cmd, response, blackboard)
+        agent_id = on_agent_updated_cmd.agent_id
+        self._on_agent_updated_manager.on_agent_updated(agent_id)
 
     def _exec_on_agent_deleted_cmd(self, on_agent_deleted_cmd, response):
         logger.info('Executing on agent deleted command (ID %s)', on_agent_deleted_cmd.agent_id)

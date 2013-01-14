@@ -67,13 +67,11 @@ class TestAgentService(unittest.TestCase):
         self.assertEqual(self.step_factory.mock_calls, expected)
 
     def test_add_on_agent_updated_cmd(self):
-        self.agent_service._add_cmd = Mock()
-        expected = [
-        ]
-
         self.agent_service._add_on_agent_updated_cmd(self.step_factory)
 
-        self.assertEqual(self.step_factory.mock_calls, expected)
+        self.agent_server.add_command.assert_called_once_with(
+            commands.OnAgentUpdatedCommand,
+            self.agent_service._exec_on_agent_updated_cmd)
 
     def test_add_on_agent_deleted_cmd(self):
         self.agent_service._add_on_agent_deleted_cmd(self.step_factory)
@@ -139,14 +137,15 @@ class TestAgentService(unittest.TestCase):
                                                   mock_blackboard_instance)
 
     def test_exec_on_agent_updated_cmd(self):
-        command = commands.OnAgentUpdatedCommand(42)
+        agent_id = 42
+        command = commands.OnAgentUpdatedCommand(agent_id)
         response = CommandResponse()
-        step = Mock()
-        self.agent_service._steps[command.name] = [step]
+        on_agent_updated_manager = Mock()
+        self.agent_service._on_agent_updated_manager = on_agent_updated_manager
 
         self.agent_service._exec_on_agent_updated_cmd(command, response)
 
-        step.execute.assert_called_once_with(command, response, ANY)
+        on_agent_updated_manager.on_agent_updated.assert_called_once_with(agent_id)
 
     def test_exec_on_agent_deleted_cmd(self):
         agent_id = 42
