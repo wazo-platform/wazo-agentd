@@ -26,8 +26,14 @@ class GetAgentStep(object):
     def execute(self, command, response, blackboard):
         try:
             if command.agent_id is not None:
-                blackboard.agent = self._agent_dao.agent_with_id(command.agent_id)
+                blackboard.agent = self.get_agent_with_id(command.agent_id)
             else:
-                blackboard.agent = self._agent_dao.agent_with_number(command.agent_number)
+                blackboard.agent = self.get_agent_with_number(command.agent_number)
         except LookupError:
             response.error = error.NO_SUCH_AGENT
+
+    def get_agent_with_id(self, agent_id):
+        return self._agent_dao.agent_with_id(agent_id)
+
+    def get_agent_with_number(self, agent_number):
+        return self._agent_dao.agent_with_number(agent_number)

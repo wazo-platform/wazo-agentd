@@ -14,27 +14,27 @@ class TestAddAgentToQueueStep(unittest.TestCase):
         self.response = Mock()
         self.response.error = None
         self.blackboard = Mock()
-        self.agent = Mock()
-        self.agent.id = 42
-        self.agent.number = '456'
+        self.agent_status = Mock()
+        self.agent_status.agent_id = 42
+        self.agent_status.agent_number = '456'
+        self.agent_status.interface = 'Local/2@foobar'
+        self.agent_status.state_interface = 'SIP/abcdef'
         self.queue = Mock()
         self.queue.name = 'foobar1'
-        self.blackboard.agent = self.agent
+        self.blackboard.agent_status = self.agent_status
         self.blackboard.queue = self.queue
 
     def test_execute_when_logged(self):
-        self.blackboard.agent_status.interface = 'Local/2@foobar'
-        self.blackboard.agent_status.state_interface = 'SIP/abcdef'
         ami_client = Mock()
 
         step = AddAgentToQueueStep(ami_client)
         step.execute(self.command, self.response, self.blackboard)
 
         ami_client.queue_add.assert_called_once_with(self.queue.name,
-                                                     self.blackboard.agent_status.interface,
-                                                     'Agent/%s' % self.blackboard.agent.number,
-                                                     self.blackboard.agent_status.state_interface,
-                                                     skills='agent-{0}'.format(self.agent.id))
+                                                     self.agent_status.interface,
+                                                     'Agent/%s' % self.agent_status.agent_number,
+                                                     self.agent_status.state_interface,
+                                                     skills='agent-{0}'.format(self.agent_status.agent_id))
 
     def test_execute_when_not_logged(self):
         self.blackboard.agent_status = None

@@ -26,17 +26,19 @@ class AddAgentToQueueStep(object):
         self._ami_client = ami_client
 
     def execute(self, command, response, blackboard):
-        agent = blackboard.agent
         agent_status = blackboard.agent_status
         queue = blackboard.queue
 
         if agent_status is not None:
-            member_name = 'Agent/{0}'.format(agent.number)
-            skills = 'agent-{0}'.format(agent.id)
-            action = self._ami_client.queue_add(queue.name, agent_status.interface, member_name, agent_status.state_interface,
-                                                skills=skills)
-            if not action.success:
-                logger.warning('Failure to add interface %r to queue %r', agent_status.interface, queue.name)
+            self.add_agent_to_queue(agent_status, queue.name)
+
+    def add_agent_to_queue(self, agent_status, queue_name):
+        member_name = 'Agent/{0}'.format(agent_status.agent_number)
+        skills = 'agent-{0}'.format(agent_status.agent_id)
+        action = self._ami_client.queue_add(queue_name, agent_status.interface, member_name, agent_status.state_interface,
+                                            skills=skills)
+        if not action.success:
+            logger.warning('Failure to add interface %r to queue %r', agent_status.interface, queue_name)
 
 
 class AddAgentToQueuesStep(object):
@@ -67,7 +69,10 @@ class RemoveAgentFromQueueStep(object):
         queue = blackboard.queue
 
         if agent_status is not None:
-            self._ami_client.queue_remove(queue.name, agent_status.interface)
+            self.remove_agent_from_queue(agent_status, queue.name)
+
+    def remove_agent_from_queue(self, agent_status, queue_name):
+        self._ami_client.queue_remove(queue_name, agent_status.interface)
 
 
 class RemoveAgentFromQueuesStep(object):
