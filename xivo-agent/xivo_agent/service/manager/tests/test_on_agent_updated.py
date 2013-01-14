@@ -44,24 +44,24 @@ class TestQueueDelta(unittest.TestCase):
 
 class TestOnAgentUpdatedManager(unittest.TestCase):
 
-    def test_on_agent_updated(self):
+    def setUp(self):
         step_factory = Mock(StepFactory)
 
-        get_agent_status = Mock()
-        get_agent_step = Mock()
-        add_agent_to_queue_step = Mock()
-        remove_agent_from_queue_step = Mock()
-        update_agent_status_step = Mock()
+        self.get_agent_status = Mock()
+        self.get_agent_step = Mock()
+        self.add_agent_to_queue_step = Mock()
+        self.remove_agent_from_queue_step = Mock()
+        self.update_agent_status_step = Mock()
 
-        step_factory.get_agent_status.return_value = get_agent_status
-        step_factory.get_agent.return_value = get_agent_step
-        step_factory.add_agent_to_queue.return_value = add_agent_to_queue_step
-        step_factory.remove_agent_from_queue.return_value = remove_agent_from_queue_step
-        step_factory.update_agent_status.return_value = update_agent_status_step
+        step_factory.get_agent_status.return_value = self.get_agent_status
+        step_factory.get_agent.return_value = self.get_agent_step
+        step_factory.add_agent_to_queue.return_value = self.add_agent_to_queue_step
+        step_factory.remove_agent_from_queue.return_value = self.remove_agent_from_queue_step
+        step_factory.update_agent_status.return_value = self.update_agent_status_step
 
-        agent_id = 1
-        agent_number = '42'
+        self.on_agent_updated_manager = OnAgentUpdatedManager(step_factory)
 
+    def test_on_agent_updated(self):
         old_queue = Mock()
         old_queue.name = 'queue1'
 
@@ -69,27 +69,26 @@ class TestOnAgentUpdatedManager(unittest.TestCase):
         new_queue.name = 'queue2'
 
         agent_status = Mock()
-        agent_status.agent_id = agent_id
-        agent_status.agent_number = agent_number
+        agent_status.agent_id = 1
+        agent_status.agent_number = '42'
         agent_status.queues = [old_queue]
 
         agent = Mock()
-        agent.id = agent_id
+        agent.id = agent_status.agent_id
         agent.queues = [new_queue]
-        get_agent_status.get_status.return_value = agent_status
-        get_agent_step.get_agent_with_id.return_value = agent
 
-        on_agent_updated_manager = OnAgentUpdatedManager(step_factory)
+        self.get_agent_status.get_status.return_value = agent_status
+        self.get_agent_step.get_agent_with_id.return_value = agent
 
-        on_agent_updated_manager.on_agent_updated(agent_id)
+        self.on_agent_updated_manager.on_agent_updated(agent_status.agent_id)
 
-        get_agent_status.get_status.assert_called_once_with(agent_id)
-        get_agent_step.get_agent_with_id.assert_called_once_with(agent_id)
+        self.get_agent_status.get_status.assert_called_once_with(agent_status.agent_id)
+        self.get_agent_step.get_agent_with_id.assert_called_once_with(agent_status.agent_id)
 
         # added
-        add_agent_to_queue_step.add_agent_to_queue.assert_called_once_with(agent_status, new_queue.name)
-        update_agent_status_step.add_agent_to_queue.assert_called_once_with(agent_id, new_queue)
+        self.add_agent_to_queue_step.add_agent_to_queue.assert_called_once_with(agent_status, new_queue.name)
+        self.update_agent_status_step.add_agent_to_queue.assert_called_once_with(agent_status.agent_id, new_queue)
 
         # removed
-        remove_agent_from_queue_step.remove_agent_from_queue.assert_called_once_with(agent_status, old_queue.name)
-        update_agent_status_step.remove_agent_from_queue.assert_called_once_with(agent_id, old_queue.id)
+        self.remove_agent_from_queue_step.remove_agent_from_queue.assert_called_once_with(agent_status, old_queue.name)
+        self.update_agent_status_step.remove_agent_from_queue.assert_called_once_with(agent_status.agent_id, old_queue.id)

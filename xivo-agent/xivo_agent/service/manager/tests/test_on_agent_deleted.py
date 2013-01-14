@@ -21,23 +21,27 @@ from mock import Mock
 from xivo_agent.service.factory import StepFactory
 from xivo_agent.service.manager.on_agent_deleted import OnAgentDeletedManager
 
+
 class TestOnAgentDeletedManager(unittest.TestCase):
 
-    def test_on_agent_deleted(self):
+    def setUp(self):
         step_factory = Mock(StepFactory)
 
-        get_agent_status = Mock()
-        remove_agent_from_queues = Mock()
-        update_queue_log = Mock()
-        update_agent_status = Mock()
-        send_agent_logoff_event = Mock()
+        self.get_agent_status = Mock()
+        self.remove_agent_from_queues = Mock()
+        self.update_queue_log = Mock()
+        self.update_agent_status = Mock()
+        self.send_agent_logoff_event = Mock()
 
-        step_factory.get_agent_status.return_value = get_agent_status
-        step_factory.remove_agent_from_queues.return_value = remove_agent_from_queues
-        step_factory.update_queue_log.return_value = update_queue_log
-        step_factory.update_agent_status.return_value = update_agent_status
-        step_factory.send_agent_logoff_event.return_value = send_agent_logoff_event
+        step_factory.get_agent_status.return_value = self.get_agent_status
+        step_factory.remove_agent_from_queues.return_value = self.remove_agent_from_queues
+        step_factory.update_queue_log.return_value = self.update_queue_log
+        step_factory.update_agent_status.return_value = self.update_agent_status
+        step_factory.send_agent_logoff_event.return_value = self.send_agent_logoff_event
 
+        self.on_agent_deleted_manager = OnAgentDeletedManager(step_factory)
+
+    def test_on_agent_deleted(self):
         agent_id = 1
         agent_number = '2'
 
@@ -45,14 +49,12 @@ class TestOnAgentDeletedManager(unittest.TestCase):
         agent_status.agent_id = agent_id
         agent_status.agent_number = agent_number
 
-        get_agent_status.get_status.return_value = agent_status
+        self.get_agent_status.get_status.return_value = agent_status
 
-        on_agent_deleted_manager = OnAgentDeletedManager(step_factory)
+        self.on_agent_deleted_manager.on_agent_deleted(agent_id)
 
-        on_agent_deleted_manager.on_agent_deleted(agent_id)
-
-        get_agent_status.get_status.assert_alled_once_with(agent_id)
-        remove_agent_from_queues.remove_agent_from_queues.assert_alled_once_with(agent_status)
-        update_queue_log.log_off_agent.assert_called_once_with(agent_status)
-        update_agent_status.log_off_agent.assert_called_once_with(agent_id)
-        send_agent_logoff_event.send_agent_logoff.assert_called_once_with(agent_id, agent_number)
+        self.get_agent_status.get_status.assert_alled_once_with(agent_id)
+        self.remove_agent_from_queues.remove_agent_from_queues.assert_alled_once_with(agent_status)
+        self.update_queue_log.log_off_agent.assert_called_once_with(agent_status)
+        self.update_agent_status.log_off_agent.assert_called_once_with(agent_id)
+        self.send_agent_logoff_event.send_agent_logoff.assert_called_once_with(agent_id, agent_number)
