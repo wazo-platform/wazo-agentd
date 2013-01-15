@@ -32,6 +32,15 @@ class TestAgentService(unittest.TestCase):
         self.agent_service = AgentService(self.agent_server)
         self.step_factory = Mock(StepFactory)
 
+    def test_add_logoff_cmd(self):
+        command = commands.LogoffCommand
+        callback = self.agent_service._exec_logoff_cmd
+
+        self.agent_service._add_logoff_cmd(self.step_factory)
+
+        self.assertTrue(command.name in self.agent_service._steps)
+        self.agent_server.add_command.assert_called_once_with(command, callback)
+
     def test_add_add_to_queue_cmd(self):
         self.agent_service._add_cmd = Mock()
         expected = [
