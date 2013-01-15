@@ -16,6 +16,40 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 
+class OnAgentUpdatedManager(object):
+
+    def __init__(self, step_factory):
+        self._get_agent_status = step_factory.get_agent_status()
+        self._get_agent = step_factory.get_agent()
+        self._add_agent_to_queue = step_factory.add_agent_to_queue()
+        self._remove_agent_from_queue = step_factory.remove_agent_from_queue()
+        self._update_agent_status = step_factory.update_agent_status()
+
+    def on_agent_updated(self, agent_id):
+        agent_status = self._get_agent_status.get_status(agent_id)
+        if agent_status is None:
+            return
+
+        queue_delta = self._calculate_queue_delta(agent_id, agent_status)
+
+        self._manage_added_queues(agent_status, queue_delta.added)
+        self._manage_removed_queues(agent_status, queue_delta.removed)
+
+    def _calculate_queue_delta(self, agent_id, agent_status):
+        agent = self._get_agent.get_agent_with_id(agent_id)
+        return QueueDelta.calculate(agent_status.queues, agent.queues)
+
+    def _manage_added_queues(self, agent_status, added_queues):
+        for queue in added_queues:
+            self._add_agent_to_queue.add_agent_to_queue(agent_status, queue.name)
+            self._update_agent_status.add_agent_to_queue(agent_status.agent_id, queue)
+
+    def _manage_removed_queues(self, agent_status, removed_queues):
+        for queue in removed_queues:
+            self._remove_agent_from_queue.remove_agent_from_queue(agent_status, queue.name)
+            self._update_agent_status.remove_agent_from_queue(agent_status.agent_id, queue.id)
+
+
 class QueueDelta(object):
 
     def __init__(self, added, removed):
@@ -34,38 +68,3 @@ class QueueDelta(object):
         removed_queues = [old_queues_by_id[queue_id] for queue_id in removed_ids]
 
         return cls(added_queues, removed_queues)
-
-
-class OnAgentUpdatedManager(object):
-
-    def __init__(self, step_factory):
-        self._get_agent_status = step_factory.get_agent_status()
-        self._get_agent = step_factory.get_agent()
-        self._add_agent_to_queue = step_factory.add_agent_to_queue()
-        self._remove_agent_from_queue = step_factory.remove_agent_from_queue()
-        self._update_agent_status = step_factory.update_agent_status()
-
-    def on_agent_updated(self, agent_id):
-        agent_status = self._get_agent_status.get_status(agent_id)
-        if agent_status is None:
-            return
-
-        agent = self._get_agent.get_agent_with_id(agent_id)
-
-        queue_delta = self._calculate_queue_delta(agent_status.queues, agent.queues)
-
-        self._manage_added_queues(agent_status, queue_delta.added)
-        self._manage_removed_queues(agent_status, queue_delta.removed)
-
-    def _calculate_queue_delta(self, old_queues, new_queues):
-        return QueueDelta.calculate(old_queues, new_queues)
-
-    def _manage_added_queues(self, agent_status, added_queues):
-        for queue in added_queues:
-            self._add_agent_to_queue.add_agent_to_queue(agent_status, queue.name)
-            self._update_agent_status.add_agent_to_queue(agent_status.agent_id, queue)
-
-    def _manage_removed_queues(self, agent_status, removed_queues):
-        for queue in removed_queues:
-            self._remove_agent_from_queue.remove_agent_from_queue(agent_status, queue.name)
-            self._update_agent_status.remove_agent_from_queue(agent_status.agent_id, queue.id)
