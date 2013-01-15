@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import unittest
-from mock import Mock, call, patch, ANY
+from mock import Mock, call, patch
 from xivo_agent.ctl import commands
 from xivo_agent.ctl.response import CommandResponse
 from xivo_agent.ctl.server import AgentServer
@@ -40,9 +40,9 @@ class TestAgentService(unittest.TestCase):
             call.get_queue(),
             call.check_agent_is_not_member_of_queue(),
             call.insert_agent_into_queuemember(),
+            call.send_agent_added_to_queue_event(),
             call.add_agent_to_queue(),
             call.update_agent_status(),
-            call.send_agent_added_to_queue_event(),
         ]
 
         self.agent_service._add_add_to_queue_cmd(self.step_factory)
@@ -57,9 +57,9 @@ class TestAgentService(unittest.TestCase):
             call.get_queue(),
             call.check_agent_is_member_of_queue(),
             call.delete_agent_from_queuemember(),
+            call.send_agent_removed_from_queue_event(),
             call.remove_agent_from_queue(),
             call.update_agent_status(),
-            call.send_agent_removed_from_queue_event(),
         ]
 
         self.agent_service._add_remove_from_queue_cmd(self.step_factory)
