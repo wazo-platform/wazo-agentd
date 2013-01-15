@@ -66,16 +66,32 @@ class TestUpdateAgentStatusStep(unittest.TestCase):
         self.agent_status_dao.log_off_agent.assert_called_once_with(self.agent.id)
         self.agent_status_dao.remove_agent_from_all_queues.assert_called_once_with(self.agent.id)
 
-    def test_execute_add_to_queue_command(self):
+    def test_execute_add_to_queue_command_with_logged_agent(self):
         self.command.name = commands.AddToQueueCommand.name
 
         self.step.execute(self.command, self.response, self.blackboard)
 
         self.agent_status_dao.add_agent_to_queues.assert_called_once_with(self.agent.id, [self.queue])
 
-    def test_execute_remove_from_queue_command(self):
+    def test_execute_add_to_queue_command_with_unlogged_agent(self):
+        self.command.name = commands.AddToQueueCommand.name
+        self.blackboard.agent_status = None
+
+        self.step.execute(self.command, self.response, self.blackboard)
+
+        self.assertFalse(self.agent_status_dao.add_agent_to_queues.called)
+
+    def test_execute_remove_from_queue_command_with_logged_agent(self):
         self.command.name = commands.RemoveFromQueueCommand.name
 
         self.step.execute(self.command, self.response, self.blackboard)
 
         self.agent_status_dao.remove_agent_from_queues.assert_called_once_with(self.agent.id, [self.queue.id])
+
+    def test_execute_remove_from_queue_command_with_unlogged_agent(self):
+        self.command.name = commands.RemoveFromQueueCommand.name
+        self.blackboard.agent_status = None
+
+        self.step.execute(self.command, self.response, self.blackboard)
+
+        self.assertFalse(self.agent_status_dao.remove_agent_from_queues.called)
