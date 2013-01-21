@@ -19,25 +19,12 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import argparse
-import readline
-import time
-import traceback
 from contextlib import contextmanager
 from operator import attrgetter
+from xivo.cli import BaseCommand, Interpreter
 from xivo_agent.ctl.client import AgentClient
-from xivo_agent.exception import AgentError
 
 verbose = False
-
-
-@contextmanager
-def _agent_client(host, port):
-    agent_client = AgentClient()
-    agent_client.connect(host, port)
-    try:
-        yield agent_client
-    finally:
-        agent_client.close()
 
 
 def main():
@@ -58,73 +45,131 @@ def main():
         verbose = True
 
     with _agent_client(parsed_args.host, parsed_args.port) as agent_client:
+        interpreter = Interpreter(prompt='xivo-agentctl> ')
+        interpreter.add_command('add', AddAgentToQueueCommand(agent_client))
+        interpreter.add_command('remove', RemoveAgentFromQueueCommand(agent_client))
+        interpreter.add_command('login', LoginCommand(agent_client))
+        interpreter.add_command('logoff', LogoffCommand(agent_client))
+        interpreter.add_command('status', StatusCommand(agent_client))
+        interpreter.add_command('ping', PingCommand(agent_client))
+
         if parsed_args.command:
-            _execute_command(parsed_args.command, agent_client)
+            interpreter.execute_command_line(parsed_args.command)
         else:
-            _loop(agent_client)
+            interpreter.loop()
 
 
-def _loop(agent_client):
+@contextmanager
+def _agent_client(host, port):
+    agent_client = AgentClient()
+    agent_client.connect(host, port)
     try:
-        while True:
-            try:
-                line = raw_input('agentctl> ').strip()
-                if not line:
-                    continue
-
-                _execute_command(line, agent_client)
-
-            except KeyboardInterrupt:
-                print()
-            except EOFError:
-                raise
-            except AgentError as e:
-                print('Agent error:', e)
-            except Exception:
-                print('Unexpected exception:')
-                traceback.print_exc()
-    except EOFError:
-        print()
+        yield agent_client
+    finally:
+        agent_client.close()
 
 
-def _execute_command(line, agent_client):
-    tokens = line.split()
-    cmd_name, args = tokens[0], tokens[1:]
-    start_time = time.time()
-    if cmd_name == 'add_agent':
-        agent_id = args[0]
-        queue_id = args[1]
-        agent_client.add_agent_to_queue(agent_id, queue_id)
-    elif cmd_name == 'remove_agent':
-        agent_id = args[0]
-        queue_id = args[1]
-        agent_client.remove_agent_from_queue(agent_id, queue_id)
-    elif cmd_name == 'login':
-        agent_number = args[0]
-        extension = args[1]
-        context = args[2]
-        agent_client.login_agent_by_number(agent_number, extension, context)
-    elif cmd_name == 'logoff':
-        agent_number = args[0]
-        agent_client.logoff_agent_by_number(agent_number)
-    elif cmd_name == 'logoff_all':
-        agent_client.logoff_all_agents()
-    elif cmd_name == 'status':
-        agent_number = args[0]
-        agent_status = agent_client.get_agent_status_by_number(agent_number)
-        _print_agent_status(agent_status)
-    elif cmd_name == 'statuses':
-        agent_statuses = agent_client.get_agent_statuses()
+class BaseAgentClientCommand(BaseCommand):
+
+    def __init__(self, agent_client):
+        BaseCommand.__init__(self)
+        self._agent_client = agent_client
+
+
+class AddAgentToQueueCommand(BaseAgentClientCommand):
+
+    help = 'Add agent to queue'
+
+    def prepare(self, command_args):
+        agent_id = int(command_args[0])
+        queue_id = int(command_args[1])
+        return (agent_id, queue_id)
+
+    def execute(self, agent_id, queue_id):
+        self._agent_client.add_agent_to_queue(agent_id, queue_id)
+
+
+class RemoveAgentFromQueueCommand(BaseAgentClientCommand):
+
+    help = 'Remove agent from queue'
+
+    def prepare(self, command_args):
+        agent_id = int(command_args[0])
+        queue_id = int(command_args[1])
+        return (agent_id, queue_id)
+
+    def execute(self, agent_id, queue_id):
+        self._agent_client.remove_agent_from_queue(agent_id, queue_id)
+
+
+class LoginCommand(BaseAgentClientCommand):
+
+    help = 'Login agent'
+
+    def prepare(self, command_args):
+        agent_number = command_args[0]
+        extension = command_args[1]
+        context = command_args[2]
+        return (agent_number, extension, context)
+
+    def execute(self, agent_number, extension, context):
+        self._agent_client.login_agent_by_number(agent_number, extension, context)
+
+
+class LogoffCommand(BaseAgentClientCommand):
+
+    help = 'Logoff agent'
+
+    def prepare(self, command_args):
+        agent_number = command_args[0]
+        return (agent_number,)
+
+    def execute(self, agent_number):
+        if agent_number == 'all':
+            self._execute_all()
+        else:
+            self._execute(agent_number)
+
+    def _execute_all(self):
+        self._agent_client.logoff_all_agents()
+
+    def _execute(self, agent_number):
+        self._agent_client.logoff_agent_by_number(agent_number)
+
+
+class StatusCommand(BaseAgentClientCommand):
+
+    help = 'Get status of agent'
+
+    def prepare(self, command_args):
+        if not command_args:
+            agent_number = None
+        else:
+            agent_number = command_args[0]
+        return (agent_number,)
+
+    def execute(self, agent_number):
+        if agent_number is None:
+            self._execute_all()
+        else:
+            self._execute(agent_number)
+
+    def _execute_all(self):
+        agent_statuses = self._agent_client.get_agent_statuses()
         for agent_status in sorted(agent_statuses, key=attrgetter('number')):
             _print_agent_status(agent_status)
-    elif cmd_name == 'ping':
-        print(agent_client.ping())
-    else:
-        print('unknown command:', cmd_name)
 
-    if verbose:
-        request_time = (time.time() - start_time) * 1000
-        print('request took {0} ms'.format(request_time))
+    def _execute(self, agent_number):
+        agent_status = self._agent_client.get_agent_status_by_number(agent_number)
+        _print_agent_status(agent_status)
+
+
+class PingCommand(BaseAgentClientCommand):
+
+    help = 'Ping'
+
+    def execute(self):
+        self._agent_client.ping()
 
 
 def _print_agent_status(agent_status):
