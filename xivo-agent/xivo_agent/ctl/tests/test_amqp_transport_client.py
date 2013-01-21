@@ -74,7 +74,7 @@ class TestAMQPTransportClient(unittest.TestCase):
     @patch('xivo_agent.ctl.amqp_transport_client.AMQPTransportClient._build_properties')
     def test_send_request(self, build_properties):
         transport = self._new_transport()
-        transport._send_request(1, 'blah')
+        transport._send_request('blah')
 
         self.channel.basic_publish.assert_called_once_with(
             exchange='',
@@ -83,12 +83,12 @@ class TestAMQPTransportClient(unittest.TestCase):
             body='blah'
         )
 
-        build_properties.assert_called_once_with(1)
+        build_properties.assert_called_once_with()
 
     def test_build_properties(self):
         transport = self._new_transport()
         transport._callback_queue = Mock()
-        properties = transport._build_properties(1)
+        properties = transport._build_properties()
 
         self.assertTrue(isinstance(properties, pika.BasicProperties))
 

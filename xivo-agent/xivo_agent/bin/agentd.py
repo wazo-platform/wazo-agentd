@@ -22,6 +22,7 @@ from contextlib import contextmanager
 from xivo import daemonize
 from xivo_agent import ami
 from xivo_agent.ctl.server import AgentServer
+from xivo_agent.db_manager import DBManager
 from xivo_agent.queuelog import QueueLogManager
 from xivo_agent.service.service import AgentService
 from xivo_agent.service.factory import StepFactory
@@ -31,7 +32,6 @@ from xivo_dao import line_dao
 from xivo_dao import queue_dao
 from xivo_dao import queue_log_dao
 from xivo_dao import queue_member_dao
-from xivo_agent.db_manager import DBManager
 
 _LOG_FILENAME = '/var/log/xivo-agentd.log'
 _PID_FILENAME = '/var/run/xivo-agentd.pid'
@@ -56,20 +56,13 @@ def main():
         daemonize.unlock_pidfile(_PID_FILENAME)
 
 
-def _run():
-    _init_signal()
-    db_manager = DBManager()
-    db_manager.connect()
-    with _new_ami_client() as ami_client:
-        with _new_agent_server(db_manager) as agent_server:
-            queue_log_manager = QueueLogManager(queue_log_dao)
-
-            step_factory = StepFactory(ami_client, queue_log_manager, agent_status_dao,
-                                       agent_dao, line_dao, queue_dao, queue_member_dao)
-
-            agent_service = AgentService(agent_server)
-            agent_service.init(step_factory)
-            agent_service.run()
+def _parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-f', '--foreground', action='store_true',
+                        help='run in foreground')
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        help='increase verbosity')
+    return parser.parse_args()
 
 
 def _init_logging(parsed_args):
@@ -85,13 +78,20 @@ def _init_logging(parsed_args):
     root_logger.addHandler(handler)
 
 
-def _parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--foreground', action='store_true',
-                        help='run in foreground')
-    parser.add_argument('-v', '--verbose', action='store_true',
-                        help='increase verbosity')
-    return parser.parse_args()
+def _run():
+    _init_signal()
+    db_manager = DBManager()
+    db_manager.connect()
+    with _new_ami_client() as ami_client:
+        with _new_agent_server(db_manager) as agent_server:
+            queue_log_manager = QueueLogManager(queue_log_dao)
+
+            step_factory = StepFactory(ami_client, queue_log_manager, agent_login_dao,
+                                       agent_dao, line_dao, queue_dao, queue_member_dao)
+
+            agent_service = AgentService(agent_server)
+            agent_service.init(step_factory)
+            agent_service.run()
 
 
 def _init_signal():
@@ -99,7 +99,7 @@ def _init_signal():
 
 
 def _handle_sigterm(signum, frame):
-    raise SystemExit(0)
+    raise SystemExit()
 
 
 @contextmanager

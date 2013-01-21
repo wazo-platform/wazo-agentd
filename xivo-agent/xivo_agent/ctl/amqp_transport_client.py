@@ -55,15 +55,13 @@ class AMQPTransportClient(object):
 
     def rpc_call(self, request):
         self._response = None
-        request_id = str(uuid.uuid4())
+        self._correlation_id = str(uuid.uuid4())
 
-        self._send_request(request_id, request)
+        self._send_request(request)
         return self._wait_for_response()
 
-    def _send_request(self, request_id, request):
-        self._correlation_id = request_id
-
-        properties = self._build_properties(request_id)
+    def _send_request(self, request):
+        properties = self._build_properties()
 
         self._channel.basic_publish(
             exchange='',
@@ -72,7 +70,7 @@ class AMQPTransportClient(object):
             body=request
         )
 
-    def _build_properties(self, request_id):
+    def _build_properties(self):
         properties = pika.BasicProperties(
             reply_to=self._callback_queue,
             correlation_id=self._correlation_id

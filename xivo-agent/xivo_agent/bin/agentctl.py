@@ -44,12 +44,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--command',
                         help='run command')
-    parser.add_argument('-v', '--verbose', action='store_true',
-                        help='increase verbosity')
     parser.add_argument('-H', '--host', default=AgentClient.DEFAULT_HOST,
                         help='rabbitmq host')
     parser.add_argument('-p', '--port', type=int, default=AgentClient.DEFAULT_PORT,
                         help='rabbitmq port')
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        help='increase verbosity')
 
     parsed_args = parser.parse_args()
 
