@@ -51,6 +51,8 @@ def main():
     daemonize.lock_pidfile_or_die(_PID_FILENAME)
     try:
         _run()
+    except Exception:
+        logger.exception('Unexpected error:')
     finally:
         logger.info('Stopping xivo-agentd')
         daemonize.unlock_pidfile(_PID_FILENAME)
@@ -86,7 +88,7 @@ def _run():
         with _new_agent_server(db_manager) as agent_server:
             queue_log_manager = QueueLogManager(queue_log_dao)
 
-            step_factory = StepFactory(ami_client, queue_log_manager, agent_login_dao,
+            step_factory = StepFactory(ami_client, queue_log_manager, agent_status_dao,
                                        agent_dao, line_dao, queue_dao, queue_member_dao)
 
             agent_service = AgentService(agent_server)
