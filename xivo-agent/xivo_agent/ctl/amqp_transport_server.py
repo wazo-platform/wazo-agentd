@@ -52,10 +52,11 @@ class AMQPTransportServer(object):
         except AgentServerError as e:
             response = self._error_response(e)
 
-        self._send_response(response, properties, method)
+        if properties.reply_to:
+            self._send_response(response, properties)
+        self._acknowledge_request(method)
 
-    def _send_response(self, body, properties, method):
-
+    def _send_response(self, body, properties):
         response_properties = pika.BasicProperties(
             correlation_id=properties.correlation_id,
         )
@@ -67,6 +68,7 @@ class AMQPTransportServer(object):
             body=body
         )
 
+    def _acknowledge_request(self, method):
         self._channel.basic_ack(delivery_tag=method.delivery_tag)
 
     def close(self):

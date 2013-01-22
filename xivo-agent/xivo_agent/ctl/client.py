@@ -98,11 +98,11 @@ class AgentClient(object):
 
     def on_agent_updated(self, agent_id):
         cmd = commands.OnAgentUpdatedCommand(agent_id)
-        self._execute_command(cmd)
+        self._execute_command_no_response(cmd)
 
     def on_agent_deleted(self, agent_id):
         cmd = commands.OnAgentDeletedCommand(agent_id)
-        self._execute_command(cmd)
+        self._execute_command_no_response(cmd)
 
     def ping(self):
         cmd = commands.PingCommand()
@@ -115,6 +115,10 @@ class AgentClient(object):
         if response.error is not None:
             raise AgentClientError(response.error)
         return response.value
+
+    def _execute_command_no_response(self, cmd):
+        request = self._marshaler.marshal_command(cmd)
+        self._transport.send(request)
 
     def _convert_agent_status(self, status):
         return _AgentStatus(status['id'], status['number'], status['extension'],

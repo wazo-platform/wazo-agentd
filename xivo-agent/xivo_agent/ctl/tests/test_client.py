@@ -147,23 +147,23 @@ class TestAgentClient(unittest.TestCase):
     @patch('xivo_agent.ctl.commands.OnAgentUpdatedCommand')
     def test_on_agent_updated_command(self, OnAgentUpdatedCommand):
         agent_id = 42
-        self.agent_client._execute_command = Mock()
+        self.agent_client._execute_command_no_response = Mock()
         command = Mock()
         OnAgentUpdatedCommand.return_value = command
 
         self.agent_client.on_agent_updated(agent_id)
 
         OnAgentUpdatedCommand.assert_called_once_with(agent_id)
-        self.agent_client._execute_command.assert_called_once_with(command)
+        self.agent_client._execute_command_no_response.assert_called_once_with(command)
 
     @patch('xivo_agent.ctl.commands.OnAgentDeletedCommand')
     def test_on_agent_deleted_command(self, OnAgentDeletedCommand):
         agent_id = 42
-        self.agent_client._execute_command = Mock()
+        self.agent_client._execute_command_no_response = Mock()
         command = Mock()
         OnAgentDeletedCommand.return_value = command
 
         self.agent_client.on_agent_deleted(agent_id)
 
         OnAgentDeletedCommand.assert_called_once_with(agent_id)
-        self.agent_client._execute_command.assert_called_once_with(command)
+        self.agent_client._execute_command_no_response.assert_called_once_with(command)

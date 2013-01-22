@@ -85,6 +85,24 @@ class TestAMQPTransportServer(unittest.TestCase):
 
         self.channel.basic_ack.assert_called_once()
 
+    def test_on_request_with_no_reply_to(self):
+        request_callback = Mock()
+
+        properties = Mock()
+        properties.reply_to = None
+
+        method = Mock()
+        method.delivery_tag = 'delivery_tag'
+
+        body = '{"cmd": {"a": 1}, "name": "foobar"}'
+
+        transport = self._new_transport(request_callback)
+        transport._on_request(None, method, properties, body)
+
+        self.assertFalse(self.channel.basic_publish.called)
+
+        self.channel.basic_ack.assert_called_once()
+
     def test_run(self):
         transport = self._new_transport()
         transport.run()
