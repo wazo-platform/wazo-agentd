@@ -28,8 +28,11 @@ class GetQueueStep(object):
 
     def execute(self, command, response, blackboard):
         try:
-            queue_name = self._queue_dao.queue_name(command.queue_id)
+
+            blackboard.queue = self.get_queue(command.queue_id)
         except LookupError:
             response.error = error.NO_SUCH_QUEUE
-        else:
-            blackboard.queue = _Queue(command.queue_id, queue_name)
+
+    def get_queue(self, queue_id):
+        queue_name = self._queue_dao.queue_name(queue_id)
+        return _Queue(queue_id, queue_name)

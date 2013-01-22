@@ -22,4 +22,10 @@ class GetAgentStatusesStep(object):
         self._agent_status_dao = agent_status_dao
 
     def execute(self, command, response, blackboard):
-        blackboard.agent_statuses = self._agent_status_dao.get_statuses()
+        blackboard.agent_statuses = self.get_statuses()
+
+    def get_statuses(self):
+        return self._agent_status_dao.get_statuses()
+
+    def get_statuses_of_logged_agent_for_queue(self, queue_id):
+        return self._agent_status_dao.get_statuses_of_logged_agent_for_queue(queue_id)
