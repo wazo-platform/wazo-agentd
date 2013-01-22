@@ -41,6 +41,9 @@ class AgentService(object):
         self._add_statuses_cmd(step_factory)
         self._add_on_agent_updated_cmd(step_factory)
         self._add_on_agent_deleted_cmd(step_factory)
+        self._add_on_queue_added_cmd(step_factory)
+        self._add_on_queue_updated_cmd(step_factory)
+        self._add_on_queue_deleted_cmd(step_factory)
         self._add_ping_cmd()
 
     def run(self):
@@ -126,6 +129,15 @@ class AgentService(object):
     def _add_on_agent_deleted_cmd(self, step_factory):
         self._on_agent_deleted_manager = OnAgentDeletedManager(step_factory)
         self._agent_server.add_command(commands.OnAgentDeletedCommand, self._exec_on_agent_deleted_cmd)
+
+    def _add_on_queue_added_cmd(self, step_factory):
+        self._agent_server.add_command(commands.OnQueueAddedCommand, self._exec_on_queue_added_cmd)
+
+    def _add_on_queue_updated_cmd(self, step_factory):
+        self._agent_server.add_command(commands.OnQueueUpdatedCommand, self._exec_on_queue_updated_cmd)
+
+    def _add_on_queue_deleted_cmd(self, step_factory):
+        self._agent_server.add_command(commands.OnQueueDeletedCommand, self._exec_on_queue_deleted_cmd)
 
     def _add_ping_cmd(self):
         self._agent_server.add_command(commands.PingCommand, self._exec_ping_cmd)
@@ -216,6 +228,18 @@ class AgentService(object):
 
         agent_id = on_agent_deleted_cmd.agent_id
         self._on_agent_deleted_manager.on_agent_deleted(agent_id)
+
+    def _exec_on_queue_added_cmd(self, on_queue_added_cmd, response):
+        logger.info('Executing on queue added command (ID %s)', on_queue_added_cmd.queue_id)
+        # TODO complete
+
+    def _exec_on_queue_updated_cmd(self, on_queue_updated_cmd, response):
+        logger.info('Executing on queue updated command (ID %s)', on_queue_updated_cmd.queue_id)
+        # TODO complete
+
+    def _exec_on_queue_deleted_cmd(self, on_queue_deleted_cmd, response):
+        logger.info('Executing on queue deleted command (ID %s)', on_queue_deleted_cmd.queue_id)
+        # TODO complete
 
     def _exec_ping_cmd(self, ping_cmd, response):
         response.value = 'pong'

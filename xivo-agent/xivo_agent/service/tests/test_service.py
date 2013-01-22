@@ -89,6 +89,27 @@ class TestAgentService(unittest.TestCase):
             commands.OnAgentDeletedCommand,
             self.agent_service._exec_on_agent_deleted_cmd)
 
+    def test_add_on_queue_added_cmd(self):
+        self.agent_service._add_on_queue_added_cmd(self.step_factory)
+
+        self.agent_server.add_command.assert_called_once_with(
+            commands.OnQueueAddedCommand,
+            self.agent_service._exec_on_queue_added_cmd)
+
+    def test_add_on_queue_updated_cmd(self):
+        self.agent_service._add_on_queue_updated_cmd(self.step_factory)
+
+        self.agent_server.add_command.assert_called_once_with(
+            commands.OnQueueUpdatedCommand,
+            self.agent_service._exec_on_queue_updated_cmd)
+
+    def test_add_on_queue_deleted_cmd(self):
+        self.agent_service._add_on_queue_deleted_cmd(self.step_factory)
+
+        self.agent_server.add_command.assert_called_once_with(
+            commands.OnQueueDeletedCommand,
+            self.agent_service._exec_on_queue_deleted_cmd)
+
     @patch('xivo_agent.service.service.Blackboard')
     def test_exec_status_cmd_when_logged_in(self, mock_blackboard):
         mock_blackboard_instance = Mock()

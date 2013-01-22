@@ -60,3 +60,16 @@ class AbstractAgentIDCommand(object):
     @classmethod
     def unmarshal(cls, msg):
         return cls(msg['agent_id'])
+
+
+class AbstractQueueIDCommand(object):
+
+    def __init__(self, queue_id):
+        self.queue_id = int(queue_id)
+
+    def marshal(self):
+        return {'queue_id': self.queue_id}
+
+    @classmethod
+    def unmarshal(cls, msg):
+        return cls(msg['queue_id'])

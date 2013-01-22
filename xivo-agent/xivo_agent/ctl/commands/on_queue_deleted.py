@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright (C) 2012-2013  Avencall
+# Copyright (C) 2013  Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,16 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from .add_to_queue import AddToQueueCommand
-from .login import LoginCommand
-from .logoff_all import LogoffAllCommand
-from .logoff import LogoffCommand
-from .on_agent_deleted import OnAgentDeletedCommand
-from .on_agent_updated import OnAgentUpdatedCommand
-from .on_queue_added import OnQueueAddedCommand
-from .on_queue_deleted import OnQueueDeletedCommand
-from .on_queue_updated import OnQueueUpdatedCommand
-from .ping import PingCommand
-from .remove_from_queue import RemoveFromQueueCommand
-from .status import StatusCommand
-from .statuses import StatusesCommand
+from __future__ import unicode_literals
+
+from xivo_agent.ctl.commands.abstract import AbstractQueueIDCommand
+
+
+class OnQueueDeletedCommand(AbstractQueueIDCommand):
+
+    name = 'on_queue_deleted'

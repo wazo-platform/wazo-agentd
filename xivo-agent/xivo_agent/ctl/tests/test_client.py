@@ -167,3 +167,39 @@ class TestAgentClient(unittest.TestCase):
 
         OnAgentDeletedCommand.assert_called_once_with(agent_id)
         self.agent_client._execute_command_no_response.assert_called_once_with(command)
+
+    @patch('xivo_agent.ctl.commands.OnQueueAddedCommand')
+    def test_on_queue_added_command(self, OnQueueAddedCommand):
+        queue_id = 42
+        self.agent_client._execute_command_no_response = Mock()
+        command = Mock()
+        OnQueueAddedCommand.return_value = command
+
+        self.agent_client.on_queue_added(queue_id)
+
+        OnQueueAddedCommand.assert_called_once_with(queue_id)
+        self.agent_client._execute_command_no_response.assert_called_once_with(command)
+
+    @patch('xivo_agent.ctl.commands.OnQueueUpdatedCommand')
+    def test_on_queue_updated_command(self, OnQueueUpdatedCommand):
+        queue_id = 42
+        self.agent_client._execute_command_no_response = Mock()
+        command = Mock()
+        OnQueueUpdatedCommand.return_value = command
+
+        self.agent_client.on_queue_updated(queue_id)
+
+        OnQueueUpdatedCommand.assert_called_once_with(queue_id)
+        self.agent_client._execute_command_no_response.assert_called_once_with(command)
+
+    @patch('xivo_agent.ctl.commands.OnQueueDeletedCommand')
+    def test_on_queue_deleted_command(self, OnQueueDeletedCommand):
+        queue_id = 42
+        self.agent_client._execute_command_no_response = Mock()
+        command = Mock()
+        OnQueueDeletedCommand.return_value = command
+
+        self.agent_client.on_queue_deleted(queue_id)
+
+        OnQueueDeletedCommand.assert_called_once_with(queue_id)
+        self.agent_client._execute_command_no_response.assert_called_once_with(command)

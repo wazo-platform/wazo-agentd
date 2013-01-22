@@ -104,6 +104,18 @@ class AgentClient(object):
         cmd = commands.OnAgentDeletedCommand(agent_id)
         self._execute_command_no_response(cmd)
 
+    def on_queue_added(self, queue_id):
+        cmd = commands.OnQueueAddedCommand(queue_id)
+        self._execute_command_no_response(cmd)
+
+    def on_queue_updated(self, queue_id):
+        cmd = commands.OnQueueUpdatedCommand(queue_id)
+        self._execute_command_no_response(cmd)
+
+    def on_queue_deleted(self, queue_id):
+        cmd = commands.OnQueueDeletedCommand(queue_id)
+        self._execute_command_no_response(cmd)
+
     def ping(self):
         cmd = commands.PingCommand()
         return self._execute_command(cmd)
