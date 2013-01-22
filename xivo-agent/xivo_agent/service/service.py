@@ -22,6 +22,7 @@ from xivo_agent.service.blackboard import Blackboard
 from xivo_agent.service.manager.on_agent_deleted import OnAgentDeletedManager
 from xivo_agent.service.manager.on_agent_updated import OnAgentUpdatedManager
 from xivo_agent.service.manager.on_queue_added import OnQueueAddedManager
+from xivo_agent.service.manager.on_queue_deleted import OnQueueDeletedManager
 
 logger = logging.getLogger(__name__)
 
@@ -139,6 +140,7 @@ class AgentService(object):
         self._agent_server.add_command(commands.OnQueueUpdatedCommand, self._exec_on_queue_updated_cmd)
 
     def _add_on_queue_deleted_cmd(self, step_factory):
+        self._on_queue_deleted_manager = OnQueueDeletedManager(step_factory)
         self._agent_server.add_command(commands.OnQueueDeletedCommand, self._exec_on_queue_deleted_cmd)
 
     def _add_ping_cmd(self):
@@ -243,7 +245,9 @@ class AgentService(object):
 
     def _exec_on_queue_deleted_cmd(self, on_queue_deleted_cmd, response):
         logger.info('Executing on queue deleted command (ID %s)', on_queue_deleted_cmd.queue_id)
-        # TODO complete
+
+        queue_id = on_queue_deleted_cmd.queue_id
+        self._on_queue_deleted_manager.on_queue_deleted(queue_id)
 
     def _exec_ping_cmd(self, ping_cmd, response):
         response.value = 'pong'

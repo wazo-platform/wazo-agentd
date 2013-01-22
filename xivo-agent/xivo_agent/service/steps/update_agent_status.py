@@ -48,3 +48,6 @@ class UpdateAgentStatusStep(object):
 
     def remove_agent_from_queue(self, agent_id, queue_id):
         self._agent_status_dao.remove_agent_from_queues(agent_id, [queue_id])
+
+    def remove_all_agents_from_queue(self, queue_id):
+        self._agent_status_dao.remove_all_agents_from_queue(queue_id)
