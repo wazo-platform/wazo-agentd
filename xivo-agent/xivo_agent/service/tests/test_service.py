@@ -188,6 +188,17 @@ class TestAgentService(unittest.TestCase):
 
         on_agent_deleted_manager.on_agent_deleted.assert_called_once_with(agent_id)
 
+    def test_exec_on_queue_updated_cmd(self):
+        queue_id = 42
+        command = commands.OnQueueUpdatedCommand(queue_id)
+        response = CommandResponse()
+        on_queue_updated_manager = Mock()
+        self.agent_service._on_queue_updated_manager = on_queue_updated_manager
+
+        self.agent_service._exec_on_queue_updated_cmd(command, response)
+
+        on_queue_updated_manager.on_queue_updated.assert_called_once_with(queue_id)
+
     def test_exec_on_queue_deleted_cmd(self):
         queue_id = 42
         command = commands.OnQueueDeletedCommand(queue_id)

@@ -22,6 +22,7 @@ from xivo_agent.service.manager.on_agent_deleted import OnAgentDeletedManager
 from xivo_agent.service.manager.on_agent_updated import OnAgentUpdatedManager
 from xivo_agent.service.manager.on_queue_added import OnQueueAddedManager
 from xivo_agent.service.manager.on_queue_deleted import OnQueueDeletedManager
+from xivo_agent.service.manager.on_queue_updated import OnQueueUpdatedManager
 
 logger = logging.getLogger(__name__)
 
@@ -136,6 +137,7 @@ class AgentService(object):
         self._agent_server.add_command(commands.OnQueueAddedCommand, self._exec_on_queue_added_cmd)
 
     def _add_on_queue_updated_cmd(self, step_factory):
+        self._on_queue_updated_manager = OnQueueUpdatedManager(step_factory)
         self._agent_server.add_command(commands.OnQueueUpdatedCommand, self._exec_on_queue_updated_cmd)
 
     def _add_on_queue_deleted_cmd(self, step_factory):
@@ -240,7 +242,9 @@ class AgentService(object):
 
     def _exec_on_queue_updated_cmd(self, on_queue_updated_cmd, response):
         logger.info('Executing on queue updated command (ID %s)', on_queue_updated_cmd.queue_id)
-        # TODO complete
+
+        queue_id = on_queue_updated_cmd.queue_id
+        self._on_queue_updated_manager.on_queue_updated(queue_id)
 
     def _exec_on_queue_deleted_cmd(self, on_queue_deleted_cmd, response):
         logger.info('Executing on queue deleted command (ID %s)', on_queue_deleted_cmd.queue_id)
