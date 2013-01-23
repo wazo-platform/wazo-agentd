@@ -26,7 +26,7 @@ class OnQueueAddedManager(object):
     def on_queue_added(self, queue_id):
         queue = self._get_queue.get_queue(queue_id)
 
-        agent_statuses = self._get_agent_statuses.get_statuses_of_logged_agent_for_queue(queue_id)
+        agent_statuses = self._get_agent_statuses.get_statuses_for_queue(queue_id)
         for agent_status in agent_statuses:
             self._add_agent_to_queue.add_agent_to_queue(agent_status, queue.name)
             self._update_agent_status.add_agent_to_queue(agent_status.agent_id, queue)

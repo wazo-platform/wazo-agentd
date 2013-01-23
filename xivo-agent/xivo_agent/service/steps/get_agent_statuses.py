@@ -26,8 +26,8 @@ class GetAgentStatusesStep(object):
     def get_statuses(self):
         return self._agent_status_dao.get_statuses()
 
-    def get_statuses_of_logged_agent_for_queue(self, queue_id):
-        return self._agent_status_dao.get_statuses_of_logged_agent_for_queue(queue_id)
+    def get_statuses_for_queue(self, queue_id):
+        return self._agent_status_dao.get_statuses_for_queue(queue_id)
 
     def get_statuses_to_add_to_queue(self, queue_id):
         return self._agent_status_dao.get_statuses_to_add_to_queue(queue_id)

@@ -44,11 +44,11 @@ class TestOnQueueAddedManager(unittest.TestCase):
         agent_status = Mock()
 
         self.get_queue.get_queue.return_value = queue
-        self.get_agent_statuses.get_statuses_of_logged_agent_for_queue.return_value = [agent_status]
+        self.get_agent_statuses.get_statuses_for_queue.return_value = [agent_status]
 
         self.on_queue_added_manager.on_queue_added(queue_id)
 
         self.get_queue.get_queue.assert_called_once_with(queue_id)
-        self.get_agent_statuses.get_statuses_of_logged_agent_for_queue.assert_called_once_with(queue_id)
+        self.get_agent_statuses.get_statuses_for_queue.assert_called_once_with(queue_id)
         self.add_agent_to_queue.add_agent_to_queue.assert_called_once_with(agent_status, queue.name)
         self.update_agent_status.add_agent_to_queue.assert_called_once_with(agent_status.agent_id, queue)
