@@ -15,10 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-class OnQueueDeletedManager(object):
+import logging
+from xivo_agent import command
 
-    def __init__(self, agent_status_dao):
-        self._agent_status_dao = agent_status_dao
+logger = logging.getLogger(__name__)
 
-    def on_queue_deleted(self, queue_id):
-        self._agent_status_dao.remove_all_agents_from_queue(queue_id)
+
+class CommonHandler(object):
+
+    def register_commands(self, agent_server):
+        agent_server.add_command(command.PingCommand, self.handle_ping)
+
+    def handle_ping(self, command):
+        logger.info('Executing ping command')
+        return 'pong'

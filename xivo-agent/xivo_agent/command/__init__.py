@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013 Avencall
+# Copyright (C) 2012-2013 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,10 +15,5 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-class OnQueueDeletedManager(object):
-
-    def __init__(self, agent_status_dao):
-        self._agent_status_dao = agent_status_dao
-
-    def on_queue_deleted(self, queue_id):
-        self._agent_status_dao.remove_all_agents_from_queue(queue_id)
+from .common import *
+from .login import LoginByIDCommand, LoginByNumberCommand

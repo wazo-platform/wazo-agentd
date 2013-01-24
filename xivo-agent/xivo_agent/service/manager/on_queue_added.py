@@ -17,16 +17,11 @@
 
 class OnQueueAddedManager(object):
 
-    def __init__(self, step_factory):
-        self._get_queue = step_factory.get_queue()
-        self._get_agent_statuses = step_factory.get_agent_statuses()
-        self._add_agent_to_queue = step_factory.add_agent_to_queue()
-        self._update_agent_status = step_factory.update_agent_status()
+    def __init__(self, add_to_queue_action, agent_status_dao):
+        self._add_to_queue_action = add_to_queue_action
+        self._agent_status_dao = agent_status_dao
 
-    def on_queue_added(self, queue_id):
-        queue = self._get_queue.get_queue(queue_id)
-
-        agent_statuses = self._get_agent_statuses.get_statuses_for_queue(queue_id)
+    def on_queue_added(self, queue):
+        agent_statuses = self._agent_status_dao.get_statuses_for_queue(queue.id)
         for agent_status in agent_statuses:
-            self._add_agent_to_queue.add_agent_to_queue(agent_status, queue.name)
-            self._update_agent_status.add_agent_to_queue(agent_status.agent_id, queue)
+            self._add_to_queue_action.add_agent_to_queue(agent_status, queue)

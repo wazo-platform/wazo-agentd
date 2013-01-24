@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 from collections import namedtuple
-from xivo_agent.ctl import commands
+from xivo_agent import command
 from xivo_agent.ctl.amqp_transport_client import AMQPTransportClient
 from xivo_agent.ctl.marshaler import Marshaler
 from xivo_agent.exception import AgentClientError
@@ -43,80 +43,77 @@ class AgentClient(object):
     def connect(self, hostname=DEFAULT_HOST, port=DEFAULT_PORT):
         if self._transport is not None:
             raise Exception('already connected')
-        self._hostname = hostname
-        self._port = port
 
-        self._transport = self._setup_transport()
+        self._transport = self._new_transport(hostname, port)
 
-    def _setup_transport(self):
-        transport = AMQPTransportClient.create_and_connect(self._hostname, self._port)
-        return transport
+    def _new_transport(self, hostname, port):
+        return AMQPTransportClient.create_and_connect(hostname, port)
 
     def add_agent_to_queue(self, agent_id, queue_id):
-        cmd = commands.AddToQueueCommand(agent_id, queue_id)
+        cmd = command.AddToQueueCommand(agent_id, queue_id)
         self._execute_command(cmd)
 
     def remove_agent_from_queue(self, agent_id, queue_id):
-        cmd = commands.RemoveFromQueueCommand(agent_id, queue_id)
+        cmd = command.RemoveFromQueueCommand(agent_id, queue_id)
         self._execute_command(cmd)
 
     def login_agent(self, agent_id, extension, context):
-        cmd = commands.LoginCommand(extension, context).by_id(agent_id)
+        cmd = command.LoginByIDCommand(agent_id, extension, context)
         self._execute_command(cmd)
 
     def login_agent_by_number(self, agent_number, extension, context):
-        cmd = commands.LoginCommand(extension, context).by_number(agent_number)
+        cmd = command.LoginByNumberCommand(agent_number, extension, context)
         self._execute_command(cmd)
 
     def logoff_agent(self, agent_id):
-        cmd = commands.LogoffCommand().by_id(agent_id)
+        cmd = command.LogoffByIDCommand(agent_id)
         self._execute_command(cmd)
 
     def logoff_agent_by_number(self, agent_number):
-        cmd = commands.LogoffCommand().by_number(agent_number)
+        cmd = command.LogoffByNumberCommand(agent_number)
         self._execute_command(cmd)
 
     def logoff_all_agents(self):
-        cmd = commands.LogoffAllCommand()
+        cmd = command.LogoffAllCommand()
         self._execute_command(cmd)
 
     def get_agent_status(self, agent_id):
-        cmd = commands.StatusCommand().by_id(agent_id)
+        cmd = command.StatusByIDCommand(agent_id)
         status = self._execute_command(cmd)
         return self._convert_agent_status(status)
 
     def get_agent_status_by_number(self, agent_number):
-        cmd = commands.StatusCommand().by_number(agent_number)
+        cmd = command.StatusByNumberCommand(agent_number)
         status = self._execute_command(cmd)
         return self._convert_agent_status(status)
 
     def get_agent_statuses(self):
-        cmd = commands.StatusesCommand()
+        cmd = command.StatusesCommand()
         statuses = self._execute_command(cmd)
         return [self._convert_agent_status(status) for status in statuses]
 
     def on_agent_updated(self, agent_id):
-        cmd = commands.OnAgentUpdatedCommand(agent_id)
+        cmd = command.OnAgentUpdatedCommand(agent_id)
         self._execute_command_no_response(cmd)
 
     def on_agent_deleted(self, agent_id):
-        cmd = commands.OnAgentDeletedCommand(agent_id)
+        cmd = command.OnAgentDeletedCommand(agent_id)
         self._execute_command_no_response(cmd)
 
     def on_queue_added(self, queue_id):
-        cmd = commands.OnQueueAddedCommand(queue_id)
+        cmd = command.OnQueueAddedCommand(queue_id)
         self._execute_command_no_response(cmd)
 
     def on_queue_updated(self, queue_id):
-        cmd = commands.OnQueueUpdatedCommand(queue_id)
+        cmd = command.OnQueueUpdatedCommand(queue_id)
         self._execute_command_no_response(cmd)
 
     def on_queue_deleted(self, queue_id):
-        cmd = commands.OnQueueDeletedCommand(queue_id)
+        cmd = command.OnQueueDeletedCommand(queue_id)
         self._execute_command_no_response(cmd)
 
     def ping(self):
-        cmd = commands.PingCommand()
+        cmd = command.PingCommand()
         return self._execute_command(cmd)
 
     def _execute_command(self, cmd):

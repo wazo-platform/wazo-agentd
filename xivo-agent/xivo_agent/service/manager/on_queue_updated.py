@@ -17,28 +17,22 @@
 
 class OnQueueUpdatedManager(object):
 
-    def __init__(self, step_factory):
-        self._get_queue = step_factory.get_queue()
-        self._get_agent_statuses = step_factory.get_agent_statuses()
-        self._add_agent_to_queue = step_factory.add_agent_to_queue()
-        self._remove_agent_from_queue = step_factory.remove_agent_from_queue()
-        self._update_agent_status = step_factory.update_agent_status()
+    def __init__(self, add_to_queue_action, remove_from_queue_action, agent_status_dao):
+        self._add_to_queue_action = add_to_queue_action
+        self._remove_from_queue_action = remove_from_queue_action
+        self._agent_status_dao = agent_status_dao
 
-    def on_queue_updated(self, queue_id):
-        queue = self._get_queue.get_queue(queue_id)
-
-        added_agent_statuses = self._get_agent_statuses.get_statuses_to_add_to_queue(queue_id)
-        removed_agent_statuses = self._get_agent_statuses.get_statuses_to_remove_from_queue(queue_id)
+    def on_queue_updated(self, queue):
+        added_agent_statuses = self._agent_status_dao.get_statuses_to_add_to_queue(queue.id)
+        removed_agent_statuses = self._agent_status_dao.get_statuses_to_remove_from_queue(queue.id)
 
         self._manage_added_agents(added_agent_statuses, queue)
         self._manage_removed_agents(removed_agent_statuses, queue)
 
     def _manage_added_agents(self, agent_statuses, queue):
         for agent_status in agent_statuses:
-            self._add_agent_to_queue.add_agent_to_queue(agent_status, queue.name)
-            self._update_agent_status.add_agent_to_queue(agent_status.agent_id, queue)
+            self._add_to_queue_action.add_agent_to_queue(agent_status, queue)
 
     def _manage_removed_agents(self, agent_statuses, queue):
         for agent_status in agent_statuses:
-            self._remove_agent_from_queue.remove_agent_from_queue(agent_status, queue.name)
-            self._update_agent_status.remove_agent_from_queue(agent_status.agent_id, queue.id)
+            self._remove_from_queue_action.remove_agent_from_queue(agent_status, queue)

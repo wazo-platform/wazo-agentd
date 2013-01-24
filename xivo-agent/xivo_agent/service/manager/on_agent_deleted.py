@@ -17,19 +17,13 @@
 
 class OnAgentDeletedManager(object):
 
-    def __init__(self, step_factory):
-        self._get_agent_status = step_factory.get_agent_status()
-        self._remove_agent_from_queues = step_factory.remove_agent_from_queues()
-        self._update_queue_log = step_factory.update_queue_log()
-        self._update_agent_status = step_factory.update_agent_status()
-        self._send_agent_logoff_event = step_factory.send_agent_logoff_event()
+    def __init__(self, logoff_action, agent_status_dao):
+        self._logoff_action = logoff_action
+        self._agent_status_dao = agent_status_dao
 
     def on_agent_deleted(self, agent_id):
-        agent_status = self._get_agent_status.get_status(agent_id)
+        agent_status = self._agent_status_dao.get_status(agent_id)
         if agent_status is None:
             return
 
-        self._remove_agent_from_queues.remove_agent_from_queues(agent_status)
-        self._update_queue_log.log_off_agent(agent_status)
-        self._update_agent_status.log_off_agent(agent_status.agent_id)
-        self._send_agent_logoff_event.send_agent_logoff(agent_status.agent_id, agent_status.agent_number)
+        self._logoff_action.logoff_agent(agent_status)

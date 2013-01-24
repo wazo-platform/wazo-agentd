@@ -21,15 +21,34 @@ import signal
 from contextlib import contextmanager
 from xivo import daemonize
 from xivo_agent import ami
+from xivo_agent.service.action.add import AddToQueueAction
+from xivo_agent.service.action.login import LoginAction
+from xivo_agent.service.action.logoff import LogoffAction
+from xivo_agent.service.action.remove import RemoveFromQueueAction
 from xivo_agent.ctl.server import AgentServer
+from xivo_agent.dao import QueueDAOAdapter, AgentDAOAdapter
 from xivo_agent.db_manager import DBManager
+from xivo_agent.service.handler.common import CommonHandler
+from xivo_agent.service.handler.login import LoginHandler
+from xivo_agent.service.handler.logoff import LogoffHandler
+from xivo_agent.service.handler.membership import MembershipHandler
+from xivo_agent.service.handler.on_agent import OnAgentHandler
+from xivo_agent.service.handler.on_queue import OnQueueHandler
+from xivo_agent.service.handler.status import StatusHandler
+from xivo_agent.service.manager.add_member import AddMemberManager
+from xivo_agent.service.manager.login import LoginManager
+from xivo_agent.service.manager.logoff import LogoffManager
+from xivo_agent.service.manager.on_agent_deleted import OnAgentDeletedManager
+from xivo_agent.service.manager.on_agent_updated import OnAgentUpdatedManager
+from xivo_agent.service.manager.on_queue_added import OnQueueAddedManager
+from xivo_agent.service.manager.on_queue_deleted import OnQueueDeletedManager
+from xivo_agent.service.manager.on_queue_updated import OnQueueUpdatedManager
+from xivo_agent.service.manager.remove_member import RemoveMemberManager
 from xivo_agent.queuelog import QueueLogManager
-from xivo_agent.service.service import AgentService
-from xivo_agent.service.factory import StepFactory
-from xivo_dao import agent_dao
+from xivo_dao import agent_dao as orig_agent_dao
 from xivo_dao import agent_status_dao
 from xivo_dao import line_dao
-from xivo_dao import queue_dao
+from xivo_dao import queue_dao as orig_queue_dao
 from xivo_dao import queue_log_dao
 from xivo_dao import queue_member_dao
 
@@ -84,16 +103,42 @@ def _run():
     _init_signal()
     db_manager = DBManager()
     db_manager.connect()
+    agent_dao = AgentDAOAdapter(orig_agent_dao)
+    queue_dao = QueueDAOAdapter(orig_queue_dao)
     with _new_ami_client() as ami_client:
         with _new_agent_server(db_manager) as agent_server:
             queue_log_manager = QueueLogManager(queue_log_dao)
 
-            step_factory = StepFactory(ami_client, queue_log_manager, agent_status_dao,
-                                       agent_dao, line_dao, queue_dao, queue_member_dao)
+            add_to_queue_action = AddToQueueAction(ami_client, agent_status_dao)
+            login_action = LoginAction(ami_client, queue_log_manager, agent_status_dao, line_dao)
+            remove_from_queue_action = RemoveFromQueueAction(ami_client, agent_status_dao)
+            logoff_action = LogoffAction(ami_client, queue_log_manager, agent_status_dao)
 
-            agent_service = AgentService(agent_server)
-            agent_service.init(step_factory)
-            agent_service.run()
+            add_member_manager = AddMemberManager(add_to_queue_action, ami_client, agent_status_dao, queue_member_dao)
+            login_manager = LoginManager(login_action, agent_status_dao)
+            logoff_manager = LogoffManager(logoff_action, agent_status_dao)
+            on_agent_deleted_manager = OnAgentDeletedManager(logoff_manager, agent_status_dao)
+            # FIXME
+            on_agent_updated_manager = None
+            on_queue_added_manager = OnQueueAddedManager(add_to_queue_action, agent_status_dao)
+            on_queue_deleted_manager = OnQueueDeletedManager(agent_status_dao)
+            on_queue_updated_manager = OnQueueUpdatedManager(add_to_queue_action, remove_from_queue_action, agent_status_dao)
+            remove_member_manager = RemoveMemberManager(remove_from_queue_action, ami_client, agent_status_dao, queue_member_dao)
+
+            handlers = [
+                CommonHandler(),
+                LoginHandler(login_manager, agent_dao),
+                LogoffHandler(logoff_manager, agent_status_dao),
+                MembershipHandler(add_member_manager, remove_member_manager, agent_dao, queue_dao),
+                OnAgentHandler(on_agent_deleted_manager, on_agent_updated_manager, agent_dao),
+                OnQueueHandler(on_queue_added_manager, on_queue_updated_manager, on_queue_deleted_manager, queue_dao),
+                StatusHandler(agent_dao, agent_status_dao),
+            ]
+
+            for handler in handlers:
+                handler.register_commands(agent_server)
+
+            agent_server.run()
 
 
 def _init_signal():

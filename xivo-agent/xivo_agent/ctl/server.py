@@ -53,25 +53,22 @@ class AgentServer(object):
         try:
             command = self._marshaler.unmarshal_command(request)
             callback = self._commands_callback[command.name]
-            self._call_callback(callback, command, response)
+            response.value = self._call_callback(callback, command)
+        except AgentServerError as e:
+            response.error = e.error
         except Exception:
-            logger.warning('Error while processing command', exc_info=True)
-            error_response = self._reply_error(error.SERVER_ERROR)
-            raise AgentServerError(error_response)
+            logger.error('Error while processing command', exc_info=True)
+            response.error = error.SERVER_ERROR
 
         return self._reply_response(response)
 
-    def _call_callback(self, callback, command, response):
+    def _call_callback(self, callback, command):
         try:
-            callback(command, response)
+            return callback(command)
         except (InvalidRequestError, OperationalError) as e:
             logger.warning('Database error while processing command: %s', e)
             self._db_manager.reconnect()
-            callback(command, response)
-
-    def _reply_error(self, error):
-        resp = CommandResponse(error=error)
-        return self._reply_response(resp)
+            return callback(command)
 
     def _reply_response(self, response):
         return self._marshaler.marshal_response(response)

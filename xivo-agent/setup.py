@@ -17,10 +17,9 @@ setup(
               'xivo_agent.ami.actions.common',
               'xivo_agent.bin',
               'xivo_agent.ctl',
-              'xivo_agent.ctl.commands',
+              'xivo_agent.command',
               'xivo_agent.service',
-              'xivo_agent.service.manager',
-              'xivo_agent.service.steps'],
+              'xivo_agent.service.manager'],
     scripts=['bin/xivo-agentd',
              'bin/xivo-agentctl'],
 )

@@ -16,10 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import unittest
-from mock import Mock, call, patch, ANY
+from mock import Mock, call, patch
 from xivo_agent.ctl.response import CommandResponse
 from xivo_agent.ctl.marshaler import Marshaler
-from xivo_agent.ctl.commands.abstract import AbstractAgentCommand
 from xivo_agent.ctl.server import AgentServer
 from xivo_agent.exception import AgentServerError
 from sqlalchemy.exc import OperationalError
@@ -29,7 +28,6 @@ class TestAgentServer(unittest.TestCase):
 
     @patch('xivo_agent.ctl.amqp_transport_server.AMQPTransportServer.create_and_connect')
     def test_command_callback_is_called_by_process_next_command(self, transport):
-
         callback = Mock()
 
         marshaler = Mock()
@@ -50,7 +48,7 @@ class TestAgentServer(unittest.TestCase):
 
         server._process_next_command('{"name": "foobar", "arg": {"arg1": "value"}}')
 
-        callback.assert_called_once_with(command, ANY)
+        callback.assert_called_once_with(command)
 
     @patch('xivo_agent.ctl.amqp_transport_server.AMQPTransportServer.create_and_connect')
     @patch('xivo_agent.ctl.server.CommandResponse')
@@ -70,7 +68,7 @@ class TestAgentServer(unittest.TestCase):
         server = AgentServer(db_manager)
         server._marshaler = marshaler
 
-        command = Mock(AbstractAgentCommand)
+        command = Mock()
         command.name = "foobar"
         marshaler.unmarshal_command.return_value = command
         marshaler.marshal_response.return_value = expected
@@ -80,13 +78,9 @@ class TestAgentServer(unittest.TestCase):
 
         server.add_command(command_class, callback)
 
-        try:
-            server._process_next_command(request)
-        except AgentServerError as e:
-            self.assertEquals(str(e), expected)
-        else:
-            self.fail("no ServerError raised")
+        response = server._process_next_command(request)
 
+        self.assertEqual(response, expected)
         marshaler.marshal_response.assert_called_once_with(command_response)
 
     @patch('xivo_agent.ctl.amqp_transport_server.AMQPTransportServer.create_and_connect')
@@ -106,7 +100,7 @@ class TestAgentServer(unittest.TestCase):
         server._process_next_command(request)
 
         db_manager.reconnect.assert_called_once_with()
-        callback.assert_has_calls([call(command, ANY), call(command, ANY)])
+        callback.assert_has_calls([call(command), call(command)])
 
     @patch('xivo_agent.ctl.amqp_transport_server.AMQPTransportServer.create_and_connect')
     def test_process_next_command_reconnect_db_but_fail_on_sqlalchemy_error(self, transport):
@@ -123,7 +117,7 @@ class TestAgentServer(unittest.TestCase):
         server._marshaler = marshaler
         server._commands_callback[command.name] = callback
 
-        self.assertRaises(AgentServerError, server._process_next_command, request)
+        server._process_next_command(request)
 
         db_manager.reconnect.assert_called_once_with()
-        callback.assert_called_once_with(command, ANY)
+        callback.assert_called_once_with(command)

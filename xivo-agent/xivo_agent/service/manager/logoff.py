@@ -15,10 +15,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-class OnQueueDeletedManager(object):
+from xivo_agent.exception import AgentNotLoggedError
 
-    def __init__(self, agent_status_dao):
+
+class LogoffManager(object):
+
+    def __init__(self, logoff_action, agent_status_dao):
+        self._logoff_action = logoff_action
         self._agent_status_dao = agent_status_dao
 
-    def on_queue_deleted(self, queue_id):
-        self._agent_status_dao.remove_all_agents_from_queue(queue_id)
+    def logoff_agent(self, agent_status):
+        if agent_status is None:
+            raise AgentNotLoggedError()
+        self._logoff_action.logoff_agent(agent_status)
+
+    def logoff_all_agents(self):
+        agent_statuses = self._get_agent_statuses()
+        for agent_status in agent_statuses:
+            self._logoff_action.logoff_agent(agent_status)
+
+    def _get_agent_statuses(self):
+        agent_ids = self._agent_status_dao.get_logged_agent_ids()
+        return [self._agent_status_dao.get_status(agent_id) for agent_id in agent_ids]
