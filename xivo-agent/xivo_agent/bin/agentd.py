@@ -21,12 +21,14 @@ import signal
 from contextlib import contextmanager
 from xivo import daemonize
 from xivo_agent import ami
+from xivo_agent.ctl.server import AgentServer
+from xivo_agent.dao import QueueDAOAdapter, AgentDAOAdapter
+from xivo_agent.queuelog import QueueLogManager
 from xivo_agent.service.action.add import AddToQueueAction
 from xivo_agent.service.action.login import LoginAction
 from xivo_agent.service.action.logoff import LogoffAction
 from xivo_agent.service.action.remove import RemoveFromQueueAction
-from xivo_agent.ctl.server import AgentServer
-from xivo_agent.dao import QueueDAOAdapter, AgentDAOAdapter
+from xivo_agent.service.action.update import UpdatePenaltyAction
 from xivo_agent.service.handler.common import CommonHandler
 from xivo_agent.service.handler.login import LoginHandler
 from xivo_agent.service.handler.logoff import LogoffHandler
@@ -43,14 +45,12 @@ from xivo_agent.service.manager.on_queue_added import OnQueueAddedManager
 from xivo_agent.service.manager.on_queue_deleted import OnQueueDeletedManager
 from xivo_agent.service.manager.on_queue_updated import OnQueueUpdatedManager
 from xivo_agent.service.manager.remove_member import RemoveMemberManager
-from xivo_agent.queuelog import QueueLogManager
 from xivo_dao import agent_dao as orig_agent_dao
 from xivo_dao import agent_status_dao
 from xivo_dao import line_dao
 from xivo_dao import queue_dao as orig_queue_dao
 from xivo_dao import queue_log_dao
 from xivo_dao import queue_member_dao
-from xivo_agent.service.action.update import UpdatePenaltyAction
 
 _LOG_FILENAME = '/var/log/xivo-agentd.log'
 _PID_FILENAME = '/var/run/xivo-agentd.pid'
