@@ -22,21 +22,16 @@ from xivo_agent.ctl.marshaler import Marshaler
 from xivo_agent.ctl.commands.abstract import AbstractAgentCommand
 from xivo_agent.ctl.server import AgentServer
 from xivo_agent.exception import AgentServerError
-from sqlalchemy.exc import OperationalError
 
 
 class TestAgentServer(unittest.TestCase):
 
     @patch('xivo_agent.ctl.amqp_transport_server.AMQPTransportServer.create_and_connect')
     def test_command_callback_is_called_by_process_next_command(self, transport):
-
         callback = Mock()
-
         marshaler = Mock()
 
-        db_manager = Mock()
-
-        server = AgentServer(db_manager)
+        server = AgentServer()
         server._marshaler = marshaler
 
         command = Mock()
@@ -66,8 +61,7 @@ class TestAgentServer(unittest.TestCase):
         callback = Mock(side_effect=AgentServerError())
 
         marshaler = Mock(Marshaler)
-        db_manager = Mock()
-        server = AgentServer(db_manager)
+        server = AgentServer()
         server._marshaler = marshaler
 
         command = Mock(AbstractAgentCommand)
@@ -88,42 +82,3 @@ class TestAgentServer(unittest.TestCase):
             self.fail("no ServerError raised")
 
         marshaler.marshal_response.assert_called_once_with(command_response)
-
-    @patch('xivo_agent.ctl.amqp_transport_server.AMQPTransportServer.create_and_connect')
-    def test_process_next_command_reconnect_db_and_ok_on_sqlalchemy_error(self, transport):
-        request = Mock()
-        command = Mock()
-        command.name = 'foobar'
-        callback = Mock()
-        callback.side_effect = [OperationalError(None, None, None, None), None]
-        marshaler = Mock(Marshaler)
-        marshaler.unmarshal_command.return_value = command
-        db_manager = Mock()
-        server = AgentServer(db_manager)
-        server._marshaler = marshaler
-        server._commands_callback[command.name] = callback
-
-        server._process_next_command(request)
-
-        db_manager.reconnect.assert_called_once_with()
-        callback.assert_has_calls([call(command, ANY), call(command, ANY)])
-
-    @patch('xivo_agent.ctl.amqp_transport_server.AMQPTransportServer.create_and_connect')
-    def test_process_next_command_reconnect_db_but_fail_on_sqlalchemy_error(self, transport):
-        request = Mock()
-        command = Mock()
-        command.name = 'foobar'
-        callback = Mock()
-        callback.side_effect = OperationalError(None, None, None, None)
-        marshaler = Mock(Marshaler)
-        marshaler.unmarshal_command.return_value = command
-        db_manager = Mock()
-        db_manager.reconnect.side_effect = Exception()
-        server = AgentServer(db_manager)
-        server._marshaler = marshaler
-        server._commands_callback[command.name] = callback
-
-        self.assertRaises(AgentServerError, server._process_next_command, request)
-
-        db_manager.reconnect.assert_called_once_with()
-        callback.assert_called_once_with(command, ANY)
