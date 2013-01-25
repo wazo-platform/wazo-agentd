@@ -22,7 +22,6 @@ from contextlib import contextmanager
 from xivo import daemonize
 from xivo_agent import ami
 from xivo_agent.ctl.server import AgentServer
-from xivo_agent.db_manager import DBManager
 from xivo_agent.queuelog import QueueLogManager
 from xivo_agent.service.service import AgentService
 from xivo_agent.service.factory import StepFactory
