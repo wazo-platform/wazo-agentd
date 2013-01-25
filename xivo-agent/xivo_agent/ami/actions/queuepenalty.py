@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2012-2013 Avencall
+# Copyright (C) 2013  Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,12 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from .common.action import BaseAction
-from .dbdel import DBDelAction
-from .dbget import DBGetAction
-from .dbput import DBPutAction
-from .login import LoginAction
-from .queuepenalty import QueuePenaltyAction
-from .queueadd import QueueAddAction
-from .queueremove import QueueRemoveAction
-from .userevent import UserEventAction
+from xivo_agent.ami.actions.common.action import BaseAction
+
+
+def QueuePenaltyAction(interface, penalty, queue=None):
+    return BaseAction('QueuePenalty', [
+        ('Interface', interface),
+        ('Penalty', penalty),
+        ('Queue', queue),
+    ])

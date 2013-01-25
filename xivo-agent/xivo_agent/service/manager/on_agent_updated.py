@@ -23,6 +23,7 @@ class OnAgentUpdatedManager(object):
         self._add_agent_to_queue = step_factory.add_agent_to_queue()
         self._remove_agent_from_queue = step_factory.remove_agent_from_queue()
         self._update_agent_status = step_factory.update_agent_status()
+        self._update_agent_penalty = step_factory.update_agent_penalty()
 
     def on_agent_updated(self, agent_id):
         agent_status = self._get_agent_status.get_status(agent_id)
@@ -33,6 +34,7 @@ class OnAgentUpdatedManager(object):
 
         self._manage_added_queues(agent_status, queue_delta.added)
         self._manage_removed_queues(agent_status, queue_delta.removed)
+        self._manage_penalty_updated(agent_status, queue_delta.penalty_updated)
 
     def _calculate_queue_delta(self, agent_id, agent_status):
         agent = self._get_agent.get_agent_with_id(agent_id)
@@ -43,6 +45,11 @@ class OnAgentUpdatedManager(object):
             self._add_agent_to_queue.add_agent_to_queue(agent_status, queue.name)
             self._update_agent_status.add_agent_to_queue(agent_status.agent_id, queue)
 
+    def _manage_penalty_updated(self, agent_status, updated_queues):
+        for queue in updated_queues:
+            self._update_agent_penalty.update_agent_penalty(agent_status, queue)
+            self._update_agent_status.update_agent_penalty(agent_status.agent_id, queue)
+
     def _manage_removed_queues(self, agent_status, removed_queues):
         for queue in removed_queues:
             self._remove_agent_from_queue.remove_agent_from_queue(agent_status, queue.name)
@@ -51,19 +58,23 @@ class OnAgentUpdatedManager(object):
 
 class QueueDelta(object):
 
-    def __init__(self, added, removed):
+    def __init__(self, added, removed, penalty_updated):
         self.added = added
         self.removed = removed
+        self.penalty_updated = penalty_updated
 
     @classmethod
     def calculate(cls, old_queues, new_queues):
         old_queues_by_id = dict((q.id, q) for q in old_queues)
         new_queues_by_id = dict((q.id, q) for q in new_queues)
+        updated_ids = set(new_queues_by_id).intersection(old_queues_by_id)
 
         added_ids = set(new_queues_by_id).difference(old_queues_by_id)
         removed_ids = set(old_queues_by_id).difference(new_queues_by_id)
+        penalty_updated = [new_queues_by_id[queue_id] for queue_id in updated_ids if
+                           new_queues_by_id[queue_id].penalty != old_queues_by_id[queue_id].penalty]
 
         added_queues = [new_queues_by_id[queue_id] for queue_id in added_ids]
         removed_queues = [old_queues_by_id[queue_id] for queue_id in removed_ids]
 
-        return cls(added_queues, removed_queues)
+        return cls(added_queues, removed_queues, penalty_updated)
