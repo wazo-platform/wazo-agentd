@@ -82,10 +82,8 @@ def _init_logging(parsed_args):
 
 def _run():
     _init_signal()
-    db_manager = DBManager()
-    db_manager.connect()
     with _new_ami_client() as ami_client:
-        with _new_agent_server(db_manager) as agent_server:
+        with _new_agent_server() as agent_server:
             queue_log_manager = QueueLogManager(queue_log_dao)
 
             step_factory = StepFactory(ami_client, queue_log_manager, agent_status_dao,
@@ -114,8 +112,8 @@ def _new_ami_client():
 
 
 @contextmanager
-def _new_agent_server(db_manager):
-    agent_server = AgentServer(db_manager)
+def _new_agent_server():
+    agent_server = AgentServer()
     try:
         yield agent_server
     finally:

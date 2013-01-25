@@ -21,7 +21,6 @@ from xivo_agent.ctl.response import CommandResponse
 from xivo_agent.ctl.marshaler import Marshaler
 from xivo_agent.ctl.amqp_transport_server import AMQPTransportServer
 from xivo_agent.exception import AgentServerError
-from sqlalchemy.exc import OperationalError, InvalidRequestError
 
 logger = logging.getLogger(__name__)
 
@@ -30,8 +29,7 @@ class AgentServer(object):
 
     _HOST = 'localhost'
 
-    def __init__(self, db_manager):
-        self._db_manager = db_manager
+    def __init__(self):
         self._transport = self._setup_transport()
         self._marshaler = None
         self._commands_registry = {}
@@ -62,12 +60,7 @@ class AgentServer(object):
         return self._reply_response(response)
 
     def _call_callback(self, callback, command, response):
-        try:
-            callback(command, response)
-        except (InvalidRequestError, OperationalError) as e:
-            logger.warning('Database error while processing command: %s', e)
-            self._db_manager.reconnect()
-            callback(command, response)
+        callback(command, response)
 
     def _reply_error(self, error):
         resp = CommandResponse(error=error)
