@@ -23,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 
 class OnAgentHandler(object):
-    # XXX OnAgentTriggerHandler ? OnAgentChangedHandler ? OnAgentEventHandler ?
 
     def __init__(self, on_agent_deleted_manager, on_agent_updated_manager, agent_dao):
         self._on_agent_deleted_manager = on_agent_deleted_manager
@@ -38,7 +37,6 @@ class OnAgentHandler(object):
     def handle_on_agent_updated(self, command):
         logger.info('Executing on agent updated command (ID %s)', command.agent_id)
         agent = self._agent_dao.get_agent(command.agent_id)
-        # FIXME waiting for a commit to be made before conflicting
         self._on_agent_updated_manager.on_agent_updated(agent)
 
     @debug.trace_duration

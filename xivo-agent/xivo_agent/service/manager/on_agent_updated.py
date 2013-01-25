@@ -17,43 +17,37 @@
 
 class OnAgentUpdatedManager(object):
 
-    def __init__(self, step_factory):
-        self._get_agent_status = step_factory.get_agent_status()
-        self._get_agent = step_factory.get_agent()
-        self._add_agent_to_queue = step_factory.add_agent_to_queue()
-        self._remove_agent_from_queue = step_factory.remove_agent_from_queue()
-        self._update_agent_status = step_factory.update_agent_status()
-        self._update_agent_penalty = step_factory.update_agent_penalty()
+    def __init__(self, add_to_queue_action, remove_from_queue_action, update_penalty_action, agent_status_dao):
+        self._add_to_queue_action = add_to_queue_action
+        self._remove_from_queue_action = remove_from_queue_action
+        self._update_penalty_action = update_penalty_action
+        self._agent_status_dao = agent_status_dao
 
-    def on_agent_updated(self, agent_id):
-        agent_status = self._get_agent_status.get_status(agent_id)
+    def on_agent_updated(self, agent):
+        agent_status = self._agent_status_dao.get_status(agent.id)
         if agent_status is None:
             return
 
-        queue_delta = self._calculate_queue_delta(agent_id, agent_status)
+        queue_delta = self._calculate_queue_delta(agent_status, agent)
 
         self._manage_added_queues(agent_status, queue_delta.added)
         self._manage_removed_queues(agent_status, queue_delta.removed)
         self._manage_penalty_updated(agent_status, queue_delta.penalty_updated)
 
-    def _calculate_queue_delta(self, agent_id, agent_status):
-        agent = self._get_agent.get_agent_with_id(agent_id)
+    def _calculate_queue_delta(self, agent_status, agent):
         return QueueDelta.calculate(agent_status.queues, agent.queues)
 
     def _manage_added_queues(self, agent_status, added_queues):
         for queue in added_queues:
-            self._add_agent_to_queue.add_agent_to_queue(agent_status, queue.name)
-            self._update_agent_status.add_agent_to_queue(agent_status.agent_id, queue)
+            self._add_to_queue_action.add_agent_to_queue(agent_status, queue)
 
     def _manage_penalty_updated(self, agent_status, updated_queues):
         for queue in updated_queues:
-            self._update_agent_penalty.update_agent_penalty(agent_status, queue)
-            self._update_agent_status.update_agent_penalty(agent_status.agent_id, queue)
+            self._update_penalty_action.update(agent_status, queue)
 
     def _manage_removed_queues(self, agent_status, removed_queues):
         for queue in removed_queues:
-            self._remove_agent_from_queue.remove_agent_from_queue(agent_status, queue.name)
-            self._update_agent_status.remove_agent_from_queue(agent_status.agent_id, queue.id)
+            self._remove_from_queue_action.remove_agent_from_queue(agent_status, queue)
 
 
 class QueueDelta(object):

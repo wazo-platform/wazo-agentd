@@ -57,65 +57,39 @@ class TestQueueDelta(unittest.TestCase):
 class TestOnAgentUpdatedManager(unittest.TestCase):
 
     def setUp(self):
-        step_factory = Mock(StepFactory)
-
-        self.get_agent_status = Mock()
-        self.get_agent = Mock()
-        self.add_agent_to_queue = Mock()
-        self.remove_agent_from_queue = Mock()
-        self.update_agent_penalty = Mock()
-        self.update_agent_status = Mock()
-
-        step_factory.get_agent_status.return_value = self.get_agent_status
-        step_factory.get_agent.return_value = self.get_agent
-        step_factory.add_agent_to_queue.return_value = self.add_agent_to_queue
-        step_factory.remove_agent_from_queue.return_value = self.remove_agent_from_queue
-        step_factory.update_agent_penalty.return_value = self.update_agent_penalty
-        step_factory.update_agent_status.return_value = self.update_agent_status
-
-        self.on_agent_updated_manager = OnAgentUpdatedManager(step_factory)
+        self.add_to_queue_action = Mock()
+        self.remove_from_queue_action = Mock()
+        self.update_penalty_action = Mock()
+        self.agent_status_dao = Mock()
+        self.on_agent_updated_manager = OnAgentUpdatedManager(self.add_to_queue_action,
+                                                              self.remove_from_queue_action,
+                                                              self.update_penalty_action,
+                                                              self.agent_status_dao)
 
     def test_on_agent_updated(self):
         old_queue = Mock()
-        old_queue.name = 'queue1'
-
+        old_queue.id = 1
         new_queue = Mock()
-        new_queue.name = 'queue2'
-
+        new_queue.id = 2
         updated_queue_before = Mock()
-        updated_queue_before.id = 42
-        updated_queue_before.name = 'q3'
+        updated_queue_before.id = 3
         updated_queue_before.penalty = 61
         updated_queue_after = Mock()
-        updated_queue_after.id = 42
-        updated_queue_after.name = 'q3'
+        updated_queue_after.id = 3
         updated_queue_after.penalty = 39
 
+        agent_id = 1
+        agent = Mock()
+        agent.id = agent_id
+        agent.queues = [new_queue, updated_queue_after]
         agent_status = Mock()
-        agent_status.agent_id = 1
-        agent_status.agent_number = '42'
+        agent_status.agent_id = agent_id
         agent_status.queues = [old_queue, updated_queue_before]
 
-        agent = Mock()
-        agent.id = agent_status.agent_id
-        agent.queues = [new_queue, updated_queue_after]
+        self.agent_status_dao.get_status.return_value = agent_status
 
-        self.get_agent_status.get_status.return_value = agent_status
-        self.get_agent.get_agent_with_id.return_value = agent
+        self.on_agent_updated_manager.on_agent_updated(agent)
 
-        self.on_agent_updated_manager.on_agent_updated(agent_status.agent_id)
-
-        self.get_agent_status.get_status.assert_called_once_with(agent_status.agent_id)
-        self.get_agent.get_agent_with_id.assert_called_once_with(agent_status.agent_id)
-
-        # added
-        self.add_agent_to_queue.add_agent_to_queue.assert_called_once_with(agent_status, new_queue.name)
-        self.update_agent_status.add_agent_to_queue.assert_called_once_with(agent_status.agent_id, new_queue)
-
-        # removed
-        self.remove_agent_from_queue.remove_agent_from_queue.assert_called_once_with(agent_status, old_queue.name)
-        self.update_agent_status.remove_agent_from_queue.assert_called_once_with(agent_status.agent_id, old_queue.id)
-
-        # penalty updated
-        self.update_agent_penalty.update_agent_penalty.assert_called_once_with(agent_status, updated_queue_after)
-        self.update_agent_status.update_agent_penalty.assert_called_once_with(agent_status.agent_id, updated_queue_after)
+        self.add_to_queue_action.add_agent_to_queue.assert_called_once_with(agent_status, new_queue)
+        self.remove_from_queue_action.remove_agent_from_queue.assert_called_once_with(agent_status, old_queue)
+        self.update_penalty_action.update.assert_called_once_with(agent_status, updated_queue_after)

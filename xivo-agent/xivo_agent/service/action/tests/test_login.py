@@ -49,5 +49,5 @@ class TestLoginAction(unittest.TestCase):
         self.agent_status_dao.log_in_agent.assert_called_once_with(agent_id, agent_number, extension, context, ANY, state_interface)
         self.agent_status_dao.add_agent_to_queues.assert_called_once_with(agent_id, agent.queues)
         self.queue_log_manager.on_agent_logged_in.assert_called_once_with(agent_number, extension, context)
-        self.ami_client.queue_add.assert_called_once_with(queue.name, ANY, ANY, state_interface, queue.penalty, queue.skills)
+        self.ami_client.queue_add.assert_called_once_with(queue.name, ANY, ANY, state_interface, queue.penalty, ANY)
         self.ami_client.agent_login.assert_called_once_with(agent_id, agent_number, extension, context)

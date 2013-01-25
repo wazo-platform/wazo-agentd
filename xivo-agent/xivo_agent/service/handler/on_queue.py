@@ -23,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 
 class OnQueueHandler(object):
-    # XXX bad name
 
     def __init__(self, on_queue_added_manager, on_queue_updated_manager, on_queue_deleted_manager, queue_dao):
         self._on_queue_added_manager = on_queue_added_manager

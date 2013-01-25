@@ -17,6 +17,8 @@
 
 import logging
 from xivo_agent.exception import NoSuchExtensionError
+from xivo_agent.service.helper import format_agent_member_name,\
+    format_agent_skills
 
 logger = logging.getLogger(__name__)
 
@@ -35,8 +37,6 @@ class LoginAction(object):
         # * extension@context is not used
         interface = self._get_interface(agent)
         state_interface = self._get_state_interface(extension, context)
-        # XXX ici ca serait bien d'instancier un objet AgentStatus ou qqch
-        #     avec la meme interface, et le passer à toutes les autres méthodes
         self._update_agent_status(agent, extension, context, interface, state_interface)
         self._update_queue_log(agent, extension, context)
         self._update_asterisk(agent, interface, state_interface)
@@ -59,10 +59,11 @@ class LoginAction(object):
         self._queue_log_manager.on_agent_logged_in(agent.number, extension, context)
 
     def _update_asterisk(self, agent, interface, state_interface):
-        member_name = 'Agent/{0}'.format(agent.number)
+        member_name = format_agent_member_name(agent.number)
+        skills = format_agent_skills(agent.number)
         for queue in agent.queues:
             action = self._ami_client.queue_add(queue.name, interface, member_name, state_interface,
-                                                queue.penalty, queue.skills)
+                                                queue.penalty, skills)
             if not action.success:
                 logger.warning('Failure to add interface %r to queue %r', interface, queue.name)
 

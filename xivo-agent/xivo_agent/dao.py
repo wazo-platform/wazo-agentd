@@ -18,7 +18,7 @@
 from collections import namedtuple
 from xivo_agent.exception import NoSuchAgentError, NoSuchQueueError
 
-_Queue = namedtuple('_Queue', ['id', 'name'])
+_Queue = namedtuple('_Queue', ['id', 'name', 'penalty'])
 
 
 class _AbstractDAOAdapter(object):
@@ -47,9 +47,11 @@ class AgentDAOAdapter(_AbstractDAOAdapter):
 
 class QueueDAOAdapter(_AbstractDAOAdapter):
 
+    _PENALTY = 0
+
     def get_queue(self, queue_id):
         try:
             queue_name = self._dao.queue_name(queue_id)
-            return _Queue(queue_id, queue_name)
+            return _Queue(queue_id, queue_name, self._PENALTY)
         except LookupError:
             raise NoSuchQueueError()

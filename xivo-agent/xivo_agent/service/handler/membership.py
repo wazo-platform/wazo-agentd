@@ -23,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 
 class MembershipHandler(object):
-    # XXX bad name ?
 
     def __init__(self, add_member_manager, remove_member_manager, agent_dao, queue_dao):
         self._add_member_manager = add_member_manager

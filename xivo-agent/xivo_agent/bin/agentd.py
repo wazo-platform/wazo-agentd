@@ -51,6 +51,7 @@ from xivo_dao import line_dao
 from xivo_dao import queue_dao as orig_queue_dao
 from xivo_dao import queue_log_dao
 from xivo_dao import queue_member_dao
+from xivo_agent.service.action.update import UpdatePenaltyAction
 
 _LOG_FILENAME = '/var/log/xivo-agentd.log'
 _PID_FILENAME = '/var/run/xivo-agentd.pid'
@@ -111,15 +112,15 @@ def _run():
 
             add_to_queue_action = AddToQueueAction(ami_client, agent_status_dao)
             login_action = LoginAction(ami_client, queue_log_manager, agent_status_dao, line_dao)
-            remove_from_queue_action = RemoveFromQueueAction(ami_client, agent_status_dao)
             logoff_action = LogoffAction(ami_client, queue_log_manager, agent_status_dao)
+            remove_from_queue_action = RemoveFromQueueAction(ami_client, agent_status_dao)
+            update_penalty_action = UpdatePenaltyAction(ami_client, agent_status_dao)
 
             add_member_manager = AddMemberManager(add_to_queue_action, ami_client, agent_status_dao, queue_member_dao)
             login_manager = LoginManager(login_action, agent_status_dao)
             logoff_manager = LogoffManager(logoff_action, agent_status_dao)
             on_agent_deleted_manager = OnAgentDeletedManager(logoff_manager, agent_status_dao)
-            # FIXME
-            on_agent_updated_manager = None
+            on_agent_updated_manager = OnAgentUpdatedManager(add_to_queue_action, remove_from_queue_action, update_penalty_action, agent_status_dao)
             on_queue_added_manager = OnQueueAddedManager(add_to_queue_action, agent_status_dao)
             on_queue_deleted_manager = OnQueueDeletedManager(agent_status_dao)
             on_queue_updated_manager = OnQueueUpdatedManager(add_to_queue_action, remove_from_queue_action, agent_status_dao)
