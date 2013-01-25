@@ -27,7 +27,6 @@ from xivo_agent.service.action.logoff import LogoffAction
 from xivo_agent.service.action.remove import RemoveFromQueueAction
 from xivo_agent.ctl.server import AgentServer
 from xivo_agent.dao import QueueDAOAdapter, AgentDAOAdapter
-from xivo_agent.db_manager import DBManager
 from xivo_agent.service.handler.common import CommonHandler
 from xivo_agent.service.handler.login import LoginHandler
 from xivo_agent.service.handler.logoff import LogoffHandler
@@ -102,12 +101,10 @@ def _init_logging(parsed_args):
 
 def _run():
     _init_signal()
-    db_manager = DBManager()
-    db_manager.connect()
     agent_dao = AgentDAOAdapter(orig_agent_dao)
     queue_dao = QueueDAOAdapter(orig_queue_dao)
     with _new_ami_client() as ami_client:
-        with _new_agent_server(db_manager) as agent_server:
+        with _new_agent_server() as agent_server:
             queue_log_manager = QueueLogManager(queue_log_dao)
 
             add_to_queue_action = AddToQueueAction(ami_client, agent_status_dao)
@@ -160,8 +157,8 @@ def _new_ami_client():
 
 
 @contextmanager
-def _new_agent_server(db_manager):
-    agent_server = AgentServer(db_manager)
+def _new_agent_server():
+    agent_server = AgentServer()
     try:
         yield agent_server
     finally:
