@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import unittest
-from mock import Mock, patch
+from mock import Mock, patch, ANY
 from xivo_agent.ctl.client import AgentClient, _AgentStatus
 
 
@@ -24,6 +24,42 @@ class TestAgentClient(unittest.TestCase):
 
     def setUp(self):
         self.agent_client = AgentClient()
+
+    @patch('xivo_agent.ctl.client.AMQPTransportClient')
+    def test_connect_no_transport(self, amqp_client_constructor):
+        hostname = 'localhost'
+        port = 5672
+
+        client = AgentClient()
+        client.connect(hostname, port)
+        amqp_client_constructor.create_and_connect.assert_called_once_with(hostname, port)
+
+    @patch('xivo_agent.ctl.client.AMQPTransportClient')
+    def test_connect_already_connected(self, amqp_client_constructor):
+        hostname = 'localhost'
+        port = 5672
+
+        client = AgentClient()
+        client.connect(hostname, port)
+        self.assertRaises(Exception, client.connect, hostname, port)
+
+    @patch('xivo_agent.ctl.client.AMQPTransportClient')
+    def test_close_transport_with_no_connection(self, amqp_client):
+        client = AgentClient()
+        client.close()
+        self.assertFalse(amqp_client.create_and_connect.called)
+
+    @patch('xivo_agent.ctl.client.AMQPTransportClient')
+    def test_connect_and_close_opens_and_closes_transport(self, amqp_client):
+        transport = Mock()
+        amqp_client.create_and_connect.return_value = transport
+
+        client = AgentClient()
+        client.connect()
+        client.close()
+
+        amqp_client.create_and_connect.assert_called_once_with(ANY, ANY)
+        transport.close.assert_called_once_with()
 
     @patch('xivo_agent.command.AddToQueueCommand')
     def test_add_agent_to_queue(self, AddToQueueCommand):
@@ -51,23 +87,134 @@ class TestAgentClient(unittest.TestCase):
         RemoveFromQueueCommand.assert_called_once_with(agent_id, queue_id)
         self.agent_client._execute_command.assert_called_once_with(command)
 
-    @patch('xivo_agent.ctl.client.AMQPTransportClient')
-    def test_connect_no_transport(self, amqp_client_constructor):
-        hostname = 'localhost'
-        port = 5672
+    @patch('xivo_agent.command.LoginByIDCommand')
+    def test_login_agent(self, LoginByIDCommand):
+        agent_id = 42
+        extension = '1001'
+        context = 'default'
+        command = Mock()
 
-        client = AgentClient()
-        client.connect(hostname, port)
-        amqp_client_constructor.create_and_connect.assert_called_once_with(hostname, port)
+        LoginByIDCommand.return_value = command
+        self.agent_client._execute_command = Mock()
 
-    @patch('xivo_agent.ctl.client.AMQPTransportClient')
-    def test_connect_already_connected(self, amqp_client_constructor):
-        hostname = 'localhost'
-        port = 5672
+        self.agent_client.login_agent(agent_id, extension, context)
 
-        client = AgentClient()
-        client.connect(hostname, port)
-        self.assertRaises(Exception, client.connect, hostname, port)
+        LoginByIDCommand.assert_called_once_with(agent_id, extension, context)
+        self.agent_client._execute_command.assert_called_once_with(command)
+
+    @patch('xivo_agent.command.LoginByNumberCommand')
+    def test_login_agent_by_number(self, LoginByNumberCommand):
+        agent_number = '1'
+        extension = '1001'
+        context = 'default'
+        command = Mock()
+
+        LoginByNumberCommand.return_value = command
+        self.agent_client._execute_command = Mock()
+
+        self.agent_client.login_agent_by_number(agent_number, extension, context)
+
+        LoginByNumberCommand.assert_called_once_with(agent_number, extension, context)
+        self.agent_client._execute_command.assert_called_once_with(command)
+
+    @patch('xivo_agent.command.LogoffByIDCommand')
+    def test_logoff_agent(self, LogoffByIDCommand):
+        agent_id = 42
+        command = Mock()
+
+        LogoffByIDCommand.return_value = command
+        self.agent_client._execute_command = Mock()
+
+        self.agent_client.logoff_agent(agent_id)
+
+        LogoffByIDCommand.assert_called_once_with(agent_id)
+        self.agent_client._execute_command.assert_called_once_with(command)
+
+
+    @patch('xivo_agent.command.LogoffByNumberCommand')
+    def test_logoff_agent_by_number(self, LogoffByNumberCommand):
+        agent_number = '1000'
+        command = Mock()
+
+        LogoffByNumberCommand.return_value = command
+        self.agent_client._execute_command = Mock()
+
+        self.agent_client.logoff_agent_by_number(agent_number)
+
+        LogoffByNumberCommand.assert_called_once_with(agent_number)
+        self.agent_client._execute_command.assert_called_once_with(command)
+
+    @patch('xivo_agent.command.LogoffAllCommand')
+    def test_logoff_all_agents(self, LogoffAllCommand):
+        command = Mock()
+
+        LogoffAllCommand.return_value = command
+        self.agent_client._execute_command = Mock()
+
+        self.agent_client.logoff_all_agents()
+
+        LogoffAllCommand.assert_called_once_with()
+        self.agent_client._execute_command.assert_called_once_with(command)
+
+    @patch('xivo_agent.command.StatusByIDCommand')
+    def test_get_agent_status(self, StatusByIDCommand):
+        agent_id = 42
+        agent = {
+            'id': agent_id,
+            'number': '1001',
+            'extension': '9001',
+            'context': 'default',
+            'logged': True,
+        }
+        command = Mock()
+        StatusByIDCommand.return_value = command
+
+        execute_command = Mock()
+        execute_command.return_value = agent
+        self.agent_client._execute_command = execute_command
+
+        status = self.agent_client.get_agent_status(agent_id)
+
+        self.assertTrue(isinstance(status, _AgentStatus))
+        self.assertEquals(status.id, agent['id'])
+        self.assertEquals(status.number, agent['number'])
+        self.assertEquals(status.extension, agent['extension'])
+        self.assertEquals(status.context, agent['context'])
+        self.assertEquals(status.logged, agent['logged'])
+
+        StatusByIDCommand.assert_called_once_with(agent_id)
+        self.agent_client._execute_command.assert_called_once_with(command)
+
+    @patch('xivo_agent.command.StatusByNumberCommand')
+    def test_get_agent_status_by_number(self, StatusByNumberCommand):
+        agent = {
+            'id': 1,
+            'number': '1001',
+            'extension': '9001',
+            'context': 'default',
+            'logged': True,
+        }
+
+        agent_number = '1001'
+
+        command = Mock()
+        StatusByNumberCommand.return_value = command
+
+        execute_command = Mock()
+        execute_command.return_value = agent
+        self.agent_client._execute_command = execute_command
+
+        status = self.agent_client.get_agent_status_by_number(agent_number)
+
+        self.assertTrue(isinstance(status, _AgentStatus))
+        self.assertEquals(status.id, agent['id'])
+        self.assertEquals(status.number, agent['number'])
+        self.assertEquals(status.extension, agent['extension'])
+        self.assertEquals(status.context, agent['context'])
+        self.assertEquals(status.logged, agent['logged'])
+
+        StatusByNumberCommand.assert_called_once_with(agent_number)
+        self.agent_client._execute_command.assert_called_once_with(command)
 
     @patch('xivo_agent.command.StatusesCommand')
     def test_get_agent_statuses(self, StatusesCommand):
@@ -113,36 +260,7 @@ class TestAgentClient(unittest.TestCase):
         StatusesCommand.assert_called_once_with()
         self.agent_client._execute_command.assert_called_once_with(command)
 
-    @patch('xivo_agent.command.StatusByNumberCommand')
-    def test_get_agent_status_by_number(self, StatusByNumberCommand):
-        agent = {
-            'id': 1,
-            'number': '1001',
-            'extension': '9001',
-            'context': 'default',
-            'logged': True,
-        }
 
-        agent_number = '1001'
-
-        command = Mock()
-        StatusByNumberCommand.return_value = command
-
-        execute_command = Mock()
-        execute_command.return_value = agent
-        self.agent_client._execute_command = execute_command
-
-        status = self.agent_client.get_agent_status_by_number(agent_number)
-
-        self.assertTrue(isinstance(status, _AgentStatus))
-        self.assertEquals(status.id, agent['id'])
-        self.assertEquals(status.number, agent['number'])
-        self.assertEquals(status.extension, agent['extension'])
-        self.assertEquals(status.context, agent['context'])
-        self.assertEquals(status.logged, agent['logged'])
-
-        StatusByNumberCommand.assert_called_once_with(agent_number)
-        self.agent_client._execute_command.assert_called_once_with(command)
 
     @patch('xivo_agent.command.OnAgentUpdatedCommand')
     def test_on_agent_updated_command(self, OnAgentUpdatedCommand):
@@ -203,3 +321,15 @@ class TestAgentClient(unittest.TestCase):
 
         OnQueueDeletedCommand.assert_called_once_with(queue_id)
         self.agent_client._execute_command_no_response.assert_called_once_with(command)
+
+    @patch('xivo_agent.command.PingCommand')
+    def test_ping(self, PingCommand):
+        command = Mock()
+
+        PingCommand.return_value = command
+        self.agent_client._execute_command = Mock()
+
+        self.agent_client.ping()
+
+        PingCommand.assert_called_once_with()
+        self.agent_client._execute_command.assert_called_once_with(command)
