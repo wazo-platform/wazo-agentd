@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+
 def format_agent_member_name(agent_number):
     return 'Agent/{0}'.format(agent_number)
 
