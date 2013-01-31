@@ -60,7 +60,7 @@ class LoginAction(object):
 
     def _update_asterisk(self, agent, interface, state_interface):
         member_name = format_agent_member_name(agent.number)
-        skills = format_agent_skills(agent.number)
+        skills = format_agent_skills(agent.id)
         for queue in agent.queues:
             action = self._ami_client.queue_add(queue.name, interface, member_name, state_interface,
                                                 queue.penalty, skills)

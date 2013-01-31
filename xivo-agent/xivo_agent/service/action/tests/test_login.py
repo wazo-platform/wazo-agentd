@@ -19,6 +19,7 @@ import unittest
 from mock import Mock, ANY
 from xivo_agent.queuelog import QueueLogManager
 from xivo_agent.service.action.login import LoginAction
+from xivo_agent.service.helper import format_agent_skills
 
 
 class TestLoginAction(unittest.TestCase):
@@ -41,6 +42,7 @@ class TestLoginAction(unittest.TestCase):
         extension = '1001'
         context = 'default'
         state_interface = 'SIP/abcd'
+        skills = format_agent_skills(agent_id)
 
         self.line_dao.get_interface_from_exten_and_context.return_value = state_interface
 
@@ -49,5 +51,5 @@ class TestLoginAction(unittest.TestCase):
         self.agent_status_dao.log_in_agent.assert_called_once_with(agent_id, agent_number, extension, context, ANY, state_interface)
         self.agent_status_dao.add_agent_to_queues.assert_called_once_with(agent_id, agent.queues)
         self.queue_log_manager.on_agent_logged_in.assert_called_once_with(agent_number, extension, context)
-        self.ami_client.queue_add.assert_called_once_with(queue.name, ANY, ANY, state_interface, queue.penalty, ANY)
+        self.ami_client.queue_add.assert_called_once_with(queue.name, ANY, ANY, state_interface, queue.penalty, skills)
         self.ami_client.agent_login.assert_called_once_with(agent_id, agent_number, extension, context)
