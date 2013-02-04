@@ -21,7 +21,7 @@ from __future__ import unicode_literals
 import argparse
 from contextlib import contextmanager
 from operator import attrgetter
-from xivo.cli import BaseCommand, Interpreter
+from xivo.cli import BaseCommand, Interpreter, UsageError
 from xivo_agent.ctl.client import AgentClient
 
 verbose = False
@@ -79,11 +79,15 @@ class BaseAgentClientCommand(BaseCommand):
 class AddAgentToQueueCommand(BaseAgentClientCommand):
 
     help = 'Add agent to queue'
+    usage = '<agent_id> <queue_id>'
 
     def prepare(self, command_args):
-        agent_id = int(command_args[0])
-        queue_id = int(command_args[1])
-        return (agent_id, queue_id)
+        try:
+            agent_id = int(command_args[0])
+            queue_id = int(command_args[1])
+            return (agent_id, queue_id)
+        except Exception:
+            raise UsageError()
 
     def execute(self, agent_id, queue_id):
         self._agent_client.add_agent_to_queue(agent_id, queue_id)
@@ -92,11 +96,15 @@ class AddAgentToQueueCommand(BaseAgentClientCommand):
 class RemoveAgentFromQueueCommand(BaseAgentClientCommand):
 
     help = 'Remove agent from queue'
+    usage = '<agent_id> <queue_id>'
 
     def prepare(self, command_args):
-        agent_id = int(command_args[0])
-        queue_id = int(command_args[1])
-        return (agent_id, queue_id)
+        try:
+            agent_id = int(command_args[0])
+            queue_id = int(command_args[1])
+            return (agent_id, queue_id)
+        except Exception:
+            raise UsageError()
 
     def execute(self, agent_id, queue_id):
         self._agent_client.remove_agent_from_queue(agent_id, queue_id)
@@ -105,12 +113,16 @@ class RemoveAgentFromQueueCommand(BaseAgentClientCommand):
 class LoginCommand(BaseAgentClientCommand):
 
     help = 'Login agent'
+    usage = '<agent_number> <extension> <context>'
 
     def prepare(self, command_args):
-        agent_number = command_args[0]
-        extension = command_args[1]
-        context = command_args[2]
-        return (agent_number, extension, context)
+        try:
+            agent_number = command_args[0]
+            extension = command_args[1]
+            context = command_args[2]
+            return (agent_number, extension, context)
+        except Exception:
+            raise UsageError()
 
     def execute(self, agent_number, extension, context):
         self._agent_client.login_agent_by_number(agent_number, extension, context)
@@ -119,10 +131,14 @@ class LoginCommand(BaseAgentClientCommand):
 class LogoffCommand(BaseAgentClientCommand):
 
     help = 'Logoff agent'
+    usage = '(<agent_number> | all)'
 
     def prepare(self, command_args):
-        agent_number = command_args[0]
-        return (agent_number,)
+        try:
+            agent_number = command_args[0]
+            return (agent_number,)
+        except Exception:
+            raise UsageError()
 
     def execute(self, agent_number):
         if agent_number == 'all':
@@ -140,12 +156,13 @@ class LogoffCommand(BaseAgentClientCommand):
 class StatusCommand(BaseAgentClientCommand):
 
     help = 'Get status of agent'
+    usage = '[<agent_number>]'
 
     def prepare(self, command_args):
-        if not command_args:
-            agent_number = None
-        else:
+        if command_args:
             agent_number = command_args[0]
+        else:
+            agent_number = None
         return (agent_number,)
 
     def execute(self, agent_number):
@@ -166,7 +183,8 @@ class StatusCommand(BaseAgentClientCommand):
 
 class PingCommand(BaseAgentClientCommand):
 
-    help = 'Ping'
+    help = 'Ping server'
+    usage = None
 
     def execute(self):
         self._agent_client.ping()
