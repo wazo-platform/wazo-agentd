@@ -50,6 +50,7 @@ def main():
         interpreter.add_command('remove', RemoveAgentFromQueueCommand(agent_client))
         interpreter.add_command('login', LoginCommand(agent_client))
         interpreter.add_command('logoff', LogoffCommand(agent_client))
+        interpreter.add_command('relog all', RelogAllCommand(agent_client))
         interpreter.add_command('status', StatusCommand(agent_client))
         interpreter.add_command('ping', PingCommand(agent_client))
 
@@ -151,6 +152,15 @@ class LogoffCommand(BaseAgentClientCommand):
 
     def _execute(self, agent_number):
         self._agent_client.logoff_agent_by_number(agent_number)
+
+
+class RelogAllCommand(BaseAgentClientCommand):
+
+    help = 'Relog all currently logged agents'
+    usage = None
+
+    def execute(self):
+        self._agent_client.relog_all_agents()
 
 
 class StatusCommand(BaseAgentClientCommand):

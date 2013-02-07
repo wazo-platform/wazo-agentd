@@ -40,6 +40,11 @@ class LogoffAllCommand(abstract.AbstractNoDataCommand):
     name = 'logoff_all'
 
 
+class RelogAllCommand(abstract.AbstractNoDataCommand):
+
+    name = 'relog_all'
+
+
 class OnAgentDeletedCommand(abstract.AbstractAgentIDCommand):
 
     name = 'on_agent_deleted'

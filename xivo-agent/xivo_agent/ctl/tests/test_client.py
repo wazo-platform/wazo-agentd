@@ -156,6 +156,18 @@ class TestAgentClient(unittest.TestCase):
         LogoffAllCommand.assert_called_once_with()
         self.agent_client._execute_command.assert_called_once_with(command)
 
+    @patch('xivo_agent.command.RelogAllCommand')
+    def test_relog_all_agents(self, RelogAllCommand):
+        command = Mock()
+
+        RelogAllCommand.return_value = command
+        self.agent_client._execute_command = Mock()
+
+        self.agent_client.relog_all_agents()
+
+        RelogAllCommand.assert_called_once_with()
+        self.agent_client._execute_command.assert_called_once_with(command)
+
     @patch('xivo_agent.command.StatusByIDCommand')
     def test_get_agent_status(self, StatusByIDCommand):
         agent_id = 42
