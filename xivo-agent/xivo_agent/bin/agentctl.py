@@ -37,6 +37,8 @@ def main():
                         help='rabbitmq port')
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='increase verbosity')
+    parser.add_argument('--no-fetch', action='store_true',
+                        help="don't fetch response from server")
 
     parsed_args = parser.parse_args()
 
@@ -44,7 +46,9 @@ def main():
         global verbose
         verbose = True
 
-    with _agent_client(parsed_args.host, parsed_args.port) as agent_client:
+    fetch_response = not parsed_args.no_fetch
+
+    with _agent_client(parsed_args.host, parsed_args.port, fetch_response) as agent_client:
         interpreter = Interpreter(prompt='xivo-agentctl> ')
         interpreter.add_command('add', AddAgentToQueueCommand(agent_client))
         interpreter.add_command('remove', RemoveAgentFromQueueCommand(agent_client))
@@ -61,8 +65,8 @@ def main():
 
 
 @contextmanager
-def _agent_client(host, port):
-    agent_client = AgentClient()
+def _agent_client(host, port, fetch_response):
+    agent_client = AgentClient(fetch_response=fetch_response)
     agent_client.connect(host, port)
     try:
         yield agent_client
@@ -197,7 +201,7 @@ class PingCommand(BaseAgentClientCommand):
     usage = None
 
     def execute(self):
-        self._agent_client.ping()
+        print(self._agent_client.ping())
 
 
 def _print_agent_status(agent_status):

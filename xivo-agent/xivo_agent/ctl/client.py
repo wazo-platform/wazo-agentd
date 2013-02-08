@@ -29,7 +29,8 @@ class AgentClient(object):
     DEFAULT_HOST = 'localhost'
     DEFAULT_PORT = 5672
 
-    def __init__(self):
+    def __init__(self, fetch_response=True):
+        self._fetch_response = fetch_response
         self._transport = None
         self._marshaler = Marshaler()
 
@@ -98,23 +99,23 @@ class AgentClient(object):
 
     def on_agent_updated(self, agent_id):
         cmd = command.OnAgentUpdatedCommand(agent_id)
-        self._execute_command_no_response(cmd)
+        self._execute_command(cmd)
 
     def on_agent_deleted(self, agent_id):
         cmd = command.OnAgentDeletedCommand(agent_id)
-        self._execute_command_no_response(cmd)
+        self._execute_command(cmd)
 
     def on_queue_added(self, queue_id):
         cmd = command.OnQueueAddedCommand(queue_id)
-        self._execute_command_no_response(cmd)
+        self._execute_command(cmd)
 
     def on_queue_updated(self, queue_id):
         cmd = command.OnQueueUpdatedCommand(queue_id)
-        self._execute_command_no_response(cmd)
+        self._execute_command(cmd)
 
     def on_queue_deleted(self, queue_id):
         cmd = command.OnQueueDeletedCommand(queue_id)
-        self._execute_command_no_response(cmd)
+        self._execute_command(cmd)
 
     def ping(self):
         cmd = command.PingCommand()
@@ -122,14 +123,19 @@ class AgentClient(object):
 
     def _execute_command(self, cmd):
         request = self._marshaler.marshal_command(cmd)
+        if self._fetch_response:
+            return self._execute_request_fetch_response(request)
+        else:
+            return self._execute_request_no_fetch_response(request)
+
+    def _execute_request_fetch_response(self, request):
         raw_response = self._transport.rpc_call(request)
         response = self._marshaler.unmarshal_response(raw_response)
         if response.error is not None:
             raise AgentClientError(response.error)
         return response.value
 
-    def _execute_command_no_response(self, cmd):
-        request = self._marshaler.marshal_command(cmd)
+    def _execute_request_no_fetch_response(self, request):
         self._transport.send(request)
 
     def _convert_agent_status(self, status):
