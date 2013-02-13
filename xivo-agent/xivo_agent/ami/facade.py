@@ -25,6 +25,7 @@ class FacadeAMIClient(object):
         ('db_get', actions.DBGetAction),
         ('db_put', actions.DBPutAction),
         ('queue_add', actions.QueueAddAction),
+        ('queue_pause', actions.QueuePauseAction),
         ('queue_penalty', actions.QueuePenaltyAction),
         ('queue_remove', actions.QueueRemoveAction),
         ('user_event', actions.UserEventAction),
