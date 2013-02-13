@@ -70,6 +70,11 @@ class OnQueueUpdatedCommand(abstract.AbstractQueueIDCommand):
     name = 'on_queue_updated'
 
 
+class PauseByNumberCommand(abstract.AbstractAgentNumberCommand):
+
+    name = 'pause_by_number'
+
+
 class PingCommand(abstract.AbstractNoDataCommand):
 
     name = 'ping'
@@ -93,3 +98,8 @@ class StatusByNumberCommand(abstract.AbstractAgentNumberCommand):
 class StatusesCommand(abstract.AbstractNoDataCommand):
 
     name = 'statuses'
+
+
+class UnpauseByNumberCommand(abstract.AbstractAgentNumberCommand):
+
+    name = 'unpause_by_number'

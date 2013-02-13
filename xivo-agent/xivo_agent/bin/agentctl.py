@@ -55,6 +55,8 @@ def main():
         interpreter.add_command('login', LoginCommand(agent_client))
         interpreter.add_command('logoff', LogoffCommand(agent_client))
         interpreter.add_command('relog all', RelogAllCommand(agent_client))
+        interpreter.add_command('pause', PauseCommand(agent_client))
+        interpreter.add_command('unpause', UnpauseCommand(agent_client))
         interpreter.add_command('status', StatusCommand(agent_client))
         interpreter.add_command('ping', PingCommand(agent_client))
 
@@ -165,6 +167,38 @@ class RelogAllCommand(BaseAgentClientCommand):
 
     def execute(self):
         self._agent_client.relog_all_agents()
+
+
+class PauseCommand(BaseAgentClientCommand):
+
+    help = 'Pause agent'
+    usage = '<agent_number>'
+
+    def prepare(self, command_args):
+        try:
+            agent_number = command_args[0]
+            return (agent_number,)
+        except Exception:
+            raise UsageError()
+
+    def execute(self, agent_number):
+        self._agent_client.pause_agent_by_number(agent_number)
+
+
+class UnpauseCommand(BaseAgentClientCommand):
+
+    help = 'Unpause agent'
+    usage = '<agent_number>'
+
+    def prepare(self, command_args):
+        try:
+            agent_number = command_args[0]
+            return (agent_number,)
+        except Exception:
+            raise UsageError()
+
+    def execute(self, agent_number):
+        self._agent_client.unpause_agent_by_number(agent_number)
 
 
 class StatusCommand(BaseAgentClientCommand):

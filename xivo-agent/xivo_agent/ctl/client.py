@@ -82,6 +82,14 @@ class AgentClient(object):
         cmd = command.RelogAllCommand()
         self._execute_command(cmd)
 
+    def pause_agent_by_number(self, agent_number):
+        cmd = command.PauseByNumberCommand(agent_number)
+        self._execute_command(cmd)
+
+    def unpause_agent_by_number(self, agent_number):
+        cmd = command.UnpauseByNumberCommand(agent_number)
+        self._execute_command(cmd)
+
     def get_agent_status(self, agent_id):
         cmd = command.StatusByIDCommand(agent_id)
         status = self._execute_command(cmd)

@@ -27,6 +27,7 @@ from xivo_agent.queuelog import QueueLogManager
 from xivo_agent.service.action.add import AddToQueueAction
 from xivo_agent.service.action.login import LoginAction
 from xivo_agent.service.action.logoff import LogoffAction
+from xivo_agent.service.action.pause import PauseAction
 from xivo_agent.service.action.remove import RemoveFromQueueAction
 from xivo_agent.service.action.update import UpdatePenaltyAction
 from xivo_agent.service.handler.common import CommonHandler
@@ -35,6 +36,7 @@ from xivo_agent.service.handler.logoff import LogoffHandler
 from xivo_agent.service.handler.membership import MembershipHandler
 from xivo_agent.service.handler.on_agent import OnAgentHandler
 from xivo_agent.service.handler.on_queue import OnQueueHandler
+from xivo_agent.service.handler.pause import PauseHandler
 from xivo_agent.service.handler.relog import RelogHandler
 from xivo_agent.service.handler.status import StatusHandler
 from xivo_agent.service.manager.add_member import AddMemberManager
@@ -45,6 +47,7 @@ from xivo_agent.service.manager.on_agent_updated import OnAgentUpdatedManager
 from xivo_agent.service.manager.on_queue_added import OnQueueAddedManager
 from xivo_agent.service.manager.on_queue_deleted import OnQueueDeletedManager
 from xivo_agent.service.manager.on_queue_updated import OnQueueUpdatedManager
+from xivo_agent.service.manager.pause import PauseManager
 from xivo_agent.service.manager.relog import RelogManager
 from xivo_agent.service.manager.remove_member import RemoveMemberManager
 from xivo_dao import agent_dao as orig_agent_dao
@@ -112,6 +115,7 @@ def _run():
             add_to_queue_action = AddToQueueAction(ami_client, agent_status_dao)
             login_action = LoginAction(ami_client, queue_log_manager, agent_status_dao, line_dao)
             logoff_action = LogoffAction(ami_client, queue_log_manager, agent_status_dao)
+            pause_action = PauseAction(ami_client)
             remove_from_queue_action = RemoveFromQueueAction(ami_client, agent_status_dao)
             update_penalty_action = UpdatePenaltyAction(ami_client, agent_status_dao)
 
@@ -123,6 +127,7 @@ def _run():
             on_queue_added_manager = OnQueueAddedManager(add_to_queue_action, agent_status_dao)
             on_queue_deleted_manager = OnQueueDeletedManager(agent_status_dao)
             on_queue_updated_manager = OnQueueUpdatedManager(add_to_queue_action, remove_from_queue_action, agent_status_dao)
+            pause_manager = PauseManager(pause_action)
             relog_manager = RelogManager(login_action, logoff_action, agent_dao, agent_status_dao)
             remove_member_manager = RemoveMemberManager(remove_from_queue_action, ami_client, agent_status_dao, queue_member_dao)
 
@@ -133,6 +138,7 @@ def _run():
                 MembershipHandler(add_member_manager, remove_member_manager, agent_dao, queue_dao),
                 OnAgentHandler(on_agent_deleted_manager, on_agent_updated_manager, agent_dao),
                 OnQueueHandler(on_queue_added_manager, on_queue_updated_manager, on_queue_deleted_manager, queue_dao),
+                PauseHandler(pause_manager, agent_status_dao),
                 RelogHandler(relog_manager),
                 StatusHandler(agent_dao, agent_status_dao),
             ]
