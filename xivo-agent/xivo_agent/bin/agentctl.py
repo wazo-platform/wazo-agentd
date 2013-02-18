@@ -49,7 +49,8 @@ def main():
     fetch_response = not parsed_args.no_fetch
 
     with _agent_client(parsed_args.host, parsed_args.port, fetch_response) as agent_client:
-        interpreter = Interpreter(prompt='xivo-agentctl> ')
+        interpreter = Interpreter(prompt='xivo-agentctl> ',
+                                  history_file='~/.xivoagentctl_history')
         interpreter.add_command('add', AddAgentToQueueCommand(agent_client))
         interpreter.add_command('remove', RemoveAgentFromQueueCommand(agent_client))
         interpreter.add_command('login', LoginCommand(agent_client))
