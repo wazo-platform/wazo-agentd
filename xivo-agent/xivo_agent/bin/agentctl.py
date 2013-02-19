@@ -24,8 +24,6 @@ from operator import attrgetter
 from xivo.cli import BaseCommand, Interpreter, UsageError
 from xivo_agent.ctl.client import AgentClient
 
-verbose = False
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -35,16 +33,10 @@ def main():
                         help='rabbitmq host')
     parser.add_argument('-p', '--port', type=int, default=AgentClient.DEFAULT_PORT,
                         help='rabbitmq port')
-    parser.add_argument('-v', '--verbose', action='store_true',
-                        help='increase verbosity')
     parser.add_argument('--no-fetch', action='store_true',
                         help="don't fetch response from server")
 
     parsed_args = parser.parse_args()
-
-    if parsed_args.verbose:
-        global verbose
-        verbose = True
 
     fetch_response = not parsed_args.no_fetch
 
