@@ -164,7 +164,6 @@ class TestAgentClient(unittest.TestCase):
         LogoffByIDCommand.assert_called_once_with(agent_id)
         self.agent_client._execute_command.assert_called_once_with(command)
 
-
     @patch('xivo_agent.command.LogoffByNumberCommand')
     def test_logoff_agent_by_number(self, LogoffByNumberCommand):
         agent_number = '1000'

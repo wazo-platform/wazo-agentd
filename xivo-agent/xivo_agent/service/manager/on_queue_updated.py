@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+
 class OnQueueUpdatedManager(object):
 
     def __init__(self, add_to_queue_action, remove_from_queue_action, agent_status_dao):
