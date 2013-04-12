@@ -30,9 +30,9 @@ class TestResponse(unittest.TestCase):
         expected = {
             'error': None,
             'value': {
-                      'agent_number': '1000',
-                      'extension': '2000',
-                      'context': 'default'
+                'agent_number': '1000',
+                'extension': '2000',
+                'context': 'default'
             }
         }
 
@@ -44,8 +44,8 @@ class TestResponse(unittest.TestCase):
     def test_marshal_with_error(self):
         error = 'error message'
         expected = {
-                    'error': 'error message',
-                    'value': None
+            'error': 'error message',
+            'value': None
         }
 
         response = CommandResponse(error=error)
@@ -54,13 +54,13 @@ class TestResponse(unittest.TestCase):
 
     def test_unmarshal_with_value_message(self):
         msg = {
-               'error': None,
-               'value': {
-                         'agent_number': '1000',
-                         'extension': '2000',
-                         'context': 'default'
-                         }
-               }
+            'error': None,
+            'value': {
+                'agent_number': '1000',
+                'extension': '2000',
+                'context': 'default'
+            }
+        }
 
         response = CommandResponse.unmarshal(msg)
 
@@ -69,9 +69,9 @@ class TestResponse(unittest.TestCase):
 
     def test_unmarshal_with_error_message(self):
         msg = {
-               'error': 'error message',
-               'value': None
-               }
+            'error': 'error message',
+            'value': None
+        }
 
         response = CommandResponse.unmarshal(msg)
 
