@@ -75,6 +75,9 @@ class BaseAgentClientCommand(BaseCommand):
         BaseCommand.__init__(self)
         self._agent_client = agent_client
 
+    def execute(self):
+        raise NotImplementedError()
+
 
 class AddAgentToQueueCommand(BaseAgentClientCommand):
 

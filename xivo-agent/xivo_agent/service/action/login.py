@@ -17,8 +17,7 @@
 
 import logging
 from xivo_agent.exception import NoSuchExtensionError
-from xivo_agent.service.helper import format_agent_member_name,\
-    format_agent_skills
+from xivo_agent.service.helper import format_agent_member_name, format_agent_skills
 
 logger = logging.getLogger(__name__)
 

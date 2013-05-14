@@ -20,6 +20,9 @@ from __future__ import unicode_literals
 
 class AbstractNoDataCommand(object):
 
+    def __init__(self):
+        pass
+
     def marshal(self):
         return None
 

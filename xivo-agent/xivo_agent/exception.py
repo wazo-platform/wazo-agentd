@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from xivo_agent.ctl import error
+from xivo_agent.ctl import error as error_messages
 
 
 class AgentClientError(Exception):
@@ -27,44 +27,44 @@ class AgentClientError(Exception):
 
 class AgentServerError(Exception):
 
-    error = error.SERVER_ERROR
+    error = error_messages.SERVER_ERROR
 
 
 class NoSuchAgentError(AgentServerError):
 
-    error = error.NO_SUCH_AGENT
+    error = error_messages.NO_SUCH_AGENT
 
 
 class NoSuchExtensionError(AgentServerError):
 
-    error = error.NO_SUCH_EXTEN
+    error = error_messages.NO_SUCH_EXTEN
 
 
 class NoSuchQueueError(AgentServerError):
 
-    error = error.NO_SUCH_QUEUE
+    error = error_messages.NO_SUCH_QUEUE
 
 
 class AgentNotLoggedError(AgentServerError):
 
-    error = error.NOT_LOGGED
+    error = error_messages.NOT_LOGGED
 
 
 class AgentAlreadyLoggedError(AgentServerError):
 
-    error = error.ALREADY_LOGGED
+    error = error_messages.ALREADY_LOGGED
 
 
 class AgentNotInQueueError(AgentServerError):
 
-    error = error.NOT_IN_QUEUE
+    error = error_messages.NOT_IN_QUEUE
 
 
 class AgentAlreadyInQueueError(AgentServerError):
 
-    error = error.ALREADY_IN_QUEUE
+    error = error_messages.ALREADY_IN_QUEUE
 
 
 class ExtensionAlreadyInUseError(AgentServerError):
 
-    error = error.ALREADY_IN_USE
+    error = error_messages.ALREADY_IN_USE
