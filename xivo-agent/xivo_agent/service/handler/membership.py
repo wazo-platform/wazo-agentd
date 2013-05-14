@@ -17,7 +17,7 @@
 
 import logging
 from xivo import debug
-from xivo_agent import command
+from xivo_agent import command as commands
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +31,8 @@ class MembershipHandler(object):
         self._queue_dao = queue_dao
 
     def register_commands(self, agent_server):
-        agent_server.add_command(command.AddToQueueCommand, self.handle_add_to_queue)
-        agent_server.add_command(command.RemoveFromQueueCommand, self.handle_remove_from_queue)
+        agent_server.add_command(commands.AddToQueueCommand, self.handle_add_to_queue)
+        agent_server.add_command(commands.RemoveFromQueueCommand, self.handle_remove_from_queue)
 
     @debug.trace_duration
     def handle_add_to_queue(self, command):

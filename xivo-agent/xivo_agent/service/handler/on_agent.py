@@ -17,7 +17,7 @@
 
 import logging
 from xivo import debug
-from xivo_agent import command
+from xivo_agent import command as commands
 
 logger = logging.getLogger(__name__)
 
@@ -30,8 +30,8 @@ class OnAgentHandler(object):
         self._agent_dao = agent_dao
 
     def register_commands(self, agent_server):
-        agent_server.add_command(command.OnAgentUpdatedCommand, self.handle_on_agent_updated)
-        agent_server.add_command(command.OnAgentDeletedCommand, self.handle_on_agent_deleted)
+        agent_server.add_command(commands.OnAgentUpdatedCommand, self.handle_on_agent_updated)
+        agent_server.add_command(commands.OnAgentDeletedCommand, self.handle_on_agent_deleted)
 
     @debug.trace_duration
     def handle_on_agent_updated(self, command):

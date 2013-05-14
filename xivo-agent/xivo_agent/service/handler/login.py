@@ -17,7 +17,7 @@
 
 import logging
 from xivo import debug
-from xivo_agent import command
+from xivo_agent import command as commands
 
 logger = logging.getLogger(__name__)
 
@@ -29,8 +29,8 @@ class LoginHandler(object):
         self._agent_dao = agent_dao
 
     def register_commands(self, agent_server):
-        agent_server.add_command(command.LoginByIDCommand, self.handle_login_by_id)
-        agent_server.add_command(command.LoginByNumberCommand, self.handle_login_by_number)
+        agent_server.add_command(commands.LoginByIDCommand, self.handle_login_by_id)
+        agent_server.add_command(commands.LoginByNumberCommand, self.handle_login_by_number)
 
     @debug.trace_duration
     def handle_login_by_id(self, command):

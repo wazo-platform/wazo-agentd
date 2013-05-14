@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import logging
-from xivo_agent import command
+from xivo_agent import command as commands
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 class CommonHandler(object):
 
     def register_commands(self, agent_server):
-        agent_server.add_command(command.PingCommand, self.handle_ping)
+        agent_server.add_command(commands.PingCommand, self.handle_ping)
 
     def handle_ping(self, command):
         logger.info('Executing ping command')
