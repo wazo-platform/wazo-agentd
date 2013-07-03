@@ -28,10 +28,10 @@ class LogoffAction(object):
     def logoff_agent(self, agent_status):
         # Precondition:
         # * agent is logged
-        self._update_xivo_ctid(agent_status)
         self._update_asterisk(agent_status)
         self._update_queue_log(agent_status)
         self._update_agent_status(agent_status)
+        self._update_xivo_ctid(agent_status)
 
     def _update_xivo_ctid(self, agent_status):
         self._ami_client.agent_logoff(agent_status.agent_id, agent_status.agent_number)
