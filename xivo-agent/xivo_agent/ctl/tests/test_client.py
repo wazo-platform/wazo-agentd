@@ -40,8 +40,8 @@ class TestAgentClient(unittest.TestCase):
         client.connect(hostname, port)
         amqp_client_constructor.create_and_connect.assert_called_once_with(hostname, port)
 
-    @patch('xivo_agent.ctl.client.AMQPTransportClient')
-    def test_connect_already_connected(self, amqp_client_constructor):
+    @patch('xivo_agent.ctl.client.AMQPTransportClient', Mock())
+    def test_connect_already_connected(self):
         hostname = 'localhost'
         port = 5672
 

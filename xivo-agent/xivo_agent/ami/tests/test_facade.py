@@ -32,8 +32,8 @@ class TestFacade(unittest.TestCase):
         ReconnectingAMIClient.assert_called_once_with('example.org', 5038, facade._login)
         self.assertTrue(facade._ami_client.execute.called)
 
-    @patch('xivo_agent.ami.client.ReconnectingAMIClient')
-    def test_close_call_ami_client_disconnect(self, ReconnectingAMIClient):
+    @patch('xivo_agent.ami.client.ReconnectingAMIClient', Mock())
+    def test_close_call_ami_client_disconnect(self):
         facade = FacadeAMIClient('example.org', '1', '2')
         facade._ami_client = Mock()
 
