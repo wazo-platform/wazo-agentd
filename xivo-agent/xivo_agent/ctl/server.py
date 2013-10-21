@@ -16,11 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import logging
-from xivo_agent.ctl import error
 from xivo_agent.ctl.response import CommandResponse
 from xivo_agent.ctl.marshaler import Marshaler
-from xivo_agent.ctl.amqp_transport_server import AMQPTransportServer
 from xivo_agent.exception import AgentServerError
+from xivo_bus.ctl.amqp_transport_server import AMQPTransportServer
+from xivo_bus.ressource.agent import error
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 class AgentServer(object):
 
     _HOST = 'localhost'
+    _QUEUE_NAME = 'xivo_agent'
 
     def __init__(self):
         self._transport = self._setup_transport()
@@ -36,7 +37,9 @@ class AgentServer(object):
         self._commands_callback = {}
 
     def _setup_transport(self):
-        transport = AMQPTransportServer.create_and_connect(self._HOST, self._process_next_command)
+        transport = AMQPTransportServer.create_and_connect(self._HOST,
+                                                           self._process_next_command,
+                                                           self._QUEUE_NAME)
         return transport
 
     def add_command(self, cmd_class, callback):

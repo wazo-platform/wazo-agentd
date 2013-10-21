@@ -17,9 +17,9 @@
 
 from collections import namedtuple
 from xivo_bus.ressource.agent import command
-from xivo_agent.ctl.amqp_transport_client import AMQPTransportClient
 from xivo_agent.ctl.marshaler import Marshaler
 from xivo_agent.exception import AgentClientError
+from xivo_bus.ctl.amqp_transport_client import AMQPTransportClient
 
 _AgentStatus = namedtuple('_AgentStatus', ['id', 'number', 'extension', 'context', 'logged'])
 
@@ -28,6 +28,7 @@ class AgentClient(object):
 
     DEFAULT_HOST = 'localhost'
     DEFAULT_PORT = 5672
+    _QUEUE_NAME = 'xivo_agent'
 
     def __init__(self, fetch_response=True):
         self._fetch_response = fetch_response
@@ -48,7 +49,7 @@ class AgentClient(object):
         self._transport = self._new_transport(hostname, port)
 
     def _new_transport(self, hostname, port):
-        return AMQPTransportClient.create_and_connect(hostname, port)
+        return AMQPTransportClient.create_and_connect(hostname, port, self._QUEUE_NAME)
 
     def add_agent_to_queue(self, agent_id, queue_id):
         cmd = command.AddToQueueCommand(agent_id, queue_id)

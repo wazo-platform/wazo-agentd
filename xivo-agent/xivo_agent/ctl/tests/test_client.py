@@ -17,9 +17,9 @@
 
 import unittest
 from mock import Mock, patch, ANY
-from xivo_agent.ctl.amqp_transport_client import AMQPTransportClient
 from xivo_agent.ctl.client import AgentClient, _AgentStatus
 from xivo_agent.ctl.marshaler import Marshaler
+from xivo_bus.ctl.amqp_transport_client import AMQPTransportClient
 
 
 class TestAgentClient(unittest.TestCase):
@@ -28,6 +28,7 @@ class TestAgentClient(unittest.TestCase):
         self.marshaler = Mock(Marshaler)
         self.transport = Mock(AMQPTransportClient)
         self.agent_client = AgentClient()
+        self._queue_name = self.agent_client._QUEUE_NAME
         self.agent_client._marshaler = self.marshaler
         self.agent_client._transport = self.transport
 
@@ -38,7 +39,7 @@ class TestAgentClient(unittest.TestCase):
 
         client = AgentClient()
         client.connect(hostname, port)
-        amqp_client_constructor.create_and_connect.assert_called_once_with(hostname, port)
+        amqp_client_constructor.create_and_connect.assert_called_once_with(hostname, port, self._queue_name)
 
     @patch('xivo_agent.ctl.client.AMQPTransportClient', Mock())
     def test_connect_already_connected(self):
@@ -64,7 +65,7 @@ class TestAgentClient(unittest.TestCase):
         client.connect()
         client.close()
 
-        amqp_client.create_and_connect.assert_called_once_with(ANY, ANY)
+        amqp_client.create_and_connect.assert_called_once_with(ANY, ANY, self._queue_name)
         transport.close.assert_called_once_with()
 
     def test_execute_command_with_fetch_response(self):

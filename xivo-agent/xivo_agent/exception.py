@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from xivo_agent.ctl import error as error_messages
+from xivo_bus.ressource.agent import error as error_messages
 
 
 class AgentClientError(Exception):
