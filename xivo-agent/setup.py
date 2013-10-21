@@ -16,7 +16,6 @@ setup(
               'xivo_agent.ami.actions',
               'xivo_agent.ami.actions.common',
               'xivo_agent.bin',
-              'xivo_agent.command',
               'xivo_agent.ctl',
               'xivo_agent.service',
               'xivo_agent.service.action',

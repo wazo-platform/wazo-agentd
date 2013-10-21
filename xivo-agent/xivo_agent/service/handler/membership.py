@@ -17,7 +17,7 @@
 
 import logging
 from xivo import debug
-from xivo_agent import command as commands
+from xivo_bus.ressource.agent import command as commands
 
 logger = logging.getLogger(__name__)
 

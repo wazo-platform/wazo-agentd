@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 from collections import namedtuple
-from xivo_agent import command
+from xivo_bus.ressource.agent import command
 from xivo_agent.ctl.amqp_transport_client import AMQPTransportClient
 from xivo_agent.ctl.marshaler import Marshaler
 from xivo_agent.exception import AgentClientError
