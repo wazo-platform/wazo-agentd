@@ -18,8 +18,8 @@
 import unittest
 from mock import Mock, patch, ANY
 from xivo_agent.ctl.client import AgentClient, _AgentStatus
-from xivo_agent.ctl.marshaler import Marshaler
 from xivo_bus.ctl.amqp_transport_client import AMQPTransportClient
+from xivo_bus.ctl.marshaler import Marshaler
 
 
 class TestAgentClient(unittest.TestCase):

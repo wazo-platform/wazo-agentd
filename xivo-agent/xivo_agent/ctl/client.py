@@ -17,9 +17,9 @@
 
 from collections import namedtuple
 from xivo_bus.ressource.agent import command
-from xivo_agent.ctl.marshaler import Marshaler
 from xivo_agent.exception import AgentClientError
 from xivo_bus.ctl.amqp_transport_client import AMQPTransportClient
+from xivo_bus.ctl.marshaler import Marshaler
 
 _AgentStatus = namedtuple('_AgentStatus', ['id', 'number', 'extension', 'context', 'logged'])
 

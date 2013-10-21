@@ -17,10 +17,10 @@
 
 import unittest
 from mock import Mock, patch
-from xivo_agent.ctl.response import CommandResponse
-from xivo_agent.ctl.marshaler import Marshaler
 from xivo_agent.ctl.server import AgentServer
 from xivo_agent.exception import AgentServerError
+from xivo_bus.ctl.response import CommandResponse
+from xivo_bus.ctl.marshaler import Marshaler
 
 
 class TestAgentServer(unittest.TestCase):
