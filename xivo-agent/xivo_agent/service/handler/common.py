@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import logging
-from xivo_bus.ressource.agent import command as commands
+from xivo_bus.ressource.xivo import command as commands
 
 logger = logging.getLogger(__name__)
 

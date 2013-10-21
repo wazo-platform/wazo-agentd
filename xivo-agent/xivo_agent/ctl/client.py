@@ -17,39 +17,14 @@
 
 from collections import namedtuple
 from xivo_bus.ressource.agent import command
-from xivo_agent.exception import AgentClientError
-from xivo_bus.ctl.amqp_transport_client import AMQPTransportClient
-from xivo_bus.ctl.marshaler import Marshaler
+from xivo_bus.ctl.client import BusCtlClient
 
 _AgentStatus = namedtuple('_AgentStatus', ['id', 'number', 'extension', 'context', 'logged'])
 
 
-class AgentClient(object):
+class AgentClient(BusCtlClient):
 
-    DEFAULT_HOST = 'localhost'
-    DEFAULT_PORT = 5672
     _QUEUE_NAME = 'xivo_agent'
-
-    def __init__(self, fetch_response=True):
-        self._fetch_response = fetch_response
-        self._transport = None
-        self._marshaler = Marshaler()
-
-    def close(self):
-        if self._transport is None:
-            return
-
-        self._transport.close()
-        self._transport = None
-
-    def connect(self, hostname=DEFAULT_HOST, port=DEFAULT_PORT):
-        if self._transport is not None:
-            raise Exception('already connected')
-
-        self._transport = self._new_transport(hostname, port)
-
-    def _new_transport(self, hostname, port):
-        return AMQPTransportClient.create_and_connect(hostname, port, self._QUEUE_NAME)
 
     def add_agent_to_queue(self, agent_id, queue_id):
         cmd = command.AddToQueueCommand(agent_id, queue_id)
@@ -125,27 +100,6 @@ class AgentClient(object):
     def on_queue_deleted(self, queue_id):
         cmd = command.OnQueueDeletedCommand(queue_id)
         self._execute_command(cmd)
-
-    def ping(self):
-        cmd = command.PingCommand()
-        return self._execute_command(cmd)
-
-    def _execute_command(self, cmd):
-        request = self._marshaler.marshal_command(cmd)
-        if self._fetch_response:
-            return self._execute_request_fetch_response(request)
-        else:
-            return self._execute_request_no_fetch_response(request)
-
-    def _execute_request_fetch_response(self, request):
-        raw_response = self._transport.rpc_call(request)
-        response = self._marshaler.unmarshal_response(raw_response)
-        if response.error is not None:
-            raise AgentClientError(response.error)
-        return response.value
-
-    def _execute_request_no_fetch_response(self, request):
-        self._transport.send(request)
 
     def _convert_agent_status(self, status):
         return _AgentStatus(status['id'], status['number'], status['extension'],

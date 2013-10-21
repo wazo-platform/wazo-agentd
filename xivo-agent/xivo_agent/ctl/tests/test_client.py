@@ -16,10 +16,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import unittest
-from mock import Mock, patch, ANY
-from xivo_agent.ctl.client import AgentClient, _AgentStatus
+from mock import Mock, patch
 from xivo_bus.ctl.amqp_transport_client import AMQPTransportClient
 from xivo_bus.ctl.marshaler import Marshaler
+from xivo_agent.ctl.client import AgentClient, _AgentStatus
 
 
 class TestAgentClient(unittest.TestCase):
@@ -31,42 +31,6 @@ class TestAgentClient(unittest.TestCase):
         self._queue_name = self.agent_client._QUEUE_NAME
         self.agent_client._marshaler = self.marshaler
         self.agent_client._transport = self.transport
-
-    @patch('xivo_agent.ctl.client.AMQPTransportClient')
-    def test_connect_no_transport(self, amqp_client_constructor):
-        hostname = 'localhost'
-        port = 5672
-
-        client = AgentClient()
-        client.connect(hostname, port)
-        amqp_client_constructor.create_and_connect.assert_called_once_with(hostname, port, self._queue_name)
-
-    @patch('xivo_agent.ctl.client.AMQPTransportClient', Mock())
-    def test_connect_already_connected(self):
-        hostname = 'localhost'
-        port = 5672
-
-        client = AgentClient()
-        client.connect(hostname, port)
-        self.assertRaises(Exception, client.connect, hostname, port)
-
-    @patch('xivo_agent.ctl.client.AMQPTransportClient')
-    def test_close_transport_with_no_connection(self, amqp_client):
-        client = AgentClient()
-        client.close()
-        self.assertFalse(amqp_client.create_and_connect.called)
-
-    @patch('xivo_agent.ctl.client.AMQPTransportClient')
-    def test_connect_and_close_opens_and_closes_transport(self, amqp_client):
-        transport = Mock()
-        amqp_client.create_and_connect.return_value = transport
-
-        client = AgentClient()
-        client.connect()
-        client.close()
-
-        amqp_client.create_and_connect.assert_called_once_with(ANY, ANY, self._queue_name)
-        transport.close.assert_called_once_with()
 
     def test_execute_command_with_fetch_response(self):
         command = Mock()
@@ -366,7 +330,7 @@ class TestAgentClient(unittest.TestCase):
         OnQueueDeletedCommand.assert_called_once_with(queue_id)
         self.agent_client._execute_command.assert_called_once_with(command)
 
-    @patch('xivo_bus.ressource.agent.command.PingCommand')
+    @patch('xivo_bus.ressource.xivo.command.PingCommand')
     def test_ping(self, PingCommand):
         command = Mock()
 
