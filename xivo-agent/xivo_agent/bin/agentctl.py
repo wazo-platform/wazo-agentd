@@ -22,7 +22,7 @@ import argparse
 from contextlib import contextmanager
 from operator import attrgetter
 from xivo.cli import BaseCommand, Interpreter, UsageError
-from xivo_agent.ctl.client import AgentClient
+from xivo_bus.resources.agent.client import AgentClient
 
 
 def main():
