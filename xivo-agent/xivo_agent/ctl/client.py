@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 from collections import namedtuple
-from xivo_bus.ressource.agent import command
+from xivo_bus.resources.agent import command
 from xivo_bus.ctl.client import BusCtlClient
 
 _AgentStatus = namedtuple('_AgentStatus', ['id', 'number', 'extension', 'context', 'logged'])
