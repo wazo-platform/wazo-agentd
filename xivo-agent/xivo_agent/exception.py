@@ -15,19 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from xivo_bus.ressource.agent import error as error_messages
+from xivo_bus.ctl.exception import BusCtlClientError, BusCtlServerError
+from xivo_bus.resources.agent import error as error_messages
 
 
-class AgentClientError(Exception):
-
-    def __init__(self, error):
-        Exception.__init__(self, error)
-        self.error = error
+class AgentClientError(BusCtlClientError):
+    pass
 
 
-class AgentServerError(Exception):
-
-    error = error_messages.SERVER_ERROR
+class AgentServerError(BusCtlServerError):
+    pass
 
 
 class NoSuchAgentError(AgentServerError):

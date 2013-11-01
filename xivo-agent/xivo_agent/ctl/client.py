@@ -17,7 +17,9 @@
 
 from collections import namedtuple
 from xivo_bus.resources.agent import command
+from xivo_agent.exception import AgentClientError
 from xivo_bus.ctl.client import BusCtlClient
+from xivo_bus.ctl.exception import BusCtlClientError
 
 _AgentStatus = namedtuple('_AgentStatus', ['id', 'number', 'extension', 'context', 'logged'])
 
@@ -104,3 +106,9 @@ class AgentClient(BusCtlClient):
     def _convert_agent_status(self, status):
         return _AgentStatus(status['id'], status['number'], status['extension'],
                             status['context'], status['logged'])
+
+    def _execute_request_fetch_response(self, request):
+        try:
+            return BusCtlClient._execute_request_fetch_response(self, request)
+        except BusCtlClientError as e:
+            raise AgentClientError(e.error)
