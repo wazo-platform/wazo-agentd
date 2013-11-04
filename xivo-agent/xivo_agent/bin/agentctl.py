@@ -51,7 +51,6 @@ def main():
         interpreter.add_command('pause', PauseCommand(agent_client))
         interpreter.add_command('unpause', UnpauseCommand(agent_client))
         interpreter.add_command('status', StatusCommand(agent_client))
-        interpreter.add_command('ping', PingCommand(agent_client))
 
         if parsed_args.command:
             interpreter.execute_command_line(parsed_args.command)
@@ -223,15 +222,6 @@ class StatusCommand(BaseAgentClientCommand):
     def _execute(self, agent_number):
         agent_status = self._agent_client.get_agent_status_by_number(agent_number)
         _print_agent_status(agent_status)
-
-
-class PingCommand(BaseAgentClientCommand):
-
-    help = 'Ping server'
-    usage = None
-
-    def execute(self):
-        print(self._agent_client.ping())
 
 
 def _print_agent_status(agent_status):
