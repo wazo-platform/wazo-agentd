@@ -30,7 +30,6 @@ from xivo_agent.service.action.logoff import LogoffAction
 from xivo_agent.service.action.pause import PauseAction
 from xivo_agent.service.action.remove import RemoveFromQueueAction
 from xivo_agent.service.action.update import UpdatePenaltyAction
-from xivo_agent.service.handler.common import CommonHandler
 from xivo_agent.service.handler.login import LoginHandler
 from xivo_agent.service.handler.logoff import LogoffHandler
 from xivo_agent.service.handler.membership import MembershipHandler
@@ -132,7 +131,6 @@ def _run():
             remove_member_manager = RemoveMemberManager(remove_from_queue_action, ami_client, agent_status_dao, queue_member_dao)
 
             handlers = [
-                CommonHandler(),
                 LoginHandler(login_manager, agent_dao),
                 LogoffHandler(logoff_manager, agent_status_dao),
                 MembershipHandler(add_member_manager, remove_member_manager, agent_dao, queue_dao),
