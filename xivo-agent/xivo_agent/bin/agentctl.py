@@ -29,10 +29,6 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--command',
                         help='run command')
-    parser.add_argument('-H', '--host', default=AgentClient.DEFAULT_HOST,
-                        help='rabbitmq host')
-    parser.add_argument('-p', '--port', type=int, default=AgentClient.DEFAULT_PORT,
-                        help='rabbitmq port')
     parser.add_argument('--no-fetch', action='store_true',
                         help="don't fetch response from server")
 
@@ -40,7 +36,7 @@ def main():
 
     fetch_response = not parsed_args.no_fetch
 
-    with _agent_client(parsed_args.host, parsed_args.port, fetch_response) as agent_client:
+    with _agent_client(fetch_response) as agent_client:
         interpreter = Interpreter(prompt='xivo-agentctl> ',
                                   history_file='~/.xivoagentctl_history')
         interpreter.add_command('add', AddAgentToQueueCommand(agent_client))
@@ -59,9 +55,9 @@ def main():
 
 
 @contextmanager
-def _agent_client(host, port, fetch_response):
+def _agent_client(fetch_response):
     agent_client = AgentClient(fetch_response=fetch_response)
-    agent_client.connect(host, port)
+    agent_client.connect()
     try:
         yield agent_client
     finally:
