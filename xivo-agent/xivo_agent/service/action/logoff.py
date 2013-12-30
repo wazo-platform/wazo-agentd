@@ -46,10 +46,7 @@ class LogoffAction(object):
 
     def _compute_login_time(self, login_at):
         delta = datetime.datetime.now() - login_at
-        return self._timedelta_to_seconds(delta)
-
-    def _timedelta_to_seconds(self, delta):
-        return delta.days * 3600 * 24 + delta.seconds
+        return delta.total_seconds()
 
     def _update_agent_status(self, agent_status):
         self._agent_status_dao.remove_agent_from_all_queues(agent_status.agent_id)
