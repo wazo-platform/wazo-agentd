@@ -35,15 +35,19 @@ class QueueLogManager(object):
         time = self.format_time_now()
         agent = self._format_agent(agent_number)
         data1 = self._format_data1(extension, context)
+        logged_time = self._format_logged_time(logged_time)
 
         self._dao.insert_entry(time, 'NONE', 'NONE', agent, 'AGENTCALLBACKLOGOFF',
-                               data1, str(logged_time), 'CommandLogoff')
+                               data1, logged_time, 'CommandLogoff')
 
     def _format_agent(self, agent_number):
         return 'Agent/%s' % agent_number
 
     def _format_data1(self, extension, context):
         return '%s@%s' % (extension, context)
+
+    def _format_logged_time(self, logged_time):
+        return str(int(logged_time))
 
     @classmethod
     def format_time(cls, dt):

@@ -17,7 +17,7 @@
 
 import datetime
 import unittest
-from mock import Mock, patch
+from mock import ANY, Mock, patch, sentinel
 from xivo_agent.queuelog import QueueLogManager
 
 
@@ -80,3 +80,14 @@ class TestQueuelog(unittest.TestCase):
                 '123',
                 'CommandLogoff',
             )
+
+    def test_on_agent_logged_off_written_logged_time_should_be_an_integer_when_given_logged_time_is_not_integer(self):
+        queue_log_dao = Mock()
+        queue_log_mgr = QueueLogManager(queue_log_dao)
+
+        queue_log_mgr.on_agent_logged_off(sentinel.agent_number,
+                                          sentinel.extension,
+                                          sentinel.context,
+                                          12.98743)
+
+        queue_log_dao.insert_entry.assert_called_once_with(ANY, ANY, ANY, ANY, ANY, ANY, '12', ANY)
