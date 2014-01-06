@@ -41,6 +41,10 @@ class patch_datetime_now(object):
 
 class TestQueuelog(unittest.TestCase):
 
+    def setUp(self):
+        self.queue_log_dao = Mock()
+        self.queue_log_mgr = QueueLogManager(self.queue_log_dao)
+
     def test_format_time(self):
         dt = mock_date
         expected = mock_date_str
@@ -60,12 +64,10 @@ class TestQueuelog(unittest.TestCase):
     @patch_datetime_now(return_value=mock_date)
     def test_on_agent_logged_in(self):
         str_now = mock_date_str
-        queue_log_dao = Mock()
-        queue_log_mgr = QueueLogManager(queue_log_dao)
 
-        queue_log_mgr.on_agent_logged_in('1', '1001', 'default')
+        self.queue_log_mgr.on_agent_logged_in('1', '1001', 'default')
 
-        queue_log_dao.insert_entry.assert_called_once_with(
+        self.queue_log_dao.insert_entry.assert_called_once_with(
             str_now,
             'NONE',
             'NONE',
@@ -77,12 +79,10 @@ class TestQueuelog(unittest.TestCase):
     @patch_datetime_now(return_value=mock_date)
     def test_on_agent_logged_off(self):
         str_now = mock_date_str
-        queue_log_dao = Mock()
-        queue_log_mgr = QueueLogManager(queue_log_dao)
 
-        queue_log_mgr.on_agent_logged_off('1', '1001', 'default', 123)
+        self.queue_log_mgr.on_agent_logged_off('1', '1001', 'default', 123)
 
-        queue_log_dao.insert_entry.assert_called_once_with(
+        self.queue_log_dao.insert_entry.assert_called_once_with(
             str_now,
             'NONE',
             'NONE',
@@ -94,12 +94,9 @@ class TestQueuelog(unittest.TestCase):
         )
 
     def test_on_agent_logged_off_written_logged_time_should_be_an_integer_when_given_logged_time_is_not_integer(self):
-        queue_log_dao = Mock()
-        queue_log_mgr = QueueLogManager(queue_log_dao)
+        self.queue_log_mgr.on_agent_logged_off(sentinel.agent_number,
+                                               sentinel.extension,
+                                               sentinel.context,
+                                               12.98743)
 
-        queue_log_mgr.on_agent_logged_off(sentinel.agent_number,
-                                          sentinel.extension,
-                                          sentinel.context,
-                                          12.98743)
-
-        queue_log_dao.insert_entry.assert_called_once_with(ANY, ANY, ANY, ANY, ANY, ANY, '12', ANY)
+        self.queue_log_dao.insert_entry.assert_called_once_with(ANY, ANY, ANY, ANY, ANY, ANY, '12', ANY)
