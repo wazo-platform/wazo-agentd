@@ -18,9 +18,9 @@
 import collections
 import logging
 import socket
-from xivo_agent.ami.event import Event
+from xivo_ami.ami.event import Event
 from xivo_agent.ami.response import Response
-from xivo_agent.ami.parser import parse_msg
+from xivo_ami.ami.parser import parse_buffer
 
 logger = logging.getLogger(__name__)
 
@@ -79,19 +79,16 @@ class AMIClient(object):
         data = self._recv_data_from_socket()
         self._buffer += data
 
-    def _parse_next_msgs(self):
-        while True:
-            head, sep, self._buffer = self._buffer.partition('\r\n\r\n')
-            if not sep:
-                self._buffer = head
-                break
+    def event_callback(self, event_name, action_id, headers):
+        message = Event(event_name, action_id, headers)
+        self._msgs_queue.append(message)
 
-            try:
-                msg = parse_msg(head)
-            except Exception as e:
-                logger.error('Could not parse message: %s', e)
-                continue
-            self._msgs_queue.append(msg)
+    def response_callback(self, response, action_id, headers):
+        message = Response(response, action_id, headers)
+        self._msgs_queue.append(message)
+
+    def _parse_next_msgs(self):
+        self._buffer = parse_buffer(self._buffer, self.event_callback, self.response_callback)
 
     def _process_msgs_queue(self):
         while self._msgs_queue:

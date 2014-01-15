@@ -93,14 +93,6 @@ class TestAMIClient(unittest.TestCase):
 
         self.assertEqual('Response: Success\r\n\r\n', ami_client._buffer)
 
-    def test_parse_next_msgs(self):
-        self.ami_client._buffer = 'Response: Success\r\n\r\n'
-
-        self.ami_client._parse_next_msgs()
-
-        self.assertEqual(1, len(self.ami_client._msgs_queue))
-        self.assertEqual('Success', self.ami_client._msgs_queue[0].response)
-
     def test_process_msgs_queue(self):
         action = Mock()
         response = Response('Success', 'foobar', {})
@@ -111,6 +103,25 @@ class TestAMIClient(unittest.TestCase):
 
         self.assertFalse(self.ami_client._msgs_queue)
         action._on_response_received.assert_called_once_with(response)
+
+    def test_given_response_when_parse_next_msgs_then_response_msg_added_to_queue(self):
+        self.ami_client._buffer = 'Response: Success\r\nMessage: bar\r\n\r\n'
+
+        self.ami_client._parse_next_msgs()
+
+        self.assertEqual(1, len(self.ami_client._msgs_queue))
+        self.assertEqual('Success', self.ami_client._msgs_queue[0].response)
+        self.assertEqual(None, self.ami_client._msgs_queue[0].action_id)
+        self.assertTrue(self.ami_client._msgs_queue[0].is_success())
+
+    def test_given_event_with_action_id_when_parse_next_msgs_then_event_msg_added_to_queue(self):
+        self.ami_client._buffer = 'Event: Foo\r\nActionID: bar\r\n\r\n'
+
+        self.ami_client._parse_next_msgs()
+
+        self.assertEqual(1, len(self.ami_client._msgs_queue))
+        self.assertEqual('Foo', self.ami_client._msgs_queue[0].name)
+        self.assertEqual('bar', self.ami_client._msgs_queue[0].action_id)
 
 
 class TestReconnectingAMIClient(unittest.TestCase):
