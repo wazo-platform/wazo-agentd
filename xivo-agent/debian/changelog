@@ -1,0 +1,89 @@
+xivo-agent (13.24~20131106.130017.39b8796-2) squeeze-xivo-skaro-dev; urgency=low
+
+  * move python-pika dependency from xivo-agent to xivo-bus
+
+ -- Pascal Cadotte Michaud <pcadottemichaud@avencall.com>  Mon, 02 Dec 2013 10:43:12 -0500
+
+xivo-agent (13.22~20130725.205306.40160f0-2) squeeze-xivo-skaro-dev; urgency=low
+
+  * replace dependency from xivo-agent to xivo-bus
+
+ -- Sebastien Duthil <sduthil@avencall.com>  Fri, 01 Nov 2013 14:40:49 -0400
+
+xivo-agent (13.04~20130219.175944.7cd0f86-3) squeeze-xivo-skaro-dev; urgency=low
+
+  * revert init script 
+
+ -- Nicolas HICHER <nhicher@avencall.com>  Sat, 23 Feb 2013 08:51:32 -0500
+
+xivo-agent (13.04~20130219.175944.7cd0f86-1) squeeze-xivo-skaro-dev; urgency=low
+
+  * fix init script (status on stopped service must return 3)
+
+ -- Nicolas HICHER <nhicher@avencall.com>  Fri, 22 Feb 2013 12:34:03 -0500
+
+xivo-agent (13.03~20130204.163950.c379535-4) squeeze-xivo-skaro-dev; urgency=low
+
+  * add dependency version for xivo-lib-python
+
+ -- Etienne Lessard <elessard@avencall.com>  Wed, 06 Feb 2013 13:57:36 -0500
+
+xivo-agent (13.03~20130204.163950.c379535-3) squeeze-xivo-skaro-dev; urgency=low
+
+  * remove default file to xivo-agent
+
+ -- Cedric Abunar <cabunar@avencall.com>  Tue, 05 Feb 2013 13:36:03 -0500
+
+xivo-agent (13.03~20130204.163950.c379535-2) squeeze-xivo-skaro-dev; urgency=low
+
+  * add default file for xivo
+
+ -- Cedric Abunar <cabunar@avencall.com>  Tue, 05 Feb 2013 09:52:47 -0500
+
+xivo-agent (13.01~20130114.162531.36b7991-2) squeeze-xivo-skaro-dev; urgency=low
+
+  * add dependency version for xivo-libagent
+
+ -- Gregory Eric Sanderson <gsanderson@avencall.com>  Thu, 13 Jan 2013 15:00:01 -0500
+
+xivo-agent (12.24~20121218.161915.8af95cc-2) squeeze-xivo-skaro-dev; urgency=low
+
+  * add default file to xivo-agent
+
+ -- Pascal Cadotte Michaud <pcadottemichaud@avencall.com>  Thu, 20 Dec 2012 14:38:28 -0500
+
+xivo-agent (12.23~20121128.143731.4866888-4) squeeze-xivo-skaro-dev; urgency=low
+
+  *  add python-pika to dependencies
+
+ -- Etienne Lessard <elessard@avencall.com>  Tue, 11 Dec 2012 14:50:38 -0500
+
+xivo-agent (12.23~20121128.143731.4866888-4) squeeze-xivo-skaro-dev; urgency=low
+
+  * fix dependencies
+
+ -- Etienne Lessard <elessard@avencall.com>  Thu, 29 Nov 2012 10:02:04 -0500
+
+xivo-agent (12.23~20121128.143731.4866888-3) squeeze-xivo-skaro-dev; urgency=low
+
+  * fix dependencies
+
+ -- Etienne Lessard <elessard@avencall.com>  Thu, 29 Nov 2012 09:38:16 -0500
+
+xivo-agent (12.23~20121128.143731.4866888-2) squeeze-xivo-skaro-dev; urgency=low
+
+  * put depends only on xivo-libagent (which xivo-agent pre-depends on)
+
+ -- Etienne Lessard <elessard@avencall.com>  Thu, 29 Nov 2012 08:45:06 -0500
+
+xivo-agent (12.23~20121127.190202.175a27a-2) squeeze-xivo-skaro-dev; urgency=low
+
+  * evo add xivo-libagent
+
+ -- Nicolas HICHER (atarakt) <nhicher@proformatique.com>  Tue, 27 Nov 2012 14:36:11 -0500
+
+xivo-agent (12.23~20121120.000001.84f482e-1) squeeze-xivo-skaro-dev; urgency=low
+
+  * Initial release.
+
+ -- Etienne Lessard <elessard@avencall.com>  Tue, 20 Nov 2012 14:08:46 -0500
