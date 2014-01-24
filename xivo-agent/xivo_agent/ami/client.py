@@ -18,7 +18,7 @@
 import collections
 import logging
 import socket
-from xivo_ami.ami.event import Event
+from xivo_agent.ami.event import Event
 from xivo_agent.ami.response import Response
 from xivo_ami.ami.parser import parse_buffer
 
