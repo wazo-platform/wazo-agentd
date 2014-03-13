@@ -1,5 +1,5 @@
 svn+https://github.com/xivo-pbx/xivo-lib-python/trunk/xivo-lib-python
-svn+https://github.com/xivo-pbx/xivo-amid/trunk/xivo-amid
+git+https://github.com/xivo-pbx/xivo-amid.git
 svn+https://github.com/xivo-pbx/xivo-bus/trunk/xivo-bus
 nose
 mock
