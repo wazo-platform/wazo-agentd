@@ -1,7 +1,7 @@
 language: python
 python:
   - "2.7"
-script: nosetests xivo-agent
+script: nosetests xivo_agent
 notifications:
   email:
     recipients:
