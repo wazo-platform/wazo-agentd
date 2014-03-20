@@ -1,0 +1,146 @@
+diff --unified --recursive '--exclude=.pylint-disable.patch' original/ami/actions/common/action.py patched/ami/actions/common/action.py
+--- original/ami/actions/common/action.py
++++ patched/ami/actions/common/action.py
+@@ -49,7 +49,7 @@
+             self._amiclient.wait_for_completion(self)
+ 
+     # package private method
+-    def _on_response_received(self, response):
++    def _on_response_received(self, response): # pylint: disable=unused-argument
+         # may be overridden
+         self._completed = True
+ 
+diff --unified --recursive '--exclude=.pylint-disable.patch' original/bin/agentctl.py patched/bin/agentctl.py
+--- original/bin/agentctl.py
++++ patched/bin/agentctl.py
+@@ -87,7 +87,7 @@
+         except Exception:
+             raise UsageError()
+ 
+-    def execute(self, agent_id, queue_id):
++    def execute(self, agent_id, queue_id): # pylint: disable=arguments-differ
+         self._agent_client.add_agent_to_queue(agent_id, queue_id)
+ 
+ 
+@@ -104,7 +104,7 @@
+         except Exception:
+             raise UsageError()
+ 
+-    def execute(self, agent_id, queue_id):
++    def execute(self, agent_id, queue_id): # pylint: disable=arguments-differ
+         self._agent_client.remove_agent_from_queue(agent_id, queue_id)
+ 
+ 
+@@ -122,7 +122,7 @@
+         except Exception:
+             raise UsageError()
+ 
+-    def execute(self, agent_number, extension, context):
++    def execute(self, agent_number, extension, context): # pylint: disable=arguments-differ
+         self._agent_client.login_agent_by_number(agent_number, extension, context)
+ 
+ 
+@@ -138,7 +138,7 @@
+         except Exception:
+             raise UsageError()
+ 
+-    def execute(self, agent_number):
++    def execute(self, agent_number): # pylint: disable=arguments-differ
+         if agent_number == 'all':
+             self._execute_all()
+         else:
+@@ -172,7 +172,7 @@
+         except Exception:
+             raise UsageError()
+ 
+-    def execute(self, agent_number):
++    def execute(self, agent_number): # pylint: disable=arguments-differ
+         self._agent_client.pause_agent_by_number(agent_number)
+ 
+ 
+@@ -188,7 +188,7 @@
+         except Exception:
+             raise UsageError()
+ 
+-    def execute(self, agent_number):
++    def execute(self, agent_number): # pylint: disable=arguments-differ
+         self._agent_client.unpause_agent_by_number(agent_number)
+ 
+ 
+@@ -204,7 +204,7 @@
+             agent_number = None
+         return (agent_number,)
+ 
+-    def execute(self, agent_number):
++    def execute(self, agent_number): # pylint: disable=arguments-differ
+         if agent_number is None:
+             self._execute_all()
+         else:
+diff --unified --recursive '--exclude=.pylint-disable.patch' original/bin/agentd.py patched/bin/agentd.py
+--- original/bin/agentd.py
++++ patched/bin/agentd.py
+@@ -74,7 +74,7 @@
+     daemonize.lock_pidfile_or_die(_PID_FILENAME)
+     try:
+         _run()
+-    except Exception:
++    except Exception: # pylint: disable=broad-except
+         logger.exception('Unexpected error:')
+     finally:
+         logger.info('Stopping xivo-agentd')
+@@ -151,7 +151,7 @@
+     signal.signal(signal.SIGTERM, _handle_sigterm)
+ 
+ 
+-def _handle_sigterm(signum, frame):
++def _handle_sigterm(signum, frame): # pylint: disable=unused-argument,unused-argument
+     raise SystemExit()
+ 
+ 
+diff --unified --recursive '--exclude=.pylint-disable.patch' original/service/handler/logoff.py patched/service/handler/logoff.py
+--- original/service/handler/logoff.py
++++ patched/service/handler/logoff.py
+@@ -46,7 +46,7 @@
+         self._handle_logoff(agent_status)
+ 
+     @debug.trace_duration
+-    def handle_logoff_all(self, command):
++    def handle_logoff_all(self, command): # pylint: disable=unused-argument
+         logger.info('Executing logoff all command')
+         self._logoff_manager.logoff_all_agents()
+ 
+diff --unified --recursive '--exclude=.pylint-disable.patch' original/service/handler/relog.py patched/service/handler/relog.py
+--- original/service/handler/relog.py
++++ patched/service/handler/relog.py
+@@ -31,6 +31,6 @@
+         agent_server.add_command(commands.RelogAllCommand, self.handle_relog_all)
+ 
+     @debug.trace_duration
+-    def handle_relog_all(self, command):
++    def handle_relog_all(self, command): # pylint: disable=unused-argument
+         logger.info('Executing relog all command')
+         self._relog_manager.relog_all_agents()
+diff --unified --recursive '--exclude=.pylint-disable.patch' original/service/handler/status.py patched/service/handler/status.py
+--- original/service/handler/status.py
++++ patched/service/handler/status.py
+@@ -46,7 +46,7 @@
+         return self._handle_status(agent)
+ 
+     @debug.trace_duration
+-    def handle_statuses(self, command):
++    def handle_statuses(self, command): # pylint: disable=unused-argument
+         logger.info('Executing statuses command')
+         agent_statuses = self._agent_status_dao.get_statuses()
+         return [
+diff --unified --recursive '--exclude=.pylint-disable.patch' original/service/manager/relog.py patched/service/manager/relog.py
+--- original/service/manager/relog.py
++++ patched/service/manager/relog.py
+@@ -33,7 +33,7 @@
+         for agent_status in agent_statuses:
+             try:
+                 self._relog_agent(agent_status)
+-            except Exception:
++            except Exception: # pylint: disable=broad-except
+                 logger.warning('Could not relog agent %s', agent_status.agent_id, exc_info=True)
+ 
+     def _get_agent_statuses(self):
