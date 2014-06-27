@@ -9,7 +9,7 @@ setup(
     description='XiVO agent server and client',
     author='Avencall',
     author_email='dev@avencall.com',
-    url='http://git.xivo.fr/',
+    url='http://git.xivo.io/',
     license='GPLv3',
     packages=['xivo_agent',
               'xivo_agent.ami',
