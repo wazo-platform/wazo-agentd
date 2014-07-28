@@ -19,7 +19,7 @@ import argparse
 import logging
 import signal
 from contextlib import contextmanager
-from xivo import daemonize
+from xivo.daemonize import pidfile_context
 from xivo.xivo_logging import setup_logging
 from xivo_agent import ami
 from xivo_agent.ctl.server import AgentServer
@@ -68,18 +68,14 @@ def main():
 
     setup_logging(_LOG_FILENAME, parsed_args.foreground, parsed_args.verbose)
 
-    if not parsed_args.foreground:
-        daemonize.daemonize()
-
-    logger.info('Starting xivo-agentd')
-    daemonize.lock_pidfile_or_die(_PID_FILENAME)
-    try:
-        _run()
-    except Exception:
-        logger.exception('Unexpected error:')
-    finally:
-        logger.info('Stopping xivo-agentd')
-        daemonize.unlock_pidfile(_PID_FILENAME)
+    with pidfile_context(_PID_FILENAME, parsed_args.foreground):
+        logger.info('Starting xivo-agentd')
+        try:
+            _run()
+        except Exception:
+            logger.exception('Unexpected error:')
+        finally:
+            logger.info('Stopping xivo-agentd')
 
 
 def _parse_args():
