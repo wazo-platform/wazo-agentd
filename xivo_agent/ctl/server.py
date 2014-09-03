@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from xivo_bus.ctl.server import BusCtlServer
+from xivo_bus.ctl.rpc.server import BusCtlServer
 
 
 class AgentServer(BusCtlServer):
