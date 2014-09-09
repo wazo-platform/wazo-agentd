@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from xivo_bus.ctl.exception import BusCtlServerError
+from xivo_bus.ctl.rpc.server import BusCtlServerError
 from xivo_bus.resources.agent import error as error_messages
 
 
