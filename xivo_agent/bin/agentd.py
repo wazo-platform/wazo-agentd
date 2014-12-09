@@ -20,8 +20,6 @@ import logging
 import signal
 from contextlib import contextmanager
 from xivo.chain_map import ChainMap
-from xivo.config_helper import parse_config_dir
-from xivo.config_helper import parse_config_file
 from xivo.config_helper import read_config_file_hierarchy
 from xivo.daemonize import pidfile_context
 from xivo.xivo_logging import setup_logging
