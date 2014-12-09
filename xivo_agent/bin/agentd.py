@@ -22,6 +22,7 @@ from contextlib import contextmanager
 from xivo.chain_map import ChainMap
 from xivo.config_helper import parse_config_dir
 from xivo.config_helper import parse_config_file
+from xivo.config_helper import read_config_file_hierarchy
 from xivo.daemonize import pidfile_context
 from xivo.xivo_logging import setup_logging
 from xivo_agent import ami
@@ -79,7 +80,7 @@ logger = logging.getLogger(__name__)
 
 def main():
     cli_config = _parse_args()
-    file_config = _load_config_file_hierarchy(ChainMap(cli_config, _DEFAULT_CONFIG))
+    file_config = read_config_file_hierarchy(ChainMap(cli_config, _DEFAULT_CONFIG))
 
     config = ChainMap(cli_config, file_config, _DEFAULT_CONFIG)
 
@@ -93,17 +94,6 @@ def main():
             logger.exception('Unexpected error:')
         finally:
             logger.info('Stopping xivo-agentd')
-
-
-def _load_config_file_hierarchy(config):
-    main_config_filename = config['config_file']
-    main_config = parse_config_file(main_config_filename)
-    extra_config_file_directory_name = ChainMap(main_config, config)['extra_config_files']
-    extra_configs = parse_config_dir(extra_config_file_directory_name)
-
-    extra_configs.append(main_config)
-
-    return ChainMap(*extra_configs)
 
 
 def _parse_args():
