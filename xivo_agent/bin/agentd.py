@@ -19,6 +19,7 @@ import argparse
 import logging
 import signal
 from contextlib import contextmanager
+from xivo.chain_map import ChainMap
 from xivo.daemonize import pidfile_context
 from xivo.xivo_logging import setup_logging
 from xivo_agent import ami
@@ -57,21 +58,32 @@ from xivo_dao import queue_dao as orig_queue_dao
 from xivo_dao import queue_log_dao
 from xivo_dao import queue_member_dao
 
-_LOG_FILENAME = '/var/log/xivo-agentd.log'
-_PID_FILENAME = '/var/run/xivo-agentd.pid'
+_DEFAULT_CONFIG = {
+    'debug': False,
+    'foreground': False,
+    'logfile': '/var/log/xivo-agentd.log',
+    'pidfile': '/var/run/xivo-agentd.pid',
+    'ami': {
+        'host': 'localhost',
+        'username': 'xivo_agent',
+        'password': 'die0Ahn8tae',
+    }
+}
 
 logger = logging.getLogger(__name__)
 
 
 def main():
-    parsed_args = _parse_args()
+    cli_config = _parse_args()
 
-    setup_logging(_LOG_FILENAME, parsed_args.foreground, parsed_args.verbose)
+    config = ChainMap(cli_config, _DEFAULT_CONFIG)
 
-    with pidfile_context(_PID_FILENAME, parsed_args.foreground):
+    setup_logging(config['logfile'], config['foreground'], config['debug'])
+
+    with pidfile_context(config['pidfile'], config['foreground']):
         logger.info('Starting xivo-agentd')
         try:
-            _run()
+            _run(config)
         except Exception:
             logger.exception('Unexpected error:')
         finally:
@@ -84,14 +96,23 @@ def _parse_args():
                         help='run in foreground')
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='increase verbosity')
-    return parser.parse_args()
+
+    parsed = parser.parse_args()
+
+    config = {}
+    if parsed.foreground:
+        config['foreground'] = parsed.foreground
+    if parsed.verbose:
+        config['debug'] = parsed.verbose
+
+    return config
 
 
-def _run():
+def _run(config):
     _init_signal()
     agent_dao = AgentDAOAdapter(orig_agent_dao)
     queue_dao = QueueDAOAdapter(orig_queue_dao)
-    with _new_ami_client() as ami_client:
+    with _new_ami_client(config) as ami_client:
         with _new_agent_server() as agent_server:
             queue_log_manager = QueueLogManager(queue_log_dao)
 
@@ -140,8 +161,10 @@ def _handle_sigterm(signum, frame):
 
 
 @contextmanager
-def _new_ami_client():
-    ami_client = ami.new_client('localhost', 'xivo_agent', 'die0Ahn8tae')
+def _new_ami_client(config):
+    ami_client = ami.new_client(config['ami']['host'],
+                                config['ami']['username'],
+                                config['ami']['password'])
     try:
         yield ami_client
     finally:
