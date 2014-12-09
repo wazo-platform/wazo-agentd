@@ -1,0 +1,12 @@
+# This file should not be modified as it may get changed by the maintainer.
+# Add extra configuration files in the extra_config_files directory to override
+# the content from this file
+extra_config_files: /etc/xivo-agentd/conf.d/
+debug: false
+foreground: false
+logfile: /var/log/xivo-agentd.log
+pidfile: /var/run/xivo-agentd.pid
+ami:
+  host: localhost
+  username: xivo_agent
+  password: die0Ahn8tae
