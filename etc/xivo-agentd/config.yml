@@ -1,10 +1,21 @@
-# This file should not be modified as it may get changed by the maintainer.
+# This file should NOT be modified as it may get changed by the maintainer.
 # Add extra configuration files in the extra_config_files directory to override
 # the content from this file
+
+# Extra configuration directory where the config files overriding this file
+# should be.
 extra_config_files: /etc/xivo-agentd/conf.d/
+
+# Change the log level to debug level.
 debug: false
+
+# Log file.
 logfile: /var/log/xivo-agentd.log
+
+# PID file.
 pidfile: /var/run/xivo-agentd.pid
+
+# AMI (Asterisk Manager Interface) connection informations.
 ami:
   host: localhost
   username: xivo_agent
