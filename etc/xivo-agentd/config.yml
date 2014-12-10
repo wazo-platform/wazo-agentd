@@ -3,7 +3,6 @@
 # the content from this file
 extra_config_files: /etc/xivo-agentd/conf.d/
 debug: false
-foreground: false
 logfile: /var/log/xivo-agentd.log
 pidfile: /var/run/xivo-agentd.pid
 ami:
