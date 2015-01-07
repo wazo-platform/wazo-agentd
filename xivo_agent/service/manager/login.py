@@ -24,12 +24,10 @@ from xivo_agent.exception import MissingConfigurationError
 logger = logging.getLogger(__name__)
 
 
-class LoginManager(object):
+class LogManagerMixin(object):
 
-    def __init__(self, login_action, agent_status_dao, agent_server, config):
-        self._login_action = login_action
-        self._agent_status_dao = agent_status_dao
-        self._bus_producer = agent_server
+    def __init__(self, bus_producer, config):
+        self._bus_producer = bus_producer
 
         try:
             self._uuid = config['uuid']
@@ -43,6 +41,22 @@ class LoginManager(object):
         self._bus_producer.declare_exchange(self._exchange_name,
                                             self._exchange_type,
                                             self._exchange_durable)
+
+    def _send_bus_status_update(self, agent):
+        msg = AgentStatusUpdateEvent(self._uuid, agent.id, self.agent_status)
+        self._bus_producer.publish_event(self._exchange_name,
+                                         self._routing_key,
+                                         msg)
+
+
+class LoginManager(LogManagerMixin):
+
+    agent_status = 'logged_in'
+
+    def __init__(self, login_action, agent_status_dao, agent_server, config):
+        super(LoginManager, self).__init__(agent_server, config)
+        self._login_action = login_action
+        self._agent_status_dao = agent_status_dao
 
     def login_agent(self, agent, extension, context):
         self._check_agent_is_not_logged(agent)
@@ -58,9 +72,3 @@ class LoginManager(object):
     def _check_extension_is_not_in_use(self, extension, context):
         if self._agent_status_dao.is_extension_in_use(extension, context):
             raise ExtensionAlreadyInUseError()
-
-    def _send_bus_status_update(self, agent):
-        msg = AgentStatusUpdateEvent(self._uuid, agent.id, 'logged_in')
-        self._bus_producer.publish_event(self._exchange_name,
-                                         self._routing_key,
-                                         msg)
