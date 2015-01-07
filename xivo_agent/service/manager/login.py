@@ -42,8 +42,8 @@ class LogManagerMixin(object):
                                             self._exchange_type,
                                             self._exchange_durable)
 
-    def _send_bus_status_update(self, agent):
-        msg = AgentStatusUpdateEvent(self._uuid, agent.id, self.agent_status)
+    def _send_bus_status_update(self, agent_id):
+        msg = AgentStatusUpdateEvent(self._uuid, agent_id, self.agent_status)
         self._bus_producer.publish_event(self._exchange_name,
                                          self._routing_key,
                                          msg)
@@ -62,7 +62,7 @@ class LoginManager(LogManagerMixin):
         self._check_agent_is_not_logged(agent)
         self._check_extension_is_not_in_use(extension, context)
         self._login_action.login_agent(agent, extension, context)
-        self._send_bus_status_update(agent)
+        self._send_bus_status_update(agent.id)
 
     def _check_agent_is_not_logged(self, agent):
         agent_status = self._agent_status_dao.get_status(agent.id)
