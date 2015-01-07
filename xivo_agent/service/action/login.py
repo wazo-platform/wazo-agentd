@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2014 Avencall
+# Copyright (C) 2013-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,13 +18,17 @@
 import logging
 from xivo_agent.exception import NoSuchExtensionError
 from xivo_agent.service.helper import format_agent_member_name, format_agent_skills
+from xivo_agent.service.action.helper.log_action import LogActionMixin
 
 logger = logging.getLogger(__name__)
 
 
-class LoginAction(object):
+class LoginAction(LogActionMixin):
 
-    def __init__(self, ami_client, queue_log_manager, agent_status_dao, line_dao):
+    agent_status = 'logged_in'
+
+    def __init__(self, ami_client, queue_log_manager, agent_status_dao, line_dao, bus_producer, config):
+        super(LoginAction, self).__init__(bus_producer, config)
         self._ami_client = ami_client
         self._queue_log_manager = queue_log_manager
         self._agent_status_dao = agent_status_dao
@@ -40,6 +44,7 @@ class LoginAction(object):
         self._update_queue_log(agent, extension, context)
         self._update_asterisk(agent, interface, state_interface)
         self._update_xivo_ctid(agent, extension, context)
+        self._send_bus_status_update(agent.id)
 
     def _get_interface(self, agent):
         return 'Local/id-{0}@agentcallback'.format(agent.id)

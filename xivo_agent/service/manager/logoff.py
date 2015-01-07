@@ -16,15 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 from xivo_agent.exception import AgentNotLoggedError
-from xivo_agent.service.manager.login import LogManagerMixin
 
 
-class LogoffManager(LogManagerMixin):
+class LogoffManager(object):
 
-    agent_status = 'logged_out'
-
-    def __init__(self, logoff_action, agent_status_dao, bus_producer, config):
-        super(LogoffManager, self).__init__(bus_producer, config)
+    def __init__(self, logoff_action, agent_status_dao):
         self._logoff_action = logoff_action
         self._agent_status_dao = agent_status_dao
 
@@ -32,7 +28,6 @@ class LogoffManager(LogManagerMixin):
         if agent_status is None:
             raise AgentNotLoggedError()
         self._logoff_action.logoff_agent(agent_status)
-        self._send_bus_status_update(agent_status.agent_id)
 
     def logoff_all_agents(self):
         agent_statuses = self._get_agent_statuses()

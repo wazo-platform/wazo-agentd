@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2014 Avencall
+# Copyright (C) 2013-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,8 +17,9 @@
 
 import datetime
 import unittest
-from mock import Mock, ANY
+from mock import Mock, ANY, sentinel
 from xivo_agent.service.action.logoff import LogoffAction
+from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
 
 
 class TestLogoffAction(unittest.TestCase):
@@ -27,7 +28,24 @@ class TestLogoffAction(unittest.TestCase):
         self.ami_client = Mock()
         self.queue_log_manager = Mock()
         self.agent_status_dao = Mock()
-        self.logoff_action = LogoffAction(self.ami_client, self.queue_log_manager, self.agent_status_dao)
+        self.bus_producer = Mock()
+        self.config = {
+            'bus': {
+                'exchange_name': sentinel.exchange_name,
+                'exchange_type': sentinel.exchange_type,
+                'exchange_durable': sentinel.exchange_durable,
+                'routing_keys': {
+                    'agent_status': sentinel.agent_status_routing_key,
+                },
+            },
+            'uuid': sentinel.uuid,
+        }
+
+        self.logoff_action = LogoffAction(self.ami_client,
+                                          self.queue_log_manager,
+                                          self.agent_status_dao,
+                                          self.bus_producer,
+                                          self.config)
 
     def test_logoff_agent(self):
         agent_id = 10
@@ -49,3 +67,8 @@ class TestLogoffAction(unittest.TestCase):
                                                                            agent_status.context, ANY)
         self.agent_status_dao.remove_agent_from_all_queues.assert_called_once_with(agent_id)
         self.agent_status_dao.log_off_agent(agent_id)
+        self.bus_producer.publish_event.assert_called_once_with(
+            sentinel.exchange_name,
+            sentinel.agent_status_routing_key,
+            AgentStatusUpdateEvent(sentinel.uuid, 10, 'logged_out')
+        )

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2014 Avencall
+# Copyright (C) 2013-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,10 +17,15 @@
 
 import datetime
 
+from xivo_agent.service.action.helper.log_action import LogActionMixin
 
-class LogoffAction(object):
 
-    def __init__(self, ami_client, queue_log_manager, agent_status_dao):
+class LogoffAction(LogActionMixin):
+
+    agent_status = 'logged_out'
+
+    def __init__(self, ami_client, queue_log_manager, agent_status_dao, bus_producer, config):
+        super(LogoffAction, self).__init__(bus_producer, config)
         self._ami_client = ami_client
         self._queue_log_manager = queue_log_manager
         self._agent_status_dao = agent_status_dao
@@ -32,6 +37,7 @@ class LogoffAction(object):
         self._update_queue_log(agent_status)
         self._update_agent_status(agent_status)
         self._update_xivo_ctid(agent_status)
+        self._send_bus_status_update(agent_status.agent_id)
 
     def _update_xivo_ctid(self, agent_status):
         self._ami_client.agent_logoff(agent_status.agent_id, agent_status.agent_number)

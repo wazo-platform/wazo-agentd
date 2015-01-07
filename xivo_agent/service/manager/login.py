@@ -18,43 +18,13 @@
 import logging
 
 from xivo_agent.exception import AgentAlreadyLoggedError, ExtensionAlreadyInUseError
-from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
-from xivo_agent.exception import MissingConfigurationError
 
 logger = logging.getLogger(__name__)
 
 
-class LogManagerMixin(object):
+class LoginManager(object):
 
-    def __init__(self, bus_producer, config):
-        self._bus_producer = bus_producer
-
-        try:
-            self._uuid = config['uuid']
-            self._exchange_name = config['bus']['exchange_name']
-            self._exchange_type = config['bus']['exchange_type']
-            self._exchange_durable = config['bus']['exchange_durable']
-            self._routing_key = config['bus']['routing_keys']['agent_status']
-        except KeyError as e:
-            raise MissingConfigurationError(str(e))
-
-        self._bus_producer.declare_exchange(self._exchange_name,
-                                            self._exchange_type,
-                                            self._exchange_durable)
-
-    def _send_bus_status_update(self, agent_id):
-        msg = AgentStatusUpdateEvent(self._uuid, agent_id, self.agent_status)
-        self._bus_producer.publish_event(self._exchange_name,
-                                         self._routing_key,
-                                         msg)
-
-
-class LoginManager(LogManagerMixin):
-
-    agent_status = 'logged_in'
-
-    def __init__(self, login_action, agent_status_dao, agent_server, config):
-        super(LoginManager, self).__init__(agent_server, config)
+    def __init__(self, login_action, agent_status_dao):
         self._login_action = login_action
         self._agent_status_dao = agent_status_dao
 
@@ -62,7 +32,6 @@ class LoginManager(LogManagerMixin):
         self._check_agent_is_not_logged(agent)
         self._check_extension_is_not_in_use(extension, context)
         self._login_action.login_agent(agent, extension, context)
-        self._send_bus_status_update(agent.id)
 
     def _check_agent_is_not_logged(self, agent):
         agent_status = self._agent_status_dao.get_status(agent.id)
