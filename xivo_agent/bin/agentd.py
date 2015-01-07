@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2012-2014 Avencall
+# Copyright (C) 2012-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -52,12 +52,14 @@ from xivo_agent.service.manager.on_queue_updated import OnQueueUpdatedManager
 from xivo_agent.service.manager.pause import PauseManager
 from xivo_agent.service.manager.relog import RelogManager
 from xivo_agent.service.manager.remove_member import RemoveMemberManager
+from xivo_bus.ctl.config import BusConfig
 from xivo_dao import agent_dao as orig_agent_dao
 from xivo_dao import agent_status_dao
 from xivo_dao import line_dao
 from xivo_dao import queue_dao as orig_queue_dao
 from xivo_dao import queue_log_dao
 from xivo_dao import queue_member_dao
+from xivo_dao.data_handler.infos import services as info_services
 
 _DEFAULT_CONFIG = {
     'debug': False,
@@ -76,11 +78,16 @@ _DEFAULT_CONFIG = {
 logger = logging.getLogger(__name__)
 
 
+def _read_db_config():
+    return {'uuid': info_services.get().uuid}
+
+
 def main():
     cli_config = _parse_args()
     file_config = read_config_file_hierarchy(ChainMap(cli_config, _DEFAULT_CONFIG))
+    db_config = _read_db_config()
 
-    config = ChainMap(cli_config, file_config, _DEFAULT_CONFIG)
+    config = ChainMap(cli_config, file_config, db_config, _DEFAULT_CONFIG)
 
     setup_logging(config['logfile'], config['foreground'], config['debug'])
 
@@ -117,7 +124,7 @@ def _run(config):
     agent_dao = AgentDAOAdapter(orig_agent_dao)
     queue_dao = QueueDAOAdapter(orig_queue_dao)
     with _new_ami_client(config) as ami_client:
-        with _new_agent_server() as agent_server:
+        with _new_agent_server(config) as agent_server:
             queue_log_manager = QueueLogManager(queue_log_dao)
 
             add_to_queue_action = AddToQueueAction(ami_client, agent_status_dao)
@@ -128,7 +135,7 @@ def _run(config):
             update_penalty_action = UpdatePenaltyAction(ami_client, agent_status_dao)
 
             add_member_manager = AddMemberManager(add_to_queue_action, ami_client, agent_status_dao, queue_member_dao)
-            login_manager = LoginManager(login_action, agent_status_dao)
+            login_manager = LoginManager(login_action, agent_status_dao, agent_server, config)
             logoff_manager = LogoffManager(logoff_action, agent_status_dao)
             on_agent_deleted_manager = OnAgentDeletedManager(logoff_manager, agent_status_dao)
             on_agent_updated_manager = OnAgentUpdatedManager(add_to_queue_action, remove_from_queue_action, update_penalty_action, agent_status_dao)
@@ -176,8 +183,10 @@ def _new_ami_client(config):
 
 
 @contextmanager
-def _new_agent_server():
-    agent_server = AgentServer()
+def _new_agent_server(config):
+    bus_config = dict(config['bus'])
+    bus_config.pop('routing_keys')
+    agent_server = AgentServer(BusConfig(**bus_config))
     try:
         yield agent_server
     finally:
