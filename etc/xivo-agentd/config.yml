@@ -20,3 +20,15 @@ ami:
   host: localhost
   username: xivo_agent
   password: die0Ahn8tae
+
+# Bus connection to the AMQP server
+bus:
+  username: guest
+  password: guest
+  host: localhost
+  port: 5672
+  exchange_name: xivo
+  exchange_type: topic
+  exchange_durable: True
+  routing_keys:
+    agent_status: status.agent

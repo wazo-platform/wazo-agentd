@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2014 Avencall
+# Copyright (C) 2013-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,10 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import unittest
-from mock import Mock, ANY
+from mock import Mock, ANY, sentinel
 from xivo_agent.queuelog import QueueLogManager
 from xivo_agent.service.action.login import LoginAction
 from xivo_agent.service.helper import format_agent_skills
+from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
 
 
 class TestLoginAction(unittest.TestCase):
@@ -29,7 +30,24 @@ class TestLoginAction(unittest.TestCase):
         self.queue_log_manager = Mock(QueueLogManager)
         self.agent_status_dao = Mock()
         self.line_dao = Mock()
-        self.login_action = LoginAction(self.ami_client, self.queue_log_manager, self.agent_status_dao, self.line_dao)
+        self.bus_producer = Mock()
+        self.config = {
+            'bus': {
+                'exchange_name': sentinel.exchange_name,
+                'exchange_type': sentinel.exchange_type,
+                'exchange_durable': sentinel.exchange_durable,
+                'routing_keys': {
+                    'agent_status': sentinel.agent_status_routing_key,
+                },
+            },
+            'uuid': sentinel.uuid,
+        }
+        self.login_action = LoginAction(self.ami_client,
+                                        self.queue_log_manager,
+                                        self.agent_status_dao,
+                                        self.line_dao,
+                                        self.bus_producer,
+                                        self.config)
 
     def test_login_agent(self):
         agent_id = 10
@@ -53,3 +71,8 @@ class TestLoginAction(unittest.TestCase):
         self.queue_log_manager.on_agent_logged_in.assert_called_once_with(agent_number, extension, context)
         self.ami_client.queue_add.assert_called_once_with(queue.name, ANY, ANY, state_interface, queue.penalty, skills)
         self.ami_client.agent_login.assert_called_once_with(agent_id, agent_number, extension, context)
+        self.bus_producer.publish_event.assert_called_once_with(
+            sentinel.exchange_name,
+            sentinel.agent_status_routing_key,
+            AgentStatusUpdateEvent(sentinel.uuid, 10, 'logged_in')
+        )
