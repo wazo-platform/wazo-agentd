@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2015 Avencall
+# Copyright (C) 2012-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,3 +14,20 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
+
+
+class CommandResponse(object):
+
+    def __init__(self, error=None, value=None):
+        self.error = error
+        self.value = value
+
+    def marshal(self):
+        return {
+            'error': self.error,
+            'value': self.value,
+        }
+
+    @classmethod
+    def unmarshal(cls, msg):
+        return cls(msg['error'], msg['value'])

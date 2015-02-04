@@ -16,15 +16,32 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import logging
+import json
 
 from xivo_agent.exception import AgentServerError
 from xivo_bus.ctl.producer import BusProducer
 from xivo_bus.ctl.rpc.amqp_transport import AMQPTransportServer
-from xivo_bus.ctl.rpc.response import CommandResponse
+from xivo_agent.ctl.response import CommandResponse
 from xivo_bus.ctl.marshaler import Marshaler
 from xivo_bus.resources.agent import error
 
 logger = logging.getLogger(__name__)
+
+
+class _AgentServerMarshaler(Marshaler):
+
+    def __init__(self, commands_registry):
+        self._commands_registry = commands_registry
+
+    def unmarshal_command(self, data):
+        msg = self.unmarshal_message(data)
+        msg_name = msg['name']
+        msg_cmd = msg['data']
+        cmd_class = self._commands_registry[msg_name]
+        return cmd_class.unmarshal(msg_cmd)
+
+    def marshal_response(self, response):
+        return json.dumps(response.marshal())
 
 
 class AgentServer(BusProducer):
@@ -71,7 +88,7 @@ class AgentServer(BusProducer):
         return self._marshaler.marshal_response(response)
 
     def run(self):
-        self._marshaler = Marshaler(self._commands_registry)
+        self._marshaler = _AgentServerMarshaler(self._commands_registry)
         self._transport.run()
 
     def close(self):

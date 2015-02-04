@@ -19,10 +19,34 @@ import unittest
 
 from mock import Mock, patch
 
-from ..server import AgentServer
+from ..server import AgentServer, _AgentServerMarshaler
+from ..response import CommandResponse
 from xivo_agent.exception import AgentServerError
-from xivo_bus.ctl.rpc.response import CommandResponse
-from xivo_bus.ctl.marshaler import Marshaler
+
+
+class TestAgentServerMarshaler(unittest.TestCase):
+
+    def test_marshal_response(self):
+        response = Mock()
+        response.marshal.return_value = {'value': 'success', 'error': None}
+
+        marshal = _AgentServerMarshaler({})
+
+        result = marshal.marshal_response(response)
+
+        response.marshal.assert_called_once_with()
+        self.assertEquals(result, '{"value": "success", "error": null}')
+
+    def test_unmarshal_command(self):
+        json = '{"name": "foobar", "data": {"a":1}}'
+
+        command = Mock()
+        registry = {'foobar': command}
+
+        marshal = _AgentServerMarshaler(registry)
+        marshal.unmarshal_command(json)
+
+        command.unmarshal.assert_called_once_with({'a': 1})
 
 
 class TestAgentServer(unittest.TestCase):
@@ -61,7 +85,7 @@ class TestAgentServer(unittest.TestCase):
         mock_command_response.return_value = command_response
         callback = Mock(side_effect=AgentServerError())
 
-        marshaler = Mock(Marshaler)
+        marshaler = Mock(_AgentServerMarshaler)
         server = AgentServer()
         server._marshaler = marshaler
 
