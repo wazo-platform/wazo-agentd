@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2012-2014 Avencall
+# Copyright (C) 2012-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,12 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from xivo_bus.ctl.rpc.server import BusCtlServerError
 from xivo_bus.resources.agent import error as error_messages
 
 
-class AgentServerError(BusCtlServerError):
-    pass
+class AgentServerError(Exception):
+
+    error = 'server error'
 
 
 class NoSuchAgentError(AgentServerError):
