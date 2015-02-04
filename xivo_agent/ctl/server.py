@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2012-2014 Avencall
+# Copyright (C) 2012-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,9 +15,65 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from xivo_bus.ctl.rpc.server import BusCtlServer
+import logging
+
+from xivo_agent.exception import AgentServerError
+from xivo_bus.ctl.producer import BusProducer
+from xivo_bus.ctl.rpc.amqp_transport import AMQPTransportServer
+from xivo_bus.ctl.rpc.response import CommandResponse
+from xivo_bus.ctl.marshaler import Marshaler
+from xivo_bus.resources.agent import error
+
+logger = logging.getLogger(__name__)
 
 
-class AgentServer(BusCtlServer):
+class AgentServer(BusProducer):
 
     _QUEUE_NAME = 'xivo_agent'
+
+    def __init__(self, config=None):
+        super(AgentServer, self).__init__(config)
+        self._transport = self._setup_transport()
+        self._commands_registry = {}
+        self._commands_callback = {}
+
+    def _setup_transport(self):
+        transport = AMQPTransportServer.create_and_connect(self._process_next_command,
+                                                           self._QUEUE_NAME,
+                                                           config=self._config)
+        return transport
+
+    def add_command(self, cmd_class, callback):
+        if cmd_class.name in self._commands_registry:
+            raise Exception('command %r is already registered' % cmd_class.name)
+
+        self._commands_registry[cmd_class.name] = cmd_class
+        self._commands_callback[cmd_class.name] = callback
+
+    def _process_next_command(self, request):
+        response = CommandResponse()
+        try:
+            command = self._marshaler.unmarshal_command(request)
+            callback = self._commands_callback[command.name]
+            response.value = self._call_callback(callback, command)
+        except AgentServerError as e:
+            response.error = e.error
+        except Exception:
+            logger.error('Error while processing command', exc_info=True)
+            response.error = error.SERVER_ERROR
+
+        return self._reply_response(response)
+
+    def _call_callback(self, callback, command):
+        return callback(command)
+
+    def _reply_response(self, response):
+        return self._marshaler.marshal_response(response)
+
+    def run(self):
+        self._marshaler = Marshaler(self._commands_registry)
+        self._transport.run()
+
+    def close(self):
+        self._transport.close()
+        self._transport = None
