@@ -25,7 +25,7 @@ from xivo_bus.ctl.rpc.response import CommandResponse
 from xivo_bus.ctl.marshaler import Marshaler
 
 
-class TestAgentServer(unittest.TestCase):
+class TestBusCtlServer(unittest.TestCase):
 
     @patch('xivo_bus.ctl.rpc.amqp_transport.AMQPTransportServer.create_and_connect', Mock())
     def test_command_callback_is_called_by_process_next_command(self):
