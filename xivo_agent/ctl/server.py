@@ -19,10 +19,10 @@ import logging
 import json
 
 from xivo_agent.exception import AgentServerError
-from xivo_bus.ctl.producer import BusProducer
-from xivo_bus.ctl.rpc.amqp_transport import AMQPTransportServer
+from xivo_agent.ctl.producer import BusProducer
+from xivo_agent.ctl.amqp_transport import AMQPTransportServer
 from xivo_agent.ctl.response import CommandResponse
-from xivo_bus.ctl.marshaler import Marshaler
+from xivo_bus import Marshaler
 from xivo_bus.resources.agent import error
 
 logger = logging.getLogger(__name__)

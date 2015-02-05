@@ -51,7 +51,7 @@ class TestAgentServerMarshaler(unittest.TestCase):
 
 class TestAgentServer(unittest.TestCase):
 
-    @patch('xivo_bus.ctl.rpc.amqp_transport.AMQPTransportServer.create_and_connect', Mock())
+    @patch('xivo_agent.ctl.amqp_transport.AMQPTransportServer.create_and_connect', Mock())
     def test_command_callback_is_called_by_process_next_command(self):
         callback = Mock()
         marshaler = Mock()
@@ -72,7 +72,7 @@ class TestAgentServer(unittest.TestCase):
 
         callback.assert_called_once_with(command)
 
-    @patch('xivo_bus.ctl.rpc.amqp_transport.AMQPTransportServer.create_and_connect', Mock())
+    @patch('xivo_agent.ctl.amqp_transport.AMQPTransportServer.create_and_connect', Mock())
     @patch('xivo_agent.ctl.server.CommandResponse')
     def test_server_sends_marshaled_exception_when_callback_raises_exception(self, mock_command_response):
         request = '{"name": "foobar", "arg": {"arg1": "value"}}'

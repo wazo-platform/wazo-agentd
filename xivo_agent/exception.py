@@ -16,6 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 from xivo_bus.resources.agent import error as error_messages
+from xivo_agent.ctl.producer import BusProducerError
+
+
+class AgentClientError(BusProducerError):
+    pass
 
 
 class AgentServerError(Exception):
