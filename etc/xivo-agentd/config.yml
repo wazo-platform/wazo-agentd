@@ -15,6 +15,9 @@ logfile: /var/log/xivo-agentd.log
 # PID file.
 pidfile: /var/run/xivo-agentd.pid
 
+# Database connection informations.
+db_uri: postgresql://asterisk:proformatique@localhost/asterisk
+
 # AMI (Asterisk Manager Interface) connection informations.
 ami:
   host: localhost

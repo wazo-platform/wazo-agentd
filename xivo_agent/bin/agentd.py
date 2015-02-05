@@ -18,6 +18,7 @@
 import argparse
 import logging
 import signal
+import xivo_dao
 from contextlib import contextmanager
 from xivo.chain_map import ChainMap
 from xivo.config_helper import read_config_file_hierarchy
@@ -85,6 +86,7 @@ def _read_db_config():
 def main():
     cli_config = _parse_args()
     file_config = read_config_file_hierarchy(ChainMap(cli_config, _DEFAULT_CONFIG))
+    xivo_dao.init_db_from_config(ChainMap(cli_config, file_config, _DEFAULT_CONFIG))
     db_config = _read_db_config()
 
     config = ChainMap(cli_config, file_config, db_config, _DEFAULT_CONFIG)
