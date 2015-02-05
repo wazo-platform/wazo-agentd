@@ -20,8 +20,6 @@ import pika
 from xivo_agent.ctl.amqp_transport import AMQPTransportClient
 from xivo_agent.ctl.config import BusConfig
 
-from xivo_bus import Marshaler
-
 
 class BusProducerError(Exception):
 
@@ -44,7 +42,6 @@ class BusProducer(object):
             config = BusConfig()
         self._config = config
         self._transport = None
-        self._marshaler = Marshaler()
 
     def close(self):
         if not self.connected:
@@ -73,5 +70,5 @@ class BusProducer(object):
         self._transport.exchange_declare(name, exchange_type, durable)
 
     def publish_event(self, exchange, routing_key, event):
-        body = self._marshaler.marshal_command(event)
+        body = self._marshaler.marshal_message(event)
         self._transport.send(exchange, routing_key, body)
