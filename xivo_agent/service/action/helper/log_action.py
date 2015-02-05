@@ -15,30 +15,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-from xivo_agent.exception import MissingConfigurationError
+from xivo_bus import Marshaler
 from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
+
+from xivo_agent.exception import MissingConfigurationError
 
 
 class LogActionMixin(object):
 
-    def __init__(self, bus_producer, config):
-        self._bus_producer = bus_producer
-
+    def __init__(self, config, bus_publish_fn):
         try:
             self._uuid = config['uuid']
-            self._exchange_name = config['bus']['exchange_name']
-            self._exchange_type = config['bus']['exchange_type']
-            self._exchange_durable = config['bus']['exchange_durable']
             self._routing_key = config['bus']['routing_keys']['agent_status']
         except KeyError as e:
             raise MissingConfigurationError(str(e))
 
-        self._bus_producer.declare_exchange(self._exchange_name,
-                                            self._exchange_type,
-                                            self._exchange_durable)
+        self._marshaler = Marshaler()
+        self._publish_event = bus_publish_fn
 
     def _send_bus_status_update(self, agent_id):
-        msg = AgentStatusUpdateEvent(self._uuid, agent_id, self.agent_status)
-        self._bus_producer.publish_event(self._exchange_name,
-                                         self._routing_key,
-                                         msg)
+        msg = self._marshaler.marshal_message(
+            AgentStatusUpdateEvent(self._uuid, agent_id, self.agent_status))
+        self._publish_event(msg, routing_key=self._routing_key)

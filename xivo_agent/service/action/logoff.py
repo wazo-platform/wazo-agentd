@@ -24,8 +24,8 @@ class LogoffAction(LogActionMixin):
 
     agent_status = 'logged_out'
 
-    def __init__(self, ami_client, queue_log_manager, agent_status_dao, bus_producer, config):
-        super(LogoffAction, self).__init__(bus_producer, config)
+    def __init__(self, ami_client, queue_log_manager, agent_status_dao, config, publish_event_fn):
+        super(LogoffAction, self).__init__(config, publish_event_fn)
         self._ami_client = ami_client
         self._queue_log_manager = queue_log_manager
         self._agent_status_dao = agent_status_dao

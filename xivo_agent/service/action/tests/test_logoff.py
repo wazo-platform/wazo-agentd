@@ -17,9 +17,13 @@
 
 import datetime
 import unittest
+
 from mock import Mock, ANY, sentinel
-from xivo_agent.service.action.logoff import LogoffAction
+
+from xivo_bus import Marshaler
 from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
+
+from xivo_agent.service.action.logoff import LogoffAction
 
 
 class TestLogoffAction(unittest.TestCase):
@@ -28,7 +32,6 @@ class TestLogoffAction(unittest.TestCase):
         self.ami_client = Mock()
         self.queue_log_manager = Mock()
         self.agent_status_dao = Mock()
-        self.bus_producer = Mock()
         self.config = {
             'bus': {
                 'exchange_name': sentinel.exchange_name,
@@ -38,14 +41,16 @@ class TestLogoffAction(unittest.TestCase):
                     'agent_status': sentinel.agent_status_routing_key,
                 },
             },
-            'uuid': sentinel.uuid,
+            'uuid': 'my-uuid',
         }
 
+        self.publish_event = Mock()
         self.logoff_action = LogoffAction(self.ami_client,
                                           self.queue_log_manager,
                                           self.agent_status_dao,
-                                          self.bus_producer,
-                                          self.config)
+                                          self.config,
+                                          self.publish_event)
+        self.marshaler = Marshaler()
 
     def test_logoff_agent(self):
         agent_id = 10
@@ -67,8 +72,7 @@ class TestLogoffAction(unittest.TestCase):
                                                                            agent_status.context, ANY)
         self.agent_status_dao.remove_agent_from_all_queues.assert_called_once_with(agent_id)
         self.agent_status_dao.log_off_agent(agent_id)
-        self.bus_producer.publish_event.assert_called_once_with(
-            sentinel.exchange_name,
-            sentinel.agent_status_routing_key,
-            AgentStatusUpdateEvent(sentinel.uuid, 10, 'logged_out')
+        self.publish_event.assert_called_once_with(
+            self.marshaler.marshal_message(AgentStatusUpdateEvent('my-uuid', 10, 'logged_out')),
+            routing_key=sentinel.agent_status_routing_key,
         )

@@ -81,9 +81,9 @@ class TestBusProducer(unittest.TestCase):
         exchange = 'xivo-ami'
         routing_key = event.name
         request = Mock()
-        self.marshaler.marshal_command.return_value = request
+        self.marshaler.marshal_message.return_value = request
 
         self.bus_producer.publish_event(exchange, routing_key, event)
 
-        self.marshaler.marshal_command.assert_called_once_with(event)
+        self.marshaler.marshal_message.assert_called_once_with(event)
         self.transport.send.assert_called_once_with(exchange, routing_key, request)

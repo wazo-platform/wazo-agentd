@@ -27,8 +27,8 @@ class LoginAction(LogActionMixin):
 
     agent_status = 'logged_in'
 
-    def __init__(self, ami_client, queue_log_manager, agent_status_dao, line_dao, bus_producer, config):
-        super(LoginAction, self).__init__(bus_producer, config)
+    def __init__(self, ami_client, queue_log_manager, agent_status_dao, line_dao, config, publish_event_fn):
+        super(LoginAction, self).__init__(config, publish_event_fn)
         self._ami_client = ami_client
         self._queue_log_manager = queue_log_manager
         self._agent_status_dao = agent_status_dao
