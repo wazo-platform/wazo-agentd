@@ -17,9 +17,10 @@
 
 from collections import namedtuple
 
-from xivo_agent.ctl.response import CommandResponse
 from xivo_bus import Marshaler
-from xivo_bus.resources.agent import command
+
+from xivo_agent.ctl.response import CommandResponse
+from xivo_agent.resources.agent import command
 from xivo_agent.exception import AgentClientError
 from xivo_agent.ctl.producer import BusProducer
 

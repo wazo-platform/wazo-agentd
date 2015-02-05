@@ -23,7 +23,7 @@ from xivo_agent.ctl.producer import BusProducer
 from xivo_agent.ctl.amqp_transport import AMQPTransportServer
 from xivo_agent.ctl.response import CommandResponse
 from xivo_bus import Marshaler
-from xivo_bus.resources.agent import error
+from xivo_agent.resources.agent import error
 
 logger = logging.getLogger(__name__)
 

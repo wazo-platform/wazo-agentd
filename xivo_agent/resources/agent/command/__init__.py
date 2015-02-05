@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2015 Avencall
+# Copyright (C) 2012-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,22 +15,5 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import logging
-from xivo import debug
-from xivo_agent.resources.agent import command as commands
-
-logger = logging.getLogger(__name__)
-
-
-class RelogHandler(object):
-
-    def __init__(self, relog_manager):
-        self._relog_manager = relog_manager
-
-    def register_commands(self, agent_server):
-        agent_server.add_command(commands.RelogAllCommand, self.handle_relog_all)
-
-    @debug.trace_duration
-    def handle_relog_all(self, command):
-        logger.info('Executing relog all command')
-        self._relog_manager.relog_all_agents()
+from .common import *
+from .login import LoginByIDCommand, LoginByNumberCommand

@@ -15,22 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import logging
-from xivo import debug
-from xivo_agent.resources.agent import command as commands
+SERVER_ERROR = 'server error'
+CLIENT_ERROR = 'client error'
 
-logger = logging.getLogger(__name__)
-
-
-class RelogHandler(object):
-
-    def __init__(self, relog_manager):
-        self._relog_manager = relog_manager
-
-    def register_commands(self, agent_server):
-        agent_server.add_command(commands.RelogAllCommand, self.handle_relog_all)
-
-    @debug.trace_duration
-    def handle_relog_all(self, command):
-        logger.info('Executing relog all command')
-        self._relog_manager.relog_all_agents()
+NO_SUCH_AGENT = 'no such agent'
+NO_SUCH_QUEUE = 'no such queue'
+ALREADY_LOGGED = 'already logged'
+NOT_LOGGED = 'not logged in'
+ALREADY_IN_USE = 'extension and context already in use'
+ALREADY_IN_QUEUE = 'agent already in queue'
+NOT_IN_QUEUE = 'agent not in queue'
+NO_SUCH_EXTEN = 'no such extension and context'

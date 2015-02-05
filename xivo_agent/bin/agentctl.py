@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2012-2014 Avencall
+# Copyright (C) 2012-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,10 +19,12 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import argparse
+
 from contextlib import contextmanager
 from operator import attrgetter
+
 from xivo.cli import BaseCommand, Interpreter, UsageError
-from xivo_bus.resources.agent.client import AgentClient
+from xivo_agent.ctl.client import AgentClient
 
 
 def main():
