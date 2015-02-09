@@ -28,6 +28,7 @@ from xivo.config_helper import read_config_file_hierarchy
 from xivo.daemonize import pidfile_context
 from xivo.xivo_logging import setup_logging
 from xivo_agent import ami
+from xivo_agent.ctl.config import BusConfig
 from xivo_agent.ctl.server import AgentServer
 from xivo_agent.dao import QueueDAOAdapter, AgentDAOAdapter
 from xivo_agent.queuelog import QueueLogManager
@@ -56,7 +57,6 @@ from xivo_agent.service.manager.on_queue_updated import OnQueueUpdatedManager
 from xivo_agent.service.manager.pause import PauseManager
 from xivo_agent.service.manager.relog import RelogManager
 from xivo_agent.service.manager.remove_member import RemoveMemberManager
-from xivo_bus.ctl.config import BusConfig
 from xivo_dao import agent_dao as orig_agent_dao
 from xivo_dao import agent_status_dao
 from xivo_dao import line_dao
