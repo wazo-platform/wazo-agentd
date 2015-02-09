@@ -56,7 +56,7 @@ class TestLoginAction(unittest.TestCase):
                                         self.line_dao,
                                         self.config,
                                         self.publish_event)
-        self.marshaler = Marshaler()
+        self.marshaler = Marshaler('my-uuid')
 
     def test_login_agent(self):
         agent_id = 10

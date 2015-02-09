@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 class _AgentServerMarshaler(Marshaler):
 
     def __init__(self, commands_registry):
+        super(_AgentServerMarshaler, self).__init__(None)
         self._commands_registry = commands_registry
 
     def unmarshal_command(self, data):

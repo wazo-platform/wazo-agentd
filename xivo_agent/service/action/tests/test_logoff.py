@@ -50,7 +50,7 @@ class TestLogoffAction(unittest.TestCase):
                                           self.agent_status_dao,
                                           self.config,
                                           self.publish_event)
-        self.marshaler = Marshaler()
+        self.marshaler = Marshaler('my-uuid')
 
     def test_logoff_agent(self):
         agent_id = 10
