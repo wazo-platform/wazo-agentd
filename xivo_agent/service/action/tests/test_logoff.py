@@ -73,6 +73,6 @@ class TestLogoffAction(unittest.TestCase):
         self.agent_status_dao.remove_agent_from_all_queues.assert_called_once_with(agent_id)
         self.agent_status_dao.log_off_agent(agent_id)
         self.publish_event.assert_called_once_with(
-            self.marshaler.marshal_message(AgentStatusUpdateEvent('my-uuid', 10, 'logged_out')),
+            self.marshaler.marshal_message(AgentStatusUpdateEvent(10, 'logged_out')),
             routing_key=sentinel.agent_status_routing_key,
         )

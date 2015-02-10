@@ -35,5 +35,5 @@ class LogActionMixin(object):
 
     def _send_bus_status_update(self, agent_id):
         msg = self._marshaler.marshal_message(
-            AgentStatusUpdateEvent(self._uuid, agent_id, self.agent_status))
+            AgentStatusUpdateEvent(agent_id, self.agent_status))
         self._publish_event(msg, routing_key=self._routing_key)

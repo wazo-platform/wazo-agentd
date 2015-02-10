@@ -81,6 +81,6 @@ class TestLoginAction(unittest.TestCase):
         self.ami_client.queue_add.assert_called_once_with(queue.name, ANY, ANY, state_interface, queue.penalty, skills)
         self.ami_client.agent_login.assert_called_once_with(agent_id, agent_number, extension, context)
         self.publish_event.assert_called_once_with(
-            self.marshaler.marshal_message(AgentStatusUpdateEvent('my-uuid', 10, 'logged_in')),
+            self.marshaler.marshal_message(AgentStatusUpdateEvent(10, 'logged_in')),
             routing_key=sentinel.agent_status_routing_key,
         )
