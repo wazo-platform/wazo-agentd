@@ -63,7 +63,6 @@ from xivo_dao import line_dao
 from xivo_dao import queue_dao as orig_queue_dao
 from xivo_dao import queue_log_dao
 from xivo_dao import queue_member_dao
-from xivo_dao.data_handler.infos import services as info_services
 
 _DEFAULT_CONFIG = {
     'debug': False,
@@ -82,17 +81,12 @@ _DEFAULT_CONFIG = {
 logger = logging.getLogger(__name__)
 
 
-def _read_db_config():
-    return {'uuid': info_services.get().uuid}
-
-
 def main():
     cli_config = _parse_args()
     file_config = read_config_file_hierarchy(ChainMap(cli_config, _DEFAULT_CONFIG))
-    xivo_dao.init_db_from_config(ChainMap(cli_config, file_config, _DEFAULT_CONFIG))
-    db_config = _read_db_config()
+    config = ChainMap(cli_config, file_config, _DEFAULT_CONFIG)
 
-    config = ChainMap(cli_config, file_config, db_config, _DEFAULT_CONFIG)
+    xivo_dao.init_db_from_config(config)
 
     setup_logging(config['logfile'], config['foreground'], config['debug'])
 
