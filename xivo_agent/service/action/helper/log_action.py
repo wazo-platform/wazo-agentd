@@ -30,10 +30,10 @@ class LogActionMixin(object):
         except KeyError as e:
             raise MissingConfigurationError(str(e))
 
-        self._marshaler = Marshaler()
+        self._marshaler = Marshaler(self._uuid)
         self._publish_event = bus_publish_fn
 
     def _send_bus_status_update(self, agent_id):
         msg = self._marshaler.marshal_message(
-            AgentStatusUpdateEvent(self._uuid, agent_id, self.agent_status))
+            AgentStatusUpdateEvent(agent_id, self.agent_status))
         self._publish_event(msg, routing_key=self._routing_key)

@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+import json
+
 from collections import namedtuple
 
 from xivo_bus import Marshaler
@@ -29,12 +31,16 @@ _AgentStatus = namedtuple('_AgentStatus', ['id', 'number', 'extension', 'context
 
 class _AgentClientMarshaler(Marshaler):
 
+    def __init__(self):
+        super(_AgentClientMarshaler, self).__init__(None)
+
     def unmarshal_response(self, data):
         msg = self.unmarshal_message(data)
         return CommandResponse.unmarshal(msg)
 
     def marshal_command(self, command):
-        return self.marshal_message(command)
+        return json.dumps({'name': command.name,
+                           'data': command.marshal()})
 
 
 class AgentClient(BusProducer):
@@ -44,11 +50,11 @@ class AgentClient(BusProducer):
     """
 
     _QUEUE_NAME = 'xivo_agent'
-    _marshaler = _AgentClientMarshaler()
 
     def __init__(self, fetch_response=True, config=None):
         super(AgentClient, self).__init__(config=config)
         self._fetch_response = fetch_response
+        self._marshaler = _AgentClientMarshaler()
 
     def add_agent_to_queue(self, agent_id, queue_id):
         cmd = command.AddToQueueCommand(agent_id, queue_id)
