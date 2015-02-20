@@ -17,7 +17,6 @@
 
 import logging
 from xivo import debug
-from xivo_agent.resources.agent import command as commands
 
 logger = logging.getLogger(__name__)
 
@@ -27,10 +26,7 @@ class RelogHandler(object):
     def __init__(self, relog_manager):
         self._relog_manager = relog_manager
 
-    def register_commands(self, agent_server):
-        agent_server.add_command(commands.RelogAllCommand, self.handle_relog_all)
-
     @debug.trace_duration
-    def handle_relog_all(self, command):
+    def handle_relog_all(self):
         logger.info('Executing relog all command')
         self._relog_manager.relog_all_agents()

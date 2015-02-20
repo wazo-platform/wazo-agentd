@@ -17,7 +17,6 @@
 
 import logging
 from xivo import debug
-from xivo_agent.resources.agent import command as commands
 
 logger = logging.getLogger(__name__)
 
@@ -28,29 +27,26 @@ class StatusHandler(object):
         self._agent_dao = agent_dao
         self._agent_status_dao = agent_status_dao
 
-    def register_commands(self, agent_server):
-        agent_server.add_command(commands.StatusByIDCommand, self.handle_status_by_id)
-        agent_server.add_command(commands.StatusByNumberCommand, self.handle_status_by_number)
-        agent_server.add_command(commands.StatusesCommand, self.handle_statuses)
-
     @debug.trace_duration
-    def handle_status_by_id(self, command):
-        logger.info('Executing status command (ID %s)', command.agent_id)
-        agent = self._agent_dao.get_agent(command.agent_id)
+    def handle_status_by_id(self, agent_id):
+        logger.info('Executing status command (ID %s)', agent_id)
+        agent = self._agent_dao.get_agent(agent_id)
         return self._handle_status(agent)
 
     @debug.trace_duration
-    def handle_status_by_number(self, command):
-        logger.info('Executing status command (number %s)', command.agent_number)
-        agent = self._agent_dao.get_agent_by_number(command.agent_number)
+    def handle_status_by_number(self, agent_number):
+        logger.info('Executing status command (number %s)', agent_number)
+        agent = self._agent_dao.get_agent_by_number(agent_number)
         return self._handle_status(agent)
 
     @debug.trace_duration
-    def handle_statuses(self, command):
+    def handle_statuses(self,):
         logger.info('Executing statuses command')
         agent_statuses = self._agent_status_dao.get_statuses()
         return [
             {'id': status.agent_id,
+             # TODO fill origin_uuid
+             'origin_uuid': None,
              'number': status.agent_number,
              'logged': status.logged,
              'extension': status.extension,
@@ -70,6 +66,8 @@ class StatusHandler(object):
             context = agent_status.context
         return {
             'id': agent.id,
+            # TODO fill origin_uuid
+            'origin_uuid': None,
             'number': agent.number,
             'logged': logged,
             'extension': extension,

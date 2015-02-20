@@ -18,6 +18,7 @@
 import argparse
 import logging
 import signal
+import threading
 import xivo_dao
 
 from kombu import Connection, Producer, Exchange
@@ -28,8 +29,7 @@ from xivo.config_helper import read_config_file_hierarchy
 from xivo.daemonize import pidfile_context
 from xivo.xivo_logging import setup_logging
 from xivo_agent import ami
-from xivo_agent.ctl.config import BusConfig
-from xivo_agent.ctl.server import AgentServer
+from xivo_agent import http
 from xivo_agent.dao import QueueDAOAdapter, AgentDAOAdapter
 from xivo_agent.queuelog import QueueLogManager
 from xivo_agent.service.action.add import AddToQueueAction
@@ -123,52 +123,113 @@ def _run(config):
     agent_dao = AgentDAOAdapter(orig_agent_dao)
     queue_dao = QueueDAOAdapter(orig_queue_dao)
     with _new_ami_client(config) as ami_client:
-        with _new_agent_server(config) as agent_server:
-            bus_url = 'amqp://{username}:{password}@{host}:{port}//'.format(**config['bus'])
-            with Connection(bus_url) as conn:
-                bus_exchange = Exchange(config['bus']['exchange_name'],
-                                        type=config['bus']['exchange_type'])
-                bus_producer = Producer(conn, exchange=bus_exchange, auto_declare=True)
-                publish_event_fn = conn.ensure(bus_producer, bus_producer.publish,
-                                               errback=_on_bus_publish_error, max_retries=2,
-                                               interval_start=1)
+        bus_url = 'amqp://{username}:{password}@{host}:{port}//'.format(**config['bus'])
+        with Connection(bus_url) as conn:
+            bus_exchange = Exchange(config['bus']['exchange_name'],
+                                    type=config['bus']['exchange_type'])
+            bus_producer = Producer(conn, exchange=bus_exchange, auto_declare=True)
+            publish_event_fn = conn.ensure(bus_producer, bus_producer.publish,
+                                           errback=_on_bus_publish_error, max_retries=2,
+                                           interval_start=1)
 
-                queue_log_manager = QueueLogManager(queue_log_dao)
+            queue_log_manager = QueueLogManager(queue_log_dao)
 
-                add_to_queue_action = AddToQueueAction(ami_client, agent_status_dao)
-                login_action = LoginAction(ami_client, queue_log_manager, agent_status_dao, line_dao, config, publish_event_fn)
-                logoff_action = LogoffAction(ami_client, queue_log_manager, agent_status_dao, config, publish_event_fn)
-                pause_action = PauseAction(ami_client)
-                remove_from_queue_action = RemoveFromQueueAction(ami_client, agent_status_dao)
-                update_penalty_action = UpdatePenaltyAction(ami_client, agent_status_dao)
+            add_to_queue_action = AddToQueueAction(ami_client, agent_status_dao)
+            login_action = LoginAction(ami_client, queue_log_manager, agent_status_dao, line_dao, config, publish_event_fn)
+            logoff_action = LogoffAction(ami_client, queue_log_manager, agent_status_dao, config, publish_event_fn)
+            pause_action = PauseAction(ami_client)
+            remove_from_queue_action = RemoveFromQueueAction(ami_client, agent_status_dao)
+            update_penalty_action = UpdatePenaltyAction(ami_client, agent_status_dao)
 
-                add_member_manager = AddMemberManager(add_to_queue_action, ami_client, agent_status_dao, queue_member_dao)
-                login_manager = LoginManager(login_action, agent_status_dao)
-                logoff_manager = LogoffManager(logoff_action, agent_status_dao)
-                on_agent_deleted_manager = OnAgentDeletedManager(logoff_manager, agent_status_dao)
-                on_agent_updated_manager = OnAgentUpdatedManager(add_to_queue_action, remove_from_queue_action, update_penalty_action, agent_status_dao)
-                on_queue_added_manager = OnQueueAddedManager(add_to_queue_action, agent_status_dao)
-                on_queue_deleted_manager = OnQueueDeletedManager(agent_status_dao)
-                on_queue_updated_manager = OnQueueUpdatedManager(add_to_queue_action, remove_from_queue_action, agent_status_dao)
-                pause_manager = PauseManager(pause_action)
-                relog_manager = RelogManager(login_action, logoff_action, agent_dao, agent_status_dao)
-                remove_member_manager = RemoveMemberManager(remove_from_queue_action, ami_client, agent_status_dao, queue_member_dao)
+            add_member_manager = AddMemberManager(add_to_queue_action, ami_client, agent_status_dao, queue_member_dao)
+            login_manager = LoginManager(login_action, agent_status_dao)
+            logoff_manager = LogoffManager(logoff_action, agent_status_dao)
+            on_agent_deleted_manager = OnAgentDeletedManager(logoff_manager, agent_status_dao)
+            on_agent_updated_manager = OnAgentUpdatedManager(add_to_queue_action, remove_from_queue_action, update_penalty_action, agent_status_dao)
+            on_queue_added_manager = OnQueueAddedManager(add_to_queue_action, agent_status_dao)
+            on_queue_deleted_manager = OnQueueDeletedManager(agent_status_dao)
+            on_queue_updated_manager = OnQueueUpdatedManager(add_to_queue_action, remove_from_queue_action, agent_status_dao)
+            pause_manager = PauseManager(pause_action)
+            relog_manager = RelogManager(login_action, logoff_action, agent_dao, agent_status_dao)
+            remove_member_manager = RemoveMemberManager(remove_from_queue_action, ami_client, agent_status_dao, queue_member_dao)
 
-                handlers = [
-                    LoginHandler(login_manager, agent_dao),
-                    LogoffHandler(logoff_manager, agent_status_dao),
-                    MembershipHandler(add_member_manager, remove_member_manager, agent_dao, queue_dao),
-                    OnAgentHandler(on_agent_deleted_manager, on_agent_updated_manager, agent_dao),
-                    OnQueueHandler(on_queue_added_manager, on_queue_updated_manager, on_queue_deleted_manager, queue_dao),
-                    PauseHandler(pause_manager, agent_status_dao),
-                    RelogHandler(relog_manager),
-                    StatusHandler(agent_dao, agent_status_dao),
-                ]
+            server_proxy = ServerProxy(
+                LoginHandler(login_manager, agent_dao),
+                LogoffHandler(logoff_manager, agent_status_dao),
+                MembershipHandler(add_member_manager, remove_member_manager, agent_dao, queue_dao),
+                PauseHandler(pause_manager, agent_status_dao),
+                RelogHandler(relog_manager),
+                StatusHandler(agent_dao, agent_status_dao),
+            )
 
-                for handler in handlers:
-                    handler.register_commands(agent_server)
+            http_iface = http.HTTPInterface(config['rest_api']['listen'], config['rest_api']['port'], server_proxy)
 
-                agent_server.run()
+            # TODO start the bus consumer too here (in another thread)
+            http_iface.run()
+
+
+class ServerProxy(object):
+
+    def __init__(self, login_handler, logoff_handler, membership_handler, pause_handler, relog_handler, status_handler):
+        self._login_handler = login_handler
+        self._logoff_handler = logoff_handler
+        self._membership_handler = membership_handler
+        self._pause_handler = pause_handler
+        self._relog_handler = relog_handler
+        self._status_handler = status_handler
+        self._lock = threading.Lock()
+
+    def add_agent_to_queue(self, agent_id, queue_id):
+        with self._lock:
+            self._membership_handler.handle_add_to_queue(agent_id, queue_id)
+
+    def remove_agent_from_queue(self, agent_id, queue_id):
+        with self._lock:
+            self._membership_handler.handle_remove_from_queue(agent_id, queue_id)
+
+    def login_agent_by_id(self, agent_id, extension, context):
+        with self._lock:
+            self._login_handler.handle_login_by_id(agent_id, extension, context)
+
+    def login_agent_by_number(self, agent_number, extension, context):
+        with self._lock:
+            self._login_handler.handle_login_by_number(agent_number, extension, context)
+
+    def logoff_agent_by_id(self, agent_id):
+        with self._lock:
+            self._logoff_handler.handle_logoff_by_id(agent_id)
+
+    def logoff_agent_by_number(self, agent_number):
+        with self._lock:
+            self._logoff_handler.handle_logoff_by_number(agent_number)
+
+    def logoff_all(self):
+        with self._lock:
+            self._logoff_handler.handle_logoff_all()
+
+    def relog_all(self):
+        with self._lock:
+            self._relog_handler.handle_relog_all()
+
+    def pause_agent_by_number(self, agent_number):
+        with self._lock:
+            self._pause_handler.handle_pause_by_number(agent_number)
+
+    def unpause_agent_by_number(self, agent_number):
+        with self._lock:
+            self._pause_handler.handle_unpause_by_number(agent_number)
+
+    def get_agent_status_by_id(self, agent_id):
+        with self._lock:
+            return self._status_handler.handle_status_by_id(agent_id)
+
+    def get_agent_status_by_number(self, agent_number):
+        with self._lock:
+            return self._status_handler.handle_status_by_number(agent_number)
+
+    def get_agent_statuses(self):
+        with self._lock:
+            return self._status_handler.handle_statuses()
 
 
 def _on_bus_publish_error(exc, interval):
@@ -193,17 +254,6 @@ def _new_ami_client(config):
         yield ami_client
     finally:
         ami_client.close()
-
-
-@contextmanager
-def _new_agent_server(config):
-    bus_config = dict(config['bus'])
-    bus_config.pop('routing_keys')
-    agent_server = AgentServer(BusConfig(**bus_config))
-    try:
-        yield agent_server
-    finally:
-        agent_server.close()
 
 
 if __name__ == '__main__':

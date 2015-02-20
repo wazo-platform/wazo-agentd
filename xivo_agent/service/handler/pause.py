@@ -17,7 +17,6 @@
 
 import logging
 from xivo import debug
-from xivo_agent.resources.agent import command as commands
 
 logger = logging.getLogger(__name__)
 
@@ -28,18 +27,14 @@ class PauseHandler(object):
         self._pause_manager = pause_manager
         self._agent_status_dao = agent_status_dao
 
-    def register_commands(self, agent_server):
-        agent_server.add_command(commands.PauseByNumberCommand, self.handle_pause_by_number)
-        agent_server.add_command(commands.UnpauseByNumberCommand, self.handle_unpause_by_number)
-
     @debug.trace_duration
-    def handle_pause_by_number(self, command):
-        logger.info('Executing pause command (number %s)', command.agent_number)
-        agent_status = self._agent_status_dao.get_status_by_number(command.agent_number)
+    def handle_pause_by_number(self, agent_number):
+        logger.info('Executing pause command (number %s)', agent_number)
+        agent_status = self._agent_status_dao.get_status_by_number(agent_number)
         self._pause_manager.pause_agent(agent_status)
 
     @debug.trace_duration
-    def handle_unpause_by_number(self, command):
-        logger.info('Executing unpause command (number %s)', command.agent_number)
-        agent_status = self._agent_status_dao.get_status_by_number(command.agent_number)
+    def handle_unpause_by_number(self, agent_number):
+        logger.info('Executing unpause command (number %s)', agent_number)
+        agent_status = self._agent_status_dao.get_status_by_number(agent_number)
         self._pause_manager.unpause_agent(agent_status)

@@ -17,7 +17,6 @@
 
 import logging
 from xivo import debug
-from xivo_agent.resources.agent import command as commands
 
 logger = logging.getLogger(__name__)
 
@@ -28,25 +27,20 @@ class LogoffHandler(object):
         self._logoff_manager = logoff_manager
         self._agent_status_dao = agent_status_dao
 
-    def register_commands(self, agent_server):
-        agent_server.add_command(commands.LogoffByIDCommand, self.handle_logoff_by_id)
-        agent_server.add_command(commands.LogoffByNumberCommand, self.handle_logoff_by_number)
-        agent_server.add_command(commands.LogoffAllCommand, self.handle_logoff_all)
-
     @debug.trace_duration
-    def handle_logoff_by_id(self, command):
-        logger.info('Executing logoff command (ID %s)', command.agent_id)
-        agent_status = self._agent_status_dao.get_status(command.agent_id)
+    def handle_logoff_by_id(self, agent_id):
+        logger.info('Executing logoff command (ID %s)', agent_id)
+        agent_status = self._agent_status_dao.get_status(agent_id)
         self._handle_logoff(agent_status)
 
     @debug.trace_duration
-    def handle_logoff_by_number(self, command):
-        logger.info('Executing logoff command (number %s)', command.agent_number)
-        agent_status = self._agent_status_dao.get_status_by_number(command.agent_number)
+    def handle_logoff_by_number(self, agent_number):
+        logger.info('Executing logoff command (number %s)', agent_number)
+        agent_status = self._agent_status_dao.get_status_by_number(agent_number)
         self._handle_logoff(agent_status)
 
     @debug.trace_duration
-    def handle_logoff_all(self, command):
+    def handle_logoff_all(self):
         logger.info('Executing logoff all command')
         self._logoff_manager.logoff_all_agents()
 

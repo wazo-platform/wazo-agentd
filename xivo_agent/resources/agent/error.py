@@ -16,8 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 SERVER_ERROR = 'server error'
-CLIENT_ERROR = 'client error'
 
+# The following strings are part of the exposed HTTP API; don't rename them
+# or you'll break the API.
 NO_SUCH_AGENT = 'no such agent'
 NO_SUCH_QUEUE = 'no such queue'
 ALREADY_LOGGED = 'already logged'

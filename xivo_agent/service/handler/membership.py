@@ -17,7 +17,6 @@
 
 import logging
 from xivo import debug
-from xivo_agent.resources.agent import command as commands
 
 logger = logging.getLogger(__name__)
 
@@ -30,20 +29,16 @@ class MembershipHandler(object):
         self._agent_dao = agent_dao
         self._queue_dao = queue_dao
 
-    def register_commands(self, agent_server):
-        agent_server.add_command(commands.AddToQueueCommand, self.handle_add_to_queue)
-        agent_server.add_command(commands.RemoveFromQueueCommand, self.handle_remove_from_queue)
-
     @debug.trace_duration
-    def handle_add_to_queue(self, command):
-        logger.info('Executing add to queue command (agent ID %s, queue ID %s)', command.agent_id, command.queue_id)
-        agent = self._agent_dao.get_agent(command.agent_id)
-        queue = self._queue_dao.get_queue(command.queue_id)
+    def handle_add_to_queue(self, agent_id, queue_id):
+        logger.info('Executing add to queue command (agent ID %s, queue ID %s)', agent_id, queue_id)
+        agent = self._agent_dao.get_agent(agent_id)
+        queue = self._queue_dao.get_queue(queue_id)
         self._add_member_manager.add_agent_to_queue(agent, queue)
 
     @debug.trace_duration
-    def handle_remove_from_queue(self, command):
-        logger.info('Executing remove from queue command (agent ID %s, queue ID %s)', command.agent_id, command.queue_id)
-        agent = self._agent_dao.get_agent(command.agent_id)
-        queue = self._queue_dao.get_queue(command.queue_id)
+    def handle_remove_from_queue(self, agent_id, queue_id):
+        logger.info('Executing remove from queue command (agent ID %s, queue ID %s)', agent_id, queue_id)
+        agent = self._agent_dao.get_agent(agent_id)
+        queue = self._queue_dao.get_queue(queue_id)
         self._remove_member_manager.remove_agent_from_queue(agent, queue)
