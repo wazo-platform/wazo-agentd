@@ -29,6 +29,7 @@ from xivo.config_helper import read_config_file_hierarchy
 from xivo.daemonize import pidfile_context
 from xivo.xivo_logging import setup_logging
 from xivo_agent import ami
+from xivo_agent import amqp
 from xivo_agent import http
 from xivo_agent.dao import QueueDAOAdapter, AgentDAOAdapter
 from xivo_agent.queuelog import QueueLogManager
@@ -123,14 +124,13 @@ def _run(config):
     agent_dao = AgentDAOAdapter(orig_agent_dao)
     queue_dao = QueueDAOAdapter(orig_queue_dao)
     with _new_ami_client(config) as ami_client:
-        bus_url = 'amqp://{username}:{password}@{host}:{port}//'.format(**config['bus'])
-        with Connection(bus_url) as conn:
+        with _new_bus_connection(config) as producer_conn, _new_bus_connection(config) as consumer_conn:
             bus_exchange = Exchange(config['bus']['exchange_name'],
                                     type=config['bus']['exchange_type'])
-            bus_producer = Producer(conn, exchange=bus_exchange, auto_declare=True)
-            publish_event_fn = conn.ensure(bus_producer, bus_producer.publish,
-                                           errback=_on_bus_publish_error, max_retries=2,
-                                           interval_start=1)
+            bus_producer = Producer(producer_conn, exchange=bus_exchange, auto_declare=True)
+            publish_event_fn = producer_conn.ensure(bus_producer, bus_producer.publish,
+                                                    errback=_on_bus_publish_error, max_retries=2,
+                                                    interval_start=1)
 
             queue_log_manager = QueueLogManager(queue_log_dao)
 
@@ -157,23 +157,31 @@ def _run(config):
                 LoginHandler(login_manager, agent_dao),
                 LogoffHandler(logoff_manager, agent_status_dao),
                 MembershipHandler(add_member_manager, remove_member_manager, agent_dao, queue_dao),
+                OnAgentHandler(on_agent_deleted_manager, on_agent_updated_manager, agent_dao),
+                OnQueueHandler(on_queue_added_manager, on_queue_updated_manager, on_queue_deleted_manager, queue_dao),
                 PauseHandler(pause_manager, agent_status_dao),
                 RelogHandler(relog_manager),
                 StatusHandler(agent_dao, agent_status_dao),
             )
 
+            amqp_iface = amqp.AMQPInterface(consumer_conn, bus_exchange, server_proxy)
             http_iface = http.HTTPInterface(config['rest_api']['listen'], config['rest_api']['port'], server_proxy)
 
-            # TODO start the bus consumer too here (in another thread)
-            http_iface.run()
+            amqp_iface.start()
+            try:
+                http_iface.run()
+            finally:
+                amqp_iface.stop()
 
 
 class ServerProxy(object):
 
-    def __init__(self, login_handler, logoff_handler, membership_handler, pause_handler, relog_handler, status_handler):
+    def __init__(self, login_handler, logoff_handler, membership_handler, on_agent_handler, on_queue_handler, pause_handler, relog_handler, status_handler):
         self._login_handler = login_handler
         self._logoff_handler = logoff_handler
         self._membership_handler = membership_handler
+        self._on_agent_handler = on_agent_handler
+        self._on_queue_handler = on_queue_handler
         self._pause_handler = pause_handler
         self._relog_handler = relog_handler
         self._status_handler = status_handler
@@ -231,6 +239,26 @@ class ServerProxy(object):
         with self._lock:
             return self._status_handler.handle_statuses()
 
+    def on_agent_updated(self, agent_id):
+        with self._lock:
+            return self._on_agent_handler.handle_on_agent_updated(agent_id)
+
+    def on_agent_deleted(self, agent_id):
+        with self._lock:
+            return self._on_agent_handler.handle_on_agent_deleted(agent_id)
+
+    def on_queue_added(self, queue_id):
+        with self._lock:
+            return self._on_queue_handler.handle_on_queue_added(queue_id)
+
+    def on_queue_updated(self, queue_id):
+        with self._lock:
+            return self._on_queue_handler.handle_on_queue_updated(queue_id)
+
+    def on_queue_deleted(self, queue_id):
+        with self._lock:
+            return self._on_queue_handler.handle_on_queue_deleted(queue_id)
+
 
 def _on_bus_publish_error(exc, interval):
     logger.error('Error: %s', exc, exc_info=1)
@@ -254,6 +282,11 @@ def _new_ami_client(config):
         yield ami_client
     finally:
         ami_client.close()
+
+
+def _new_bus_connection(config):
+    url = 'amqp://{username}:{password}@{host}:{port}//'.format(**config['bus'])
+    return Connection(url)
 
 
 if __name__ == '__main__':

@@ -31,11 +31,9 @@ class TestLogoffHandler(unittest.TestCase):
     def test_handle_logoff_by_id(self):
         agent_id = 10
         agent_status = Mock()
-        command = Mock()
-        command.agent_id = agent_id
         self.agent_status_dao.get_status.return_value = agent_status
 
-        self.logoff_handler.handle_logoff_by_id(command)
+        self.logoff_handler.handle_logoff_by_id(agent_id)
 
         self.agent_status_dao.get_status.assert_called_once_with(agent_id)
         self.logoff_manager.logoff_agent.assert_called_once_with(agent_status)
@@ -43,11 +41,9 @@ class TestLogoffHandler(unittest.TestCase):
     def test_handle_logoff_by_number(self):
         agent_number = '10'
         agent_status = Mock()
-        command = Mock()
-        command.agent_number = agent_number
         self.agent_status_dao.get_status_by_number.return_value = agent_status
 
-        self.logoff_handler.handle_logoff_by_number(command)
+        self.logoff_handler.handle_logoff_by_number(agent_number)
 
         self.agent_status_dao.get_status_by_number.assert_called_once_with(agent_number)
         self.logoff_manager.logoff_agent.assert_called_once_with(agent_status)

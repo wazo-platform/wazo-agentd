@@ -29,8 +29,6 @@ class TestRelogHandler(unittest.TestCase):
         self.relog_handler = RelogHandler(self.relog_manager)
 
     def test_handle_relog_all(self):
-        command = Mock()
-
-        self.relog_handler.handle_relog_all(command)
+        self.relog_handler.handle_relog_all()
 
         self.relog_manager.relog_all_agents.assert_called_once_with()

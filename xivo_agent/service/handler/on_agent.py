@@ -17,7 +17,6 @@
 
 import logging
 from xivo import debug
-from xivo_agent.resources.agent import command as commands
 
 logger = logging.getLogger(__name__)
 
@@ -29,17 +28,13 @@ class OnAgentHandler(object):
         self._on_agent_updated_manager = on_agent_updated_manager
         self._agent_dao = agent_dao
 
-    def register_commands(self, agent_server):
-        agent_server.add_command(commands.OnAgentUpdatedCommand, self.handle_on_agent_updated)
-        agent_server.add_command(commands.OnAgentDeletedCommand, self.handle_on_agent_deleted)
-
     @debug.trace_duration
-    def handle_on_agent_updated(self, command):
-        logger.info('Executing on agent updated command (ID %s)', command.agent_id)
-        agent = self._agent_dao.get_agent(command.agent_id)
+    def handle_on_agent_updated(self, agent_id):
+        logger.info('Executing on agent updated command (ID %s)', agent_id)
+        agent = self._agent_dao.get_agent(agent_id)
         self._on_agent_updated_manager.on_agent_updated(agent)
 
     @debug.trace_duration
-    def handle_on_agent_deleted(self, command):
-        logger.info('Executing on agent deleted command (ID %s)', command.agent_id)
-        self._on_agent_deleted_manager.on_agent_deleted(command.agent_id)
+    def handle_on_agent_deleted(self, agent_id):
+        logger.info('Executing on agent deleted command (ID %s)', agent_id)
+        self._on_agent_deleted_manager.on_agent_deleted(agent_id)

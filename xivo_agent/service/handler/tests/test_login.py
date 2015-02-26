@@ -33,13 +33,9 @@ class TestLoginHandler(unittest.TestCase):
         extension = '1001'
         context = 'default'
         agent = Mock()
-        command = Mock()
-        command.agent_id = agent_id
-        command.extension = extension
-        command.context = context
         self.agent_dao.get_agent.return_value = agent
 
-        self.login_handler.handle_login_by_id(command)
+        self.login_handler.handle_login_by_id(agent_id, extension, context)
 
         self.agent_dao.get_agent.assert_called_once_with(agent_id)
         self.login_manager.login_agent.assert_called_once_with(agent, extension, context)
@@ -49,13 +45,9 @@ class TestLoginHandler(unittest.TestCase):
         extension = '1001'
         context = 'default'
         agent = Mock()
-        command = Mock()
-        command.agent_number = agent_number
-        command.extension = extension
-        command.context = context
         self.agent_dao.get_agent_by_number.return_value = agent
 
-        self.login_handler.handle_login_by_number(command)
+        self.login_handler.handle_login_by_number(agent_number, extension, context)
 
         self.agent_dao.get_agent_by_number.assert_called_once_with(agent_number)
         self.login_manager.login_agent.assert_called_once_with(agent, extension, context)

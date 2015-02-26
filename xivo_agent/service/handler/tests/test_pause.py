@@ -31,11 +31,9 @@ class TestPauseHandler(unittest.TestCase):
     def test_pause_by_number(self):
         agent_number = '42'
         agent_status = Mock()
-        command = Mock()
-        command.agent_number = agent_number
         self.agent_status_dao.get_status_by_number.return_value = agent_status
 
-        self.pause_handler.handle_pause_by_number(command)
+        self.pause_handler.handle_pause_by_number(agent_number)
 
         self.agent_status_dao.get_status_by_number.assert_called_once_with(agent_number)
         self.pause_manager.pause_agent.assert_called_once_with(agent_status)
@@ -43,11 +41,9 @@ class TestPauseHandler(unittest.TestCase):
     def test_unpause_by_number(self):
         agent_number = '42'
         agent_status = Mock()
-        command = Mock()
-        command.agent_number = agent_number
         self.agent_status_dao.get_status_by_number.return_value = agent_status
 
-        self.pause_handler.handle_unpause_by_number(command)
+        self.pause_handler.handle_unpause_by_number(agent_number)
 
         self.agent_status_dao.get_status_by_number.assert_called_once_with(agent_number)
         self.pause_manager.unpause_agent.assert_called_once_with(agent_status)

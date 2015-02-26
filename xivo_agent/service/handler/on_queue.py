@@ -17,7 +17,6 @@
 
 import logging
 from xivo import debug
-from xivo_agent.resources.agent import command as commands
 
 logger = logging.getLogger(__name__)
 
@@ -30,24 +29,19 @@ class OnQueueHandler(object):
         self._on_queue_deleted_manager = on_queue_deleted_manager
         self._queue_dao = queue_dao
 
-    def register_commands(self, agent_server):
-        agent_server.add_command(commands.OnQueueAddedCommand, self.handle_on_queue_added)
-        agent_server.add_command(commands.OnQueueUpdatedCommand, self.handle_on_queue_updated)
-        agent_server.add_command(commands.OnQueueDeletedCommand, self.handle_on_queue_deleted)
-
     @debug.trace_duration
-    def handle_on_queue_added(self, command):
-        logger.info('Executing on queue added command (ID %s)', command.queue_id)
-        queue = self._queue_dao.get_queue(command.queue_id)
+    def handle_on_queue_added(self, queue_id):
+        logger.info('Executing on queue added command (ID %s)', queue_id)
+        queue = self._queue_dao.get_queue(queue_id)
         self._on_queue_added_manager.on_queue_added(queue)
 
     @debug.trace_duration
-    def handle_on_queue_updated(self, command):
-        logger.info('Executing on queue updated command (ID %s)', command.queue_id)
-        queue = self._queue_dao.get_queue(command.queue_id)
+    def handle_on_queue_updated(self, queue_id):
+        logger.info('Executing on queue updated command (ID %s)', queue_id)
+        queue = self._queue_dao.get_queue(queue_id)
         self._on_queue_updated_manager.on_queue_updated(queue)
 
     @debug.trace_duration
-    def handle_on_queue_deleted(self, command):
-        logger.info('Executing on queue deleted command (ID %s)', command.queue_id)
-        self._on_queue_deleted_manager.on_queue_deleted(command.queue_id)
+    def handle_on_queue_deleted(self, queue_id):
+        logger.info('Executing on queue deleted command (ID %s)', queue_id)
+        self._on_queue_deleted_manager.on_queue_deleted(queue_id)
