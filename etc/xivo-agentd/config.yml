@@ -33,8 +33,6 @@ bus:
   exchange_name: xivo
   exchange_type: topic
   exchange_durable: True
-  routing_keys:
-    agent_status: status.agent
 
 rest_api:
   listen: 127.0.0.1

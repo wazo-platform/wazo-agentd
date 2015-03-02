@@ -18,21 +18,19 @@
 import logging
 from xivo_agent.exception import NoSuchExtensionError
 from xivo_agent.service.helper import format_agent_member_name, format_agent_skills
-from xivo_agent.service.action.helper.log_action import LogActionMixin
+from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
 
 logger = logging.getLogger(__name__)
 
 
-class LoginAction(LogActionMixin):
+class LoginAction(object):
 
-    agent_status = 'logged_in'
-
-    def __init__(self, ami_client, queue_log_manager, agent_status_dao, line_dao, config, publish_event_fn):
-        super(LoginAction, self).__init__(config, publish_event_fn)
+    def __init__(self, ami_client, queue_log_manager, agent_status_dao, line_dao, bus_publisher):
         self._ami_client = ami_client
         self._queue_log_manager = queue_log_manager
         self._agent_status_dao = agent_status_dao
         self._line_dao = line_dao
+        self._bus_publisher = bus_publisher
 
     def login_agent(self, agent, extension, context):
         # Precondition:
@@ -44,7 +42,7 @@ class LoginAction(LogActionMixin):
         self._update_queue_log(agent, extension, context)
         self._update_asterisk(agent, interface, state_interface)
         self._update_xivo_ctid(agent, extension, context)
-        self._send_bus_status_update(agent.id)
+        self._send_bus_status_update(agent)
 
     def _get_interface(self, agent):
         return 'Local/id-{0}@agentcallback'.format(agent.id)
@@ -73,3 +71,8 @@ class LoginAction(LogActionMixin):
 
     def _update_xivo_ctid(self, agent, extension, context):
         self._ami_client.agent_login(agent.id, agent.number, extension, context)
+
+    def _send_bus_status_update(self, agent):
+        status = AgentStatusUpdateEvent.STATUS_LOGGED_IN
+        event = AgentStatusUpdateEvent(agent.id, status)
+        self._bus_publisher.publish(event)

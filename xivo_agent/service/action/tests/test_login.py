@@ -17,9 +17,8 @@
 
 import unittest
 
-from mock import Mock, ANY, sentinel
+from mock import Mock, ANY
 
-from xivo_bus import Marshaler
 from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
 
 from xivo_agent.queuelog import QueueLogManager
@@ -34,29 +33,12 @@ class TestLoginAction(unittest.TestCase):
         self.queue_log_manager = Mock(QueueLogManager)
         self.agent_status_dao = Mock()
         self.line_dao = Mock()
-        self.config = {
-            'bus': {
-                'username': 'guest',
-                'password': 'guest',
-                'host': 'localhost',
-                'port': 1234,
-                'exchange_name': sentinel.exchange_name,
-                'exchange_type': sentinel.exchange_type,
-                'exchange_durable': sentinel.exchange_durable,
-                'routing_keys': {
-                    'agent_status': sentinel.agent_status_routing_key,
-                },
-            },
-            'uuid': 'my-uuid',
-        }
-        self.publish_event = Mock()
+        self.bus_publisher = Mock()
         self.login_action = LoginAction(self.ami_client,
                                         self.queue_log_manager,
                                         self.agent_status_dao,
                                         self.line_dao,
-                                        self.config,
-                                        self.publish_event)
-        self.marshaler = Marshaler('my-uuid')
+                                        self.bus_publisher)
 
     def test_login_agent(self):
         agent_id = 10
@@ -80,7 +62,6 @@ class TestLoginAction(unittest.TestCase):
         self.queue_log_manager.on_agent_logged_in.assert_called_once_with(agent_number, extension, context)
         self.ami_client.queue_add.assert_called_once_with(queue.name, ANY, ANY, state_interface, queue.penalty, skills)
         self.ami_client.agent_login.assert_called_once_with(agent_id, agent_number, extension, context)
-        self.publish_event.assert_called_once_with(
-            self.marshaler.marshal_message(AgentStatusUpdateEvent(10, 'logged_in')),
-            routing_key=sentinel.agent_status_routing_key,
+        self.bus_publisher.publish.assert_called_once_with(
+            AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_IN),
         )

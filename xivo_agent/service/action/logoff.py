@@ -16,19 +16,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import datetime
+from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
 
-from xivo_agent.service.action.helper.log_action import LogActionMixin
 
+class LogoffAction(object):
 
-class LogoffAction(LogActionMixin):
-
-    agent_status = 'logged_out'
-
-    def __init__(self, ami_client, queue_log_manager, agent_status_dao, config, publish_event_fn):
-        super(LogoffAction, self).__init__(config, publish_event_fn)
+    def __init__(self, ami_client, queue_log_manager, agent_status_dao, bus_publisher):
         self._ami_client = ami_client
         self._queue_log_manager = queue_log_manager
         self._agent_status_dao = agent_status_dao
+        self._bus_publisher = bus_publisher
 
     def logoff_agent(self, agent_status):
         # Precondition:
@@ -37,7 +34,7 @@ class LogoffAction(LogActionMixin):
         self._update_queue_log(agent_status)
         self._update_agent_status(agent_status)
         self._update_xivo_ctid(agent_status)
-        self._send_bus_status_update(agent_status.agent_id)
+        self._send_bus_status_update(agent_status)
 
     def _update_xivo_ctid(self, agent_status):
         self._ami_client.agent_logoff(agent_status.agent_id, agent_status.agent_number)
@@ -57,3 +54,8 @@ class LogoffAction(LogActionMixin):
     def _update_agent_status(self, agent_status):
         self._agent_status_dao.remove_agent_from_all_queues(agent_status.agent_id)
         self._agent_status_dao.log_off_agent(agent_status.agent_id)
+
+    def _send_bus_status_update(self, agent_status):
+        status = AgentStatusUpdateEvent.STATUS_LOGGED_OUT
+        event = AgentStatusUpdateEvent(agent_status.agent_id, status)
+        self._bus_publisher.publish(event)

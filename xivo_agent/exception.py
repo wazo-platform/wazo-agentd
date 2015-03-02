@@ -67,7 +67,3 @@ class AgentAlreadyInQueueError(AgentServerError):
 class ExtensionAlreadyInUseError(AgentServerError):
 
     error = error_messages.ALREADY_IN_USE
-
-
-class MissingConfigurationError(LookupError):
-    pass

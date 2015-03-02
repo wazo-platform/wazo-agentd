@@ -18,9 +18,8 @@
 import datetime
 import unittest
 
-from mock import Mock, ANY, sentinel
+from mock import Mock, ANY
 
-from xivo_bus import Marshaler
 from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
 
 from xivo_agent.service.action.logoff import LogoffAction
@@ -32,25 +31,11 @@ class TestLogoffAction(unittest.TestCase):
         self.ami_client = Mock()
         self.queue_log_manager = Mock()
         self.agent_status_dao = Mock()
-        self.config = {
-            'bus': {
-                'exchange_name': sentinel.exchange_name,
-                'exchange_type': sentinel.exchange_type,
-                'exchange_durable': sentinel.exchange_durable,
-                'routing_keys': {
-                    'agent_status': sentinel.agent_status_routing_key,
-                },
-            },
-            'uuid': 'my-uuid',
-        }
-
-        self.publish_event = Mock()
+        self.bus_publisher = Mock()
         self.logoff_action = LogoffAction(self.ami_client,
                                           self.queue_log_manager,
                                           self.agent_status_dao,
-                                          self.config,
-                                          self.publish_event)
-        self.marshaler = Marshaler('my-uuid')
+                                          self.bus_publisher)
 
     def test_logoff_agent(self):
         agent_id = 10
@@ -72,7 +57,6 @@ class TestLogoffAction(unittest.TestCase):
                                                                            agent_status.context, ANY)
         self.agent_status_dao.remove_agent_from_all_queues.assert_called_once_with(agent_id)
         self.agent_status_dao.log_off_agent(agent_id)
-        self.publish_event.assert_called_once_with(
-            self.marshaler.marshal_message(AgentStatusUpdateEvent(10, 'logged_out')),
-            routing_key=sentinel.agent_status_routing_key,
+        self.bus_publisher.publish.assert_called_once_with(
+            AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_OUT),
         )

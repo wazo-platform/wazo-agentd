@@ -58,6 +58,7 @@ from xivo_agent.service.manager.on_queue_updated import OnQueueUpdatedManager
 from xivo_agent.service.manager.pause import PauseManager
 from xivo_agent.service.manager.relog import RelogManager
 from xivo_agent.service.manager.remove_member import RemoveMemberManager
+from xivo_bus import Marshaler, Publisher
 from xivo_dao import agent_dao as orig_agent_dao
 from xivo_dao import agent_status_dao
 from xivo_dao import line_dao
@@ -128,15 +129,14 @@ def _run(config):
             bus_exchange = Exchange(config['bus']['exchange_name'],
                                     type=config['bus']['exchange_type'])
             bus_producer = Producer(producer_conn, exchange=bus_exchange, auto_declare=True)
-            publish_event_fn = producer_conn.ensure(bus_producer, bus_producer.publish,
-                                                    errback=_on_bus_publish_error, max_retries=2,
-                                                    interval_start=1)
+            bus_marshaler = Marshaler(config['uuid'])
+            bus_publisher = Publisher(bus_producer, bus_marshaler)
 
             queue_log_manager = QueueLogManager(queue_log_dao)
 
             add_to_queue_action = AddToQueueAction(ami_client, agent_status_dao)
-            login_action = LoginAction(ami_client, queue_log_manager, agent_status_dao, line_dao, config, publish_event_fn)
-            logoff_action = LogoffAction(ami_client, queue_log_manager, agent_status_dao, config, publish_event_fn)
+            login_action = LoginAction(ami_client, queue_log_manager, agent_status_dao, line_dao, bus_publisher)
+            logoff_action = LogoffAction(ami_client, queue_log_manager, agent_status_dao, bus_publisher)
             pause_action = PauseAction(ami_client)
             remove_from_queue_action = RemoveFromQueueAction(ami_client, agent_status_dao)
             update_penalty_action = UpdatePenaltyAction(ami_client, agent_status_dao)
@@ -258,11 +258,6 @@ class ServerProxy(object):
     def on_queue_deleted(self, queue_id):
         with self._lock:
             return self._on_queue_handler.handle_on_queue_deleted(queue_id)
-
-
-def _on_bus_publish_error(exc, interval):
-    logger.error('Error: %s', exc, exc_info=1)
-    logger.info('Retry in %s seconds...', interval)
 
 
 def _init_signal():
