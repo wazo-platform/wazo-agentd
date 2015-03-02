@@ -22,7 +22,7 @@ from mock import Mock, sentinel
 from xivo_agent.amqp import AMQPInterface, _EditAgentEventHandler, \
     _DeleteAgentEventHandler, _CreateQueueEventHandler, _EditQueueEventHandler, \
     _DeleteQueueEventHandler, _MessageHandler, _Worker
-from xivo_agent.bin.agentd import ServerProxy
+from xivo_agent.service.proxy import ServiceProxy
 
 
 class TestAMQPInterface(unittest.TestCase):
@@ -30,8 +30,8 @@ class TestAMQPInterface(unittest.TestCase):
     def setUp(self):
         self.connection = Mock()
         self.exchange = Mock()
-        self.server_proxy = Mock()
-        self.amqp_interface = AMQPInterface(self.connection, self.exchange, self.server_proxy)
+        self.service_proxy = Mock()
+        self.amqp_interface = AMQPInterface(self.connection, self.exchange, self.service_proxy)
 
     def test_start_and_stop(self):
         worker = Mock()
@@ -92,41 +92,41 @@ class TestMessageHandler(unittest.TestCase):
 class TestEventHandler(unittest.TestCase):
 
     def setUp(self):
-        self.server_proxy = Mock(ServerProxy)
+        self.service_proxy = Mock(ServiceProxy)
         self.item_id = 42
         self.decoded_msg = {'data': {'id': self.item_id}}
 
     def test_edit_agent(self):
-        handler = _EditAgentEventHandler(self.server_proxy)
+        handler = _EditAgentEventHandler(self.service_proxy)
 
         handler.handle_event(self.decoded_msg)
 
-        self.server_proxy.on_agent_updated.assert_called_once_with(self.item_id)
+        self.service_proxy.on_agent_updated.assert_called_once_with(self.item_id)
 
     def test_delete_agent(self):
-        handler = _DeleteAgentEventHandler(self.server_proxy)
+        handler = _DeleteAgentEventHandler(self.service_proxy)
 
         handler.handle_event(self.decoded_msg)
 
-        self.server_proxy.on_agent_deleted.assert_called_once_with(self.item_id)
+        self.service_proxy.on_agent_deleted.assert_called_once_with(self.item_id)
 
     def test_create_queue(self):
-        handler = _CreateQueueEventHandler(self.server_proxy)
+        handler = _CreateQueueEventHandler(self.service_proxy)
 
         handler.handle_event(self.decoded_msg)
 
-        self.server_proxy.on_queue_added.assert_called_once_with(self.item_id)
+        self.service_proxy.on_queue_added.assert_called_once_with(self.item_id)
 
     def test_edit_queue(self):
-        handler = _EditQueueEventHandler(self.server_proxy)
+        handler = _EditQueueEventHandler(self.service_proxy)
 
         handler.handle_event(self.decoded_msg)
 
-        self.server_proxy.on_queue_updated.assert_called_once_with(self.item_id)
+        self.service_proxy.on_queue_updated.assert_called_once_with(self.item_id)
 
     def test_delete_queue(self):
-        handler = _DeleteQueueEventHandler(self.server_proxy)
+        handler = _DeleteQueueEventHandler(self.service_proxy)
 
         handler.handle_event(self.decoded_msg)
 
-        self.server_proxy.on_queue_deleted.assert_called_once_with(self.item_id)
+        self.service_proxy.on_queue_deleted.assert_called_once_with(self.item_id)

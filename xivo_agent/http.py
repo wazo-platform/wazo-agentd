@@ -88,26 +88,26 @@ class _BaseResource(restful.Resource):
 class _Agents(_BaseResource):
 
     def get(self):
-        return self.server_proxy.get_agent_statuses()
+        return self.service_proxy.get_agent_statuses()
 
 
 class _AgentById(_BaseResource):
 
     def get(self, agent_id):
-        return self.server_proxy.get_agent_status_by_id(agent_id)
+        return self.service_proxy.get_agent_status_by_id(agent_id)
 
 
 class _AgentByNumber(_BaseResource):
 
     def get(self, agent_number):
-        return self.server_proxy.get_agent_status_by_number(agent_number)
+        return self.service_proxy.get_agent_status_by_number(agent_number)
 
 
 class _LoginAgentById(_BaseResource):
 
     def post(self, agent_id):
         extension, context = _extract_extension_and_context()
-        self.server_proxy.login_agent_by_id(agent_id, extension, context)
+        self.service_proxy.login_agent_by_id(agent_id, extension, context)
         return '', 204
 
 
@@ -115,7 +115,7 @@ class _LoginAgentByNumber(_BaseResource):
 
     def post(self, agent_number):
         extension, context = _extract_extension_and_context()
-        self.server_proxy.login_agent_by_number(agent_number, extension, context)
+        self.service_proxy.login_agent_by_number(agent_number, extension, context)
         return '', 204
 
 
@@ -124,21 +124,21 @@ class _LogoffAgentById(_BaseResource):
     def post(self, agent_id):
         # XXX logoff_agent_by_id raise a AgentNotLoggedError even if the agent doesn't exist;
         #     that means that logoff currently returns a 409 for an inexistant agent, not a 404
-        self.server_proxy.logoff_agent_by_id(agent_id)
+        self.service_proxy.logoff_agent_by_id(agent_id)
         return '', 204
 
 
 class _LogoffAgentByNumber(_BaseResource):
 
     def post(self, agent_number):
-        self.server_proxy.logoff_agent_by_number(agent_number)
+        self.service_proxy.logoff_agent_by_number(agent_number)
         return '', 204
 
 
 class _LogoffAgents(_BaseResource):
 
     def post(self):
-        self.server_proxy.logoff_all()
+        self.service_proxy.logoff_all()
         return '', 204
 
 
@@ -146,7 +146,7 @@ class _AddAgentToQueue(_BaseResource):
 
     def post(self, agent_id):
         queue_id = _extract_queue_id()
-        self.server_proxy.add_agent_to_queue(agent_id, queue_id)
+        self.service_proxy.add_agent_to_queue(agent_id, queue_id)
         return '', 204
 
 
@@ -154,28 +154,28 @@ class _RemoveAgentFromQueue(_BaseResource):
 
     def post(self, agent_id):
         queue_id = _extract_queue_id()
-        self.server_proxy.remove_agent_from_queue(agent_id, queue_id)
+        self.service_proxy.remove_agent_from_queue(agent_id, queue_id)
         return '', 204
 
 
 class _RelogAgents(_BaseResource):
 
     def post(self):
-        self.server_proxy.relog_all()
+        self.service_proxy.relog_all()
         return '', 204
 
 
 class _PauseAgentByNumber(_BaseResource):
 
     def post(self, agent_number):
-        self.server_proxy.pause_agent_by_number(agent_number)
+        self.service_proxy.pause_agent_by_number(agent_number)
         return '', 204
 
 
 class _UnpauseAgentByNumber(_BaseResource):
 
     def post(self, agent_number):
-        self.server_proxy.unpause_agent_by_number(agent_number)
+        self.service_proxy.unpause_agent_by_number(agent_number)
         return '', 204
 
 
@@ -199,18 +199,18 @@ class HTTPInterface(object):
         (_RelogAgents, '/agents/relog'),
     ]
 
-    def __init__(self, listen_addr, listen_port, server_proxy):
+    def __init__(self, listen_addr, listen_port, service_proxy):
         app = Flask('xivo_agent')
         app.wsgi_app = ProxyFix(app.wsgi_app)
         app.secret_key = os.urandom(24)
         api = restful.Api(app, prefix='/{}'.format(self.VERSION))
-        self._add_resources(api, server_proxy)
+        self._add_resources(api, service_proxy)
         bind_addr = (listen_addr, listen_port)
         self._server = wsgiserver.CherryPyWSGIServer(bind_addr, app)
 
-    def _add_resources(self, api, server_proxy):
+    def _add_resources(self, api, service_proxy):
         for Resource, url in self._resources:
-            Resource.server_proxy = server_proxy
+            Resource.service_proxy = service_proxy
             api.add_resource(Resource, url)
 
     def run(self):

@@ -29,17 +29,17 @@ logger = logging.getLogger(__name__)
 
 class AMQPInterface(object):
 
-    def __init__(self, connection, exchange, server_proxy):
+    def __init__(self, connection, exchange, service_proxy):
         self._thread = None
-        self._worker = self._new_worker(connection, exchange, server_proxy)
+        self._worker = self._new_worker(connection, exchange, service_proxy)
 
-    def _new_worker(self, connection, exchange, server_proxy):
+    def _new_worker(self, connection, exchange, service_proxy):
         msg_handler = _MessageHandler([
-            _EditAgentEventHandler(server_proxy),
-            _DeleteAgentEventHandler(server_proxy),
-            _CreateQueueEventHandler(server_proxy),
-            _EditQueueEventHandler(server_proxy),
-            _DeleteQueueEventHandler(server_proxy),
+            _EditAgentEventHandler(service_proxy),
+            _DeleteAgentEventHandler(service_proxy),
+            _CreateQueueEventHandler(service_proxy),
+            _EditQueueEventHandler(service_proxy),
+            _DeleteQueueEventHandler(service_proxy),
         ])
         return _Worker(connection, exchange, msg_handler)
 
@@ -96,8 +96,8 @@ class _MessageHandler(object):
 
 class _BaseEventHandler(object):
 
-    def __init__(self, server_proxy):
-        self._server_proxy = server_proxy
+    def __init__(self, service_proxy):
+        self._service_proxy = service_proxy
 
 
 class _EditAgentEventHandler(_BaseEventHandler):
@@ -105,7 +105,7 @@ class _EditAgentEventHandler(_BaseEventHandler):
     Event = EditAgentEvent
 
     def handle_event(self, decoded_msg):
-        self._server_proxy.on_agent_updated(decoded_msg['data']['id'])
+        self._service_proxy.on_agent_updated(decoded_msg['data']['id'])
 
 
 class _DeleteAgentEventHandler(_BaseEventHandler):
@@ -113,7 +113,7 @@ class _DeleteAgentEventHandler(_BaseEventHandler):
     Event = DeleteAgentEvent
 
     def handle_event(self, decoded_msg):
-        self._server_proxy.on_agent_deleted(decoded_msg['data']['id'])
+        self._service_proxy.on_agent_deleted(decoded_msg['data']['id'])
 
 
 class _CreateQueueEventHandler(_BaseEventHandler):
@@ -121,7 +121,7 @@ class _CreateQueueEventHandler(_BaseEventHandler):
     Event = CreateQueueEvent
 
     def handle_event(self, decoded_msg):
-        self._server_proxy.on_queue_added(decoded_msg['data']['id'])
+        self._service_proxy.on_queue_added(decoded_msg['data']['id'])
 
 
 class _EditQueueEventHandler(_BaseEventHandler):
@@ -129,7 +129,7 @@ class _EditQueueEventHandler(_BaseEventHandler):
     Event = EditQueueEvent
 
     def handle_event(self, decoded_msg):
-        self._server_proxy.on_queue_updated(decoded_msg['data']['id'])
+        self._service_proxy.on_queue_updated(decoded_msg['data']['id'])
 
 
 class _DeleteQueueEventHandler(_BaseEventHandler):
@@ -137,4 +137,4 @@ class _DeleteQueueEventHandler(_BaseEventHandler):
     Event = DeleteQueueEvent
 
     def handle_event(self, decoded_msg):
-        self._server_proxy.on_queue_deleted(decoded_msg['data']['id'])
+        self._service_proxy.on_queue_deleted(decoded_msg['data']['id'])

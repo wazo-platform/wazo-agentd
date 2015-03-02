@@ -18,7 +18,6 @@
 import argparse
 import logging
 import signal
-import threading
 import xivo_dao
 
 from kombu import Connection, Producer, Exchange
@@ -58,6 +57,7 @@ from xivo_agent.service.manager.on_queue_updated import OnQueueUpdatedManager
 from xivo_agent.service.manager.pause import PauseManager
 from xivo_agent.service.manager.relog import RelogManager
 from xivo_agent.service.manager.remove_member import RemoveMemberManager
+from xivo_agent.service.proxy import ServiceProxy
 from xivo_bus import Marshaler, Publisher
 from xivo_dao import agent_dao as orig_agent_dao
 from xivo_dao import agent_status_dao
@@ -153,111 +153,24 @@ def _run(config):
             relog_manager = RelogManager(login_action, logoff_action, agent_dao, agent_status_dao)
             remove_member_manager = RemoveMemberManager(remove_from_queue_action, ami_client, agent_status_dao, queue_member_dao)
 
-            server_proxy = ServerProxy(
-                LoginHandler(login_manager, agent_dao),
-                LogoffHandler(logoff_manager, agent_status_dao),
-                MembershipHandler(add_member_manager, remove_member_manager, agent_dao, queue_dao),
-                OnAgentHandler(on_agent_deleted_manager, on_agent_updated_manager, agent_dao),
-                OnQueueHandler(on_queue_added_manager, on_queue_updated_manager, on_queue_deleted_manager, queue_dao),
-                PauseHandler(pause_manager, agent_status_dao),
-                RelogHandler(relog_manager),
-                StatusHandler(agent_dao, agent_status_dao, config['uuid']),
-            )
+            service_proxy = ServiceProxy()
+            service_proxy.login_handler = LoginHandler(login_manager, agent_dao)
+            service_proxy.logoff_handler = LogoffHandler(logoff_manager, agent_status_dao)
+            service_proxy.membership_handler = MembershipHandler(add_member_manager, remove_member_manager, agent_dao, queue_dao)
+            service_proxy.on_agent_handler = OnAgentHandler(on_agent_deleted_manager, on_agent_updated_manager, agent_dao)
+            service_proxy.on_queue_handler = OnQueueHandler(on_queue_added_manager, on_queue_updated_manager, on_queue_deleted_manager, queue_dao)
+            service_proxy.pause_handler = PauseHandler(pause_manager, agent_status_dao)
+            service_proxy.relog_handler = RelogHandler(relog_manager)
+            service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, config['uuid'])
 
-            amqp_iface = amqp.AMQPInterface(consumer_conn, bus_exchange, server_proxy)
-            http_iface = http.HTTPInterface(config['rest_api']['listen'], config['rest_api']['port'], server_proxy)
+            amqp_iface = amqp.AMQPInterface(consumer_conn, bus_exchange, service_proxy)
+            http_iface = http.HTTPInterface(config['rest_api']['listen'], config['rest_api']['port'], service_proxy)
 
             amqp_iface.start()
             try:
                 http_iface.run()
             finally:
                 amqp_iface.stop()
-
-
-class ServerProxy(object):
-
-    def __init__(self, login_handler, logoff_handler, membership_handler, on_agent_handler, on_queue_handler, pause_handler, relog_handler, status_handler):
-        self._login_handler = login_handler
-        self._logoff_handler = logoff_handler
-        self._membership_handler = membership_handler
-        self._on_agent_handler = on_agent_handler
-        self._on_queue_handler = on_queue_handler
-        self._pause_handler = pause_handler
-        self._relog_handler = relog_handler
-        self._status_handler = status_handler
-        self._lock = threading.Lock()
-
-    def add_agent_to_queue(self, agent_id, queue_id):
-        with self._lock:
-            self._membership_handler.handle_add_to_queue(agent_id, queue_id)
-
-    def remove_agent_from_queue(self, agent_id, queue_id):
-        with self._lock:
-            self._membership_handler.handle_remove_from_queue(agent_id, queue_id)
-
-    def login_agent_by_id(self, agent_id, extension, context):
-        with self._lock:
-            self._login_handler.handle_login_by_id(agent_id, extension, context)
-
-    def login_agent_by_number(self, agent_number, extension, context):
-        with self._lock:
-            self._login_handler.handle_login_by_number(agent_number, extension, context)
-
-    def logoff_agent_by_id(self, agent_id):
-        with self._lock:
-            self._logoff_handler.handle_logoff_by_id(agent_id)
-
-    def logoff_agent_by_number(self, agent_number):
-        with self._lock:
-            self._logoff_handler.handle_logoff_by_number(agent_number)
-
-    def logoff_all(self):
-        with self._lock:
-            self._logoff_handler.handle_logoff_all()
-
-    def relog_all(self):
-        with self._lock:
-            self._relog_handler.handle_relog_all()
-
-    def pause_agent_by_number(self, agent_number):
-        with self._lock:
-            self._pause_handler.handle_pause_by_number(agent_number)
-
-    def unpause_agent_by_number(self, agent_number):
-        with self._lock:
-            self._pause_handler.handle_unpause_by_number(agent_number)
-
-    def get_agent_status_by_id(self, agent_id):
-        with self._lock:
-            return self._status_handler.handle_status_by_id(agent_id)
-
-    def get_agent_status_by_number(self, agent_number):
-        with self._lock:
-            return self._status_handler.handle_status_by_number(agent_number)
-
-    def get_agent_statuses(self):
-        with self._lock:
-            return self._status_handler.handle_statuses()
-
-    def on_agent_updated(self, agent_id):
-        with self._lock:
-            return self._on_agent_handler.handle_on_agent_updated(agent_id)
-
-    def on_agent_deleted(self, agent_id):
-        with self._lock:
-            return self._on_agent_handler.handle_on_agent_deleted(agent_id)
-
-    def on_queue_added(self, queue_id):
-        with self._lock:
-            return self._on_queue_handler.handle_on_queue_added(queue_id)
-
-    def on_queue_updated(self, queue_id):
-        with self._lock:
-            return self._on_queue_handler.handle_on_queue_updated(queue_id)
-
-    def on_queue_deleted(self, queue_id):
-        with self._lock:
-            return self._on_queue_handler.handle_on_queue_deleted(queue_id)
 
 
 def _init_signal():
