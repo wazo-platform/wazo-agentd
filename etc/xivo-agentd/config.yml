@@ -32,7 +32,6 @@ bus:
   port: 5672
   exchange_name: xivo
   exchange_type: topic
-  exchange_durable: True
 
 rest_api:
   listen: 127.0.0.1
