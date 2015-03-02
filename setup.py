@@ -8,12 +8,11 @@ from setuptools import find_packages
 setup(
     name='xivo-agent',
     version='0.1',
-    description='XiVO agent server and client',
+    description='XiVO agent server',
     author='Avencall',
     author_email='dev@avencall.com',
     url='http://git.xivo.io/',
     license='GPLv3',
     packages=find_packages(),
-    scripts=['bin/xivo-agentd',
-             'bin/xivo-agentctl'],
+    scripts=['bin/xivo-agentd'],
 )
