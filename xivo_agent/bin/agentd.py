@@ -161,7 +161,7 @@ def _run(config):
                 OnQueueHandler(on_queue_added_manager, on_queue_updated_manager, on_queue_deleted_manager, queue_dao),
                 PauseHandler(pause_manager, agent_status_dao),
                 RelogHandler(relog_manager),
-                StatusHandler(agent_dao, agent_status_dao),
+                StatusHandler(agent_dao, agent_status_dao, config['uuid']),
             )
 
             amqp_iface = amqp.AMQPInterface(consumer_conn, bus_exchange, server_proxy)

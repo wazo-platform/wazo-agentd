@@ -23,9 +23,10 @@ logger = logging.getLogger(__name__)
 
 class StatusHandler(object):
 
-    def __init__(self, agent_dao, agent_status_dao):
+    def __init__(self, agent_dao, agent_status_dao, uuid):
         self._agent_dao = agent_dao
         self._agent_status_dao = agent_status_dao
+        self._uuid = uuid
 
     @debug.trace_duration
     def handle_status_by_id(self, agent_id):
@@ -45,8 +46,7 @@ class StatusHandler(object):
         agent_statuses = self._agent_status_dao.get_statuses()
         return [
             {'id': status.agent_id,
-             # TODO fill origin_uuid
-             'origin_uuid': None,
+             'origin_uuid': self._uuid,
              'number': status.agent_number,
              'logged': status.logged,
              'extension': status.extension,
@@ -66,8 +66,7 @@ class StatusHandler(object):
             context = agent_status.context
         return {
             'id': agent.id,
-            # TODO fill origin_uuid
-            'origin_uuid': None,
+            'origin_uuid': self._uuid,
             'number': agent.number,
             'logged': logged,
             'extension': extension,
