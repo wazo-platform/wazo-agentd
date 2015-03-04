@@ -23,7 +23,6 @@ Architecture: all
 Section: python
 Depends: ${python:Depends},
          ${misc:Depends},
-         python-pika,
          python-kombu,
          xivo-bus,
          xivo-libdao (>= 12.23~20121127.150346.7813fff-1),
