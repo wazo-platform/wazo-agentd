@@ -1,94 +1,58 @@
-diff --unified --recursive '--exclude=.pylint-disable.patch' original/ami/actions/common/action.py patched/ami/actions/common/action.py
---- original/ami/actions/common/action.py
-+++ patched/ami/actions/common/action.py
-@@ -49,7 +49,7 @@
-             self._amiclient.wait_for_completion(self)
+diff --unified --recursive '--exclude=.pylint-disable.patch' original/ami/tests/test_facade.py patched/ami/tests/test_facade.py
+--- original/ami/tests/test_facade.py
++++ patched/ami/tests/test_facade.py
+@@ -27,7 +27,7 @@
+         facade = FacadeAMIClient('example.org', '1', '2')
+         facade._ami_client = Mock()
  
-     # package private method
--    def _on_response_received(self, response):
-+    def _on_response_received(self, response): # pylint: disable=unused-argument
-         # may be overridden
-         self._completed = True
+-        facade.db_del('foo', 'bar')
++        facade.db_del('foo', 'bar') # pylint: disable=no-member
  
-diff --unified --recursive '--exclude=.pylint-disable.patch' original/bin/agentctl.py patched/bin/agentctl.py
---- original/bin/agentctl.py
-+++ patched/bin/agentctl.py
-@@ -87,7 +87,7 @@
-         except Exception:
-             raise UsageError()
+         ReconnectingAMIClient.assert_called_once_with('example.org', 5038, facade._login)
+         self.assertTrue(facade._ami_client.execute.called)
+diff --unified --recursive '--exclude=.pylint-disable.patch' original/amqp.py patched/amqp.py
+--- original/amqp.py
++++ patched/amqp.py
+@@ -19,7 +19,7 @@
+ import logging
+ import threading
  
--    def execute(self, agent_id, queue_id):
-+    def execute(self, agent_id, queue_id): # pylint: disable=arguments-differ
-         self._agent_client.add_agent_to_queue(agent_id, queue_id)
- 
- 
-@@ -104,7 +104,7 @@
-         except Exception:
-             raise UsageError()
- 
--    def execute(self, agent_id, queue_id):
-+    def execute(self, agent_id, queue_id): # pylint: disable=arguments-differ
-         self._agent_client.remove_agent_from_queue(agent_id, queue_id)
- 
- 
-@@ -122,7 +122,7 @@
-         except Exception:
-             raise UsageError()
- 
--    def execute(self, agent_number, extension, context):
-+    def execute(self, agent_number, extension, context): # pylint: disable=arguments-differ
-         self._agent_client.login_agent_by_number(agent_number, extension, context)
+-from kombu import Queue
++from kombu import Queue # pylint: disable=no-name-in-module
+ from kombu.mixins import ConsumerMixin
+ from xivo_bus.resources.agent.event import EditAgentEvent, DeleteAgentEvent
+ from xivo_bus.resources.queue.event import CreateQueueEvent, EditQueueEvent, DeleteQueueEvent
+@@ -75,7 +75,7 @@
+         message.ack()
+         try:
+             self._msg_handler.handle_msg(body)
+-        except Exception:
++        except Exception: # pylint: disable=broad-except
+             logger.warning('Unexpected error while handling AMQP message', exc_info=True)
  
  
-@@ -138,7 +138,7 @@
-         except Exception:
-             raise UsageError()
- 
--    def execute(self, agent_number):
-+    def execute(self, agent_number): # pylint: disable=arguments-differ
-         if agent_number == 'all':
-             self._execute_all()
-         else:
-@@ -172,7 +172,7 @@
-         except Exception:
-             raise UsageError()
- 
--    def execute(self, agent_number):
-+    def execute(self, agent_number): # pylint: disable=arguments-differ
-         self._agent_client.pause_agent_by_number(agent_number)
- 
- 
-@@ -188,7 +188,7 @@
-         except Exception:
-             raise UsageError()
- 
--    def execute(self, agent_number):
-+    def execute(self, agent_number): # pylint: disable=arguments-differ
-         self._agent_client.unpause_agent_by_number(agent_number)
- 
- 
-@@ -204,7 +204,7 @@
-             agent_number = None
-         return (agent_number,)
- 
--    def execute(self, agent_number):
-+    def execute(self, agent_number): # pylint: disable=arguments-differ
-         if agent_number is None:
-             self._execute_all()
-         else:
 diff --unified --recursive '--exclude=.pylint-disable.patch' original/bin/agentd.py patched/bin/agentd.py
 --- original/bin/agentd.py
 +++ patched/bin/agentd.py
-@@ -74,7 +74,7 @@
-     daemonize.lock_pidfile_or_die(_PID_FILENAME)
-     try:
-         _run()
--    except Exception:
-+    except Exception: # pylint: disable=broad-except
-         logger.exception('Unexpected error:')
-     finally:
-         logger.info('Stopping xivo-agentd')
-@@ -151,7 +151,7 @@
+@@ -20,7 +20,7 @@
+ import signal
+ import xivo_dao
+ 
+-from kombu import Connection, Producer, Exchange
++from kombu import Connection, Producer, Exchange # pylint: disable=no-name-in-module,no-name-in-module,no-name-in-module
+ from contextlib import contextmanager
+ 
+ from xivo.chain_map import ChainMap
+@@ -96,7 +96,7 @@
+         logger.info('Starting xivo-agentd')
+         try:
+             _run(config)
+-        except Exception:
++        except Exception: # pylint: disable=broad-except
+             logger.exception('Unexpected error:')
+         finally:
+             logger.info('Stopping xivo-agentd')
+@@ -177,7 +177,7 @@
      signal.signal(signal.SIGTERM, _handle_sigterm)
  
  
@@ -97,41 +61,131 @@ diff --unified --recursive '--exclude=.pylint-disable.patch' original/bin/agentd
      raise SystemExit()
  
  
-diff --unified --recursive '--exclude=.pylint-disable.patch' original/service/handler/logoff.py patched/service/handler/logoff.py
---- original/service/handler/logoff.py
-+++ patched/service/handler/logoff.py
-@@ -46,7 +46,7 @@
-         self._handle_logoff(agent_status)
+diff --unified --recursive '--exclude=.pylint-disable.patch' original/http.py patched/http.py
+--- original/http.py
++++ patched/http.py
+@@ -20,7 +20,7 @@
+ from cherrypy import wsgiserver
+ from flask import Flask
+ from flask import request
+-from flask.ext import restful
++from flask.ext import restful # pylint: disable=no-name-in-module
+ from werkzeug.contrib.fixers import ProxyFix
+ from werkzeug.exceptions import BadRequest
+ from xivo_agent.exception import AgentServerError, NoSuchAgentError, NoSuchExtensionError, \
+@@ -80,30 +80,30 @@
+     return queue_id
  
-     @debug.trace_duration
--    def handle_logoff_all(self, command):
-+    def handle_logoff_all(self, command): # pylint: disable=unused-argument
-         logger.info('Executing logoff all command')
-         self._logoff_manager.logoff_all_agents()
  
-diff --unified --recursive '--exclude=.pylint-disable.patch' original/service/handler/relog.py patched/service/handler/relog.py
---- original/service/handler/relog.py
-+++ patched/service/handler/relog.py
-@@ -31,6 +31,6 @@
-         agent_server.add_command(commands.RelogAllCommand, self.handle_relog_all)
+-class _BaseResource(restful.Resource):
++class _BaseResource(restful.Resource): # pylint: disable=no-init
  
-     @debug.trace_duration
--    def handle_relog_all(self, command):
-+    def handle_relog_all(self, command): # pylint: disable=unused-argument
-         logger.info('Executing relog all command')
-         self._relog_manager.relog_all_agents()
-diff --unified --recursive '--exclude=.pylint-disable.patch' original/service/handler/status.py patched/service/handler/status.py
---- original/service/handler/status.py
-+++ patched/service/handler/status.py
-@@ -46,7 +46,7 @@
-         return self._handle_status(agent)
+     method_decorators = [_common_error_handler]
  
-     @debug.trace_duration
--    def handle_statuses(self, command):
-+    def handle_statuses(self, command): # pylint: disable=unused-argument
-         logger.info('Executing statuses command')
-         agent_statuses = self._agent_status_dao.get_statuses()
-         return [
+ 
+-class _Agents(_BaseResource):
++class _Agents(_BaseResource): # pylint: disable=no-init
+ 
+     def get(self):
+         return self.service_proxy.get_agent_statuses()
+ 
+ 
+-class _AgentById(_BaseResource):
++class _AgentById(_BaseResource): # pylint: disable=no-init
+ 
+     def get(self, agent_id):
+         return self.service_proxy.get_agent_status_by_id(agent_id)
+ 
+ 
+-class _AgentByNumber(_BaseResource):
++class _AgentByNumber(_BaseResource): # pylint: disable=no-init
+ 
+     def get(self, agent_number):
+         return self.service_proxy.get_agent_status_by_number(agent_number)
+ 
+ 
+-class _LoginAgentById(_BaseResource):
++class _LoginAgentById(_BaseResource): # pylint: disable=no-init
+ 
+     def post(self, agent_id):
+         extension, context = _extract_extension_and_context()
+@@ -111,7 +111,7 @@
+         return '', 204
+ 
+ 
+-class _LoginAgentByNumber(_BaseResource):
++class _LoginAgentByNumber(_BaseResource): # pylint: disable=no-init
+ 
+     def post(self, agent_number):
+         extension, context = _extract_extension_and_context()
+@@ -119,7 +119,7 @@
+         return '', 204
+ 
+ 
+-class _LogoffAgentById(_BaseResource):
++class _LogoffAgentById(_BaseResource): # pylint: disable=no-init
+ 
+     def post(self, agent_id):
+         # XXX logoff_agent_by_id raise a AgentNotLoggedError even if the agent doesn't exist;
+@@ -128,21 +128,21 @@
+         return '', 204
+ 
+ 
+-class _LogoffAgentByNumber(_BaseResource):
++class _LogoffAgentByNumber(_BaseResource): # pylint: disable=no-init
+ 
+     def post(self, agent_number):
+         self.service_proxy.logoff_agent_by_number(agent_number)
+         return '', 204
+ 
+ 
+-class _LogoffAgents(_BaseResource):
++class _LogoffAgents(_BaseResource): # pylint: disable=no-init
+ 
+     def post(self):
+         self.service_proxy.logoff_all()
+         return '', 204
+ 
+ 
+-class _AddAgentToQueue(_BaseResource):
++class _AddAgentToQueue(_BaseResource): # pylint: disable=no-init
+ 
+     def post(self, agent_id):
+         queue_id = _extract_queue_id()
+@@ -150,7 +150,7 @@
+         return '', 204
+ 
+ 
+-class _RemoveAgentFromQueue(_BaseResource):
++class _RemoveAgentFromQueue(_BaseResource): # pylint: disable=no-init
+ 
+     def post(self, agent_id):
+         queue_id = _extract_queue_id()
+@@ -158,21 +158,21 @@
+         return '', 204
+ 
+ 
+-class _RelogAgents(_BaseResource):
++class _RelogAgents(_BaseResource): # pylint: disable=no-init
+ 
+     def post(self):
+         self.service_proxy.relog_all()
+         return '', 204
+ 
+ 
+-class _PauseAgentByNumber(_BaseResource):
++class _PauseAgentByNumber(_BaseResource): # pylint: disable=no-init
+ 
+     def post(self, agent_number):
+         self.service_proxy.pause_agent_by_number(agent_number)
+         return '', 204
+ 
+ 
+-class _UnpauseAgentByNumber(_BaseResource):
++class _UnpauseAgentByNumber(_BaseResource): # pylint: disable=no-init
+ 
+     def post(self, agent_number):
+         self.service_proxy.unpause_agent_by_number(agent_number)
 diff --unified --recursive '--exclude=.pylint-disable.patch' original/service/manager/relog.py patched/service/manager/relog.py
 --- original/service/manager/relog.py
 +++ patched/service/manager/relog.py
