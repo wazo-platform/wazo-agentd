@@ -4,8 +4,8 @@
 # Provides:          xivo-agentd
 # Required-Start:    $local_fs $remote_fs $network $syslog
 # Required-Stop:     $local_fs $remote_fs $network $syslog
-# Should-Start:      asterisk postgresql
-# Should-Stop:       asterisk postgresql
+# Should-Start:      asterisk postgresql rabbitmq-server
+# Should-Stop:       asterisk postgresql rabbitmq-server
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Startup daemon script for xivo-agentd
