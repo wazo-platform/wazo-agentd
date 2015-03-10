@@ -36,3 +36,6 @@ bus:
 rest_api:
   listen: 127.0.0.1
   port: 9493
+  cors:
+    enabled: true
+    allow_headers: Content-Type

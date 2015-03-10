@@ -5,6 +5,7 @@ git+https://github.com/xivo-pbx/xivo-dao.git
 cherrypy
 flask-restful==0.2.12
 flask==0.10.1
+flask-cors
 kombu==2.1.8
 psycopg2
 pyaml
