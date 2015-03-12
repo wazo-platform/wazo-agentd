@@ -215,7 +215,7 @@ class HTTPInterface(object):
         cors_config = dict(config.get('cors', {}))
         enabled = cors_config.pop('enabled', False)
         if enabled:
-            CORS(self.app, **cors_config)
+            CORS(app, **cors_config)
 
     def _add_resources(self, api, service_proxy):
         for Resource, url in self._resources:
