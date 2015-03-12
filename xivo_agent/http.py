@@ -21,6 +21,7 @@ from cherrypy import wsgiserver
 from flask import Flask
 from flask import request
 from flask.ext import restful
+from flask_cors import CORS
 from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.exceptions import BadRequest
 from xivo_agent.exception import AgentServerError, NoSuchAgentError, NoSuchExtensionError, \
@@ -40,6 +41,7 @@ _AGENT_409_ERRORS = (
     AgentNotInQueueError,
     ExtensionAlreadyInUseError,
 )
+
 
 def _common_error_handler(fun):
     def aux(*args, **kwargs):
@@ -199,14 +201,21 @@ class HTTPInterface(object):
         (_RelogAgents, '/agents/relog'),
     ]
 
-    def __init__(self, listen_addr, listen_port, service_proxy):
+    def __init__(self, config, service_proxy):
         app = Flask('xivo_agent')
         app.wsgi_app = ProxyFix(app.wsgi_app)
         app.secret_key = os.urandom(24)
+        self._load_cors(app, config)
         api = restful.Api(app, prefix='/{}'.format(self.VERSION))
         self._add_resources(api, service_proxy)
-        bind_addr = (listen_addr, listen_port)
+        bind_addr = (config['listen'], config['port'])
         self._server = wsgiserver.CherryPyWSGIServer(bind_addr, app)
+
+    def _load_cors(self, app, config):
+        cors_config = dict(config.get('cors', {}))
+        enabled = cors_config.pop('enabled', False)
+        if enabled:
+            CORS(app, **cors_config)
 
     def _add_resources(self, api, service_proxy):
         for Resource, url in self._resources:

@@ -23,6 +23,10 @@ Architecture: all
 Section: python
 Depends: ${python:Depends},
          ${misc:Depends},
+         python-cherrypy3,
+         python-flask,
+         python-flask-cors,
+         python-flask-restful,
          python-kombu,
          xivo-bus (>= 15.05~20150311.155435.cd57c19-1),
          xivo-libdao (>= 12.23~20121127.150346.7813fff-1),

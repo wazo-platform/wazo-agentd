@@ -77,6 +77,14 @@ _DEFAULT_CONFIG = {
         'host': 'localhost',
         'username': 'xivo_agent',
         'password': 'die0Ahn8tae',
+    },
+    'rest_api': {
+        'listen': '127.0.0.1',
+        'port': 9493,
+        'cors': {
+            'enabled': True,
+            'allow_headers': 'Content-Type',
+        }
     }
 }
 
@@ -164,7 +172,7 @@ def _run(config):
             service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, config['uuid'])
 
             amqp_iface = amqp.AMQPInterface(consumer_conn, bus_exchange, service_proxy)
-            http_iface = http.HTTPInterface(config['rest_api']['listen'], config['rest_api']['port'], service_proxy)
+            http_iface = http.HTTPInterface(config['rest_api'], service_proxy)
 
             amqp_iface.start()
             try:
