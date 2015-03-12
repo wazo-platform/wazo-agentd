@@ -24,11 +24,11 @@ Or directly in the sources in contribs/docker
 
 To run the container, do the following:
 
-    docker run -d -v /conf/agentd:/etc/xivo-agentd/conf.d xivo-agentd
+    docker run -d -v /conf/agentd:/etc/xivo-agentd/conf.d -p 9493:9493 xivo-agentd
 
 On interactive mode :
 
-    docker run -v /conf/agentd:/etc/xivo-agentd/conf.d -it xivo-agentd bash
+    docker run -v /conf/agentd:/etc/xivo-agentd/conf.d -p 9493:9493 -it xivo-agentd bash
 
 After launch xivo-agentd.
 
