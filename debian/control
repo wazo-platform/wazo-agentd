@@ -1,4 +1,4 @@
-Source: xivo-agent
+Source: xivo-agentd
 Section: python
 Priority: extra
 Maintainer: XiVO Dev Team <dev@avencall.com>
@@ -8,17 +8,20 @@ Standards-Version: 3.9.4
 X-Python-Version: >= 2.7
 Homepage: http://wiki.xivo.io
 
-Package: xivo-agent
+Package: xivo-agentd
 Architecture: all
 Section: python
-Pre-Depends: xivo-libagent (>= ${binary:Version})
+Pre-Depends: xivo-libagentd (>= ${binary:Version})
 Depends: ${python:Depends}, ${misc:Depends}
-Description: XIVO agent server and client
+Provides: xivo-agent
+Conflicts: xivo-agent
+Replaces: xivo-agent
+Description: XiVO agent server
  XIVO is a system based on a powerful IPBX, to bring an easy to
  install solution for telephony and related services.
  .
 
-Package: xivo-libagent
+Package: xivo-libagentd
 Architecture: all
 Section: python
 Depends: ${python:Depends},
@@ -32,7 +35,10 @@ Depends: ${python:Depends},
          xivo-libdao (>= 12.23~20121127.150346.7813fff-1),
          xivo-lib-python (>= 13.02~20130125.161022.4959dfa-1),
          xivo-libamid
-Description: XIVO agent lib
+Provides: xivo-libagent
+Conflicts: xivo-libagent
+Replaces: xivo-libagent
+Description: XiVO agent lib
  XIVO is a system based on a powerful IPBX, to bring an easy to
  install solution for telephony and related services.
  .
