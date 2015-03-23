@@ -19,6 +19,7 @@ import os
 
 from cherrypy import wsgiserver
 from flask import Flask
+from flask import make_response
 from flask import request
 from flask.ext import restful
 from flask_cors import CORS
@@ -185,8 +186,11 @@ class _UnpauseAgentByNumber(_BaseResource):
 class _SwaggerSpec(_BaseResource):
 
     def get(self, spec):
-        spec_data = resource_string('xivo_agent.swagger', spec)
-        return spec_data, 200
+        try:
+            spec_data = resource_string('xivo_agent.swagger', spec)
+        except IOError:
+            return {'error': "spec '{}' does not exist".format(spec)}, 404
+        return make_response(spec_data, 200, {'Content-Type': 'application/json'})
 
 
 class HTTPInterface(object):
