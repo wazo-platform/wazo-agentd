@@ -1,0 +1,520 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "XiVO Agentd",
+        "description": "Agent service",
+        "version": "1.0",
+        "license": {
+            "name": "GPL v3",
+            "url": "http://www.gnu.org/licenses/gpl.txt"
+        },
+        "contact": {
+            "name": "Dev Team",
+            "url": "http://xivo.io",
+            "email": "dev@avencall.com"
+        }
+    },
+    "x-xivo-port": 9493,
+    "schemes": [
+        "http"
+    ],
+    "basePath": "/1.0",
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/agents": {
+            "get": {
+                "summary": "Get agent statuses.",
+                "description": "Get the status of all agents.",
+                "operationId": "get_agents",
+                "tags": [
+                    "agents"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A list of agent status",
+                        "schema": {
+                            "$ref": "#/definitions/AgentStatus"
+                        }
+                    }
+                }
+            }
+        },
+        "/agents/logoff": {
+            "post": {
+                "summary": "Logoff all agents.",
+                "description": "Logoff all agents.",
+                "operationId": "logoff_agents",
+                "tags": [
+                    "agents"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The operation was performed succesfully"
+                    }
+                }
+            }
+        },
+        "/agents/relog": {
+            "post": {
+                "summary": "Relog all agents.",
+                "description": "Relog all agents which are currently logged.",
+                "operationId": "relog_agents",
+                "tags": [
+                    "agents"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The operation was performed succesfully"
+                    }
+                }
+            }
+        },
+        "/agents/by-id/{agent_id}": {
+            "get": {
+                "summary": "Get agent status.",
+                "description": "Get the status of the agent with the given ID.",
+                "operationId": "get_agent_by_id",
+                "tags": [
+                    "agent"
+                ],
+                "parameters": [
+                    {
+                        "name": "agent_id",
+                        "in": "path",
+                        "description": "Agent's ID",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The agent status",
+                        "schema": {
+                            "$ref": "#/definitions/AgentStatus"
+                        }
+                    },
+                    "404": {
+                        "description": "Agent does not exist",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/agents/by-number/{agent_number}": {
+            "get": {
+                "summary": "Get agent status.",
+                "description": "Get the status of the agent with the given number.",
+                "operationId": "get_agent_by_number",
+                "tags": [
+                    "agent"
+                ],
+                "parameters": [
+                    {
+                        "name": "agent_number",
+                        "in": "path",
+                        "description": "Agent's number",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The agent status",
+                        "schema": {
+                            "$ref": "#/definitions/AgentStatus"
+                        }
+                    },
+                    "404": {
+                        "description": "Agent does not exist",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/agents/by-id/{agent_id}/login": {
+            "post": {
+                "summary": "Log an agent.",
+                "description": "Log the given agent on an extension and context.",
+                "operationId": "login_agent_by_id",
+                "tags": [
+                    "agent"
+                ],
+                "parameters": [
+                    {
+                        "name": "agent_id",
+                        "in": "path",
+                        "description": "Agent's ID",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "The extension and context on which to log the agent",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/LoginInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The operation was performed succesfully"
+                    },
+                    "404": {
+                        "description": "Agent or extension or context does not exist",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "409": {
+                        "description": "Agent is already logged or another agent is already logged on this extension and context",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/agents/by-number/{agent_number}/login": {
+            "post": {
+                "summary": "Log an agent.",
+                "description": "Log the given agent on an extension and context.",
+                "operationId": "login_agent_by_number",
+                "tags": [
+                    "agent"
+                ],
+                "parameters": [
+                    {
+                        "name": "agent_number",
+                        "in": "path",
+                        "description": "Agent's number",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "The extension and context on which to log the agent",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/LoginInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The operation was performed succesfully"
+                    },
+                    "404": {
+                        "description": "Agent or extension or context does not exist",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "409": {
+                        "description": "Agent is already logged or another agent is already logged on this extension and context",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/agents/by-id/{agent_id}/logoff": {
+            "post": {
+                "summary": "Logoff an agent.",
+                "description": "Logoff the given agent.",
+                "operationId": "logoff_agent_by_id",
+                "tags": [
+                    "agent"
+                ],
+                "parameters": [
+                    {
+                        "name": "agent_id",
+                        "in": "path",
+                        "description": "Agent's ID",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The operation was performed succesfully"
+                    },
+                    "409": {
+                        "description": "Agent does not exist or is not logged",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/agents/by-number/{agent_number}/logoff": {
+            "post": {
+                "summary": "Logoff an agent.",
+                "description": "Logoff the given agent.",
+                "operationId": "logoff_agent_by_number",
+                "tags": [
+                    "agent"
+                ],
+                "parameters": [
+                    {
+                        "name": "agent_number",
+                        "in": "path",
+                        "description": "Agent's number",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The operation was performed succesfully"
+                    },
+                    "409": {
+                        "description": "Agent does not exist or is not logged",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/agents/by-number/{agent_number}/pause": {
+            "post": {
+                "summary": "Pause an agent.",
+                "description": "Pause the given agent.",
+                "operationId": "pause_agent_by_number",
+                "tags": [
+                    "agent"
+                ],
+                "parameters": [
+                    {
+                        "name": "agent_number",
+                        "in": "path",
+                        "description": "Agent's number",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The operation was performed succesfully"
+                    },
+                    "404": {
+                        "description": "Agent does not exist",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "409": {
+                        "description": "Agent is not logged",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/agents/by-number/{agent_number}/unpause": {
+            "post": {
+                "summary": "Unpause an agent.",
+                "description": "Unpause the given agent.",
+                "operationId": "unpause_agent_by_number",
+                "tags": [
+                    "agent"
+                ],
+                "parameters": [
+                    {
+                        "name": "agent_number",
+                        "in": "path",
+                        "description": "Agent's number",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The operation was performed succesfully"
+                    },
+                    "404": {
+                        "description": "Agent does not exist",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "409": {
+                        "description": "Agent is not logged",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/agents/by-id/{agent_id}/add": {
+            "post": {
+                "summary": "Add agent to a queue.",
+                "description": "Add the given agent to a queue.",
+                "operationId": "add_agent_by_id",
+                "tags": [
+                    "agent"
+                ],
+                "parameters": [
+                    {
+                        "name": "agent_id",
+                        "in": "path",
+                        "description": "Agent's ID",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "The queue to add the agent to",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Queue"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The operation was performed succesfully"
+                    },
+                    "404": {
+                        "description": "Agent or queue does not exist",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "409": {
+                        "description": "Agent is already a member of the queue",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/agents/by-id/{agent_id}/remove": {
+            "post": {
+                "summary": "Remove agent from a queue.",
+                "description": "Remove the given agent from a queue.",
+                "operationId": "remove_agent_by_id",
+                "tags": [
+                    "agent"
+                ],
+                "parameters": [
+                    {
+                        "name": "agent_id",
+                        "in": "path",
+                        "description": "Agent's ID",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "The queue to remove the agent from",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Queue"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "The operation was performed succesfully"
+                    },
+                    "404": {
+                        "description": "Agent or queue does not exist",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "409": {
+                        "description": "Agent is not a member of the queue",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "AgentStatus": {
+            "title": "Agent status",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Agent's ID"
+                },
+                "origin_uuid": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "XiVO's UUID"
+                },
+                "number": {
+                    "type": "string",
+                    "description": "Agent's number"
+                },
+                "logged": {
+                    "type": "boolean",
+                    "description": "True if the agent is logged, else false"
+                },
+                "extension": {
+                    "type": "string",
+                    "description": "The extension on which the agent is logged, or null if the agent is not logged"
+                },
+                "context": {
+                    "type": "string",
+                    "description": "The context on which the agent is logged, or null if the agent is not logged"
+                }
+            }
+        },
+        "LoginInfo": {
+            "title": "Login information",
+            "properties": {
+                "extension": {
+                    "type": "string",
+                    "description": "Extension"
+                },
+                "context": {
+                    "type": "string",
+                    "description": "Context"
+                }
+            }
+        },
+        "Queue": {
+            "title": "Queue",
+            "properties": {
+                "queue_id": {
+                    "type": "integer",
+                    "description": "Queue's ID"
+                }
+            }
+        },
+        "Error": {
+            "title": "Error",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "description": "Error identifier"
+                }
+            }
+        }
+    }
+}

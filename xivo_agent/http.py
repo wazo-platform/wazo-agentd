@@ -22,6 +22,7 @@ from flask import Flask
 from flask import request
 from flask.ext import restful
 from flask_cors import CORS
+from pkg_resources import resource_string
 from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.exceptions import BadRequest
 from xivo_agent.exception import AgentServerError, NoSuchAgentError, NoSuchExtensionError, \
@@ -181,6 +182,13 @@ class _UnpauseAgentByNumber(_BaseResource):
         return '', 204
 
 
+class _SwaggerSpec(_BaseResource):
+
+    def get(self, spec):
+        spec_data = resource_string('xivo_agent.swagger', spec)
+        return spec_data, 200
+
+
 class HTTPInterface(object):
 
     VERSION = '1.0'
@@ -199,6 +207,7 @@ class HTTPInterface(object):
         (_UnpauseAgentByNumber, '/agents/by-number/<agent_number>/unpause'),
         (_LogoffAgents, '/agents/logoff'),
         (_RelogAgents, '/agents/relog'),
+        (_SwaggerSpec, '/doc/<path:spec>'),
     ]
 
     def __init__(self, config, service_proxy):
