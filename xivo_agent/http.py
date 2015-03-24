@@ -19,16 +19,16 @@ import os
 
 from cherrypy import wsgiserver
 from flask import Flask
-from flask import make_response
 from flask import request
 from flask.ext import restful
 from flask_cors import CORS
-from pkg_resources import resource_string
 from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.exceptions import BadRequest
 from xivo_agent.exception import AgentServerError, NoSuchAgentError, NoSuchExtensionError, \
     AgentAlreadyLoggedError, ExtensionAlreadyInUseError, AgentNotLoggedError, \
     NoSuchQueueError, AgentAlreadyInQueueError, AgentNotInQueueError
+
+from xivo_agent.swagger.resource import SwaggerResource
 
 
 _AGENT_404_ERRORS = (
@@ -183,16 +183,6 @@ class _UnpauseAgentByNumber(_BaseResource):
         return '', 204
 
 
-class _SwaggerSpec(_BaseResource):
-
-    def get(self, spec):
-        try:
-            spec_data = resource_string('xivo_agent.swagger', spec)
-        except IOError:
-            return {'error': "spec '{}' does not exist".format(spec)}, 404
-        return make_response(spec_data, 200, {'Content-Type': 'application/json'})
-
-
 class HTTPInterface(object):
 
     VERSION = '1.0'
@@ -211,7 +201,7 @@ class HTTPInterface(object):
         (_UnpauseAgentByNumber, '/agents/by-number/<agent_number>/unpause'),
         (_LogoffAgents, '/agents/logoff'),
         (_RelogAgents, '/agents/relog'),
-        (_SwaggerSpec, '/doc/<path:spec>'),
+        (SwaggerResource, SwaggerResource.api_path),
     ]
 
     def __init__(self, config, service_proxy):
