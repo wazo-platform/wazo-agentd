@@ -28,6 +28,8 @@ from xivo_agent.exception import AgentServerError, NoSuchAgentError, NoSuchExten
     AgentAlreadyLoggedError, ExtensionAlreadyInUseError, AgentNotLoggedError, \
     NoSuchQueueError, AgentAlreadyInQueueError, AgentNotInQueueError
 
+from xivo_agent.swagger.resource import SwaggerResource
+
 
 _AGENT_404_ERRORS = (
     NoSuchAgentError,
@@ -199,6 +201,7 @@ class HTTPInterface(object):
         (_UnpauseAgentByNumber, '/agents/by-number/<agent_number>/unpause'),
         (_LogoffAgents, '/agents/logoff'),
         (_RelogAgents, '/agents/relog'),
+        (SwaggerResource, SwaggerResource.api_path),
     ]
 
     def __init__(self, config, service_proxy):
