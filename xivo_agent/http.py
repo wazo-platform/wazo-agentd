@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import os
+import logging
 
 from cherrypy import wsgiserver
 from flask import Flask
@@ -27,8 +28,11 @@ from werkzeug.exceptions import BadRequest
 from xivo_agent.exception import AgentServerError, NoSuchAgentError, NoSuchExtensionError, \
     AgentAlreadyLoggedError, ExtensionAlreadyInUseError, AgentNotLoggedError, \
     NoSuchQueueError, AgentAlreadyInQueueError, AgentNotInQueueError
+from xivo import http_helpers
 
 from xivo_agent.swagger.resource import SwaggerResource
+
+logger = logging.getLogger(__name__)
 
 
 _AGENT_404_ERRORS = (
@@ -206,6 +210,8 @@ class HTTPInterface(object):
 
     def __init__(self, config, service_proxy):
         app = Flask('xivo_agent')
+        http_helpers.add_logger(app, logger)
+        app.after_request(http_helpers.log_request)
         app.wsgi_app = ProxyFix(app.wsgi_app)
         app.secret_key = os.urandom(24)
         self._load_cors(app, config)
