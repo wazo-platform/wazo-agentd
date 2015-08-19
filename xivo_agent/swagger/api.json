@@ -483,6 +483,10 @@
                 "context": {
                     "type": "string",
                     "description": "The context on which the agent is logged, or null if the agent is not logged"
+                },
+                "state_interface": {
+                    "type": "string",
+                    "description": "The interface (e.g. SIP/alice) to determine if the agent is in use or not"
                 }
             }
         },
