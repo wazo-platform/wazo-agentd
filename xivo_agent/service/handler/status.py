@@ -50,7 +50,8 @@ class StatusHandler(object):
              'number': status.agent_number,
              'logged': status.logged,
              'extension': status.extension,
-             'context': status.context}
+             'context': status.context,
+             'state_interface': status.state_interface}
             for status in agent_statuses
         ]
 
@@ -60,10 +61,12 @@ class StatusHandler(object):
             logged = False
             extension = None
             context = None
+            state_interface = None
         else:
             logged = True
             extension = agent_status.extension
             context = agent_status.context
+            state_interface = agent_status.state_interface
         return {
             'id': agent.id,
             'origin_uuid': self._uuid,
@@ -71,4 +74,5 @@ class StatusHandler(object):
             'logged': logged,
             'extension': extension,
             'context': context,
+            'state_interface': state_interface,
         }
