@@ -8,5 +8,5 @@ flask==0.10.1
 flask-cors==1.10.3
 kombu==2.1.8
 psycopg2
-pyaml
+pyyaml==3.10
 sqlalchemy==0.9.4
