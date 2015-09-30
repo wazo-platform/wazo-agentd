@@ -3,7 +3,7 @@ git+https://github.com/xivo-pbx/xivo-amid.git
 git+https://github.com/xivo-pbx/xivo-bus.git
 git+https://github.com/xivo-pbx/xivo-dao.git
 cherrypy
-flask-restful==0.2.12
+flask-restful==0.3.4
 flask==0.10.1
 flask-cors==1.10.3
 kombu==2.1.8
