@@ -16,7 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import logging
+
 from xivo import debug
+from xivo_dao.helpers import db_utils
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +33,8 @@ class OnAgentHandler(object):
     @debug.trace_duration
     def handle_on_agent_updated(self, agent_id):
         logger.info('Executing on agent updated command (ID %s)', agent_id)
-        agent = self._agent_dao.get_agent(agent_id)
+        with db_utils.session_scope():
+            agent = self._agent_dao.get_agent(agent_id)
         self._on_agent_updated_manager.on_agent_updated(agent)
 
     @debug.trace_duration

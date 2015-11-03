@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 from xivo_agent.exception import AgentNotInQueueError
+from xivo_dao.helpers import db_utils
 
 
 class RemoveMemberManager(object):
@@ -39,12 +40,14 @@ class RemoveMemberManager(object):
         raise AgentNotInQueueError()
 
     def _remove_queue_member(self, agent, queue):
-        self._queue_member_dao.remove_agent_from_queue(agent.id, queue.name)
+        with db_utils.session_scope():
+            self._queue_member_dao.remove_agent_from_queue(agent.id, queue.name)
 
     def _send_agent_removed_event(self, agent, queue):
         self._ami_client.agent_removed_from_queue(agent.id, agent.number, queue.name)
 
     def _remove_from_queue_if_logged(self, agent, queue):
-        agent_status = self._agent_status_dao.get_status(agent.id)
+        with db_utils.session_scope():
+            agent_status = self._agent_status_dao.get_status(agent.id)
         if agent_status is not None:
             self._remove_from_queue_action.remove_agent_from_queue(agent_status, queue)

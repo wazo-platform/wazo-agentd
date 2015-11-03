@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import datetime
+from xivo_dao.helpers import db_utils
 
 
 class QueueLogManager(object):
@@ -28,8 +29,9 @@ class QueueLogManager(object):
         agent = self._format_agent(agent_number)
         data1 = self._format_data1(extension, context)
 
-        self._dao.insert_entry(time, 'NONE', 'NONE', agent, 'AGENTCALLBACKLOGIN',
-                               data1)
+        with db_utils.session_scope():
+            self._dao.insert_entry(time, 'NONE', 'NONE', agent, 'AGENTCALLBACKLOGIN',
+                                   data1)
 
     def on_agent_logged_off(self, agent_number, extension, context, logged_time):
         time = self.format_time_now()
@@ -37,8 +39,9 @@ class QueueLogManager(object):
         data1 = self._format_data1(extension, context)
         logged_time = self._format_logged_time(logged_time)
 
-        self._dao.insert_entry(time, 'NONE', 'NONE', agent, 'AGENTCALLBACKLOGOFF',
-                               data1, logged_time, 'CommandLogoff')
+        with db_utils.session_scope():
+            self._dao.insert_entry(time, 'NONE', 'NONE', agent, 'AGENTCALLBACKLOGOFF',
+                                   data1, logged_time, 'CommandLogoff')
 
     def _format_agent(self, agent_number):
         return 'Agent/%s' % agent_number

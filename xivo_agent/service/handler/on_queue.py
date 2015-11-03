@@ -16,7 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import logging
+
 from xivo import debug
+from xivo_dao.helpers import db_utils
 
 logger = logging.getLogger(__name__)
 
@@ -32,13 +34,15 @@ class OnQueueHandler(object):
     @debug.trace_duration
     def handle_on_queue_added(self, queue_id):
         logger.info('Executing on queue added command (ID %s)', queue_id)
-        queue = self._queue_dao.get_queue(queue_id)
+        with db_utils.session_scope():
+            queue = self._queue_dao.get_queue(queue_id)
         self._on_queue_added_manager.on_queue_added(queue)
 
     @debug.trace_duration
     def handle_on_queue_updated(self, queue_id):
         logger.info('Executing on queue updated command (ID %s)', queue_id)
-        queue = self._queue_dao.get_queue(queue_id)
+        with db_utils.session_scope():
+            queue = self._queue_dao.get_queue(queue_id)
         self._on_queue_updated_manager.on_queue_updated(queue)
 
     @debug.trace_duration

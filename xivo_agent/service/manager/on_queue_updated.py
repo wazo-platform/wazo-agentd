@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+from xivo_dao.helpers import db_utils
+
 
 class OnQueueUpdatedManager(object):
 
@@ -24,8 +26,9 @@ class OnQueueUpdatedManager(object):
         self._agent_status_dao = agent_status_dao
 
     def on_queue_updated(self, queue):
-        added_agent_statuses = self._agent_status_dao.get_statuses_to_add_to_queue(queue.id)
-        removed_agent_statuses = self._agent_status_dao.get_statuses_to_remove_from_queue(queue.id)
+        with db_utils.session_scope():
+            added_agent_statuses = self._agent_status_dao.get_statuses_to_add_to_queue(queue.id)
+            removed_agent_statuses = self._agent_status_dao.get_statuses_to_remove_from_queue(queue.id)
 
         self._manage_added_agents(added_agent_statuses, queue)
         self._manage_removed_agents(removed_agent_statuses, queue)
