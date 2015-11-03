@@ -26,7 +26,7 @@ from contextlib import contextmanager
 from xivo.chain_map import ChainMap
 from xivo.config_helper import read_config_file_hierarchy
 from xivo.daemonize import pidfile_context
-from xivo.xivo_logging import setup_logging
+from xivo.xivo_logging import setup_logging, silence_loggers
 from xivo_agent import ami
 from xivo_agent import amqp
 from xivo_agent import http
@@ -99,6 +99,7 @@ def main():
     xivo_dao.init_db_from_config(config)
 
     setup_logging(config['logfile'], config['foreground'], config['debug'])
+    silence_loggers(['Flask-Cors'], logging.WARNING)
 
     with pidfile_context(config['pidfile'], config['foreground']):
         logger.info('Starting xivo-agentd')
