@@ -16,9 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import logging
+
 from xivo_agent.exception import NoSuchExtensionError
 from xivo_agent.service.helper import format_agent_member_name, format_agent_skills
 from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
+from xivo_dao.helpers import db_utils
 
 logger = logging.getLogger(__name__)
 
@@ -49,13 +51,15 @@ class LoginAction(object):
 
     def _get_state_interface(self, extension, context):
         try:
-            return self._line_dao.get_interface_from_exten_and_context(extension, context)
+            with db_utils.session_scope():
+                return self._line_dao.get_interface_from_exten_and_context(extension, context)
         except LookupError:
             raise NoSuchExtensionError(extension, context)
 
     def _update_agent_status(self, agent, extension, context, interface, state_interface):
-        self._agent_status_dao.log_in_agent(agent.id, agent.number, extension, context, interface, state_interface)
-        self._agent_status_dao.add_agent_to_queues(agent.id, agent.queues)
+        with db_utils.session_scope():
+            self._agent_status_dao.log_in_agent(agent.id, agent.number, extension, context, interface, state_interface)
+            self._agent_status_dao.add_agent_to_queues(agent.id, agent.queues)
 
     def _update_queue_log(self, agent, extension, context):
         self._queue_log_manager.on_agent_logged_in(agent.number, extension, context)

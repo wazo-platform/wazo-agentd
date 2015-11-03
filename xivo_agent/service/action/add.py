@@ -16,7 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import logging
+
 from xivo_agent.service.helper import format_agent_member_name, format_agent_skills
+from xivo_dao.helpers import db_utils
 
 logger = logging.getLogger(__name__)
 
@@ -40,4 +42,5 @@ class AddToQueueAction(object):
             logger.warning('Failure to add interface %r to queue %r', agent_status.interface, queue.name)
 
     def _update_agent_status(self, agent_status, queue):
-        self._agent_status_dao.add_agent_to_queues(agent_status.agent_id, [queue])
+        with db_utils.session_scope():
+            self._agent_status_dao.add_agent_to_queues(agent_status.agent_id, [queue])

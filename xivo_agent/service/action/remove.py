@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+from xivo_dao.helpers import db_utils
+
 
 class RemoveFromQueueAction(object):
 
@@ -30,4 +32,5 @@ class RemoveFromQueueAction(object):
         self._ami_client.queue_remove(queue.name, agent_status.interface)
 
     def _update_agent_status(self, agent_status, queue):
-        self._agent_status_dao.remove_agent_from_queues(agent_status.agent_id, [queue.id])
+        with db_utils.session_scope():
+            self._agent_status_dao.remove_agent_from_queues(agent_status.agent_id, [queue.id])

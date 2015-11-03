@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+from xivo_dao.helpers import db_utils
+
 
 class OnAgentDeletedManager(object):
 
@@ -23,7 +25,8 @@ class OnAgentDeletedManager(object):
         self._agent_status_dao = agent_status_dao
 
     def on_agent_deleted(self, agent_id):
-        agent_status = self._agent_status_dao.get_status(agent_id)
+        with db_utils.session_scope():
+            agent_status = self._agent_status_dao.get_status(agent_id)
         if agent_status is None:
             return
 

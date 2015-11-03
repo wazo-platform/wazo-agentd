@@ -16,7 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import logging
+
 from xivo import debug
+from xivo_dao.helpers import db_utils
 
 logger = logging.getLogger(__name__)
 
@@ -30,13 +32,15 @@ class LogoffHandler(object):
     @debug.trace_duration
     def handle_logoff_by_id(self, agent_id):
         logger.info('Executing logoff command (ID %s)', agent_id)
-        agent_status = self._agent_status_dao.get_status(agent_id)
+        with db_utils.session_scope():
+            agent_status = self._agent_status_dao.get_status(agent_id)
         self._handle_logoff(agent_status)
 
     @debug.trace_duration
     def handle_logoff_by_number(self, agent_number):
         logger.info('Executing logoff command (number %s)', agent_number)
-        agent_status = self._agent_status_dao.get_status_by_number(agent_number)
+        with db_utils.session_scope():
+            agent_status = self._agent_status_dao.get_status_by_number(agent_number)
         self._handle_logoff(agent_status)
 
     @debug.trace_duration

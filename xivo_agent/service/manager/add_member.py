@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 from xivo_agent.exception import AgentAlreadyInQueueError
+from xivo_dao.helpers import db_utils
 
 
 class AddMemberManager(object):
@@ -38,12 +39,14 @@ class AddMemberManager(object):
                 raise AgentAlreadyInQueueError()
 
     def _add_queue_member(self, agent, queue):
-        self._queue_member_dao.add_agent_to_queue(agent.id, agent.number, queue.name)
+        with db_utils.session_scope():
+            self._queue_member_dao.add_agent_to_queue(agent.id, agent.number, queue.name)
 
     def _send_agent_added_event(self, agent, queue):
         self._ami_client.agent_added_to_queue(agent.id, agent.number, queue.name)
 
     def _add_to_queue_if_logged(self, agent, queue):
-        agent_status = self._agent_status_dao.get_status(agent.id)
+        with db_utils.session_scope():
+            agent_status = self._agent_status_dao.get_status(agent.id)
         if agent_status is not None:
             self._add_to_queue_action.add_agent_to_queue(agent_status, queue)

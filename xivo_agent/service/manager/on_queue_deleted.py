@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+from xivo_dao.helpers import db_utils
+
 
 class OnQueueDeletedManager(object):
 
@@ -22,4 +24,5 @@ class OnQueueDeletedManager(object):
         self._agent_status_dao = agent_status_dao
 
     def on_queue_deleted(self, queue_id):
-        self._agent_status_dao.remove_all_agents_from_queue(queue_id)
+        with db_utils.session_scope():
+            self._agent_status_dao.remove_all_agents_from_queue(queue_id)

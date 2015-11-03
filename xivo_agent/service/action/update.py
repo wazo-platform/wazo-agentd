@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+from xivo_dao.helpers import db_utils
+
 
 class UpdatePenaltyAction(object):
 
@@ -30,4 +32,5 @@ class UpdatePenaltyAction(object):
         self._ami_client.queue_penalty(agent_status.interface, queue.penalty, queue.name)
 
     def _update_agent_status(self, agent_status, queue):
-        self._agent_status_dao.update_penalty(agent_status.agent_id, queue.id, queue.penalty)
+        with db_utils.session_scope():
+            self._agent_status_dao.update_penalty(agent_status.agent_id, queue.id, queue.penalty)

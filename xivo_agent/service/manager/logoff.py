@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 from xivo_agent.exception import AgentNotLoggedError
+from xivo_dao.helpers import db_utils
 
 
 class LogoffManager(object):
@@ -35,5 +36,6 @@ class LogoffManager(object):
             self._logoff_action.logoff_agent(agent_status)
 
     def _get_agent_statuses(self):
-        agent_ids = self._agent_status_dao.get_logged_agent_ids()
-        return [self._agent_status_dao.get_status(agent_id) for agent_id in agent_ids]
+        with db_utils.session_scope():
+            agent_ids = self._agent_status_dao.get_logged_agent_ids()
+            return [self._agent_status_dao.get_status(agent_id) for agent_id in agent_ids]

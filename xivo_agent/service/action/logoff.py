@@ -16,7 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import datetime
+
 from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
+from xivo_dao.helpers import db_utils
 
 
 class LogoffAction(object):
@@ -52,8 +54,9 @@ class LogoffAction(object):
         return delta.total_seconds()
 
     def _update_agent_status(self, agent_status):
-        self._agent_status_dao.remove_agent_from_all_queues(agent_status.agent_id)
-        self._agent_status_dao.log_off_agent(agent_status.agent_id)
+        with db_utils.session_scope():
+            self._agent_status_dao.remove_agent_from_all_queues(agent_status.agent_id)
+            self._agent_status_dao.log_off_agent(agent_status.agent_id)
 
     def _send_bus_status_update(self, agent_status):
         status = AgentStatusUpdateEvent.STATUS_LOGGED_OUT

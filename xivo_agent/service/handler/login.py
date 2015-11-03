@@ -16,7 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import logging
+
 from xivo import debug
+from xivo_dao.helpers import db_utils
 
 logger = logging.getLogger(__name__)
 
@@ -30,13 +32,15 @@ class LoginHandler(object):
     @debug.trace_duration
     def handle_login_by_id(self, agent_id, extension, context):
         logger.info('Executing login command (ID %s) on %s@%s', agent_id, extension, context)
-        agent = self._agent_dao.get_agent(agent_id)
+        with db_utils.session_scope():
+            agent = self._agent_dao.get_agent(agent_id)
         self._handle_login(agent, extension, context)
 
     @debug.trace_duration
     def handle_login_by_number(self, agent_number, extension, context):
         logger.info('Executing login command (number %s) on %s@%s', agent_number, extension, context)
-        agent = self._agent_dao.get_agent_by_number(agent_number)
+        with db_utils.session_scope():
+            agent = self._agent_dao.get_agent_by_number(agent_number)
         self._handle_login(agent, extension, context)
 
     def _handle_login(self, agent, extension, context):
