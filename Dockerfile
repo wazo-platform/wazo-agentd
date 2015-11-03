@@ -17,9 +17,9 @@ RUN apt-get -qq -y install \
     libyaml-dev
 
 # Install xivo-agentd
-WORKDIR /usr/src
 ADD . /usr/src/agentd
-WORKDIR agentd
+ADD ./contribs/docker/certs /usr/share/xivo-certs
+WORKDIR /usr/src/agentd
 RUN pip install -r requirements.txt
 RUN python setup.py install
 
@@ -27,11 +27,13 @@ RUN python setup.py install
 RUN touch /var/log/xivo-agentd.log
 RUN mkdir -p /etc/xivo-agentd
 RUN mkdir /var/lib/xivo-agentd
-RUN cp -a etc/xivo-agentd/* /etc/xivo-agentd/
+RUN cp -r etc/* /etc
 WORKDIR /root
 
 # Clean
 RUN apt-get clean
 RUN rm -rf /usr/src/agentd
+
+EXPOSE 9493
 
 CMD xivo-agentd -f 

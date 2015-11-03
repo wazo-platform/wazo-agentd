@@ -209,22 +209,23 @@ class HTTPInterface(object):
     ]
 
     def __init__(self, config, service_proxy):
-        app = Flask('xivo_agent')
-        http_helpers.add_logger(app, logger)
-        app.after_request(http_helpers.log_request)
-        app.wsgi_app = ProxyFix(app.wsgi_app)
-        app.secret_key = os.urandom(24)
-        self._load_cors(app, config)
-        api = restful.Api(app, prefix='/{}'.format(self.VERSION))
-        self._add_resources(api, service_proxy)
-        bind_addr = (config['listen'], config['port'])
-        self._server = wsgiserver.CherryPyWSGIServer(bind_addr, app)
+        self._config = config
+        self._app = Flask('xivo_agent')
 
-    def _load_cors(self, app, config):
-        cors_config = dict(config.get('cors', {}))
+        http_helpers.add_logger(self._app, logger)
+        self._app.after_request(http_helpers.log_request)
+        self._app.wsgi_app = ProxyFix(self._app.wsgi_app)
+        self._app.secret_key = os.urandom(24)
+        self._load_cors()
+
+        api = restful.Api(self._app, prefix='/{}'.format(self.VERSION))
+        self._add_resources(api, service_proxy)
+
+    def _load_cors(self):
+        cors_config = dict(self._config.get('cors', {}))
         enabled = cors_config.pop('enabled', False)
         if enabled:
-            CORS(app, **cors_config)
+            CORS(self._app, **cors_config)
 
     def _add_resources(self, api, service_proxy):
         for Resource, url in self._resources:
@@ -232,7 +233,20 @@ class HTTPInterface(object):
             api.add_resource(Resource, url)
 
     def run(self):
+        bind_addr = (self._config['listen'], self._config['port'])
+
+        _check_file_readable(self._config['certificate'])
+        _check_file_readable(self._config['private_key'])
+        server = wsgiserver.CherryPyWSGIServer(bind_addr, self._app)
+        server.ssl_adapter = http_helpers.ssl_adapter(self._config['certificate'],
+                                                      self._config['private_key'],
+                                                      self._config.get('ciphers'))
         try:
-            self._server.start()
+            server.start()
         finally:
-            self._server.stop()
+            server.stop()
+
+
+def _check_file_readable(file_path):
+    with open(file_path, 'r'):
+        pass
