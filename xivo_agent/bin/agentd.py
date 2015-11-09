@@ -26,7 +26,8 @@ from contextlib import contextmanager
 from xivo.chain_map import ChainMap
 from xivo.config_helper import read_config_file_hierarchy
 from xivo.daemonize import pidfile_context
-from xivo.xivo_logging import setup_logging
+from xivo.http_helpers import DEFAULT_CIPHERS
+from xivo.xivo_logging import setup_logging, silence_loggers
 from xivo_agent import ami
 from xivo_agent import amqp
 from xivo_agent import http
@@ -81,6 +82,9 @@ _DEFAULT_CONFIG = {
     'rest_api': {
         'listen': '127.0.0.1',
         'port': 9493,
+        'certificate': '/usr/share/xivo-certs/server.crt',
+        'private_key': '/usr/share/xivo-certs/server.key',
+        'ciphers': DEFAULT_CIPHERS,
         'cors': {
             'enabled': True,
             'allow_headers': 'Content-Type',
@@ -99,6 +103,7 @@ def main():
     xivo_dao.init_db_from_config(config)
 
     setup_logging(config['logfile'], config['foreground'], config['debug'])
+    silence_loggers(['Flask-Cors'], logging.WARNING)
 
     with pidfile_context(config['pidfile'], config['foreground']):
         logger.info('Starting xivo-agentd')
