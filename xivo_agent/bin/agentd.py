@@ -80,11 +80,13 @@ _DEFAULT_CONFIG = {
         'password': 'die0Ahn8tae',
     },
     'rest_api': {
-        'listen': '127.0.0.1',
-        'port': 9493,
-        'certificate': '/usr/share/xivo-certs/server.crt',
-        'private_key': '/usr/share/xivo-certs/server.key',
-        'ciphers': DEFAULT_CIPHERS,
+        'https': {
+            'listen': '127.0.0.1',
+            'port': 9493,
+            'certificate': '/usr/share/xivo-certs/server.crt',
+            'private_key': '/usr/share/xivo-certs/server.key',
+            'ciphers': DEFAULT_CIPHERS,
+        },
         'cors': {
             'enabled': True,
             'allow_headers': 'Content-Type',

@@ -233,14 +233,15 @@ class HTTPInterface(object):
             api.add_resource(Resource, url)
 
     def run(self):
-        bind_addr = (self._config['listen'], self._config['port'])
+        config = self._config['https']
+        bind_addr = (config['listen'], config['port'])
 
-        _check_file_readable(self._config['certificate'])
-        _check_file_readable(self._config['private_key'])
+        _check_file_readable(config['certificate'])
+        _check_file_readable(config['private_key'])
         server = wsgiserver.CherryPyWSGIServer(bind_addr, self._app)
-        server.ssl_adapter = http_helpers.ssl_adapter(self._config['certificate'],
-                                                      self._config['private_key'],
-                                                      self._config.get('ciphers'))
+        server.ssl_adapter = http_helpers.ssl_adapter(config['certificate'],
+                                                      config['private_key'],
+                                                      config.get('ciphers'))
         try:
             server.start()
         finally:
