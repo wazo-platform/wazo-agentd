@@ -59,6 +59,7 @@ from xivo_agent.service.manager.pause import PauseManager
 from xivo_agent.service.manager.relog import RelogManager
 from xivo_agent.service.manager.remove_member import RemoveMemberManager
 from xivo_agent.service.proxy import ServiceProxy
+from xivo_auth_client import Client as AuthClient
 from xivo_bus import Marshaler, Publisher
 from xivo_dao import agent_dao as orig_agent_dao
 from xivo_dao import agent_status_dao
@@ -68,6 +69,11 @@ from xivo_dao import queue_log_dao
 from xivo_dao import queue_member_dao
 
 _DEFAULT_CONFIG = {
+    'auth': {
+        'host': 'localhost',
+        'port': 9497,
+        'verify_certificate': '/usr/share/xivo-certs/server.crt',
+    },
     'debug': False,
     'foreground': False,
     'logfile': '/var/log/xivo-agentd.log',
@@ -139,6 +145,7 @@ def _run(config):
     _init_signal()
     agent_dao = AgentDAOAdapter(orig_agent_dao)
     queue_dao = QueueDAOAdapter(orig_queue_dao)
+    auth_client = AuthClient(**config['auth'])
     with _new_ami_client(config) as ami_client:
         with _new_bus_connection(config) as producer_conn, _new_bus_connection(config) as consumer_conn:
             bus_exchange = Exchange(config['bus']['exchange_name'],
@@ -179,7 +186,7 @@ def _run(config):
             service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, config['uuid'])
 
             amqp_iface = amqp.AMQPInterface(consumer_conn, bus_exchange, service_proxy)
-            http_iface = http.HTTPInterface(config['rest_api'], service_proxy)
+            http_iface = http.HTTPInterface(config['rest_api'], service_proxy, auth_client)
 
             amqp_iface.start()
             try:
