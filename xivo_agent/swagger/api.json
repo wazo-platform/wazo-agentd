@@ -17,7 +17,7 @@
     "x-xivo-name": "agentd",
     "x-xivo-port": 9493,
     "schemes": [
-        "http"
+        "https"
     ],
     "basePath": "/1.0",
     "consumes": [
