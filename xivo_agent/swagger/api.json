@@ -35,6 +35,11 @@
                 "tags": [
                     "agents"
                 ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/Token"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "A list of agent status",
@@ -53,6 +58,11 @@
                 "tags": [
                     "agents"
                 ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/Token"
+                    }
+                ],
                 "responses": {
                     "204": {
                         "description": "The operation was performed succesfully"
@@ -67,6 +77,11 @@
                 "operationId": "relog_agents",
                 "tags": [
                     "agents"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/Token"
+                    }
                 ],
                 "responses": {
                     "204": {
@@ -90,6 +105,9 @@
                         "description": "Agent's ID",
                         "required": true,
                         "type": "integer"
+                    },
+                    {
+                        "$ref": "#/parameters/Token"
                     }
                 ],
                 "responses": {
@@ -123,6 +141,9 @@
                         "description": "Agent's number",
                         "required": true,
                         "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/Token"
                     }
                 ],
                 "responses": {
@@ -165,6 +186,9 @@
                         "schema": {
                             "$ref": "#/definitions/LoginInfo"
                         }
+                    },
+                    {
+                        "$ref": "#/parameters/Token"
                     }
                 ],
                 "responses": {
@@ -210,6 +234,9 @@
                         "schema": {
                             "$ref": "#/definitions/LoginInfo"
                         }
+                    },
+                    {
+                        "$ref": "#/parameters/Token"
                     }
                 ],
                 "responses": {
@@ -246,6 +273,9 @@
                         "description": "Agent's ID",
                         "required": true,
                         "type": "integer"
+                    },
+                    {
+                        "$ref": "#/parameters/Token"
                     }
                 ],
                 "responses": {
@@ -276,6 +306,9 @@
                         "description": "Agent's number",
                         "required": true,
                         "type": "integer"
+                    },
+                    {
+                        "$ref": "#/parameters/Token"
                     }
                 ],
                 "responses": {
@@ -306,6 +339,9 @@
                         "description": "Agent's number",
                         "required": true,
                         "type": "integer"
+                    },
+                    {
+                        "$ref": "#/parameters/Token"
                     }
                 ],
                 "responses": {
@@ -342,6 +378,9 @@
                         "description": "Agent's number",
                         "required": true,
                         "type": "integer"
+                    },
+                    {
+                        "$ref": "#/parameters/Token"
                     }
                 ],
                 "responses": {
@@ -387,6 +426,9 @@
                         "schema": {
                             "$ref": "#/definitions/Queue"
                         }
+                    },
+                    {
+                        "$ref": "#/parameters/Token"
                     }
                 ],
                 "responses": {
@@ -432,6 +474,9 @@
                         "schema": {
                             "$ref": "#/definitions/Queue"
                         }
+                    },
+                    {
+                        "$ref": "#/parameters/Token"
                     }
                 ],
                 "responses": {
@@ -452,6 +497,15 @@
                     }
                 }
             }
+        }
+    },
+    "parameters": {
+        "Token": {
+            "name": "X-Auth-Token",
+            "in": "header",
+            "type": "string",
+            "required": true,
+            "description": "Authentication token obtained from xivo-auth."
         }
     },
     "definitions": {
