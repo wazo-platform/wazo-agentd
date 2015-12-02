@@ -26,7 +26,6 @@ from flask import request
 from flask.ext import restful
 from flask_cors import CORS
 from functools import wraps
-from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.exceptions import BadRequest
 from xivo_agent.exception import AgentServerError, NoSuchAgentError, NoSuchExtensionError, \
     AgentAlreadyLoggedError, ExtensionAlreadyInUseError, AgentNotLoggedError, \
@@ -238,7 +237,6 @@ class HTTPInterface(object):
 
         http_helpers.add_logger(self._app, logger)
         self._app.after_request(http_helpers.log_request)
-        self._app.wsgi_app = ProxyFix(self._app.wsgi_app)
         self._app.config['auth_client'] = auth_client
         self._app.secret_key = os.urandom(24)
         self._load_cors()
