@@ -73,10 +73,10 @@ def _verify_token(fun):
 
         auth_client = current_app.config['auth_client']
         try:
-            token_is_valid = auth_client.token.is_valid(token, required_acl='acl:agentd')
+            token_is_valid = auth_client.token.is_valid(token, required_acl='agentd.all')
         except requests.RequestException as e:
-            message = 'Could not connect to authentication server on {host}:{port}: {error}'.format(
-                                            host=auth_client.host, port=auth_client.port, error=e)
+            message = ('Could not connect to authentication server on {host}:{port}: {error}'
+                       .format(host=auth_client.host, port=auth_client.port, error=e))
             logger.exception('%s', message)
             return {'error': message}, 503
 
