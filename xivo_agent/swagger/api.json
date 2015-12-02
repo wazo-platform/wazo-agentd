@@ -100,11 +100,7 @@
                 ],
                 "parameters": [
                     {
-                        "name": "agent_id",
-                        "in": "path",
-                        "description": "Agent's ID",
-                        "required": true,
-                        "type": "integer"
+                        "$ref": "#/parameters/AgentID"
                     },
                     {
                         "$ref": "#/parameters/Token"
@@ -172,11 +168,7 @@
                 ],
                 "parameters": [
                     {
-                        "name": "agent_id",
-                        "in": "path",
-                        "description": "Agent's ID",
-                        "required": true,
-                        "type": "integer"
+                        "$ref": "#/parameters/AgentID"
                     },
                     {
                         "name": "body",
@@ -268,11 +260,7 @@
                 ],
                 "parameters": [
                     {
-                        "name": "agent_id",
-                        "in": "path",
-                        "description": "Agent's ID",
-                        "required": true,
-                        "type": "integer"
+                        "$ref": "#/parameters/AgentID"
                     },
                     {
                         "$ref": "#/parameters/Token"
@@ -412,11 +400,7 @@
                 ],
                 "parameters": [
                     {
-                        "name": "agent_id",
-                        "in": "path",
-                        "description": "Agent's ID",
-                        "required": true,
-                        "type": "integer"
+                        "$ref": "#/parameters/AgentID"
                     },
                     {
                         "name": "body",
@@ -460,11 +444,7 @@
                 ],
                 "parameters": [
                     {
-                        "name": "agent_id",
-                        "in": "path",
-                        "description": "Agent's ID",
-                        "required": true,
-                        "type": "integer"
+                        "$ref": "#/parameters/AgentID"
                     },
                     {
                         "name": "body",
@@ -500,6 +480,13 @@
         }
     },
     "parameters": {
+        "AgentID": {
+            "name": "agent_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "Agent's ID"
+        },
         "Token": {
             "name": "X-Auth-Token",
             "in": "header",
