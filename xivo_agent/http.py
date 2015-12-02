@@ -17,12 +17,15 @@
 
 import os
 import logging
+import requests
 
 from cherrypy import wsgiserver
+from flask import current_app
 from flask import Flask
 from flask import request
 from flask.ext import restful
 from flask_cors import CORS
+from functools import wraps
 from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.exceptions import BadRequest
 from xivo_agent.exception import AgentServerError, NoSuchAgentError, NoSuchExtensionError, \
@@ -63,6 +66,27 @@ def _common_error_handler(fun):
     return aux
 
 
+def _verify_token(fun):
+    @wraps(fun)
+    def wrapper(*args, **kwargs):
+        token = request.headers.get('X-Auth-Token', '')
+
+        auth_client = current_app.config['auth_client']
+        try:
+            token_is_valid = auth_client.token.is_valid(token, required_acl='agentd.all')
+        except requests.RequestException as e:
+            message = ('Could not connect to authentication server on {host}:{port}: {error}'
+                       .format(host=auth_client.host, port=auth_client.port, error=e))
+            logger.exception('%s', message)
+            return {'error': message}, 503
+
+        if token_is_valid:
+            return fun(*args, **kwargs)
+
+        return {'error': 'invalid token or unauthorized'}, 401
+    return wrapper
+
+
 def _extract_field(obj, key, type_):
     try:
         value = obj[key]
@@ -90,7 +114,7 @@ def _extract_queue_id():
 
 class _BaseResource(restful.Resource):
 
-    method_decorators = [_common_error_handler]
+    method_decorators = [_verify_token, _common_error_handler]
 
 
 class _Agents(_BaseResource):
@@ -208,13 +232,14 @@ class HTTPInterface(object):
         (SwaggerResource, SwaggerResource.api_path),
     ]
 
-    def __init__(self, config, service_proxy):
+    def __init__(self, config, service_proxy, auth_client):
         self._config = config
         self._app = Flask('xivo_agent')
 
         http_helpers.add_logger(self._app, logger)
         self._app.after_request(http_helpers.log_request)
         self._app.wsgi_app = ProxyFix(self._app.wsgi_app)
+        self._app.config['auth_client'] = auth_client
         self._app.secret_key = os.urandom(24)
         self._load_cors()
 
