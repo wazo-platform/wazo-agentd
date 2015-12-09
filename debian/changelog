@@ -1,4 +1,4 @@
-xivo-agentd (15.06~20150317-1) xivo-dev; urgency=medium
+xivo-agentd (15.06~20150317) xivo-dev; urgency=medium
 
   * rename xivo-agent to xivo-agentd
 
