@@ -1,0 +1,12 @@
+[Unit]
+Description=xivo-agentd server
+ConditionPathExists=!/var/lib/xivo/disabled
+After=network.target asterisk.service postgresql.service rabbitmq-server.service xivo-confgend.service
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/xivo-agentd
+PIDFile=/var/run/xivo-agentd.pid
+
+[Install]
+WantedBy=multi-user.target
