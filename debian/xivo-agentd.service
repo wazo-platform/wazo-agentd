@@ -1,7 +1,8 @@
 [Unit]
 Description=xivo-agentd server
 ConditionPathExists=!/var/lib/xivo/disabled
-After=network.target asterisk.service postgresql.service rabbitmq-server.service xivo-confgend.service
+After=network-online.target asterisk.service postgresql.service rabbitmq-server.service xivo-confgend.service
+Wants=network-online.target asterisk.service postgresql.service rabbitmq-server.service xivo-confgend.service
 
 [Service]
 Type=forking
