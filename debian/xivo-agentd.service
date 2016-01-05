@@ -2,6 +2,7 @@
 Description=xivo-agentd server
 ConditionPathExists=!/var/lib/xivo/disabled
 After=network-online.target asterisk.service postgresql.service rabbitmq-server.service xivo-confgend.service
+Before=monit.service
 Wants=network-online.target asterisk.service postgresql.service rabbitmq-server.service xivo-confgend.service
 
 [Service]
