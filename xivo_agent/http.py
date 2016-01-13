@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2015 Avencall
+# Copyright (C) 2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -259,8 +259,6 @@ class HTTPInterface(object):
         config = self._config['https']
         bind_addr = (config['listen'], config['port'])
 
-        _check_file_readable(config['certificate'])
-        _check_file_readable(config['private_key'])
         server = wsgiserver.CherryPyWSGIServer(bind_addr, self._app)
         server.ssl_adapter = http_helpers.ssl_adapter(config['certificate'],
                                                       config['private_key'],
@@ -269,8 +267,3 @@ class HTTPInterface(object):
             server.start()
         finally:
             server.stop()
-
-
-def _check_file_readable(file_path):
-    with open(file_path, 'r'):
-        pass
