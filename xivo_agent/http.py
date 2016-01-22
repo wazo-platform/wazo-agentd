@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2015 Avencall
+# Copyright (C) 2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,19 +17,17 @@
 
 import os
 import logging
-import requests
 
 from cherrypy import wsgiserver
-from flask import current_app
 from flask import Flask
 from flask import request
 from flask.ext import restful
 from flask_cors import CORS
-from functools import wraps
 from werkzeug.exceptions import BadRequest
 from xivo_agent.exception import AgentServerError, NoSuchAgentError, NoSuchExtensionError, \
     AgentAlreadyLoggedError, ExtensionAlreadyInUseError, AgentNotLoggedError, \
     NoSuchQueueError, AgentAlreadyInQueueError, AgentNotInQueueError
+from xivo import auth_helpers
 from xivo import http_helpers
 
 from xivo_agent.swagger.resource import SwaggerResource
@@ -51,6 +49,22 @@ _AGENT_409_ERRORS = (
 )
 
 
+class AgentdAuthVerifier(auth_helpers.AuthVerifier):
+
+    def handle_unreachable(self, error):
+        auth_client = self.client()
+        message = ('Could not connect to authentication server on {client.host}:{client.port}: {error}'
+                   .format(client=auth_client, error=error))
+        logger.exception('%s', message)
+        return {'error': message}, 503
+
+    def handle_unauthorized(self, token):
+        return {'error': 'invalid token or unauthorizedd'}, 401
+
+
+auth_verifier = AgentdAuthVerifier()
+
+
 def _common_error_handler(fun):
     def aux(*args, **kwargs):
         try:
@@ -63,27 +77,6 @@ def _common_error_handler(fun):
             return {'error': e.error}, 500
 
     return aux
-
-
-def _verify_token(fun):
-    @wraps(fun)
-    def wrapper(*args, **kwargs):
-        token = request.headers.get('X-Auth-Token', '')
-
-        auth_client = current_app.config['auth_client']
-        try:
-            token_is_valid = auth_client.token.is_valid(token, required_acl='agentd.all')
-        except requests.RequestException as e:
-            message = ('Could not connect to authentication server on {host}:{port}: {error}'
-                       .format(host=auth_client.host, port=auth_client.port, error=e))
-            logger.exception('%s', message)
-            return {'error': message}, 503
-
-        if token_is_valid:
-            return fun(*args, **kwargs)
-
-        return {'error': 'invalid token or unauthorized'}, 401
-    return wrapper
 
 
 def _extract_field(obj, key, type_):
@@ -113,7 +106,7 @@ def _extract_queue_id():
 
 class _BaseResource(restful.Resource):
 
-    method_decorators = [_verify_token, _common_error_handler]
+    method_decorators = [auth_verifier.verify_token, _common_error_handler]
 
 
 class _Agents(_BaseResource):
@@ -237,7 +230,7 @@ class HTTPInterface(object):
 
         http_helpers.add_logger(self._app, logger)
         self._app.after_request(http_helpers.log_request)
-        self._app.config['auth_client'] = auth_client
+        auth_verifier.set_client(auth_client)
         self._app.secret_key = os.urandom(24)
         self._load_cors()
 
@@ -259,8 +252,6 @@ class HTTPInterface(object):
         config = self._config['https']
         bind_addr = (config['listen'], config['port'])
 
-        _check_file_readable(config['certificate'])
-        _check_file_readable(config['private_key'])
         server = wsgiserver.CherryPyWSGIServer(bind_addr, self._app)
         server.ssl_adapter = http_helpers.ssl_adapter(config['certificate'],
                                                       config['private_key'],
@@ -269,8 +260,3 @@ class HTTPInterface(object):
             server.start()
         finally:
             server.stop()
-
-
-def _check_file_readable(file_path):
-    with open(file_path, 'r'):
-        pass
