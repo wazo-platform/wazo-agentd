@@ -59,7 +59,7 @@ class AgentdAuthVerifier(auth_helpers.AuthVerifier):
         return {'error': message}, 503
 
     def handle_unauthorized(self, token):
-        return {'error': 'invalid token or unauthorizedd'}, 401
+        return {'error': 'invalid token or unauthorized'}, 401
 
 
 auth_verifier = AgentdAuthVerifier()
