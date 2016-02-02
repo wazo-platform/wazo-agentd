@@ -9,8 +9,8 @@ flask-cors==1.10.3
 flask-restful==0.3.5
 flask==0.10.1
 kombu==3.0.26
-psycopg2==2.5.4
+psycopg2==2.5.4  # from xivo-dao
 pyopenssl==0.14  # from xivo-lib-python
-pyyaml==3.11
-requests==2.4.3
-sqlalchemy==0.9.8
+pyyaml==3.11  # from xivo-lib-python
+requests==2.4.3  # from xivo-*-client
+sqlalchemy==0.9.8  # from xivo-dao
