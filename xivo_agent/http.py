@@ -27,8 +27,8 @@ from werkzeug.exceptions import BadRequest
 from xivo_agent.exception import AgentServerError, NoSuchAgentError, NoSuchExtensionError, \
     AgentAlreadyLoggedError, ExtensionAlreadyInUseError, AgentNotLoggedError, \
     NoSuchQueueError, AgentAlreadyInQueueError, AgentNotInQueueError
-from xivo import auth_helpers
 from xivo import http_helpers
+from xivo.auth_verifier import AuthVerifier
 
 from xivo_agent.swagger.resource import SwaggerResource
 
@@ -49,7 +49,7 @@ _AGENT_409_ERRORS = (
 )
 
 
-class AgentdAuthVerifier(auth_helpers.AuthVerifier):
+class AgentdAuthVerifier(AuthVerifier):
 
     def handle_unreachable(self, error):
         auth_client = self.client()
