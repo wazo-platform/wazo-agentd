@@ -6,7 +6,7 @@ git+https://github.com/xivo-pbx/xivo-lib-python.git
 git+https://github.com/xivo-pbx/xivo-lib-rest-client.git
 cherrypy==3.7.0
 flask-cors==1.10.3
-flask-restful==0.3.4
+flask-restful==0.3.5
 flask==0.10.1
 kombu==3.0.26
 psycopg2==2.5.4
