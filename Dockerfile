@@ -34,4 +34,4 @@ RUN rm -rf /usr/src/agentd
 
 EXPOSE 9493
 
-CMD xivo-agentd -f 
+CMD ["xivo-agentd", "-f"]
