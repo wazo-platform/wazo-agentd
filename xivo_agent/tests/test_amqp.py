@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2015 Avencall
+# Copyright (C) 2015-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -74,12 +74,11 @@ class TestMessageHandler(unittest.TestCase):
         self.assertEqual(routing_keys, [self.event_handler.Event.routing_key])
 
     def test_handle_msg(self):
-        decoded_msg = {'name': self.event_handler.Event.name}
-        msg = json.dumps(decoded_msg)
+        msg = {'name': self.event_handler.Event.name}
 
         self.msg_handler.handle_msg(msg)
 
-        self.event_handler.handle_event.assert_called_once_with(decoded_msg)
+        self.event_handler.handle_event.assert_called_once_with(msg)
 
     def test_handle_msg_invalid(self):
         decoded_msg = {'name': 'sicilian pastorale'}

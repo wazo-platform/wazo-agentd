@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2015 Avencall
+# Copyright (C) 2015-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import json
 import logging
 import threading
 
@@ -88,8 +87,7 @@ class _MessageHandler(object):
     def routing_keys(self):
         return [event_handler.Event.routing_key for event_handler in self._event_handlers.itervalues()]
 
-    def handle_msg(self, msg):
-        decoded_msg = json.loads(msg)
+    def handle_msg(self, decoded_msg):
         event_name = decoded_msg['name']
         self._event_handlers[event_name].handle_event(decoded_msg)
 
