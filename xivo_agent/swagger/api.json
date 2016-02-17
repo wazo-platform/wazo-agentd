@@ -19,6 +19,18 @@
     "schemes": [
         "https"
     ],
+    "securityDefinitions": {
+        "xivo_auth_token": {
+            "type": "apiKey",
+            "name": "X-Auth-Token",
+            "in": "header"
+        }
+    },
+    "security": [
+        {
+            "xivo_auth_token": []
+        }
+    ],
     "basePath": "/1.0",
     "consumes": [
         "application/json"
@@ -34,11 +46,6 @@
                 "operationId": "get_agents",
                 "tags": [
                     "agents"
-                ],
-                "parameters": [
-                    {
-                        "$ref": "#/parameters/Token"
-                    }
                 ],
                 "responses": {
                     "200": {
@@ -58,11 +65,6 @@
                 "tags": [
                     "agents"
                 ],
-                "parameters": [
-                    {
-                        "$ref": "#/parameters/Token"
-                    }
-                ],
                 "responses": {
                     "204": {
                         "description": "The operation was performed succesfully"
@@ -77,11 +79,6 @@
                 "operationId": "relog_agents",
                 "tags": [
                     "agents"
-                ],
-                "parameters": [
-                    {
-                        "$ref": "#/parameters/Token"
-                    }
                 ],
                 "responses": {
                     "204": {
@@ -101,9 +98,6 @@
                 "parameters": [
                     {
                         "$ref": "#/parameters/AgentID"
-                    },
-                    {
-                        "$ref": "#/parameters/Token"
                     }
                 ],
                 "responses": {
@@ -137,9 +131,6 @@
                         "description": "Agent's number",
                         "required": true,
                         "type": "string"
-                    },
-                    {
-                        "$ref": "#/parameters/Token"
                     }
                 ],
                 "responses": {
@@ -178,9 +169,6 @@
                         "schema": {
                             "$ref": "#/definitions/LoginInfo"
                         }
-                    },
-                    {
-                        "$ref": "#/parameters/Token"
                     }
                 ],
                 "responses": {
@@ -226,9 +214,6 @@
                         "schema": {
                             "$ref": "#/definitions/LoginInfo"
                         }
-                    },
-                    {
-                        "$ref": "#/parameters/Token"
                     }
                 ],
                 "responses": {
@@ -261,9 +246,6 @@
                 "parameters": [
                     {
                         "$ref": "#/parameters/AgentID"
-                    },
-                    {
-                        "$ref": "#/parameters/Token"
                     }
                 ],
                 "responses": {
@@ -294,9 +276,6 @@
                         "description": "Agent's number",
                         "required": true,
                         "type": "integer"
-                    },
-                    {
-                        "$ref": "#/parameters/Token"
                     }
                 ],
                 "responses": {
@@ -327,9 +306,6 @@
                         "description": "Agent's number",
                         "required": true,
                         "type": "integer"
-                    },
-                    {
-                        "$ref": "#/parameters/Token"
                     }
                 ],
                 "responses": {
@@ -366,9 +342,6 @@
                         "description": "Agent's number",
                         "required": true,
                         "type": "integer"
-                    },
-                    {
-                        "$ref": "#/parameters/Token"
                     }
                 ],
                 "responses": {
@@ -410,9 +383,6 @@
                         "schema": {
                             "$ref": "#/definitions/Queue"
                         }
-                    },
-                    {
-                        "$ref": "#/parameters/Token"
                     }
                 ],
                 "responses": {
@@ -454,9 +424,6 @@
                         "schema": {
                             "$ref": "#/definitions/Queue"
                         }
-                    },
-                    {
-                        "$ref": "#/parameters/Token"
                     }
                 ],
                 "responses": {
@@ -486,13 +453,6 @@
             "type": "integer",
             "required": true,
             "description": "Agent's ID"
-        },
-        "Token": {
-            "name": "X-Auth-Token",
-            "in": "header",
-            "type": "string",
-            "required": true,
-            "description": "Authentication token obtained from xivo-auth."
         }
     },
     "definitions": {
