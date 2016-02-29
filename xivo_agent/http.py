@@ -28,7 +28,7 @@ from xivo_agent.exception import AgentServerError, NoSuchAgentError, NoSuchExten
     AgentAlreadyLoggedError, ExtensionAlreadyInUseError, AgentNotLoggedError, \
     NoSuchQueueError, AgentAlreadyInQueueError, AgentNotInQueueError
 from xivo import http_helpers
-from xivo.auth_verifier import AuthVerifier
+from xivo.auth_verifier import AuthVerifier, required_acl
 
 from xivo_agent.swagger.resource import SwaggerResource
 
@@ -111,24 +111,28 @@ class _BaseResource(restful.Resource):
 
 class _Agents(_BaseResource):
 
+    @required_acl('agentd.agents.read')
     def get(self):
         return self.service_proxy.get_agent_statuses()
 
 
 class _AgentById(_BaseResource):
 
+    @required_acl('agentd.agents.by-id.{agent_id}.read')
     def get(self, agent_id):
         return self.service_proxy.get_agent_status_by_id(agent_id)
 
 
 class _AgentByNumber(_BaseResource):
 
+    @required_acl('agentd.agents.by-number.{agent_number}.read')
     def get(self, agent_number):
         return self.service_proxy.get_agent_status_by_number(agent_number)
 
 
 class _LoginAgentById(_BaseResource):
 
+    @required_acl('agentd.agents.by-id.{agent_id}.login.create')
     def post(self, agent_id):
         extension, context = _extract_extension_and_context()
         self.service_proxy.login_agent_by_id(agent_id, extension, context)
@@ -137,6 +141,7 @@ class _LoginAgentById(_BaseResource):
 
 class _LoginAgentByNumber(_BaseResource):
 
+    @required_acl('agentd.agents.by-number.{agent_number}.login.create')
     def post(self, agent_number):
         extension, context = _extract_extension_and_context()
         self.service_proxy.login_agent_by_number(agent_number, extension, context)
@@ -145,6 +150,7 @@ class _LoginAgentByNumber(_BaseResource):
 
 class _LogoffAgentById(_BaseResource):
 
+    @required_acl('agentd.agents.by-id.{agent_id}.logoff.create')
     def post(self, agent_id):
         # XXX logoff_agent_by_id raise a AgentNotLoggedError even if the agent doesn't exist;
         #     that means that logoff currently returns a 409 for an inexistant agent, not a 404
@@ -154,6 +160,7 @@ class _LogoffAgentById(_BaseResource):
 
 class _LogoffAgentByNumber(_BaseResource):
 
+    @required_acl('agentd.agents.by-number.{agent_number}.logoff.create')
     def post(self, agent_number):
         self.service_proxy.logoff_agent_by_number(agent_number)
         return '', 204
@@ -161,6 +168,7 @@ class _LogoffAgentByNumber(_BaseResource):
 
 class _LogoffAgents(_BaseResource):
 
+    @required_acl('agentd.agents.logoff.create')
     def post(self):
         self.service_proxy.logoff_all()
         return '', 204
@@ -168,6 +176,7 @@ class _LogoffAgents(_BaseResource):
 
 class _AddAgentToQueue(_BaseResource):
 
+    @required_acl('agentd.agents.by-id.{agent_id}.add.create')
     def post(self, agent_id):
         queue_id = _extract_queue_id()
         self.service_proxy.add_agent_to_queue(agent_id, queue_id)
@@ -176,6 +185,7 @@ class _AddAgentToQueue(_BaseResource):
 
 class _RemoveAgentFromQueue(_BaseResource):
 
+    @required_acl('agentd.agents.by-id.{agent_id}.delete.create')
     def post(self, agent_id):
         queue_id = _extract_queue_id()
         self.service_proxy.remove_agent_from_queue(agent_id, queue_id)
@@ -184,6 +194,7 @@ class _RemoveAgentFromQueue(_BaseResource):
 
 class _RelogAgents(_BaseResource):
 
+    @required_acl('agentd.agents.relog.create')
     def post(self):
         self.service_proxy.relog_all()
         return '', 204
@@ -191,6 +202,7 @@ class _RelogAgents(_BaseResource):
 
 class _PauseAgentByNumber(_BaseResource):
 
+    @required_acl('agentd.agents.by-number.{agent_number}.pause.create')
     def post(self, agent_number):
         self.service_proxy.pause_agent_by_number(agent_number)
         return '', 204
@@ -198,6 +210,7 @@ class _PauseAgentByNumber(_BaseResource):
 
 class _UnpauseAgentByNumber(_BaseResource):
 
+    @required_acl('agentd.agents.by-number.{agent_number}.unpause.create')
     def post(self, agent_number):
         self.service_proxy.unpause_agent_by_number(agent_number)
         return '', 204
