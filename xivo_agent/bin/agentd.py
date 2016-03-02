@@ -135,6 +135,8 @@ def main():
             _run(config)
         except Exception:
             logger.exception('Unexpected error:')
+        except KeyboardInterrupt:
+            pass
         finally:
             logger.info('Stopping xivo-agentd')
 
