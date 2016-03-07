@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2012-2015 Avencall
+# Copyright (C) 2012-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,12 +19,16 @@ import argparse
 import logging
 import signal
 import xivo_dao
+import os
+import sys
 
+from functools import partial
 from kombu import Connection, Producer, Exchange
 from contextlib import contextmanager
 
 from xivo.chain_map import ChainMap
 from xivo.config_helper import read_config_file_hierarchy
+from xivo.consul_helpers import ServiceCatalogRegistration
 from xivo.daemonize import pidfile_context
 from xivo.http_helpers import DEFAULT_CIPHERS
 from xivo.xivo_logging import setup_logging, silence_loggers
@@ -59,6 +63,7 @@ from xivo_agent.service.manager.pause import PauseManager
 from xivo_agent.service.manager.relog import RelogManager
 from xivo_agent.service.manager.remove_member import RemoveMemberManager
 from xivo_agent.service.proxy import ServiceProxy
+from xivo_agent.service_discovery import self_check
 from xivo_auth_client import Client as AuthClient
 from xivo_bus import Marshaler, Publisher
 from xivo_dao import agent_dao as orig_agent_dao
@@ -68,6 +73,7 @@ from xivo_dao import queue_dao as orig_queue_dao
 from xivo_dao import queue_log_dao
 from xivo_dao import queue_member_dao
 
+_DEFAULT_HTTPS_PORT = 9493
 _DEFAULT_CONFIG = {
     'auth': {
         'host': 'localhost',
@@ -88,7 +94,7 @@ _DEFAULT_CONFIG = {
     'rest_api': {
         'https': {
             'listen': '127.0.0.1',
-            'port': 9493,
+            'port': _DEFAULT_HTTPS_PORT,
             'certificate': '/usr/share/xivo-certs/server.crt',
             'private_key': '/usr/share/xivo-certs/server.key',
             'ciphers': DEFAULT_CIPHERS,
@@ -97,7 +103,17 @@ _DEFAULT_CONFIG = {
             'enabled': True,
             'allow_headers': 'Content-Type',
         }
-    }
+    },
+    'service_discovery': {
+        'enabled': True,
+        'advertise_address': 'localhost',
+        'advertise_port': _DEFAULT_HTTPS_PORT,
+        'advertise_address_interface': 'eth0',
+        'refresh_interval': 25,
+        'retry_interval': 2,
+        'ttl_interval': 30,
+        'extra_tags': [],
+    },
 }
 
 logger = logging.getLogger(__name__)
@@ -119,6 +135,8 @@ def main():
             _run(config)
         except Exception:
             logger.exception('Unexpected error:')
+        except KeyboardInterrupt:
+            pass
         finally:
             logger.info('Stopping xivo-agentd')
 
@@ -143,6 +161,11 @@ def _parse_args():
 
 def _run(config):
     _init_signal()
+    xivo_uuid = os.getenv('XIVO_UUID')
+    if not xivo_uuid:
+        logger.error('undefined environment variable XIVO_UUID')
+        sys.exit(1)
+
     agent_dao = AgentDAOAdapter(orig_agent_dao)
     queue_dao = QueueDAOAdapter(orig_queue_dao)
     auth_client = AuthClient(**config['auth'])
@@ -151,7 +174,7 @@ def _run(config):
             bus_exchange = Exchange(config['bus']['exchange_name'],
                                     type=config['bus']['exchange_type'])
             bus_producer = Producer(producer_conn, exchange=bus_exchange, auto_declare=True)
-            bus_marshaler = Marshaler(config['uuid'])
+            bus_marshaler = Marshaler(xivo_uuid)
             bus_publisher = Publisher(bus_producer, bus_marshaler)
 
             queue_log_manager = QueueLogManager(queue_log_dao)
@@ -183,14 +206,20 @@ def _run(config):
             service_proxy.on_queue_handler = OnQueueHandler(on_queue_added_manager, on_queue_updated_manager, on_queue_deleted_manager, queue_dao)
             service_proxy.pause_handler = PauseHandler(pause_manager, agent_status_dao)
             service_proxy.relog_handler = RelogHandler(relog_manager)
-            service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, config['uuid'])
+            service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, xivo_uuid)
 
             amqp_iface = amqp.AMQPInterface(consumer_conn, bus_exchange, service_proxy)
             http_iface = http.HTTPInterface(config['rest_api'], service_proxy, auth_client)
 
             amqp_iface.start()
             try:
-                http_iface.run()
+                with ServiceCatalogRegistration('xivo-agentd',
+                                                xivo_uuid,
+                                                config['consul'],
+                                                config['service_discovery'],
+                                                config['bus'],
+                                                partial(self_check, config['rest_api']['https']['port'])):
+                    http_iface.run()
             finally:
                 amqp_iface.stop()
 

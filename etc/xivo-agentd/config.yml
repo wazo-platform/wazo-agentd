@@ -63,3 +63,22 @@ rest_api:
 
     #Allow JSON preflight requests
     allow_headers: Content-Type, X-Auth-Token
+
+# Service discovery configuration. all time intervals are in seconds
+service_discovery:
+  # the address that will be received by other services using service discovery.
+  # use "advertise_address: auto" to enable ip address detection based on
+  # advertise_address_interface
+  advertise_address: auto
+  # if advertise_address is "auto" this interface will be used to find the ip
+  # address to advertise. ignored otherwise
+  advertise_address_interface: eth0
+  advertise_port: 9493
+  # the number of seconds that consul will wait between 2 ttl messages to mark
+  # this service as up
+  ttl_interval: 30
+  # the time interval before the service sends a new ttl message to consul
+  refresh_interval: 27
+  # the time interval to detect that the service is running when starting
+  retry_interval: 2
+  extra_tags: []
