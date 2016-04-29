@@ -19,15 +19,13 @@ import argparse
 import logging
 import signal
 import xivo_dao
-import os
-import sys
 
 from functools import partial
 from kombu import Connection, Producer, Exchange
 from contextlib import contextmanager
 
 from xivo.chain_map import ChainMap
-from xivo.config_helper import read_config_file_hierarchy
+from xivo.config_helper import read_config_file_hierarchy, set_xivo_uuid
 from xivo.consul_helpers import ServiceCatalogRegistration
 from xivo.daemonize import pidfile_context
 from xivo.http_helpers import DEFAULT_CIPHERS
@@ -128,6 +126,7 @@ def main():
 
     setup_logging(config['logfile'], config['foreground'], config['debug'])
     silence_loggers(['Flask-Cors'], logging.WARNING)
+    set_xivo_uuid(config, logger)
 
     with pidfile_context(config['pidfile'], config['foreground']):
         logger.info('Starting xivo-agentd')
@@ -161,11 +160,7 @@ def _parse_args():
 
 def _run(config):
     _init_signal()
-    xivo_uuid = os.getenv('XIVO_UUID')
-    if not xivo_uuid:
-        logger.error('undefined environment variable XIVO_UUID')
-        sys.exit(1)
-
+    xivo_uuid = config['uuid']
     agent_dao = AgentDAOAdapter(orig_agent_dao)
     queue_dao = QueueDAOAdapter(orig_queue_dao)
     auth_client = AuthClient(**config['auth'])
