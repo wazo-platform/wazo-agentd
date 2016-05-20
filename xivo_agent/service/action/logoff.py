@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2015 Avencall
+# Copyright (C) 2013-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ class LogoffAction(object):
         self._queue_log_manager.on_agent_logged_off(agent_status.agent_number, agent_status.extension, agent_status.context, login_time)
 
     def _compute_login_time(self, login_at):
-        delta = datetime.datetime.now() - login_at
+        delta = datetime.datetime.utcnow() - login_at
         return delta.total_seconds()
 
     def _update_agent_status(self, agent_status):
