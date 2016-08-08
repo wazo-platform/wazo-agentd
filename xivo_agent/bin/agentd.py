@@ -213,7 +213,9 @@ def _run(config):
                                                 config['consul'],
                                                 config['service_discovery'],
                                                 config['bus'],
-                                                partial(self_check, config['rest_api']['https']['port'])):
+                                                partial(self_check,
+                                                        config['rest_api']['https']['port'],
+                                                        config['rest_api']['https']['certificate'])):
                     http_iface.run()
             finally:
                 amqp_iface.stop()
