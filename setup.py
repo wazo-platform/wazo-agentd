@@ -15,7 +15,7 @@ setup(
     license='GPLv3',
     packages=find_packages(),
     scripts=['bin/xivo-agentd'],
-    package_data = {
-        'xivo_agent.swagger': ['*.json'],
+    package_data={
+        'xivo_agent.swagger': ['*.yml'],
     }
 )
