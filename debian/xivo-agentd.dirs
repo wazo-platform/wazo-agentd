@@ -1,1 +1,2 @@
 etc/xivo-agentd/conf.d
+var/lib/xivo-agentd

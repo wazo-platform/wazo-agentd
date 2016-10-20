@@ -9,7 +9,7 @@ info:
   contact:
     name: Dev Team
     url: http://xivo.io
-    email: dev@avencall.com
+    email: dev@proformatique.com
 x-xivo-name: agentd
 x-xivo-port: 9493
 schemes:
