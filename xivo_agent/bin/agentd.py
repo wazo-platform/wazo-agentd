@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2012-2016 Avencall
+# Copyright (C) 2016 Proformatique
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,7 +30,9 @@ from xivo.config_helper import read_config_file_hierarchy, set_xivo_uuid
 from xivo.consul_helpers import ServiceCatalogRegistration
 from xivo.daemonize import pidfile_context
 from xivo.http_helpers import DEFAULT_CIPHERS
+from xivo.user_rights import change_user
 from xivo.xivo_logging import setup_logging, silence_loggers
+
 from xivo_agent import ami
 from xivo_agent import amqp
 from xivo_agent import http
@@ -73,6 +76,7 @@ from xivo_dao import queue_member_dao
 
 _DEFAULT_HTTPS_PORT = 9493
 _DEFAULT_CONFIG = {
+    'user': 'xivo-agentd',
     'auth': {
         'host': 'localhost',
         'port': 9497,
@@ -81,7 +85,7 @@ _DEFAULT_CONFIG = {
     'debug': False,
     'foreground': False,
     'logfile': '/var/log/xivo-agentd.log',
-    'pidfile': '/var/run/xivo-agentd.pid',
+    'pidfile': '/var/run/xivo-agentd/xivo-agentd.pid',
     'config_file': '/etc/xivo-agentd/config.yml',
     'extra_config_files': '/etc/xivo-agentd/conf.d/',
     'ami': {
@@ -122,6 +126,10 @@ def main():
     file_config = read_config_file_hierarchy(ChainMap(cli_config, _DEFAULT_CONFIG))
     config = ChainMap(cli_config, file_config, _DEFAULT_CONFIG)
 
+    user = config.get('user')
+    if user:
+        change_user(user)
+
     xivo_dao.init_db_from_config(config)
 
     setup_logging(config['logfile'], config['foreground'], config['debug'])
@@ -146,6 +154,7 @@ def _parse_args():
                         help='run in foreground')
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='increase verbosity')
+    parser.add_argument('-u', '--user', action='store_true', help='User to run the daemon')
 
     parsed = parser.parse_args()
 
@@ -154,6 +163,8 @@ def _parse_args():
         config['foreground'] = parsed.foreground
     if parsed.verbose:
         config['debug'] = parsed.verbose
+    if parsed.user:
+        config['user'] = parsed.user
 
     return config
 

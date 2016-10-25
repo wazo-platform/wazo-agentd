@@ -10,7 +10,7 @@ setup(
     version='0.1',
     description='XiVO agent server',
     author='Avencall',
-    author_email='dev@avencall.com',
+    author_email='dev@proformatique.com',
     url='http://git.xivo.io/',
     license='GPLv3',
     packages=find_packages(),
