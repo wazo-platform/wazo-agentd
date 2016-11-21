@@ -154,7 +154,7 @@ def _parse_args():
                         help='run in foreground')
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='increase verbosity')
-    parser.add_argument('-u', '--user', action='store_true', help='User to run the daemon')
+    parser.add_argument('-u', '--user', action='store', help='User to run the daemon')
 
     parsed = parser.parse_args()
 
