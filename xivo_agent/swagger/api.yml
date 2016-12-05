@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  title: XiVO Agentd
+  title: Wazo Agentd
   description: Agent service
   version: '1.0'
   license:
@@ -8,8 +8,8 @@ info:
     url: http://www.gnu.org/licenses/gpl.txt
   contact:
     name: Dev Team
-    url: http://xivo.io
-    email: dev@proformatique.com
+    url: http://wazo.community
+    email: dev.wazo@gmail.com
 x-xivo-name: agentd
 x-xivo-port: 9493
 schemes:
@@ -314,7 +314,7 @@ definitions:
       origin_uuid:
         type: string
         format: uuid
-        description: XiVO's UUID
+        description: Wazo's UUID
       number:
         type: string
         description: Agent's number
