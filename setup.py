@@ -11,7 +11,7 @@ setup(
     description='Wazo agent server',
     author='Wazo Authors',
     author_email='dev.wazo@gmail.com',
-    url='http://wazo.community/',
+    url='http://wazo.community',
     license='GPLv3',
     packages=find_packages(),
     scripts=['bin/xivo-agentd'],
