@@ -34,7 +34,8 @@ Depends: ${python:Depends},
          xivo-bus (>= 15.05~20150311.155435.cd57c19-1),
          xivo-libdao (>= 12.23~20121127.150346.7813fff-1),
          xivo-lib-python (>= 13.02~20130125.161022.4959dfa-1),
-         xivo-libamid
+         xivo-libamid,
+         xivo-nginx
 Provides: xivo-libagent
 Conflicts: xivo-libagent
 Replaces: xivo-libagent
