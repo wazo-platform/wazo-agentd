@@ -105,7 +105,7 @@ paths:
   /agents/by-id/{agent_id}/login:
     post:
       summary: Log an agent.
-      description: '**Required ACL:** `agentd.by-id.{agent_id}.login.create`'
+      description: '**Required ACL:** `agentd.agents.by-id.{agent_id}.login.create`'
       operationId: login_agent_by_id
       tags:
       - agent
