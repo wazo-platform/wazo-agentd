@@ -21,11 +21,12 @@ class OnQueueAgentPausedManager(object):
 
     def _create_bus_event(self, name, is_paused, msg):
         _, agent_number = msg['MemberName'].split('/')
-
-        print msg
+        with db_utils.session_scope():
+            agent_status = self._agent_status_dao.get_status_by_number(agent_number)
 
         body = {
-            'agent_number': agent_number,
+            'agent_id': agent_status.agent_id,
+            'agent_number': agent_status.agent_number,
             'queue': msg['Queue'],
             'paused': is_paused,
             'pausedReason': msg['PausedReason']
