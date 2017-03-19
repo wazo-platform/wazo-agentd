@@ -25,15 +25,18 @@ class OnQueueAgentPausedManager(object):
 
     def _create_bus_event(self, name, routing_key, is_paused, msg):
         _, agent_number = msg['MemberName'].split('/')
+        reason = msg['PausedReason']
+
         with db_utils.session_scope():
             agent_status = self._agent_status_dao.get_status_by_number(agent_number)
+            self._agent_status_dao.update_pause_status(agent_status.agent_id, is_paused, reason)
 
         body = {
             'agent_id': agent_status.agent_id,
             'agent_number': agent_status.agent_number,
             'queue': msg['Queue'],
             'paused': is_paused,
-            'pausedReason': msg['PausedReason']
+            'pausedReason': reason
         }
 
         bus_event = ArbitraryEvent(
