@@ -37,7 +37,6 @@ class TestPauseAction(unittest.TestCase):
     def test_unpause_agent(self):
         agent_status = Mock()
 
-        reason = 'Pause finished'
-        self.pause_action.unpause_agent(agent_status, reason)
+        self.pause_action.unpause_agent(agent_status)
 
-        self.ami_client.queue_pause.assert_called_once_with(agent_status.interface, '0', reason)
+        self.ami_client.queue_pause.assert_called_once_with(agent_status.interface, '0')

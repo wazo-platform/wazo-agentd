@@ -106,7 +106,9 @@ def _extract_queue_id():
 
 def _extract_reason():
     obj = request.get_json()
-    reason = _extract_field(obj, 'reason', basestring)
+    reason = None
+    if obj:
+        reason = _extract_field(obj, 'reason', basestring)
     return reason
 
 

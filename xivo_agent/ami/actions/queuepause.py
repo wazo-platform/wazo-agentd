@@ -18,7 +18,7 @@
 from xivo_agent.ami.actions.common.action import BaseAction
 
 
-def QueuePauseAction(interface, paused, queue=None, reason=None):
+def QueuePauseAction(interface, paused, reason=None, queue=None):
     return BaseAction('QueuePause', [
         ('Interface', interface),
         ('Paused', paused),
