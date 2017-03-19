@@ -1,20 +1,5 @@
-# -*- coding: utf-8 -*-
-
-# Copyright (C) 2012-2016 Avencall
-# Copyright (C) 2016 Proformatique
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>
+# Copyright 2017 The Wazo Authors  (see the AUTHORS file)
+# SPDX-License-Identifier: GPL-3.0+
 
 import argparse
 import logging
@@ -60,6 +45,7 @@ from xivo_agent.service.manager.on_agent_updated import OnAgentUpdatedManager
 from xivo_agent.service.manager.on_queue_added import OnQueueAddedManager
 from xivo_agent.service.manager.on_queue_deleted import OnQueueDeletedManager
 from xivo_agent.service.manager.on_queue_updated import OnQueueUpdatedManager
+from xivo_agent.service.manager.on_queue_agent_paused import OnQueueAgentPausedManager
 from xivo_agent.service.manager.pause import PauseManager
 from xivo_agent.service.manager.relog import RelogManager
 from xivo_agent.service.manager.remove_member import RemoveMemberManager
@@ -200,6 +186,7 @@ def _run(config):
             on_queue_added_manager = OnQueueAddedManager(add_to_queue_action, agent_status_dao)
             on_queue_deleted_manager = OnQueueDeletedManager(agent_status_dao)
             on_queue_updated_manager = OnQueueUpdatedManager(add_to_queue_action, remove_from_queue_action, agent_status_dao)
+            on_queue_agent_paused_manager = OnQueueAgentPausedManager(agent_status_dao, bus_publisher)
             pause_manager = PauseManager(pause_action)
             relog_manager = RelogManager(login_action, logoff_action, agent_dao, agent_status_dao)
             remove_member_manager = RemoveMemberManager(remove_from_queue_action, ami_client, agent_status_dao, queue_member_dao)
@@ -209,7 +196,7 @@ def _run(config):
             service_proxy.logoff_handler = LogoffHandler(logoff_manager, agent_status_dao)
             service_proxy.membership_handler = MembershipHandler(add_member_manager, remove_member_manager, agent_dao, queue_dao)
             service_proxy.on_agent_handler = OnAgentHandler(on_agent_deleted_manager, on_agent_updated_manager, agent_dao)
-            service_proxy.on_queue_handler = OnQueueHandler(on_queue_added_manager, on_queue_updated_manager, on_queue_deleted_manager, queue_dao)
+            service_proxy.on_queue_handler = OnQueueHandler(on_queue_added_manager, on_queue_updated_manager, on_queue_deleted_manager, on_queue_agent_paused_manager, queue_dao)
             service_proxy.pause_handler = PauseHandler(pause_manager, agent_status_dao)
             service_proxy.relog_handler = RelogHandler(relog_manager)
             service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, xivo_uuid)

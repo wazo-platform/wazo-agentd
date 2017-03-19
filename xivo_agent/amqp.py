@@ -1,19 +1,5 @@
-# -*- coding: utf-8 -*-
-
-# Copyright (C) 2015-2016 Avencall
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>
+# Copyright 2017 The Wazo Authors  (see the AUTHORS file)
+# SPDX-License-Identifier: GPL-3.0+
 
 import logging
 import threading
@@ -22,6 +8,7 @@ from kombu import Queue
 from kombu.mixins import ConsumerMixin
 from xivo_bus.resources.agent.event import EditAgentEvent, DeleteAgentEvent
 from xivo_bus.resources.queue.event import CreateQueueEvent, EditQueueEvent, DeleteQueueEvent
+from xivo_bus.resources.ami.event import AMIEvent
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +26,7 @@ class AMQPInterface(object):
             _CreateQueueEventHandler(service_proxy),
             _EditQueueEventHandler(service_proxy),
             _DeleteQueueEventHandler(service_proxy),
+            _PauseAgentEventHandler(service_proxy),
         ])
         return _Worker(connection, exchange, msg_handler)
 
@@ -136,3 +124,19 @@ class _DeleteQueueEventHandler(_BaseEventHandler):
 
     def handle_event(self, decoded_msg):
         self._service_proxy.on_queue_deleted(decoded_msg['data']['id'])
+
+
+class AgentPauseEvent(AMIEvent):
+    name = 'QueueMemberPause'
+    routing_key = 'ami.{}'.format(name)
+
+
+class _PauseAgentEventHandler(_BaseEventHandler):
+
+    Event = AgentPauseEvent
+
+    def handle_event(self, decoded_msg):
+        if decoded_msg['data']['Paused'] == '1':
+            self._service_proxy.on_agent_paused(decoded_msg['data'])
+        else:
+            self._service_proxy.on_agent_unpaused(decoded_msg['data'])
