@@ -91,14 +91,14 @@ class TestServiceProxy(unittest.TestCase):
         self.relog_handler.handle_relog_all.assert_called_once_with()
 
     def test_pause_agent_by_number(self):
-        self.proxy.pause_agent_by_number(s.agent_number)
+        self.proxy.pause_agent_by_number(s.agent_number, s.reason)
 
-        self.pause_handler.handle_pause_by_number.assert_called_once_with(s.agent_number)
+        self.pause_handler.handle_pause_by_number.assert_called_once_with(s.agent_number, s.reason)
 
     def test_unpause_agent_by_number(self):
-        self.proxy.unpause_agent_by_number(s.agent_number)
+        self.proxy.unpause_agent_by_number(s.agent_number, s.reason)
 
-        self.pause_handler.handle_unpause_by_number.assert_called_once_with(s.agent_number)
+        self.pause_handler.handle_unpause_by_number.assert_called_once_with(s.agent_number, s.reason)
 
     def test_get_agent_status_by_id(self):
         self.proxy.get_agent_status_by_id(s.agent_id)

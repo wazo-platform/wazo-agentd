@@ -21,8 +21,8 @@ class PauseAction(object):
     def __init__(self, ami_client):
         self._ami_client = ami_client
 
-    def pause_agent(self, agent_status):
-        self._ami_client.queue_pause(agent_status.interface, '1')
+    def pause_agent(self, agent_status, reason=None):
+        self._ami_client.queue_pause(agent_status.interface, '1', reason)
 
-    def unpause_agent(self, agent_status):
-        self._ami_client.queue_pause(agent_status.interface, '0')
+    def unpause_agent(self, agent_status, reason=None):
+        self._ami_client.queue_pause(agent_status.interface, '0', reason)

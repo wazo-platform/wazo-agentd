@@ -30,15 +30,15 @@ class PauseHandler(object):
         self._agent_status_dao = agent_status_dao
 
     @debug.trace_duration
-    def handle_pause_by_number(self, agent_number):
+    def handle_pause_by_number(self, agent_number, reason=None):
         logger.info('Executing pause command (number %s)', agent_number)
         with db_utils.session_scope():
             agent_status = self._agent_status_dao.get_status_by_number(agent_number)
-        self._pause_manager.pause_agent(agent_status)
+        self._pause_manager.pause_agent(agent_status, reason)
 
     @debug.trace_duration
-    def handle_unpause_by_number(self, agent_number):
+    def handle_unpause_by_number(self, agent_number, reason=None):
         logger.info('Executing unpause command (number %s)', agent_number)
         with db_utils.session_scope():
             agent_status = self._agent_status_dao.get_status_by_number(agent_number)
-        self._pause_manager.unpause_agent(agent_status)
+        self._pause_manager.unpause_agent(agent_status, reason)
