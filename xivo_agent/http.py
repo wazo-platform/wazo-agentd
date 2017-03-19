@@ -221,8 +221,7 @@ class _UnpauseAgentByNumber(_BaseResource):
 
     @required_acl('agentd.agents.by-number.{agent_number}.unpause.create')
     def post(self, agent_number):
-        reason = _extract_reason()
-        self.service_proxy.unpause_agent_by_number(agent_number, reason)
+        self.service_proxy.unpause_agent_by_number(agent_number)
         return '', 204
 
 
