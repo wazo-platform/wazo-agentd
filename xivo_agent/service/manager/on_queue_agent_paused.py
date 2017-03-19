@@ -13,13 +13,17 @@ class OnQueueAgentPausedManager(object):
 
     def on_queue_agent_paused(self, msg):
         name = 'agent_paused'
-        self._send_bus_status_update(self._create_bus_event(name, True, msg))
+        routing_key = 'status.agent.pause'
+        is_paused = True
+        self._send_bus_status_update(self._create_bus_event(name, routing_key, is_paused, msg))
 
     def on_queue_agent_unpaused(self, msg):
         name = 'agent_unpaused'
-        self._send_bus_status_update(self._create_bus_event(name, False, msg))
+        routing_key = 'status.agent.unpause'
+        is_paused = False
+        self._send_bus_status_update(self._create_bus_event(name, routing_key, is_paused, msg))
 
-    def _create_bus_event(self, name, is_paused, msg):
+    def _create_bus_event(self, name, routing_key, is_paused, msg):
         _, agent_number = msg['MemberName'].split('/')
         with db_utils.session_scope():
             agent_status = self._agent_status_dao.get_status_by_number(agent_number)
@@ -37,8 +41,7 @@ class OnQueueAgentPausedManager(object):
             body=body,
             required_acl='events.statuses.agents'
         )
-
-        bus_event.routing_key = 'status.agent.unpause'
+        bus_event.routing_key = routing_key
 
         return bus_event
 
