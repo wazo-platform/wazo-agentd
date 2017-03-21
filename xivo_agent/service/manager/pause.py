@@ -23,9 +23,9 @@ class PauseManager(object):
     def __init__(self, pause_action):
         self._pause_action = pause_action
 
-    def pause_agent(self, agent_status):
+    def pause_agent(self, agent_status, reason):
         self._check_agent_status(agent_status)
-        self._pause_action.pause_agent(agent_status)
+        self._pause_action.pause_agent(agent_status, reason)
 
     def unpause_agent(self, agent_status):
         self._check_agent_status(agent_status)

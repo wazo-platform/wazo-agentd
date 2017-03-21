@@ -63,9 +63,9 @@ class ServiceProxy(object):
         with self._lock:
             self.relog_handler.handle_relog_all()
 
-    def pause_agent_by_number(self, agent_number):
+    def pause_agent_by_number(self, agent_number, reason):
         with self._lock:
-            self.pause_handler.handle_pause_by_number(agent_number)
+            self.pause_handler.handle_pause_by_number(agent_number, reason)
 
     def unpause_agent_by_number(self, agent_number):
         with self._lock:

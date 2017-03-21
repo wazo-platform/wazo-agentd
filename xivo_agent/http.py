@@ -104,6 +104,14 @@ def _extract_queue_id():
     return queue_id
 
 
+def _extract_reason():
+    obj = request.get_json()
+    reason = None
+    if obj:
+        reason = _extract_field(obj, 'reason', basestring)
+    return reason
+
+
 class _BaseResource(restful.Resource):
 
     method_decorators = [auth_verifier.verify_token, _common_error_handler]
@@ -204,7 +212,8 @@ class _PauseAgentByNumber(_BaseResource):
 
     @required_acl('agentd.agents.by-number.{agent_number}.pause.create')
     def post(self, agent_number):
-        self.service_proxy.pause_agent_by_number(agent_number)
+        reason = _extract_reason()
+        self.service_proxy.pause_agent_by_number(agent_number, reason)
         return '', 204
 
 

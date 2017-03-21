@@ -209,6 +209,12 @@ paths:
         description: Agent's number
         required: true
         type: integer
+      - name: body
+        in: body
+        description: The reason when pause the agent
+        required: false
+        schema:
+          $ref: '#/definitions/AgentPauseReason'
       responses:
         '204':
           description: The operation was performed succesfully
@@ -348,6 +354,12 @@ definitions:
       queue_id:
         type: integer
         description: Queue's ID
+  AgentPauseReason:
+    title: Pause reason information
+    properties:
+      reason:
+        type: string
+        description: Pause Reason
   Error:
     title: Error
     properties:
