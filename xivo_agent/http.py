@@ -109,8 +109,8 @@ def _extract_reason():
     reason = None
     if obj:
         reason = _extract_field(obj, 'reason', basestring)
-        if len(reason) > 256:
-            raise BadRequest('invalid value for key reason, max length 256')
+        if len(reason) > 80:
+            raise BadRequest('invalid value for key reason, max length 80')
     return reason
 
 
