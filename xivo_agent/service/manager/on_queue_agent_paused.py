@@ -11,30 +11,33 @@ class OnQueueAgentPausedManager(object):
         self._agent_status_dao = agent_status_dao
         self._bus_publisher = bus_publisher
 
-    def on_queue_agent_paused(self, msg):
-        name = 'agent_paused'
-        routing_key = 'status.agent.pause'
-        is_paused = True
-        self._send_bus_status_update(self._create_bus_event(name, routing_key, is_paused, msg))
+    def on_queue_agent_paused(self, agent_id, agent_number, reason, queue):
+        self._db_update_agent_status(agent_id, True, reason)
+        bus_event = self._new_agent_paused_event(agent_id, agent_number, reason, queue)
+        self._send_bus_status_update(bus_event)
 
-    def on_queue_agent_unpaused(self, msg):
-        name = 'agent_unpaused'
-        routing_key = 'status.agent.unpause'
-        is_paused = False
-        self._send_bus_status_update(self._create_bus_event(name, routing_key, is_paused, msg))
+    def on_queue_agent_unpaused(self, agent_id, agent_number, reason, queue):
+        self._db_update_agent_status(agent_id, False, reason)
+        bus_event = self._new_agent_unpaused_event(agent_id, agent_number, reason, queue)
+        self._send_bus_status_update(bus_event)
 
-    def _create_bus_event(self, name, routing_key, is_paused, msg):
-        _, agent_number = msg['MemberName'].split('/')
-        reason = msg['PausedReason']
+    def _new_agent_paused_event(self, id_, number, reason, queue):
+        return self._create_bus_event('agent_paused', 'status.agent.pause', True,
+                                      id_, number, reason, queue)
 
+    def _new_agent_unpaused_event(self, id_, number, reason, queue):
+        return self._create_bus_event('agent_unpaused', 'status.agent.unpause', False,
+                                      id_, number, reason, queue)
+
+    def _db_update_agent_status(self, agent_id, is_paused, reason):
         with db_utils.session_scope():
-            agent_status = self._agent_status_dao.get_status_by_number(agent_number)
-            self._agent_status_dao.update_pause_status(agent_status.agent_id, is_paused, reason)
+            self._agent_status_dao.update_pause_status(agent_id, is_paused, reason)
 
+    def _create_bus_event(self, name, routing_key, is_paused, id_, number, reason, queue):
         body = {
-            'agent_id': agent_status.agent_id,
-            'agent_number': agent_status.agent_number,
-            'queue': msg['Queue'],
+            'agent_id': id_,
+            'agent_number': number,
+            'queue': queue,
             'paused': is_paused,
             'pausedReason': reason
         }

@@ -196,7 +196,7 @@ def _run(config):
             service_proxy.logoff_handler = LogoffHandler(logoff_manager, agent_status_dao)
             service_proxy.membership_handler = MembershipHandler(add_member_manager, remove_member_manager, agent_dao, queue_dao)
             service_proxy.on_agent_handler = OnAgentHandler(on_agent_deleted_manager, on_agent_updated_manager, agent_dao)
-            service_proxy.on_queue_handler = OnQueueHandler(on_queue_added_manager, on_queue_updated_manager, on_queue_deleted_manager, on_queue_agent_paused_manager, queue_dao)
+            service_proxy.on_queue_handler = OnQueueHandler(on_queue_added_manager, on_queue_updated_manager, on_queue_deleted_manager, on_queue_agent_paused_manager, queue_dao, agent_dao)
             service_proxy.pause_handler = PauseHandler(pause_manager, agent_status_dao)
             service_proxy.relog_handler = RelogHandler(relog_manager)
             service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, xivo_uuid)
