@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2016 Avencall
+# Copyright 2013-2017 The Wazo Authors  (see the AUTHORS file)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -109,6 +109,8 @@ def _extract_reason():
     reason = None
     if obj:
         reason = _extract_field(obj, 'reason', basestring)
+        if len(reason) > 256:
+            raise BadRequest('invalid value for key reason, max length 256')
     return reason
 
 
