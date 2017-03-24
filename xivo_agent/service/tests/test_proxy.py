@@ -113,16 +113,16 @@ class TestServiceProxy(unittest.TestCase):
         self.on_agent_handler.handle_on_agent_deleted.assert_called_once_with(s.agent_id)
 
     def test_on_agent_paused(self):
-        self.proxy.on_agent_paused(s.id_, s.number, s.is_paused, s.reason, s.queue)
+        self.proxy.on_agent_paused(s.id_, s.number, s.reason, s.queue)
 
         self.on_queue_handler.handle_on_agent_paused.assert_called_once_with(
-            s.id_, s.number, s.is_paused, s.reason, s.queue)
+            s.id_, s.number, s.reason, s.queue)
 
     def test_on_agent_unpaused(self):
-        self.proxy.on_agent_unpaused(s.id_, s.number, s.is_paused, s.reason, s.queue)
+        self.proxy.on_agent_unpaused(s.id_, s.number, s.reason, s.queue)
 
         self.on_queue_handler.handle_on_agent_unpaused.assert_called_once_with(
-            s.id_, s.number, s.is_paused, s.reason, s.queue)
+            s.id_, s.number, s.reason, s.queue)
 
     def test_on_queue_added(self):
         self.proxy.on_queue_added(s.queue_id)
