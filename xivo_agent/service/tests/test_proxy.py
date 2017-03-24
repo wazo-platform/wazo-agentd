@@ -1,19 +1,6 @@
 # -*- coding: utf-8 -*-
-
-# Copyright (C) 2015 Avencall
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>
+# Copyright 2015-2017 The Wazo Authors  (see the AUTHORS file)
+# SPDX-License-Identifier: GPL-3.0+
 
 import unittest
 
@@ -124,6 +111,18 @@ class TestServiceProxy(unittest.TestCase):
         self.proxy.on_agent_deleted(s.agent_id)
 
         self.on_agent_handler.handle_on_agent_deleted.assert_called_once_with(s.agent_id)
+
+    def test_on_agent_paused(self):
+        self.proxy.on_agent_paused(s.id_, s.number, s.is_paused, s.reason, s.queue)
+
+        self.on_queue_handler.handle_on_agent_paused.assert_called_once_with(
+            s.id_, s.number, s.is_paused, s.reason, s.queue)
+
+    def test_on_agent_unpaused(self):
+        self.proxy.on_agent_unpaused(s.id_, s.number, s.is_paused, s.reason, s.queue)
+
+        self.on_queue_handler.handle_on_agent_unpaused.assert_called_once_with(
+            s.id_, s.number, s.is_paused, s.reason, s.queue)
 
     def test_on_queue_added(self):
         self.proxy.on_queue_added(s.queue_id)
