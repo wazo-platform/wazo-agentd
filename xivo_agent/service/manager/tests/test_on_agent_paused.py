@@ -38,7 +38,7 @@ class TestOnQueueAgentPausedManager(unittest.TestCase):
                   'agent_number': s.number,
                   'queue': s.queue,
                   'paused': True,
-                  'pausedReason': s.reason},
+                  'paused_reason': s.reason},
             required_acl='events.statuses.agents',
         )
         expected_event.routing_key = 'status.agent.pause'
@@ -55,7 +55,7 @@ class TestOnQueueAgentPausedManager(unittest.TestCase):
                   'agent_number': s.number,
                   'queue': s.queue,
                   'paused': False,
-                  'pausedReason': s.reason},
+                  'paused_reason': s.reason},
             required_acl='events.statuses.agents',
         )
         expected_event.routing_key = 'status.agent.unpause'

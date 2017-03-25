@@ -327,6 +327,12 @@ definitions:
       logged:
         type: boolean
         description: True if the agent is logged, else false
+      paused:
+        type: boolean
+        description: True if the agent is paused, else false
+      paused_reason:
+        type: string
+        description: The reason of the agent pause
       extension:
         type: string
         description: The extension on which the agent is logged, or null if the agent

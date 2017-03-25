@@ -40,7 +40,7 @@ class OnQueueAgentPausedManager(object):
             'agent_number': number,
             'queue': queue,
             'paused': is_paused,
-            'pausedReason': reason
+            'paused_reason': reason
         }
 
         bus_event = ArbitraryEvent(
