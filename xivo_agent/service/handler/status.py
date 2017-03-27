@@ -56,6 +56,7 @@ class StatusHandler(object):
                  'logged': status.logged,
                  'paused': status.paused,
                  'paused_reason': status.paused_reason,
+                 'on_call': status.on_call,
                  'extension': status.extension,
                  'context': status.context,
                  'state_interface': status.state_interface}
@@ -69,6 +70,7 @@ class StatusHandler(object):
                 logged = False
                 paused = False
                 paused_reason = None
+                on_call = False
                 extension = None
                 context = None
                 state_interface = None
@@ -76,6 +78,7 @@ class StatusHandler(object):
                 logged = True
                 paused = agent_status.paused
                 paused_reason = agent_status.paused_reason
+                on_call = agent_status.on_call
                 extension = agent_status.extension
                 context = agent_status.context
                 state_interface = agent_status.state_interface
@@ -86,6 +89,7 @@ class StatusHandler(object):
                 'logged': logged,
                 'paused': paused,
                 'paused_reason': paused_reason,
+                'on_call': on_call,
                 'extension': extension,
                 'context': context,
                 'state_interface': state_interface,

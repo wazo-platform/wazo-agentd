@@ -333,6 +333,9 @@ definitions:
       paused_reason:
         type: string
         description: The reason of the agent pause
+      on_call:
+        type: boolean
+        description: True if the agent is on call, else false
       extension:
         type: string
         description: The extension on which the agent is logged, or null if the agent

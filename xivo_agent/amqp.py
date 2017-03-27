@@ -28,6 +28,11 @@ class AMQPInterface(object):
             _EditQueueEventHandler(service_proxy),
             _DeleteQueueEventHandler(service_proxy),
             _PauseAgentEventHandler(service_proxy),
+            _CalledAgentEventHandler(service_proxy),
+            _CompleteAgentEventHandler(service_proxy),
+            _ConnectAgentEventHandler(service_proxy),
+            _DumpAgentEventHandler(service_proxy),
+            _RingNoAnswerAgentEventHandler(service_proxy),
         ])
         return _Worker(connection, exchange, msg_handler)
 
@@ -141,3 +146,29 @@ class _PauseAgentEventHandler(_BaseEventHandler):
             self._service_proxy.on_agent_paused(decoded_msg['data'])
         else:
             self._service_proxy.on_agent_unpaused(decoded_msg['data'])
+
+
+class AgentCompleteEvent(AMIEvent):
+    name = 'AgentComplete'
+    routing_key = 'ami.{}'.format(name)
+
+
+class _CompleteAgentEventHandler(_BaseEventHandler):
+
+    Event = AgentCompleteEvent
+
+    def handle_event(self, decoded_msg):
+        self._service_proxy.on_agent_status_on_call(decoded_msg['data'])
+
+
+class AgentConnectEvent(AMIEvent):
+    name = 'AgentConnect'
+    routing_key = 'ami.{}'.format(name)
+
+
+class _ConnectAgentEventHandler(_BaseEventHandler):
+
+    Event = AgentConnectEvent
+
+    def handle_event(self, decoded_msg):
+        self._service_proxy.on_agent_status_on_call(decoded_msg['data'])

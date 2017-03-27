@@ -97,3 +97,7 @@ class ServiceProxy(object):
     def on_agent_unpaused(self, *args, **kwargs):
         with self._lock:
             return self.on_queue_handler.handle_on_agent_unpaused(*args, **kwargs)
+
+    def on_agent_status_on_call(self, *args, **kwargs):
+        with self._lock:
+            return self.on_queue_handler.handle_on_agent_status_on_call(*args, **kwargs)
