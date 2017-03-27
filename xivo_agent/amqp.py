@@ -28,11 +28,8 @@ class AMQPInterface(object):
             _EditQueueEventHandler(service_proxy),
             _DeleteQueueEventHandler(service_proxy),
             _PauseAgentEventHandler(service_proxy),
-            _CalledAgentEventHandler(service_proxy),
             _CompleteAgentEventHandler(service_proxy),
-            _ConnectAgentEventHandler(service_proxy),
-            _DumpAgentEventHandler(service_proxy),
-            _RingNoAnswerAgentEventHandler(service_proxy),
+            _ConnectAgentEventHandler(service_proxy)
         ])
         return _Worker(connection, exchange, msg_handler)
 
