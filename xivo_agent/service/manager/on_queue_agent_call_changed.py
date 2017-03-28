@@ -18,7 +18,7 @@ class OnQueueAgentCallChangedManager(object):
         self._send_bus_status_update(bus_event)
 
     def _agent_call_changed_event(self, id_, number, queue, on_call):
-        return self._create_bus_event('agent_call_changed', 'status.agent.pause', on_call,
+        return self._create_bus_event('agent_call_changed', 'status.agent.call', on_call,
                                       id_, number, queue)
 
     def _db_update_agent_call_status(self, agent_id, on_call):

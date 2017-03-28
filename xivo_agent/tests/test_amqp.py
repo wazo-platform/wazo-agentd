@@ -21,7 +21,8 @@ import unittest
 from mock import Mock, sentinel
 from xivo_agent.amqp import AMQPInterface, _EditAgentEventHandler, \
     _DeleteAgentEventHandler, _CreateQueueEventHandler, _EditQueueEventHandler, \
-    _DeleteQueueEventHandler, _MessageHandler, _Worker
+    _DeleteQueueEventHandler, _CompleteAgentEventHandler, _ConnectAgentEventHandler, \
+    _MessageHandler, _Worker
 from xivo_agent.service.proxy import ServiceProxy
 
 
@@ -129,3 +130,17 @@ class TestEventHandler(unittest.TestCase):
         handler.handle_event(self.decoded_msg)
 
         self.service_proxy.on_queue_deleted.assert_called_once_with(self.item_id)
+
+    def test_agent_change_call_complete(self):
+        handler = _CompleteAgentEventHandler(self.service_proxy)
+
+        handler.handle_event(self.decoded_msg)
+
+        self.service_proxy.on_agent_status_on_call.assert_called_once_with({'id': self.item_id})
+
+    def test_agent_change_call_connect(self):
+        handler = _ConnectAgentEventHandler(self.service_proxy)
+
+        handler.handle_event(self.decoded_msg)
+
+        self.service_proxy.on_agent_status_on_call.assert_called_once_with({'id': self.item_id})

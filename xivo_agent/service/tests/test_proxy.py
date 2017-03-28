@@ -124,6 +124,12 @@ class TestServiceProxy(unittest.TestCase):
         self.on_queue_handler.handle_on_agent_unpaused.assert_called_once_with(
             s.id_, s.number, s.reason, s.queue)
 
+    def test_on_agent_call_changed(self):
+        self.proxy.on_agent_status_on_call(s.id_, s.number, s.queue, s.on_call)
+
+        self.on_queue_handler.handle_on_agent_status_on_call.assert_called_once_with(
+            s.id_, s.number, s.queue, s.on_call)
+
     def test_on_queue_added(self):
         self.proxy.on_queue_added(s.queue_id)
 
