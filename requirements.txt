@@ -14,3 +14,4 @@ pyopenssl==0.14  # from xivo-lib-python
 pyyaml==3.11  # from xivo-lib-python
 requests==2.4.3  # from xivo-*-client
 sqlalchemy==0.9.8  # from xivo-dao
+python-consul==0.7.0
