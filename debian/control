@@ -25,7 +25,7 @@ Section: python
 Depends: ${python:Depends},
          ${misc:Depends},
          adduser,
-         python-cherrypy3,
+         python-cheroot,
          python-flask,
          python-flask-cors (>= 3.0.2),
          python-flask-restful,
