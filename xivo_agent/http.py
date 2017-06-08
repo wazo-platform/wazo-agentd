@@ -278,8 +278,7 @@ class HTTPInterface(object):
 
         server = wsgi.WSGIServer(bind_addr, self._app)
         server.ssl_adapter = http_helpers.ssl_adapter(config['certificate'],
-                                                      config['private_key'],
-                                                      config.get('ciphers'))
+                                                      config['private_key'])
         try:
             server.start()
         finally:

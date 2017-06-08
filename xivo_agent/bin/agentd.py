@@ -15,7 +15,6 @@ from xivo.chain_map import ChainMap
 from xivo.config_helper import read_config_file_hierarchy, set_xivo_uuid
 from xivo.consul_helpers import ServiceCatalogRegistration
 from xivo.daemonize import pidfile_context
-from xivo.http_helpers import DEFAULT_CIPHERS
 from xivo.user_rights import change_user
 from xivo.xivo_logging import setup_logging, silence_loggers
 
@@ -86,7 +85,6 @@ _DEFAULT_CONFIG = {
             'port': _DEFAULT_HTTPS_PORT,
             'certificate': '/usr/share/xivo-certs/server.crt',
             'private_key': '/usr/share/xivo-certs/server.key',
-            'ciphers': DEFAULT_CIPHERS,
         },
         'cors': {
             'enabled': True,
