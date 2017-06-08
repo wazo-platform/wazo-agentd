@@ -18,7 +18,7 @@
 import os
 import logging
 
-from cherrypy import wsgiserver
+from cheroot import wsgi
 from flask import Flask
 from flask import request
 from flask.ext import restful
@@ -276,7 +276,7 @@ class HTTPInterface(object):
         config = self._config['https']
         bind_addr = (config['listen'], config['port'])
 
-        server = wsgiserver.CherryPyWSGIServer(bind_addr, self._app)
+        server = wsgi.WSGIServer(bind_addr, self._app)
         server.ssl_adapter = http_helpers.ssl_adapter(config['certificate'],
                                                       config['private_key'],
                                                       config.get('ciphers'))
