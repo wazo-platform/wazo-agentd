@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  title: Wazo Agentd
+  title: wazo-agentd
   description: Agent service
   version: '1.0'
   license:
