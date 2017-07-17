@@ -24,11 +24,13 @@ from flask import request
 from flask.ext import restful
 from flask_cors import CORS
 from werkzeug.exceptions import BadRequest
+from werkzeug.contrib.fixers import ProxyFix
 from xivo_agent.exception import AgentServerError, NoSuchAgentError, NoSuchExtensionError, \
     AgentAlreadyLoggedError, ExtensionAlreadyInUseError, AgentNotLoggedError, \
     NoSuchQueueError, AgentAlreadyInQueueError, AgentNotInQueueError
 from xivo import http_helpers
 from xivo.auth_verifier import AuthVerifier, required_acl
+from xivo.http_helpers import ReverseProxied
 
 from xivo_agent.swagger.resource import SwaggerResource
 
@@ -276,7 +278,8 @@ class HTTPInterface(object):
         config = self._config['https']
         bind_addr = (config['listen'], config['port'])
 
-        server = wsgi.WSGIServer(bind_addr, self._app)
+        wsgi_app = ReverseProxied(ProxyFix(self._app))
+        server = wsgi.WSGIServer(bind_addr, wsgi_app)
         server.ssl_adapter = http_helpers.ssl_adapter(config['certificate'],
                                                       config['private_key'])
         try:
