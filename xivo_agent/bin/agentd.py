@@ -186,7 +186,7 @@ def _run(config):
             on_queue_added_manager = OnQueueAddedManager(add_to_queue_action, agent_status_dao)
             on_queue_deleted_manager = OnQueueDeletedManager(agent_status_dao)
             on_queue_updated_manager = OnQueueUpdatedManager(add_to_queue_action, remove_from_queue_action, agent_status_dao)
-            on_queue_agent_paused_manager = OnQueueAgentPausedManager(agent_status_dao, bus_publisher)
+            on_queue_agent_paused_manager = OnQueueAgentPausedManager(agent_status_dao, user_dao, bus_publisher)
             pause_manager = PauseManager(pause_action)
             relog_manager = RelogManager(login_action, logoff_action, agent_dao, agent_status_dao)
             remove_member_manager = RemoveMemberManager(remove_from_queue_action, ami_client, agent_status_dao, queue_member_dao)
