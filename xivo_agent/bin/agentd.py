@@ -59,6 +59,7 @@ from xivo_dao import line_dao
 from xivo_dao import queue_dao as orig_queue_dao
 from xivo_dao import queue_log_dao
 from xivo_dao import queue_member_dao
+from xivo_dao.resources.user import dao as user_dao
 
 _DEFAULT_HTTPS_PORT = 9493
 _DEFAULT_CONFIG = {
@@ -171,8 +172,8 @@ def _run(config):
             queue_log_manager = QueueLogManager(queue_log_dao)
 
             add_to_queue_action = AddToQueueAction(ami_client, agent_status_dao)
-            login_action = LoginAction(ami_client, queue_log_manager, agent_status_dao, line_dao, bus_publisher)
-            logoff_action = LogoffAction(ami_client, queue_log_manager, agent_status_dao, bus_publisher)
+            login_action = LoginAction(ami_client, queue_log_manager, agent_status_dao, line_dao, user_dao, bus_publisher)
+            logoff_action = LogoffAction(ami_client, queue_log_manager, agent_status_dao, user_dao, bus_publisher)
             pause_action = PauseAction(ami_client)
             remove_from_queue_action = RemoveFromQueueAction(ami_client, agent_status_dao)
             update_penalty_action = UpdatePenaltyAction(ami_client, agent_status_dao)

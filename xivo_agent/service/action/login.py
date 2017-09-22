@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2015 Avencall
+# Copyright 2013-2017 The Wazo Authors  (see the AUTHORS file)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,11 +27,12 @@ logger = logging.getLogger(__name__)
 
 class LoginAction(object):
 
-    def __init__(self, ami_client, queue_log_manager, agent_status_dao, line_dao, bus_publisher):
+    def __init__(self, ami_client, queue_log_manager, agent_status_dao, line_dao, user_dao, bus_publisher):
         self._ami_client = ami_client
         self._queue_log_manager = queue_log_manager
         self._agent_status_dao = agent_status_dao
         self._line_dao = line_dao
+        self._user_dao = user_dao
         self._bus_publisher = bus_publisher
 
     def login_agent(self, agent, extension, context):
@@ -79,4 +80,10 @@ class LoginAction(object):
     def _send_bus_status_update(self, agent):
         status = AgentStatusUpdateEvent.STATUS_LOGGED_IN
         event = AgentStatusUpdateEvent(agent.id, status)
-        self._bus_publisher.publish(event)
+        logger.debug('Looking for users with agent id %s...', agent.id)
+        with db_utils.session_scope():
+            users = self._user_dao.find_all_by_agent_id(agent.id)
+            logger.debug('Found %s users.', len(users))
+            headers = {'user_uuid:{uuid}'.format(uuid=user.uuid): True for user in users}
+            headers['agent_id:{id}'.format(id=str(agent.id))] = True
+            self._bus_publisher.publish(event, headers=headers)

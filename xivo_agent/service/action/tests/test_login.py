@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2015 Avencall
+# Copyright 2013-2017 The Wazo Authors  (see the AUTHORS file)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,11 +33,13 @@ class TestLoginAction(unittest.TestCase):
         self.queue_log_manager = Mock(QueueLogManager)
         self.agent_status_dao = Mock()
         self.line_dao = Mock()
+        self.user_dao = Mock()
         self.bus_publisher = Mock()
         self.login_action = LoginAction(self.ami_client,
                                         self.queue_log_manager,
                                         self.agent_status_dao,
                                         self.line_dao,
+                                        self.user_dao,
                                         self.bus_publisher)
 
     def test_login_agent(self):
@@ -54,6 +56,7 @@ class TestLoginAction(unittest.TestCase):
         skills = format_agent_skills(agent_id)
 
         self.line_dao.get_interface_from_exten_and_context.return_value = state_interface
+        self.user_dao.find_all_by_agent_id.return_value = [Mock(uuid='42'), Mock(uuid='43')]
 
         self.login_action.login_agent(agent, extension, context)
 
@@ -64,4 +67,5 @@ class TestLoginAction(unittest.TestCase):
         self.ami_client.agent_login.assert_called_once_with(agent_id, agent_number, extension, context)
         self.bus_publisher.publish.assert_called_once_with(
             AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_IN),
+            headers={'user_uuid:42': True, 'user_uuid:43': True, 'agent_id:10': True},
         )

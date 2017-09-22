@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2016 Avencall
+# Copyright 2013-2017 The Wazo Authors  (see the AUTHORS file)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,10 +31,12 @@ class TestLogoffAction(unittest.TestCase):
         self.ami_client = Mock()
         self.queue_log_manager = Mock()
         self.agent_status_dao = Mock()
+        self.user_dao = Mock()
         self.bus_publisher = Mock()
         self.logoff_action = LogoffAction(self.ami_client,
                                           self.queue_log_manager,
                                           self.agent_status_dao,
+                                          self.user_dao,
                                           self.bus_publisher)
 
     def test_logoff_agent(self):
@@ -48,6 +50,7 @@ class TestLogoffAction(unittest.TestCase):
         agent_status.agent_number = agent_number
         agent_status.login_at = datetime.datetime.utcnow()
         agent_status.queues = [queue]
+        self.user_dao.find_all_by_agent_id.return_value = [Mock(uuid='42'), Mock(uuid='43')]
 
         self.logoff_action.logoff_agent(agent_status)
 
@@ -59,4 +62,5 @@ class TestLogoffAction(unittest.TestCase):
         self.agent_status_dao.log_off_agent.assert_called_once_with(agent_id)
         self.bus_publisher.publish.assert_called_once_with(
             AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_OUT),
+            headers={'user_uuid:42': True, 'user_uuid:43': True, 'agent_id:10': True},
         )
