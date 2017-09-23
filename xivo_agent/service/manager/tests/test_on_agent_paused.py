@@ -25,16 +25,19 @@ class TestOnQueueAgentPausedManager(unittest.TestCase):
 
     def setUp(self):
         self.agent_status_dao = Mock()
+        self.user_dao = Mock()
         self.bus_publisher = Mock()
 
-        self.manager = OnQueueAgentPausedManager(self.agent_status_dao, self.bus_publisher)
+        self.manager = OnQueueAgentPausedManager(self.agent_status_dao, self.user_dao, self.bus_publisher)
 
     def test_on_queue_agent_paused(self):
-        self.manager.on_queue_agent_paused(s.id_, s.number, s.reason, s.queue)
+        self.user_dao.find_all_by_agent_id.return_value = [Mock(uuid='42'), Mock(uuid='43')]
+
+        self.manager.on_queue_agent_paused(10, s.number, s.reason, s.queue)
 
         expected_event = ArbitraryEventMatcher(
             name='agent_paused',
-            body={'agent_id': s.id_,
+            body={'agent_id': 10,
                   'agent_number': s.number,
                   'queue': s.queue,
                   'paused': True,
@@ -42,16 +45,19 @@ class TestOnQueueAgentPausedManager(unittest.TestCase):
             required_acl='events.statuses.agents',
         )
         expected_event.routing_key = 'status.agent.pause'
+        expected_headers = {'user_uuid:42': True, 'user_uuid:43': True, 'agent_id:10': True}
 
-        self.agent_status_dao.update_pause_status.assert_called_once_with(s.id_, True, s.reason)
-        self.bus_publisher.publish.assert_called_once_with(expected_event)
+        self.agent_status_dao.update_pause_status.assert_called_once_with(10, True, s.reason)
+        self.bus_publisher.publish.assert_called_once_with(expected_event, headers=expected_headers)
 
     def test_on_queue_agent_unpaused(self):
-        self.manager.on_queue_agent_unpaused(s.id_, s.number, s.reason, s.queue)
+        self.user_dao.find_all_by_agent_id.return_value = [Mock(uuid='42'), Mock(uuid='43')]
+
+        self.manager.on_queue_agent_unpaused(10, s.number, s.reason, s.queue)
 
         expected_event = ArbitraryEventMatcher(
             name='agent_unpaused',
-            body={'agent_id': s.id_,
+            body={'agent_id': 10,
                   'agent_number': s.number,
                   'queue': s.queue,
                   'paused': False,
@@ -59,6 +65,7 @@ class TestOnQueueAgentPausedManager(unittest.TestCase):
             required_acl='events.statuses.agents',
         )
         expected_event.routing_key = 'status.agent.unpause'
+        expected_headers = {'user_uuid:42': True, 'user_uuid:43': True, 'agent_id:10': True}
 
-        self.agent_status_dao.update_pause_status.assert_called_once_with(s.id_, False, s.reason)
-        self.bus_publisher.publish.assert_called_once_with(expected_event)
+        self.agent_status_dao.update_pause_status.assert_called_once_with(10, False, s.reason)
+        self.bus_publisher.publish.assert_called_once_with(expected_event, headers=expected_headers)

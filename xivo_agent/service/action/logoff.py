@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2016 Avencall
+# Copyright 2013-2017 The Wazo Authors  (see the AUTHORS file)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,17 +16,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import datetime
+import logging
 
 from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
 from xivo_dao.helpers import db_utils
 
+logger = logging.getLogger(__name__)
+
 
 class LogoffAction(object):
 
-    def __init__(self, ami_client, queue_log_manager, agent_status_dao, bus_publisher):
+    def __init__(self, ami_client, queue_log_manager, agent_status_dao, user_dao, bus_publisher):
         self._ami_client = ami_client
         self._queue_log_manager = queue_log_manager
         self._agent_status_dao = agent_status_dao
+        self._user_dao = user_dao
         self._bus_publisher = bus_publisher
 
     def logoff_agent(self, agent_status):
@@ -60,5 +64,11 @@ class LogoffAction(object):
 
     def _send_bus_status_update(self, agent_status):
         status = AgentStatusUpdateEvent.STATUS_LOGGED_OUT
-        event = AgentStatusUpdateEvent(agent_status.agent_id, status)
-        self._bus_publisher.publish(event)
+        agent_id = agent_status.agent_id
+        event = AgentStatusUpdateEvent(agent_id, status)
+        with db_utils.session_scope():
+            users = self._user_dao.find_all_by_agent_id(agent_id)
+            logger.debug('Found %s users.', len(users))
+            headers = {'user_uuid:{uuid}'.format(uuid=user.uuid): True for user in users}
+            headers['agent_id:{id}'.format(id=str(agent_id))] = True
+            self._bus_publisher.publish(event, headers=headers)
