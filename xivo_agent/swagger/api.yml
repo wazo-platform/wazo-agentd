@@ -15,12 +15,12 @@ x-xivo-port: 9493
 schemes:
 - https
 securityDefinitions:
-  xivo_auth_token:
+  wazo_auth_token:
     type: apiKey
     name: X-Auth-Token
     in: header
 security:
-- xivo_auth_token: []
+- wazo_auth_token: []
 basePath: /1.0
 consumes:
 - application/json
