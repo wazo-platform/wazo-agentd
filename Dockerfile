@@ -1,5 +1,5 @@
-FROM debian:jessie
-MAINTAINER XiVO Team "dev+docker@proformatique.com"
+FROM debian:stretch
+MAINTAINER Wazo Maintainers <dev@wazo.community>
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV HOME /root
