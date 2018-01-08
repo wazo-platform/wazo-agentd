@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2013-2017 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,8 +21,8 @@ import logging
 from cheroot import wsgi
 from flask import Flask
 from flask import request
-from flask.ext import restful
 from flask_cors import CORS
+from flask_restful import Api, Resource
 from werkzeug.exceptions import BadRequest
 from werkzeug.contrib.fixers import ProxyFix
 from xivo_agent.exception import AgentServerError, NoSuchAgentError, NoSuchExtensionError, \
@@ -116,7 +116,7 @@ def _extract_reason():
     return reason
 
 
-class _BaseResource(restful.Resource):
+class _BaseResource(Resource):
 
     method_decorators = [auth_verifier.verify_token, _common_error_handler]
 
@@ -260,7 +260,7 @@ class HTTPInterface(object):
         self._app.secret_key = os.urandom(24)
         self._load_cors()
 
-        api = restful.Api(self._app, prefix='/{}'.format(self.VERSION))
+        api = Api(self._app, prefix='/{}'.format(self.VERSION))
         self._add_resources(api, service_proxy)
 
     def _load_cors(self):
@@ -270,9 +270,9 @@ class HTTPInterface(object):
             CORS(self._app, **cors_config)
 
     def _add_resources(self, api, service_proxy):
-        for Resource, url in self._resources:
-            Resource.service_proxy = service_proxy
-            api.add_resource(Resource, url)
+        for resource, url in self._resources:
+            resource.service_proxy = service_proxy
+            api.add_resource(resource, url)
 
     def run(self):
         config = self._config['https']
