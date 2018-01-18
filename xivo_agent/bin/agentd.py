@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2012-2017 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import argparse
@@ -212,8 +212,7 @@ def _run(config):
                                                 config['service_discovery'],
                                                 config['bus'],
                                                 partial(self_check,
-                                                        config['rest_api']['https']['port'],
-                                                        config['rest_api']['https']['certificate'])):
+                                                        config['rest_api']['https']['port'])):
                     http_iface.run()
             finally:
                 amqp_iface.stop()
