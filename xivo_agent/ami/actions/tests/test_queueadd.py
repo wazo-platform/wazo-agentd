@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013-2014 Avencall
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import unittest
@@ -26,7 +26,7 @@ class TestQueueAddAction(unittest.TestCase):
             ('Queue', queue),
             ('Interface', interface),
             ('MemberName', member_name),
-            ('StateInterface', state_interface),
+            ('StateInterface', 'PJSIP/abcdef'),
             ('Penalty', penalty),
             ('Skills', skills)
         ])
