@@ -12,5 +12,5 @@ kombu==3.0.35
 psycopg2==2.6.2  # from xivo-dao
 python-consul==0.7.0
 pyyaml==3.12  # from xivo-lib-python
-requests==2.12.4  # from xivo-*-client
+requests==2.20.0  # from xivo-*-client
 sqlalchemy==1.0.15  # from xivo-dao
