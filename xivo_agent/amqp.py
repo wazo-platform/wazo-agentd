@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2015-2017 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import logging
@@ -74,7 +74,7 @@ class _MessageHandler(object):
                                     for event_handler in event_handlers)
 
     def routing_keys(self):
-        return [event_handler.Event.routing_key for event_handler in self._event_handlers.itervalues()]
+        return [event_handler.Event.routing_key for event_handler in self._event_handlers.values()]
 
     def handle_msg(self, decoded_msg):
         event_name = decoded_msg['name']
