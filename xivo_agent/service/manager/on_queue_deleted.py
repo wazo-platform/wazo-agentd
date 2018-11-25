@@ -1,10 +1,10 @@
-# Copyright (C) 2013-2014 Avencall
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 from xivo_dao.helpers import db_utils
 
 
-class OnQueueDeletedManager(object):
+class OnQueueDeletedManager:
 
     def __init__(self, agent_status_dao):
         self._agent_status_dao = agent_status_dao

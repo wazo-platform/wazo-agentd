@@ -1,10 +1,10 @@
-# Copyright 2015-2017 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import threading
 
 
-class ServiceProxy(object):
+class ServiceProxy:
 
     def __init__(self):
         self._lock = threading.Lock()

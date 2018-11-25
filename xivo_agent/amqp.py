@@ -13,7 +13,7 @@ from xivo_bus.resources.ami.event import AMIEvent
 logger = logging.getLogger(__name__)
 
 
-class AMQPInterface(object):
+class AMQPInterface:
 
     def __init__(self, connection, exchange, service_proxy):
         self._thread = None
@@ -66,7 +66,7 @@ class _Worker(ConsumerMixin):
             logger.warning('Unexpected error while handling AMQP message', exc_info=True)
 
 
-class _MessageHandler(object):
+class _MessageHandler:
 
     def __init__(self, event_handlers):
         self._event_handlers = dict((event_handler.Event.name, event_handler)
@@ -80,7 +80,7 @@ class _MessageHandler(object):
         self._event_handlers[event_name].handle_event(decoded_msg)
 
 
-class _BaseEventHandler(object):
+class _BaseEventHandler:
 
     def __init__(self, service_proxy):
         self._service_proxy = service_proxy

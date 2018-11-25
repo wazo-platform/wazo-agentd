@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2015 Avencall
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import logging
@@ -9,7 +9,7 @@ from xivo_dao.helpers import db_utils
 logger = logging.getLogger(__name__)
 
 
-class StatusHandler(object):
+class StatusHandler:
 
     def __init__(self, agent_dao, agent_status_dao, uuid):
         self._agent_dao = agent_dao

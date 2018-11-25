@@ -215,7 +215,7 @@ class _UnpauseAgentByNumber(_BaseResource):
         return '', 204
 
 
-class HTTPInterface(object):
+class HTTPInterface:
 
     VERSION = '1.0'
 

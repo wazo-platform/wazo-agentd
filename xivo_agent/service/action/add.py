@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2014 Avencall
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import logging
@@ -9,7 +9,7 @@ from xivo_dao.helpers import db_utils
 logger = logging.getLogger(__name__)
 
 
-class AddToQueueAction(object):
+class AddToQueueAction:
 
     def __init__(self, ami_client, agent_status_dao):
         self._ami_client = ami_client

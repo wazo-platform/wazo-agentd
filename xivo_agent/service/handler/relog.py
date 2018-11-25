@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2015 Avencall
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import logging
@@ -7,7 +7,7 @@ from xivo import debug
 logger = logging.getLogger(__name__)
 
 
-class RelogHandler(object):
+class RelogHandler:
 
     def __init__(self, relog_manager):
         self._relog_manager = relog_manager

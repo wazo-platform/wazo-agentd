@@ -11,7 +11,7 @@ from xivo_ami.ami.parser import parse_buffer
 logger = logging.getLogger(__name__)
 
 
-class AMIClient(object):
+class AMIClient:
 
     _BUFSIZE = 4096
     _TIMEOUT = 10

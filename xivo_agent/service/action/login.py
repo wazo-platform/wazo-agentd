@@ -1,4 +1,4 @@
-# Copyright 2013-2017 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import logging
@@ -11,7 +11,7 @@ from xivo_dao.helpers import db_utils
 logger = logging.getLogger(__name__)
 
 
-class LoginAction(object):
+class LoginAction:
 
     def __init__(self, ami_client, queue_log_manager, agent_status_dao, line_dao, user_dao, bus_publisher):
         self._ami_client = ami_client

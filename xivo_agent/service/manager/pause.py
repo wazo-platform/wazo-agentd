@@ -1,10 +1,10 @@
-# Copyright (C) 2013-2014 Avencall
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 from xivo_agent.exception import AgentNotLoggedError
 
 
-class PauseManager(object):
+class PauseManager:
 
     def __init__(self, pause_action):
         self._pause_action = pause_action

@@ -1,10 +1,10 @@
-# Copyright (C) 2012-2014 Avencall
+# Copyright 2012-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 from xivo_agent.ami import actions, client
 
 
-class FacadeAMIClient(object):
+class FacadeAMIClient:
 
     _ACTIONS = [
         ('db_del', actions.DBDelAction),

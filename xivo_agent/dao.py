@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2014 Avencall
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 from collections import namedtuple
@@ -7,7 +7,7 @@ from xivo_agent.exception import NoSuchAgentError, NoSuchQueueError
 _Queue = namedtuple('_Queue', ['id', 'name', 'penalty'])
 
 
-class _AbstractDAOAdapter(object):
+class _AbstractDAOAdapter:
 
     def __init__(self, dao):
         self._dao = dao
