@@ -1,36 +1,22 @@
-FROM debian:stretch
+FROM python:3.5-stretch
 MAINTAINER Wazo Maintainers <dev@wazo.community>
 
-ENV DEBIAN_FRONTEND noninteractive
-ENV HOME /root
-
-# Add dependencies
-RUN apt-get -qq update
-RUN apt-get -qq -y install \
-    git \
-    apt-utils \
-    python-pip \
-    python-dev \
-    libpq-dev \
-    libyaml-dev
-
-# Install xivo-agentd
 ADD . /usr/src/agentd
 ADD ./contribs/docker/certs /usr/share/xivo-certs
+
 WORKDIR /usr/src/agentd
-RUN pip install -r requirements.txt
-RUN python setup.py install
 
-# Configure environment
-RUN touch /var/log/xivo-agentd.log
-RUN mkdir -p /etc/xivo-agentd
-RUN mkdir /var/lib/xivo-agentd
-RUN cp -r etc/* /etc
-WORKDIR /root
-
-# Clean
-RUN apt-get clean
-RUN rm -rf /usr/src/agentd
+RUN true \
+    && adduser --quiet --system --group xivo-agentd \
+    && mkdir -p /etc/xivo-agentd/conf.d \
+    && install -o xivo-agentd -g xivo-agentd -d /var/run/xivo-agentd \
+    && touch /var/log/xivo-agentd.log \
+    && chown xivo-agentd:xivo-agentd /var/log/xivo-agentd.log \
+    && pip install -r requirements.txt \
+    && python setup.py install \
+    && cp -r etc/* /etc \
+    && apt-get -yqq autoremove \
+    && openssl req -x509 -newkey rsa:4096 -keyout /usr/share/xivo-certs/server.key -out /usr/share/xivo-certs/server.crt -nodes -config /usr/share/xivo-certs/openssl.cfg -days 3650
 
 EXPOSE 9493
 
