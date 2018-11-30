@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright 2017 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2017-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import logging
@@ -10,7 +9,7 @@ from xivo_bus.resources.common.event import ArbitraryEvent
 logger = logging.getLogger(__name__)
 
 
-class OnQueueAgentPausedManager(object):
+class OnQueueAgentPausedManager:
 
     def __init__(self, agent_status_dao, user_dao, bus_publisher):
         self._agent_status_dao = agent_status_dao

@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2013-2014 Avencall
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 
-class OnAgentUpdatedManager(object):
+class OnAgentUpdatedManager:
 
     def __init__(self, add_to_queue_action, remove_from_queue_action, update_penalty_action, agent_status_dao):
         self._add_to_queue_action = add_to_queue_action
@@ -38,7 +37,7 @@ class OnAgentUpdatedManager(object):
             self._remove_from_queue_action.remove_agent_from_queue(agent_status, queue)
 
 
-class QueueDelta(object):
+class QueueDelta:
 
     def __init__(self, added, removed, penalty_updated):
         self.added = added

@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2013-2014 Avencall
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import datetime
@@ -12,7 +11,7 @@ mock_date = datetime.datetime(2011, 11, 12, 13, 14, 15, 1617)
 mock_date_str = '2011-11-12 13:14:15.001617'
 
 
-class patch_datetime_now(object):
+class patch_datetime_now:
     def __init__(self, *mock_args, **mock_kwargs):
         self.mock_args = mock_args
         self.mock_kwargs = mock_kwargs

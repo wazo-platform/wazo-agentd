@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright 2013-2017 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import logging
@@ -10,7 +9,7 @@ from xivo_dao.helpers import db_utils
 logger = logging.getLogger(__name__)
 
 
-class OnQueueHandler(object):
+class OnQueueHandler:
 
     def __init__(self, on_queue_added_manager, on_queue_updated_manager, on_queue_deleted_manager,
                  on_queue_agent_paused_manager, queue_dao, agent_dao):

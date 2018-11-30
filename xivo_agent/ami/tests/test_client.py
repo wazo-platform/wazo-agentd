@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2012-2014 Avencall
+# Copyright 2012-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import socket
@@ -92,7 +91,7 @@ class TestAMIClient(unittest.TestCase):
         action._on_response_received.assert_called_once_with(response)
 
     def test_given_response_when_parse_next_msgs_then_response_msg_added_to_queue(self):
-        self.ami_client._buffer = 'Response: Success\r\nMessage: bar\r\n\r\n'
+        self.ami_client._buffer = b'Response: Success\r\nMessage: bar\r\n\r\n'
 
         self.ami_client._parse_next_msgs()
 
@@ -102,7 +101,7 @@ class TestAMIClient(unittest.TestCase):
         self.assertTrue(self.ami_client._msgs_queue[0].is_success())
 
     def test_given_event_with_action_id_when_parse_next_msgs_then_event_msg_added_to_queue(self):
-        self.ami_client._buffer = 'Event: Foo\r\nActionID: bar\r\n\r\n'
+        self.ami_client._buffer = b'Event: Foo\r\nActionID: bar\r\n\r\n'
 
         self.ami_client._parse_next_msgs()
 

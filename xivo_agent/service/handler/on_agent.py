@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2013-2015 Avencall
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import logging
@@ -10,7 +9,7 @@ from xivo_dao.helpers import db_utils
 logger = logging.getLogger(__name__)
 
 
-class OnAgentHandler(object):
+class OnAgentHandler:
 
     def __init__(self, on_agent_deleted_manager, on_agent_updated_manager, agent_dao):
         self._on_agent_deleted_manager = on_agent_deleted_manager

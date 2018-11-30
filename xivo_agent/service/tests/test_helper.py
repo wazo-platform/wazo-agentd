@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2013-2014 Avencall
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import unittest
@@ -14,11 +13,11 @@ class TestHelper(unittest.TestCase):
         expected = "Agent/1000"
 
         result = helper.format_agent_member_name(agent_number)
-        self.assertEquals(result, expected)
+        self.assertEqual(result, expected)
 
     def test_format_agent_skills(self):
         agent_id = 42
         expected = "agent-42"
 
         result = helper.format_agent_skills(agent_id)
-        self.assertEquals(result, expected)
+        self.assertEqual(result, expected)

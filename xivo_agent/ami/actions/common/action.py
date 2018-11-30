@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2012-2014 Avencall
+# Copyright 2012-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 
-class BaseAction(object):
+class BaseAction:
 
     def __init__(self, name, headers):
         self._name = name

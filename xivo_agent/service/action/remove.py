@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2013-2014 Avencall
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 from xivo_dao.helpers import db_utils
 
 
-class RemoveFromQueueAction(object):
+class RemoveFromQueueAction:
 
     def __init__(self, ami_client, agent_status_dao):
         self._ami_client = ami_client

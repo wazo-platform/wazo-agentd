@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
@@ -82,8 +81,8 @@ def _extract_field(obj, key, type_):
 
 def _extract_extension_and_context():
     obj = request.get_json()
-    extension = _extract_field(obj, 'extension', basestring)
-    context = _extract_field(obj, 'context', basestring)
+    extension = _extract_field(obj, 'extension', str)
+    context = _extract_field(obj, 'context', str)
     return extension, context
 
 
@@ -97,7 +96,7 @@ def _extract_reason():
     obj = request.get_json()
     reason = None
     if obj:
-        reason = _extract_field(obj, 'reason', basestring)
+        reason = _extract_field(obj, 'reason', str)
         if len(reason) > 80:
             raise BadRequest('invalid value for key reason, max length 80')
     return reason
@@ -216,7 +215,7 @@ class _UnpauseAgentByNumber(_BaseResource):
         return '', 204
 
 
-class HTTPInterface(object):
+class HTTPInterface:
 
     VERSION = '1.0'
 

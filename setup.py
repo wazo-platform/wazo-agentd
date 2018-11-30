@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+# Copyright 2012-2018 The Wazo Authors  (see the AUTHORS file)
 
 from setuptools import setup
 from setuptools import find_packages

@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2012-2014 Avencall
+# Copyright 2012-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import datetime
 from xivo_dao.helpers import db_utils
 
 
-class QueueLogManager(object):
+class QueueLogManager:
 
     def __init__(self, queue_log_dao):
         self._dao = queue_log_dao

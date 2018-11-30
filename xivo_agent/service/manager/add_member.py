@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2013-2014 Avencall
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 from xivo_agent.exception import AgentAlreadyInQueueError
 from xivo_dao.helpers import db_utils
 
 
-class AddMemberManager(object):
+class AddMemberManager:
 
     def __init__(self, add_to_queue_action, ami_client, agent_status_dao, queue_member_dao):
         self._add_to_queue_action = add_to_queue_action

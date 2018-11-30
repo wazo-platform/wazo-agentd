@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2012-2014 Avencall
+# Copyright 2012-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import collections
@@ -12,7 +11,7 @@ from xivo_ami.ami.parser import parse_buffer
 logger = logging.getLogger(__name__)
 
 
-class AMIClient(object):
+class AMIClient:
 
     _BUFSIZE = 4096
     _TIMEOUT = 10
@@ -22,7 +21,7 @@ class AMIClient(object):
         self._port = port
         self._on_connect_callback = on_connect_callback
         self._sock = None
-        self._new_action_id = _action_id_generator().next
+        self._new_action_id = _action_id_generator().__next__
         self._msgs_queue = collections.deque()
         self._action_ids = {}
         self._buffer = ''
@@ -159,7 +158,7 @@ class ReconnectingAMIClient(AMIClient):
         self._process_msgs_queue()
         self._disconnect_socket()
         self._connect_socket()
-        for action in self._action_ids.itervalues():
+        for action in self._action_ids.values():
             data = action.format()
             self._send_data_to_socket(data)
 

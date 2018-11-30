@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2013-2015 Avencall
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 from xivo_agent.exception import AgentNotLoggedError
 from xivo_dao.helpers import db_utils
 
 
-class LogoffManager(object):
+class LogoffManager:
 
     def __init__(self, logoff_action, agent_status_dao):
         self._logoff_action = logoff_action

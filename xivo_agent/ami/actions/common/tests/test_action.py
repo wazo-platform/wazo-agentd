@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2012-2014 Avencall
+# Copyright 2012-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import unittest
@@ -27,7 +26,7 @@ class TestBaseAction(unittest.TestCase):
 
         data = action.format()
 
-        self.assertEqual('Action: Foo\r\nBar: 1\r\n\r\n', data)
+        self.assertEqual(b'Action: Foo\r\nBar: 1\r\n\r\n', data)
 
     def test_format_with_action_id(self):
         action = self._new_action('Foo', [('Bar', '1')])
@@ -35,14 +34,14 @@ class TestBaseAction(unittest.TestCase):
 
         data = action.format()
 
-        self.assertEqual('Action: Foo\r\nActionID: 99\r\nBar: 1\r\n\r\n', data)
+        self.assertEqual(b'Action: Foo\r\nActionID: 99\r\nBar: 1\r\n\r\n', data)
 
     def test_format_with_none_value(self):
         action = self._new_action('Foo', [('H1', None), ('H2', 0)])
 
         data = action.format()
 
-        self.assertEqual('Action: Foo\r\nH2: 0\r\n\r\n', data)
+        self.assertEqual(b'Action: Foo\r\nH2: 0\r\n\r\n', data)
 
     def _new_action(self, action='Foo', headers=None):
         if headers is None:

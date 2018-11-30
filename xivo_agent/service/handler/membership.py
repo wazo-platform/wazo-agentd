@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright (C) 2013-2015 Avencall
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import logging
@@ -10,7 +9,7 @@ from xivo_dao.helpers import db_utils
 logger = logging.getLogger(__name__)
 
 
-class MembershipHandler(object):
+class MembershipHandler:
 
     def __init__(self, add_member_manager, remove_member_manager, agent_dao, queue_dao):
         self._add_member_manager = add_member_manager

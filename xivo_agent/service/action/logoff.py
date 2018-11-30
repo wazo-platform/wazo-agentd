@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright 2013-2017 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import datetime
@@ -11,7 +10,7 @@ from xivo_dao.helpers import db_utils
 logger = logging.getLogger(__name__)
 
 
-class LogoffAction(object):
+class LogoffAction:
 
     def __init__(self, ami_client, queue_log_manager, agent_status_dao, user_dao, bus_publisher):
         self._ami_client = ami_client

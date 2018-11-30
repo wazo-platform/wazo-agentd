@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright 2015-2017 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import logging
@@ -14,7 +13,7 @@ from xivo_bus.resources.ami.event import AMIEvent
 logger = logging.getLogger(__name__)
 
 
-class AMQPInterface(object):
+class AMQPInterface:
 
     def __init__(self, connection, exchange, service_proxy):
         self._thread = None
@@ -67,21 +66,21 @@ class _Worker(ConsumerMixin):
             logger.warning('Unexpected error while handling AMQP message', exc_info=True)
 
 
-class _MessageHandler(object):
+class _MessageHandler:
 
     def __init__(self, event_handlers):
         self._event_handlers = dict((event_handler.Event.name, event_handler)
                                     for event_handler in event_handlers)
 
     def routing_keys(self):
-        return [event_handler.Event.routing_key for event_handler in self._event_handlers.itervalues()]
+        return [event_handler.Event.routing_key for event_handler in self._event_handlers.values()]
 
     def handle_msg(self, decoded_msg):
         event_name = decoded_msg['name']
         self._event_handlers[event_name].handle_event(decoded_msg)
 
 
-class _BaseEventHandler(object):
+class _BaseEventHandler:
 
     def __init__(self, service_proxy):
         self._service_proxy = service_proxy
