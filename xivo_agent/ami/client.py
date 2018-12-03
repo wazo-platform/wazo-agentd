@@ -24,7 +24,7 @@ class AMIClient:
         self._new_action_id = _action_id_generator().__next__
         self._msgs_queue = collections.deque()
         self._action_ids = {}
-        self._buffer = ''
+        self._buffer = b''
 
     def connect(self):
         if self._sock is None:
@@ -104,7 +104,7 @@ class AMIClient:
         logger.info('Disconnecting AMI client')
         self._sock.close()
         self._sock = None
-        self._buffer = ''
+        self._buffer = b''
 
     def _send_data_to_socket(self, data):
         self._sock.sendall(data)
@@ -136,12 +136,12 @@ class ReconnectingAMIClient(AMIClient):
         except socket.error as e:
             logger.error('Could not read data from socket: %s', e)
             self._reconnect()
-            return ''
+            return b''
         else:
             if not data:
                 logger.error('Could not read data from socket: remote connection closed')
                 self._reconnect()
-                return ''
+                return b''
             return data
 
     def _reconnect(self):

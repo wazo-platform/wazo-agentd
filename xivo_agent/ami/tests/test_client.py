@@ -21,7 +21,7 @@ class TestAMIClient(unittest.TestCase):
         ami_client._new_action_id = Mock()
         ami_client._new_action_id.return_value = action_id
         ami_client._sock = Mock()
-        ami_client._sock.recv.return_value = '\r\n'.join(lines) + '\r\n'
+        ami_client._sock.recv.return_value = b'\r\n'.join(lines) + b'\r\n'
         return ami_client
 
     def test_sock_is_none_after_init(self):
@@ -36,9 +36,9 @@ class TestAMIClient(unittest.TestCase):
 
     def test_execute(self):
         ami_client = self._new_mocked_amiclient('foo', [
-            'Response: Success',
-            'ActionID: foo',
-            '',
+            b'Response: Success',
+            b'ActionID: foo',
+            b'',
         ])
         action = Mock()
         action._completed = False
@@ -71,13 +71,13 @@ class TestAMIClient(unittest.TestCase):
 
     def test_add_data_to_buffer(self):
         ami_client = self._new_mocked_amiclient(None, [
-            'Response: Success',
-            ''
+            b'Response: Success',
+            b''
         ])
 
         ami_client._add_data_to_buffer()
 
-        self.assertEqual('Response: Success\r\n\r\n', ami_client._buffer)
+        self.assertEqual(b'Response: Success\r\n\r\n', ami_client._buffer)
 
     def test_process_msgs_queue(self):
         action = Mock()
@@ -123,28 +123,28 @@ class TestReconnectingAMIClient(unittest.TestCase):
         action = Mock()
         action_ids = {'1': action}
         self.ami_client._action_ids = dict(action_ids)
-        self.ami_client._buffer = 'foobar'
-        self.sock.recv.return_value = ''
+        self.ami_client._buffer = b'foobar'
+        self.sock.recv.return_value = b''
 
         data = self.ami_client._recv_data_from_socket()
 
         self.assertTrue(socket_mock.called)
         self.on_connect_callback.assert_called_once_with()
-        self.assertEqual('', self.ami_client._buffer)
+        self.assertEqual(b'', self.ami_client._buffer)
         self.assertEqual(action_ids, self.ami_client._action_ids)
-        self.assertEqual('', data)
+        self.assertEqual(b'', data)
 
     @patch('socket.socket')
     def test_on_send_socket_error_and_reconnection_ok(self, socket_mock):
         action = Mock()
         action_ids = {'1': action}
         self.ami_client._action_ids = dict(action_ids)
-        self.ami_client._buffer = 'foobar'
+        self.ami_client._buffer = b'foobar'
         self.sock.sendall.side_effect = socket.error('test')
 
         self.ami_client._send_data_to_socket('42 x 42')
 
         self.assertTrue(socket_mock.called)
         self.on_connect_callback.assert_called_once_with()
-        self.assertEqual('', self.ami_client._buffer)
+        self.assertEqual(b'', self.ami_client._buffer)
         self.assertEqual(action_ids, self.ami_client._action_ids)
