@@ -14,7 +14,7 @@ class TestQueueAddAction(unittest.TestCase):
         queue = 'queue1001'
         interface = 'Local/1@foobar'
         member_name = 'Agent/234'
-        state_interface = 'SIP/abcdef'
+        state_interface = 'PJSIP/abcdef'
         penalty = '1'
         skills = 'agent-12'
 
@@ -25,7 +25,7 @@ class TestQueueAddAction(unittest.TestCase):
             ('Queue', queue),
             ('Interface', interface),
             ('MemberName', member_name),
-            ('StateInterface', 'PJSIP/abcdef'),
+            ('StateInterface', state_interface),
             ('Penalty', penalty),
             ('Skills', skills)
         ])

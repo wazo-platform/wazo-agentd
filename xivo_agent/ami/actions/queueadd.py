@@ -5,10 +5,6 @@ from xivo_agent.ami.actions.common.action import BaseAction
 
 
 def QueueAddAction(queue, interface, member_name=None, state_interface=None, penalty=None, skills=None):
-    # TODO clean after pjsip migration
-    if state_interface.startswith('SIP/'):
-        state_interface = state_interface.replace('SIP/', 'PJSIP/')
-
     return BaseAction('QueueAdd', [
         ('Queue', queue),
         ('Interface', interface),

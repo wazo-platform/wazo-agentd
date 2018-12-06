@@ -1,4 +1,5 @@
-# Copyright 2013-2017 The Wazo Authors  (see the AUTHORS file)
+
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0+
 
 import unittest
@@ -38,18 +39,19 @@ class TestLoginAction(unittest.TestCase):
         agent.queues = [queue]
         extension = '1001'
         context = 'default'
-        state_interface = 'SIP/abcd'
+        state_interface_sip = 'SIP/abcd'
+        state_interface_pjsip = 'PJSIP/abcd'
         skills = format_agent_skills(agent_id)
 
-        self.line_dao.get_interface_from_exten_and_context.return_value = state_interface
+        self.line_dao.get_interface_from_exten_and_context.return_value = state_interface_sip
         self.user_dao.find_all_by_agent_id.return_value = [Mock(uuid='42'), Mock(uuid='43')]
 
         self.login_action.login_agent(agent, extension, context)
 
-        self.agent_status_dao.log_in_agent.assert_called_once_with(agent_id, agent_number, extension, context, ANY, state_interface)
+        self.agent_status_dao.log_in_agent.assert_called_once_with(agent_id, agent_number, extension, context, ANY, state_interface_pjsip)
         self.agent_status_dao.add_agent_to_queues.assert_called_once_with(agent_id, agent.queues)
         self.queue_log_manager.on_agent_logged_in.assert_called_once_with(agent_number, extension, context)
-        self.ami_client.queue_add.assert_called_once_with(queue.name, ANY, ANY, state_interface, queue.penalty, skills)
+        self.ami_client.queue_add.assert_called_once_with(queue.name, ANY, ANY, state_interface_pjsip, queue.penalty, skills)
         self.ami_client.agent_login.assert_called_once_with(agent_id, agent_number, extension, context)
         self.bus_publisher.publish.assert_called_once_with(
             AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_IN),
