@@ -1,5 +1,5 @@
 # Copyright (C) 2013-2014 Avencall
-# SPDX-License-Identifier: GPL-3.0+
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 
 def format_agent_member_name(agent_number):

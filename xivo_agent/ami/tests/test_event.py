@@ -1,5 +1,5 @@
 # Copyright (C) 2012-2014 Avencall
-# SPDX-License-Identifier: GPL-3.0+
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from hamcrest import assert_that, equal_to
 import unittest

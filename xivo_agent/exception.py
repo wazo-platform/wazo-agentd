@@ -1,5 +1,5 @@
 # Copyright (C) 2012-2015 Avencall
-# SPDX-License-Identifier: GPL-3.0+
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 # The following strings are part of the exposed HTTP API; don't rename them
 # or you'll break the API.
