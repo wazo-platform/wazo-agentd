@@ -45,9 +45,9 @@ class ServiceProxy:
         with self._lock:
             self.logoff_handler.handle_logoff_all(tenant_uuids=tenant_uuids)
 
-    def relog_all(self):
+    def relog_all(self, tenant_uuids=None):
         with self._lock:
-            self.relog_handler.handle_relog_all()
+            self.relog_handler.handle_relog_all(tenant_uuids=tenant_uuids)
 
     def pause_agent_by_number(self, agent_number, reason):
         with self._lock:

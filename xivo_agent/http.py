@@ -244,7 +244,9 @@ class _RelogAgents(_BaseResource):
 
     @required_acl('agentd.agents.relog.create')
     def post(self):
-        self.service_proxy.relog_all()
+        params = self.parse_params()
+        tenant_uuids = self._build_tenant_list(params)
+        self.service_proxy.relog_all(tenant_uuids=tenant_uuids)
         return '', 204
 
 

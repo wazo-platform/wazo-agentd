@@ -1,4 +1,4 @@
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -13,6 +13,6 @@ class RelogHandler:
         self._relog_manager = relog_manager
 
     @debug.trace_duration
-    def handle_relog_all(self):
+    def handle_relog_all(self, tenant_uuids=None):
         logger.info('Executing relog all command')
-        self._relog_manager.relog_all_agents()
+        self._relog_manager.relog_all_agents(tenant_uuids=tenant_uuids)
