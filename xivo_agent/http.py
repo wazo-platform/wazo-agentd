@@ -15,7 +15,8 @@ from werkzeug.exceptions import BadRequest
 from werkzeug.contrib.fixers import ProxyFix
 from xivo_agent.exception import AgentServerError, NoSuchAgentError, NoSuchExtensionError, \
     AgentAlreadyLoggedError, ExtensionAlreadyInUseError, AgentNotLoggedError, \
-    NoSuchQueueError, AgentAlreadyInQueueError, AgentNotInQueueError
+    NoSuchQueueError, AgentAlreadyInQueueError, AgentNotInQueueError, ContextDifferentTenantError, \
+    QueueDifferentTenantError
 from xivo import http_helpers
 from xivo.auth_verifier import AuthVerifier, required_acl
 from xivo.http_helpers import ReverseProxied
@@ -38,6 +39,8 @@ _AGENT_409_ERRORS = (
     AgentAlreadyInQueueError,
     AgentNotInQueueError,
     ExtensionAlreadyInUseError,
+    ContextDifferentTenantError,
+    QueueDifferentTenantError,
 )
 
 
