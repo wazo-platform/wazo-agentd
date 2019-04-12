@@ -54,6 +54,7 @@ from xivo_auth_client import Client as AuthClient
 from xivo_bus import Marshaler, Publisher
 from xivo_dao import agent_dao as orig_agent_dao
 from xivo_dao import agent_status_dao
+from xivo_dao import context_dao
 from xivo_dao import line_dao
 from xivo_dao import queue_dao as orig_queue_dao
 from xivo_dao import queue_log_dao
@@ -178,7 +179,7 @@ def _run(config):
             update_penalty_action = UpdatePenaltyAction(ami_client, agent_status_dao)
 
             add_member_manager = AddMemberManager(add_to_queue_action, ami_client, agent_status_dao, queue_member_dao)
-            login_manager = LoginManager(login_action, agent_status_dao)
+            login_manager = LoginManager(login_action, agent_status_dao, context_dao)
             logoff_manager = LogoffManager(logoff_action, agent_status_dao)
             on_agent_deleted_manager = OnAgentDeletedManager(logoff_manager, agent_status_dao)
             on_agent_updated_manager = OnAgentUpdatedManager(add_to_queue_action, remove_from_queue_action, update_penalty_action, agent_status_dao)
