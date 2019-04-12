@@ -225,7 +225,8 @@ class _AddAgentToQueue(_BaseResource):
     @required_acl('agentd.agents.by-id.{agent_id}.add.create')
     def post(self, agent_id):
         queue_id = _extract_queue_id()
-        self.service_proxy.add_agent_to_queue(agent_id, queue_id)
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        self.service_proxy.add_agent_to_queue(agent_id, queue_id, tenant_uuids=tenant_uuids)
         return '', 204
 
 
@@ -234,7 +235,8 @@ class _RemoveAgentFromQueue(_BaseResource):
     @required_acl('agentd.agents.by-id.{agent_id}.delete.create')
     def post(self, agent_id):
         queue_id = _extract_queue_id()
-        self.service_proxy.remove_agent_from_queue(agent_id, queue_id)
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        self.service_proxy.remove_agent_from_queue(agent_id, queue_id, tenant_uuids=tenant_uuids)
         return '', 204
 
 
