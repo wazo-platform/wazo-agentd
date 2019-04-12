@@ -34,6 +34,9 @@ paths:
       operationId: get_agents
       tags:
       - agents
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/recurse'
       responses:
         '200':
           description: A list of agent status
@@ -46,6 +49,8 @@ paths:
       operationId: logoff_agents
       tags:
       - agents
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
       responses:
         '204':
           description: The operation was performed succesfully
@@ -59,6 +64,8 @@ paths:
       operationId: relog_agents
       tags:
       - agents
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
       responses:
         '204':
           description: The operation was performed succesfully
@@ -70,6 +77,7 @@ paths:
       tags:
       - agent
       parameters:
+      - $ref: '#/parameters/tenantuuid'
       - $ref: '#/parameters/AgentID'
       responses:
         '200':
@@ -88,6 +96,7 @@ paths:
       tags:
       - agent
       parameters:
+      - $ref: '#/parameters/tenantuuid'
       - name: agent_number
         in: path
         description: Agent's number
@@ -110,6 +119,7 @@ paths:
       tags:
       - agent
       parameters:
+      - $ref: '#/parameters/tenantuuid'
       - $ref: '#/parameters/AgentID'
       - name: body
         in: body
@@ -137,6 +147,7 @@ paths:
       tags:
       - agent
       parameters:
+      - $ref: '#/parameters/tenantuuid'
       - name: agent_number
         in: path
         description: Agent's number
@@ -168,6 +179,7 @@ paths:
       tags:
       - agent
       parameters:
+      - $ref: '#/parameters/tenantuuid'
       - $ref: '#/parameters/AgentID'
       responses:
         '204':
@@ -184,6 +196,7 @@ paths:
       tags:
       - agent
       parameters:
+      - $ref: '#/parameters/tenantuuid'
       - name: agent_number
         in: path
         description: Agent's number
@@ -204,6 +217,7 @@ paths:
       tags:
       - agent
       parameters:
+      - $ref: '#/parameters/tenantuuid'
       - name: agent_number
         in: path
         description: Agent's number
@@ -234,6 +248,7 @@ paths:
       tags:
       - agent
       parameters:
+      - $ref: '#/parameters/tenantuuid'
       - name: agent_number
         in: path
         description: Agent's number
@@ -258,6 +273,7 @@ paths:
       tags:
       - agent
       parameters:
+      - $ref: '#/parameters/tenantuuid'
       - $ref: '#/parameters/AgentID'
       - name: body
         in: body
@@ -273,7 +289,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
         '409':
-          description: Agent is already a member of the queue
+          description: Agent is already a member of the queue, or the queue is not in the same tenant
           schema:
             $ref: '#/definitions/Error'
   /agents/by-id/{agent_id}/remove:
@@ -284,6 +300,7 @@ paths:
       tags:
       - agent
       parameters:
+      - $ref: '#/parameters/tenantuuid'
       - $ref: '#/parameters/AgentID'
       - name: body
         in: body
