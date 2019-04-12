@@ -196,7 +196,8 @@ class _LogoffAgentById(_BaseResource):
     def post(self, agent_id):
         # XXX logoff_agent_by_id raise a AgentNotLoggedError even if the agent doesn't exist;
         #     that means that logoff currently returns a 409 for an inexistant agent, not a 404
-        self.service_proxy.logoff_agent_by_id(agent_id)
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        self.service_proxy.logoff_agent_by_id(agent_id, tenant_uuids=tenant_uuids)
         return '', 204
 
 
@@ -204,7 +205,8 @@ class _LogoffAgentByNumber(_BaseResource):
 
     @required_acl('agentd.agents.by-number.{agent_number}.logoff.create')
     def post(self, agent_number):
-        self.service_proxy.logoff_agent_by_number(agent_number)
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        self.service_proxy.logoff_agent_by_number(agent_number, tenant_uuids=tenant_uuids)
         return '', 204
 
 
@@ -212,7 +214,9 @@ class _LogoffAgents(_BaseResource):
 
     @required_acl('agentd.agents.logoff.create')
     def post(self):
-        self.service_proxy.logoff_all()
+        params = self.parse_params()
+        tenant_uuids = self._build_tenant_list(params)
+        self.service_proxy.logoff_all(tenant_uuids=tenant_uuids)
         return '', 204
 
 

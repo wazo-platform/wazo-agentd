@@ -33,17 +33,17 @@ class ServiceProxy:
         with self._lock:
             self.login_handler.handle_login_by_number(agent_number, extension, context, tenant_uuids=tenant_uuids)
 
-    def logoff_agent_by_id(self, agent_id):
+    def logoff_agent_by_id(self, agent_id, tenant_uuids=None):
         with self._lock:
-            self.logoff_handler.handle_logoff_by_id(agent_id)
+            self.logoff_handler.handle_logoff_by_id(agent_id, tenant_uuids=tenant_uuids)
 
-    def logoff_agent_by_number(self, agent_number):
+    def logoff_agent_by_number(self, agent_number, tenant_uuids=None):
         with self._lock:
-            self.logoff_handler.handle_logoff_by_number(agent_number)
+            self.logoff_handler.handle_logoff_by_number(agent_number, tenant_uuids=tenant_uuids)
 
-    def logoff_all(self):
+    def logoff_all(self, tenant_uuids=None):
         with self._lock:
-            self.logoff_handler.handle_logoff_all()
+            self.logoff_handler.handle_logoff_all(tenant_uuids=tenant_uuids)
 
     def relog_all(self):
         with self._lock:
