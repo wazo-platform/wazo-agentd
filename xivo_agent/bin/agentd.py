@@ -201,7 +201,7 @@ def _run(config):
             service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, xivo_uuid)
 
             amqp_iface = amqp.AMQPInterface(consumer_conn, bus_exchange, service_proxy)
-            http_iface = http.HTTPInterface(config['rest_api'], service_proxy, auth_client)
+            http_iface = http.HTTPInterface(config, service_proxy, auth_client)
 
             amqp_iface.start()
             try:

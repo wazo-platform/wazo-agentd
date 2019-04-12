@@ -1,4 +1,4 @@
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -237,8 +237,9 @@ class HTTPInterface:
     ]
 
     def __init__(self, config, service_proxy, auth_client):
-        self._config = config
+        self._config = config['rest_api']
         self._app = Flask('xivo_agent')
+        self._app.config.update(config)
 
         http_helpers.add_logger(self._app, logger)
         self._app.after_request(http_helpers.log_request)
