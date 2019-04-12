@@ -1,4 +1,4 @@
-# Copyright 2012-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import argparse
@@ -88,7 +88,7 @@ _DEFAULT_CONFIG = {
         },
         'cors': {
             'enabled': True,
-            'allow_headers': 'Content-Type',
+            'allow_headers': ['Content-Type', 'X-Auth-Token', 'Wazo-Tenant'],
         }
     },
     'service_discovery': {
