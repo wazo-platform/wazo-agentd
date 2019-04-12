@@ -9,6 +9,8 @@ from flask import Flask
 from flask import request
 from flask_cors import CORS
 from flask_restful import Api, Resource
+from requests import HTTPError
+
 from werkzeug.exceptions import BadRequest
 from werkzeug.contrib.fixers import ProxyFix
 from xivo_agent.exception import AgentServerError, NoSuchAgentError, NoSuchExtensionError, \
@@ -17,6 +19,8 @@ from xivo_agent.exception import AgentServerError, NoSuchAgentError, NoSuchExten
 from xivo import http_helpers
 from xivo.auth_verifier import AuthVerifier, required_acl
 from xivo.http_helpers import ReverseProxied
+from xivo.tenant_helpers import UnauthorizedTenant
+from xivo.tenant_flask_helpers import Tenant, get_auth_client, get_token
 
 from xivo_agent.swagger.resource import SwaggerResource
 
@@ -57,6 +61,8 @@ def _common_error_handler(fun):
     def aux(*args, **kwargs):
         try:
             return fun(*args, **kwargs)
+        except UnauthorizedTenant as e:
+            return {'error': e.message}, 401
         except _AGENT_404_ERRORS as e:
             return {'error': e.error}, 404
         except _AGENT_409_ERRORS as e:
@@ -105,6 +111,35 @@ def _extract_reason():
 class _BaseResource(Resource):
 
     method_decorators = [auth_verifier.verify_token, _common_error_handler]
+
+    def parse_params(self):
+        params = {key: value for key, value in request.args.items()}
+        if 'recurse' in params:
+            params['recurse'] = params['recurse'] in ('True', 'true')
+
+        return params
+
+    def _build_tenant_list(self, params):
+        tenant_uuid = Tenant.autodetect().uuid
+        recurse = params.get('recurse', False)
+        if not recurse:
+            return [tenant_uuid]
+
+        tenants = []
+        auth_client = get_auth_client()
+        token_object = get_token()
+        auth_client.set_token(token_object.uuid)
+
+        try:
+            tenants = auth_client.tenants.list(tenant_uuid=tenant_uuid)['items']
+        except HTTPError as e:
+            response = getattr(e, 'response', None)
+            status_code = getattr(response, 'status_code', None)
+            if status_code == 401:
+                return [tenant_uuid]
+            raise
+
+        return [t['uuid'] for t in tenants]
 
 
 class _Agents(_BaseResource):
