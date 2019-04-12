@@ -1,4 +1,4 @@
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -17,26 +17,27 @@ class StatusHandler:
         self._uuid = uuid
 
     @debug.trace_duration
-    def handle_status_by_id(self, agent_id):
+    def handle_status_by_id(self, agent_id, tenant_uuids=None):
         logger.info('Executing status command (ID %s)', agent_id)
         with db_utils.session_scope():
-            agent = self._agent_dao.get_agent(agent_id)
+            agent = self._agent_dao.get_agent(agent_id, tenant_uuids=tenant_uuids)
         return self._handle_status(agent)
 
     @debug.trace_duration
-    def handle_status_by_number(self, agent_number):
+    def handle_status_by_number(self, agent_number, tenant_uuids=None):
         logger.info('Executing status command (number %s)', agent_number)
         with db_utils.session_scope():
-            agent = self._agent_dao.get_agent_by_number(agent_number)
+            agent = self._agent_dao.get_agent_by_number(agent_number, tenant_uuids=tenant_uuids)
         return self._handle_status(agent)
 
     @debug.trace_duration
-    def handle_statuses(self,):
+    def handle_statuses(self, tenant_uuids=None):
         logger.info('Executing statuses command')
         with db_utils.session_scope():
-            agent_statuses = self._agent_status_dao.get_statuses()
+            agent_statuses = self._agent_status_dao.get_statuses(tenant_uuids=tenant_uuids)
             return [
                 {'id': status.agent_id,
+                 'tenant_uuid': status.tenant_uuid,
                  'origin_uuid': self._uuid,
                  'number': status.agent_number,
                  'logged': status.logged,
@@ -67,6 +68,7 @@ class StatusHandler:
                 state_interface = agent_status.state_interface
             return {
                 'id': agent.id,
+                'tenant_uuid': agent.tenant_uuid,
                 'origin_uuid': self._uuid,
                 'number': agent.number,
                 'logged': logged,

@@ -57,17 +57,17 @@ class ServiceProxy:
         with self._lock:
             self.pause_handler.handle_unpause_by_number(agent_number)
 
-    def get_agent_status_by_id(self, agent_id):
+    def get_agent_status_by_id(self, agent_id, tenant_uuids=None):
         with self._lock:
-            return self.status_handler.handle_status_by_id(agent_id)
+            return self.status_handler.handle_status_by_id(agent_id, tenant_uuids=tenant_uuids)
 
-    def get_agent_status_by_number(self, agent_number):
+    def get_agent_status_by_number(self, agent_number, tenant_uuids=None):
         with self._lock:
-            return self.status_handler.handle_status_by_number(agent_number)
+            return self.status_handler.handle_status_by_number(agent_number, tenant_uuids=tenant_uuids)
 
-    def get_agent_statuses(self):
+    def get_agent_statuses(self, tenant_uuids=None):
         with self._lock:
-            return self.status_handler.handle_statuses()
+            return self.status_handler.handle_statuses(tenant_uuids=tenant_uuids)
 
     def on_agent_updated(self, agent_id):
         with self._lock:

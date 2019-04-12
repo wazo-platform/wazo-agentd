@@ -146,21 +146,25 @@ class _Agents(_BaseResource):
 
     @required_acl('agentd.agents.read')
     def get(self):
-        return self.service_proxy.get_agent_statuses()
+        params = self.parse_params()
+        tenant_uuids = self._build_tenant_list(params)
+        return self.service_proxy.get_agent_statuses(tenant_uuids=tenant_uuids)
 
 
 class _AgentById(_BaseResource):
 
     @required_acl('agentd.agents.by-id.{agent_id}.read')
     def get(self, agent_id):
-        return self.service_proxy.get_agent_status_by_id(agent_id)
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        return self.service_proxy.get_agent_status_by_id(agent_id, tenant_uuids=tenant_uuids)
 
 
 class _AgentByNumber(_BaseResource):
 
     @required_acl('agentd.agents.by-number.{agent_number}.read')
     def get(self, agent_number):
-        return self.service_proxy.get_agent_status_by_number(agent_number)
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        return self.service_proxy.get_agent_status_by_number(agent_number, tenant_uuids=tenant_uuids)
 
 
 class _LoginAgentById(_BaseResource):
