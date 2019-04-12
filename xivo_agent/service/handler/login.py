@@ -1,4 +1,4 @@
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -16,17 +16,17 @@ class LoginHandler:
         self._agent_dao = agent_dao
 
     @debug.trace_duration
-    def handle_login_by_id(self, agent_id, extension, context):
+    def handle_login_by_id(self, agent_id, extension, context, tenant_uuids=None):
         logger.info('Executing login command (ID %s) on %s@%s', agent_id, extension, context)
         with db_utils.session_scope():
-            agent = self._agent_dao.get_agent(agent_id)
+            agent = self._agent_dao.get_agent(agent_id, tenant_uuids=tenant_uuids)
         self._handle_login(agent, extension, context)
 
     @debug.trace_duration
-    def handle_login_by_number(self, agent_number, extension, context):
+    def handle_login_by_number(self, agent_number, extension, context, tenant_uuids=None):
         logger.info('Executing login command (number %s) on %s@%s', agent_number, extension, context)
         with db_utils.session_scope():
-            agent = self._agent_dao.get_agent_by_number(agent_number)
+            agent = self._agent_dao.get_agent_by_number(agent_number, tenant_uuids=tenant_uuids)
         self._handle_login(agent, extension, context)
 
     def _handle_login(self, agent, extension, context):

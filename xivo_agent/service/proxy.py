@@ -25,13 +25,13 @@ class ServiceProxy:
         with self._lock:
             self.membership_handler.handle_remove_from_queue(agent_id, queue_id)
 
-    def login_agent_by_id(self, agent_id, extension, context):
+    def login_agent_by_id(self, agent_id, extension, context, tenant_uuids=None):
         with self._lock:
-            self.login_handler.handle_login_by_id(agent_id, extension, context)
+            self.login_handler.handle_login_by_id(agent_id, extension, context, tenant_uuids=tenant_uuids)
 
-    def login_agent_by_number(self, agent_number, extension, context):
+    def login_agent_by_number(self, agent_number, extension, context, tenant_uuids=None):
         with self._lock:
-            self.login_handler.handle_login_by_number(agent_number, extension, context)
+            self.login_handler.handle_login_by_number(agent_number, extension, context, tenant_uuids=tenant_uuids)
 
     def logoff_agent_by_id(self, agent_id):
         with self._lock:

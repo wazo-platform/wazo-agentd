@@ -172,7 +172,8 @@ class _LoginAgentById(_BaseResource):
     @required_acl('agentd.agents.by-id.{agent_id}.login.create')
     def post(self, agent_id):
         extension, context = _extract_extension_and_context()
-        self.service_proxy.login_agent_by_id(agent_id, extension, context)
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        self.service_proxy.login_agent_by_id(agent_id, extension, context, tenant_uuids=tenant_uuids)
         return '', 204
 
 
@@ -181,7 +182,8 @@ class _LoginAgentByNumber(_BaseResource):
     @required_acl('agentd.agents.by-number.{agent_number}.login.create')
     def post(self, agent_number):
         extension, context = _extract_extension_and_context()
-        self.service_proxy.login_agent_by_number(agent_number, extension, context)
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        self.service_proxy.login_agent_by_number(agent_number, extension, context, tenant_uuids=tenant_uuids)
         return '', 204
 
 
