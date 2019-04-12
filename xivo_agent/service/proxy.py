@@ -49,13 +49,13 @@ class ServiceProxy:
         with self._lock:
             self.relog_handler.handle_relog_all(tenant_uuids=tenant_uuids)
 
-    def pause_agent_by_number(self, agent_number, reason):
+    def pause_agent_by_number(self, agent_number, reason, tenant_uuids=None):
         with self._lock:
-            self.pause_handler.handle_pause_by_number(agent_number, reason)
+            self.pause_handler.handle_pause_by_number(agent_number, reason, tenant_uuids=tenant_uuids)
 
-    def unpause_agent_by_number(self, agent_number):
+    def unpause_agent_by_number(self, agent_number, tenant_uuids=None):
         with self._lock:
-            self.pause_handler.handle_unpause_by_number(agent_number)
+            self.pause_handler.handle_unpause_by_number(agent_number, tenant_uuids=tenant_uuids)
 
     def get_agent_status_by_id(self, agent_id, tenant_uuids=None):
         with self._lock:

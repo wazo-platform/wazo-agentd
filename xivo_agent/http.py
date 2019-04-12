@@ -255,7 +255,8 @@ class _PauseAgentByNumber(_BaseResource):
     @required_acl('agentd.agents.by-number.{agent_number}.pause.create')
     def post(self, agent_number):
         reason = _extract_reason()
-        self.service_proxy.pause_agent_by_number(agent_number, reason)
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        self.service_proxy.pause_agent_by_number(agent_number, reason, tenant_uuids=tenant_uuids)
         return '', 204
 
 
@@ -263,7 +264,8 @@ class _UnpauseAgentByNumber(_BaseResource):
 
     @required_acl('agentd.agents.by-number.{agent_number}.unpause.create')
     def post(self, agent_number):
-        self.service_proxy.unpause_agent_by_number(agent_number)
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        self.service_proxy.unpause_agent_by_number(agent_number, tenant_uuids=tenant_uuids)
         return '', 204
 
 
