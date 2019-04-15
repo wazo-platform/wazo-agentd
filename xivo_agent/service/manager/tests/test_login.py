@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2015 Avencall
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -13,13 +13,18 @@ class TestLoginManager(unittest.TestCase):
     def setUp(self):
         self.login_action = Mock()
         self.agent_status_dao = Mock()
+        self.context_dao = Mock()
         self.login_manager = LoginManager(self.login_action,
-                                          self.agent_status_dao)
+                                          self.agent_status_dao,
+                                          self.context_dao)
 
     def test_login_agent(self):
-        agent = Mock()
+        agent = Mock(tenant_uuid='fake-tenant')
         extension = '1001'
         context = 'default'
+        context_mock = Mock(name=context, tenant_uuid='fake-tenant')
+        self.context_dao.get.return_value = context_mock
+
         self.agent_status_dao.get_status.return_value = None
         self.agent_status_dao.is_extension_in_use.return_value = False
 
