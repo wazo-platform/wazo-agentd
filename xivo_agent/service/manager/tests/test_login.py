@@ -6,6 +6,7 @@ import unittest
 from mock import Mock
 
 from xivo_agent.service.manager.login import LoginManager
+from xivo_agent.exception import ContextDifferentTenantError
 
 
 class TestLoginManager(unittest.TestCase):
@@ -31,3 +32,20 @@ class TestLoginManager(unittest.TestCase):
         self.login_manager.login_agent(agent, extension, context)
 
         self.login_action.login_agent.assert_called_once_with(agent, extension, context)
+
+    def test_login_agent_multi_tenant(self):
+        agent = Mock(tenant_uuid='fake-tenant-1')
+        extension = '1001'
+        context = 'default'
+        context_mock = Mock(name=context, tenant_uuid='fake-tenant-2')
+        self.context_dao.get.return_value = context_mock
+
+        self.agent_status_dao.get_status.return_value = None
+        self.agent_status_dao.is_extension_in_use.return_value = False
+
+        self.assertRaises(
+            ContextDifferentTenantError,
+            self.login_manager.login_agent, agent, extension, context,
+        )
+
+        self.login_action.login_agent.assert_not_called()
