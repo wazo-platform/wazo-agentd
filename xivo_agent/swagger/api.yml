@@ -130,6 +130,10 @@ paths:
       responses:
         '204':
           description: The operation was performed succesfully
+        '400':
+          description: The context and extension are not in the same tenant as the agent
+          schema:
+            $ref: '#/definitions/Error'
         '404':
           description: Agent or extension or context does not exist
           schema:
@@ -162,6 +166,10 @@ paths:
       responses:
         '204':
           description: The operation was performed succesfully
+        '400':
+          description: The context and extension are not in the same tenant as the agent
+          schema:
+            $ref: '#/definitions/Error'
         '404':
           description: Agent or extension or context does not exist
           schema:
@@ -284,6 +292,10 @@ paths:
       responses:
         '204':
           description: The operation was performed succesfully
+        '400':
+          description: The agent and the queue are not in the same tenant
+          schema:
+            $ref: '#/definitions/Error'
         '404':
           description: Agent or queue does not exist
           schema:

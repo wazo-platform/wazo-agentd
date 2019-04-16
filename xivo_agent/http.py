@@ -39,6 +39,8 @@ _AGENT_409_ERRORS = (
     AgentAlreadyInQueueError,
     AgentNotInQueueError,
     ExtensionAlreadyInUseError,
+)
+_AGENT_400_ERRORS = (
     ContextDifferentTenantError,
     QueueDifferentTenantError,
 )
@@ -64,6 +66,8 @@ def _common_error_handler(fun):
     def aux(*args, **kwargs):
         try:
             return fun(*args, **kwargs)
+        except _AGENT_400_ERRORS as e:
+            return {'error': e.message}, 400
         except UnauthorizedTenant as e:
             return {'error': e.message}, 401
         except _AGENT_404_ERRORS as e:
