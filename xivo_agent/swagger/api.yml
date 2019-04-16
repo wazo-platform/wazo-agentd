@@ -301,7 +301,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
         '409':
-          description: Agent is already a member of the queue, or the queue is not in the same tenant
+          description: Agent is already a member of the queue
           schema:
             $ref: '#/definitions/Error'
   /agents/by-id/{agent_id}/remove:
