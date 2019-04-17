@@ -67,7 +67,7 @@ def _common_error_handler(fun):
         try:
             return fun(*args, **kwargs)
         except _AGENT_400_ERRORS as e:
-            return {'error': e.message}, 400
+            return {'error': e.error}, 400
         except UnauthorizedTenant as e:
             return {'error': e.message}, 401
         except _AGENT_404_ERRORS as e:
