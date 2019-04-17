@@ -1,4 +1,4 @@
-# Copyright 2012-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import argparse
@@ -54,6 +54,7 @@ from xivo_auth_client import Client as AuthClient
 from xivo_bus import Marshaler, Publisher
 from xivo_dao import agent_dao as orig_agent_dao
 from xivo_dao import agent_status_dao
+from xivo_dao import context_dao
 from xivo_dao import line_dao
 from xivo_dao import queue_dao as orig_queue_dao
 from xivo_dao import queue_log_dao
@@ -88,7 +89,7 @@ _DEFAULT_CONFIG = {
         },
         'cors': {
             'enabled': True,
-            'allow_headers': 'Content-Type',
+            'allow_headers': ['Content-Type', 'X-Auth-Token', 'Wazo-Tenant'],
         }
     },
     'service_discovery': {
@@ -178,7 +179,7 @@ def _run(config):
             update_penalty_action = UpdatePenaltyAction(ami_client, agent_status_dao)
 
             add_member_manager = AddMemberManager(add_to_queue_action, ami_client, agent_status_dao, queue_member_dao)
-            login_manager = LoginManager(login_action, agent_status_dao)
+            login_manager = LoginManager(login_action, agent_status_dao, context_dao)
             logoff_manager = LogoffManager(logoff_action, agent_status_dao)
             on_agent_deleted_manager = OnAgentDeletedManager(logoff_manager, agent_status_dao)
             on_agent_updated_manager = OnAgentUpdatedManager(add_to_queue_action, remove_from_queue_action, update_penalty_action, agent_status_dao)
@@ -201,7 +202,7 @@ def _run(config):
             service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, xivo_uuid)
 
             amqp_iface = amqp.AMQPInterface(consumer_conn, bus_exchange, service_proxy)
-            http_iface = http.HTTPInterface(config['rest_api'], service_proxy, auth_client)
+            http_iface = http.HTTPInterface(config, service_proxy, auth_client)
 
             amqp_iface.start()
             try:

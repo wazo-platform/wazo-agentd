@@ -1,4 +1,4 @@
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -9,14 +9,19 @@ from flask import Flask
 from flask import request
 from flask_cors import CORS
 from flask_restful import Api, Resource
+from requests import HTTPError
+
 from werkzeug.exceptions import BadRequest
 from werkzeug.contrib.fixers import ProxyFix
 from xivo_agent.exception import AgentServerError, NoSuchAgentError, NoSuchExtensionError, \
     AgentAlreadyLoggedError, ExtensionAlreadyInUseError, AgentNotLoggedError, \
-    NoSuchQueueError, AgentAlreadyInQueueError, AgentNotInQueueError
+    NoSuchQueueError, AgentAlreadyInQueueError, AgentNotInQueueError, ContextDifferentTenantError, \
+    QueueDifferentTenantError
 from xivo import http_helpers
 from xivo.auth_verifier import AuthVerifier, required_acl
 from xivo.http_helpers import ReverseProxied
+from xivo.tenant_helpers import UnauthorizedTenant
+from xivo.tenant_flask_helpers import Tenant, get_auth_client, get_token
 
 from xivo_agent.swagger.resource import SwaggerResource
 
@@ -34,6 +39,10 @@ _AGENT_409_ERRORS = (
     AgentAlreadyInQueueError,
     AgentNotInQueueError,
     ExtensionAlreadyInUseError,
+)
+_AGENT_400_ERRORS = (
+    ContextDifferentTenantError,
+    QueueDifferentTenantError,
 )
 
 
@@ -57,6 +66,10 @@ def _common_error_handler(fun):
     def aux(*args, **kwargs):
         try:
             return fun(*args, **kwargs)
+        except _AGENT_400_ERRORS as e:
+            return {'error': e.error}, 400
+        except UnauthorizedTenant as e:
+            return {'error': e.message}, 401
         except _AGENT_404_ERRORS as e:
             return {'error': e.error}, 404
         except _AGENT_409_ERRORS as e:
@@ -106,26 +119,59 @@ class _BaseResource(Resource):
 
     method_decorators = [auth_verifier.verify_token, _common_error_handler]
 
+    def parse_params(self):
+        params = {key: value for key, value in request.args.items()}
+        if 'recurse' in params:
+            params['recurse'] = params['recurse'] in ('True', 'true')
+
+        return params
+
+    def _build_tenant_list(self, params):
+        tenant_uuid = Tenant.autodetect().uuid
+        recurse = params.get('recurse', False)
+        if not recurse:
+            return [tenant_uuid]
+
+        tenants = []
+        auth_client = get_auth_client()
+        token_object = get_token()
+        auth_client.set_token(token_object.uuid)
+
+        try:
+            tenants = auth_client.tenants.list(tenant_uuid=tenant_uuid)['items']
+        except HTTPError as e:
+            response = getattr(e, 'response', None)
+            status_code = getattr(response, 'status_code', None)
+            if status_code == 401:
+                return [tenant_uuid]
+            raise
+
+        return [t['uuid'] for t in tenants]
+
 
 class _Agents(_BaseResource):
 
     @required_acl('agentd.agents.read')
     def get(self):
-        return self.service_proxy.get_agent_statuses()
+        params = self.parse_params()
+        tenant_uuids = self._build_tenant_list(params)
+        return self.service_proxy.get_agent_statuses(tenant_uuids=tenant_uuids)
 
 
 class _AgentById(_BaseResource):
 
     @required_acl('agentd.agents.by-id.{agent_id}.read')
     def get(self, agent_id):
-        return self.service_proxy.get_agent_status_by_id(agent_id)
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        return self.service_proxy.get_agent_status_by_id(agent_id, tenant_uuids=tenant_uuids)
 
 
 class _AgentByNumber(_BaseResource):
 
     @required_acl('agentd.agents.by-number.{agent_number}.read')
     def get(self, agent_number):
-        return self.service_proxy.get_agent_status_by_number(agent_number)
+        tenant_uuids = [Tenant.autodetect().uuid]
+        return self.service_proxy.get_agent_status_by_number(agent_number, tenant_uuids=tenant_uuids)
 
 
 class _LoginAgentById(_BaseResource):
@@ -133,7 +179,8 @@ class _LoginAgentById(_BaseResource):
     @required_acl('agentd.agents.by-id.{agent_id}.login.create')
     def post(self, agent_id):
         extension, context = _extract_extension_and_context()
-        self.service_proxy.login_agent_by_id(agent_id, extension, context)
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        self.service_proxy.login_agent_by_id(agent_id, extension, context, tenant_uuids=tenant_uuids)
         return '', 204
 
 
@@ -142,7 +189,8 @@ class _LoginAgentByNumber(_BaseResource):
     @required_acl('agentd.agents.by-number.{agent_number}.login.create')
     def post(self, agent_number):
         extension, context = _extract_extension_and_context()
-        self.service_proxy.login_agent_by_number(agent_number, extension, context)
+        tenant_uuids = [Tenant.autodetect().uuid]
+        self.service_proxy.login_agent_by_number(agent_number, extension, context, tenant_uuids=tenant_uuids)
         return '', 204
 
 
@@ -152,7 +200,8 @@ class _LogoffAgentById(_BaseResource):
     def post(self, agent_id):
         # XXX logoff_agent_by_id raise a AgentNotLoggedError even if the agent doesn't exist;
         #     that means that logoff currently returns a 409 for an inexistant agent, not a 404
-        self.service_proxy.logoff_agent_by_id(agent_id)
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        self.service_proxy.logoff_agent_by_id(agent_id, tenant_uuids=tenant_uuids)
         return '', 204
 
 
@@ -160,7 +209,8 @@ class _LogoffAgentByNumber(_BaseResource):
 
     @required_acl('agentd.agents.by-number.{agent_number}.logoff.create')
     def post(self, agent_number):
-        self.service_proxy.logoff_agent_by_number(agent_number)
+        tenant_uuids = [Tenant.autodetect().uuid]
+        self.service_proxy.logoff_agent_by_number(agent_number, tenant_uuids=tenant_uuids)
         return '', 204
 
 
@@ -168,7 +218,9 @@ class _LogoffAgents(_BaseResource):
 
     @required_acl('agentd.agents.logoff.create')
     def post(self):
-        self.service_proxy.logoff_all()
+        params = self.parse_params()
+        tenant_uuids = self._build_tenant_list(params)
+        self.service_proxy.logoff_all(tenant_uuids=tenant_uuids)
         return '', 204
 
 
@@ -177,7 +229,8 @@ class _AddAgentToQueue(_BaseResource):
     @required_acl('agentd.agents.by-id.{agent_id}.add.create')
     def post(self, agent_id):
         queue_id = _extract_queue_id()
-        self.service_proxy.add_agent_to_queue(agent_id, queue_id)
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        self.service_proxy.add_agent_to_queue(agent_id, queue_id, tenant_uuids=tenant_uuids)
         return '', 204
 
 
@@ -186,7 +239,8 @@ class _RemoveAgentFromQueue(_BaseResource):
     @required_acl('agentd.agents.by-id.{agent_id}.delete.create')
     def post(self, agent_id):
         queue_id = _extract_queue_id()
-        self.service_proxy.remove_agent_from_queue(agent_id, queue_id)
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        self.service_proxy.remove_agent_from_queue(agent_id, queue_id, tenant_uuids=tenant_uuids)
         return '', 204
 
 
@@ -194,7 +248,9 @@ class _RelogAgents(_BaseResource):
 
     @required_acl('agentd.agents.relog.create')
     def post(self):
-        self.service_proxy.relog_all()
+        params = self.parse_params()
+        tenant_uuids = self._build_tenant_list(params)
+        self.service_proxy.relog_all(tenant_uuids=tenant_uuids)
         return '', 204
 
 
@@ -203,7 +259,8 @@ class _PauseAgentByNumber(_BaseResource):
     @required_acl('agentd.agents.by-number.{agent_number}.pause.create')
     def post(self, agent_number):
         reason = _extract_reason()
-        self.service_proxy.pause_agent_by_number(agent_number, reason)
+        tenant_uuids = [Tenant.autodetect().uuid]
+        self.service_proxy.pause_agent_by_number(agent_number, reason, tenant_uuids=tenant_uuids)
         return '', 204
 
 
@@ -211,7 +268,8 @@ class _UnpauseAgentByNumber(_BaseResource):
 
     @required_acl('agentd.agents.by-number.{agent_number}.unpause.create')
     def post(self, agent_number):
-        self.service_proxy.unpause_agent_by_number(agent_number)
+        tenant_uuids = [Tenant.autodetect().uuid]
+        self.service_proxy.unpause_agent_by_number(agent_number, tenant_uuids=tenant_uuids)
         return '', 204
 
 
@@ -237,8 +295,9 @@ class HTTPInterface:
     ]
 
     def __init__(self, config, service_proxy, auth_client):
-        self._config = config
+        self._config = config['rest_api']
         self._app = Flask('xivo_agent')
+        self._app.config.update(config)
 
         http_helpers.add_logger(self._app, logger)
         self._app.after_request(http_helpers.log_request)

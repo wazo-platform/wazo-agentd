@@ -1,4 +1,4 @@
-# Copyright 2015-2017 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -35,71 +35,71 @@ class TestServiceProxy(unittest.TestCase):
         self.proxy.pause_handler = self.pause_handler
         self.proxy.relog_handler = self.relog_handler
         self.proxy.status_handler = self.status_handler
+        self.tenants = ['fake-tenant']
 
     def test_add_agent_to_queue(self):
-        self.proxy.add_agent_to_queue(s.agent_id, s.queue_id)
-
-        self.membership_handler.handle_add_to_queue.assert_called_once_with(s.agent_id, s.queue_id)
+        self.proxy.add_agent_to_queue(s.agent_id, s.queue_id, tenant_uuids=self.tenants)
+        self.membership_handler.handle_add_to_queue.assert_called_once_with(s.agent_id, s.queue_id, tenant_uuids=self.tenants)
 
     def test_remove_agent_from_queue(self):
-        self.proxy.remove_agent_from_queue(s.agent_id, s.queue_id)
+        self.proxy.remove_agent_from_queue(s.agent_id, s.queue_id, tenant_uuids=self.tenants)
 
-        self.membership_handler.handle_remove_from_queue.assert_called_once_with(s.agent_id, s.queue_id)
+        self.membership_handler.handle_remove_from_queue.assert_called_once_with(s.agent_id, s.queue_id, tenant_uuids=self.tenants)
 
     def test_login_agent_by_id(self):
-        self.proxy.login_agent_by_id(s.agent_id, s.extension, s.context)
+        self.proxy.login_agent_by_id(s.agent_id, s.extension, s.context, tenant_uuids=self.tenants)
 
-        self.login_handler.handle_login_by_id.assert_called_once_with(s.agent_id, s.extension, s.context)
+        self.login_handler.handle_login_by_id.assert_called_once_with(s.agent_id, s.extension, s.context, tenant_uuids=self.tenants)
 
     def test_login_agent_by_number(self):
-        self.proxy.login_agent_by_number(s.agent_number, s.extension, s.context)
+        self.proxy.login_agent_by_number(s.agent_number, s.extension, s.context, tenant_uuids=self.tenants)
 
-        self.login_handler.handle_login_by_number.assert_called_once_with(s.agent_number, s.extension, s.context)
+        self.login_handler.handle_login_by_number.assert_called_once_with(s.agent_number, s.extension, s.context, tenant_uuids=self.tenants)
 
     def test_logoff_agent_by_id(self):
-        self.proxy.logoff_agent_by_id(s.agent_id)
+        self.proxy.logoff_agent_by_id(s.agent_id, tenant_uuids=self.tenants)
 
-        self.logoff_handler.handle_logoff_by_id.assert_called_once_with(s.agent_id)
+        self.logoff_handler.handle_logoff_by_id.assert_called_once_with(s.agent_id, tenant_uuids=self.tenants)
 
     def test_logoff_agent_by_number(self):
-        self.proxy.logoff_agent_by_number(s.agent_number)
+        self.proxy.logoff_agent_by_number(s.agent_number, tenant_uuids=self.tenants)
 
-        self.logoff_handler.handle_logoff_by_number.assert_called_once_with(s.agent_number)
+        self.logoff_handler.handle_logoff_by_number.assert_called_once_with(s.agent_number, tenant_uuids=self.tenants)
 
     def test_logoff_all(self):
-        self.proxy.logoff_all()
+        self.proxy.logoff_all(tenant_uuids=self.tenants)
 
-        self.logoff_handler.handle_logoff_all.assert_called_once_with()
+        self.logoff_handler.handle_logoff_all.assert_called_once_with(tenant_uuids=self.tenants)
 
     def test_relog_all(self):
-        self.proxy.relog_all()
+        self.proxy.relog_all(tenant_uuids=self.tenants)
 
-        self.relog_handler.handle_relog_all.assert_called_once_with()
+        self.relog_handler.handle_relog_all.assert_called_once_with(tenant_uuids=self.tenants)
 
     def test_pause_agent_by_number(self):
-        self.proxy.pause_agent_by_number(s.agent_number, s.reason)
+        self.proxy.pause_agent_by_number(s.agent_number, s.reason, tenant_uuids=self.tenants)
 
-        self.pause_handler.handle_pause_by_number.assert_called_once_with(s.agent_number, s.reason)
+        self.pause_handler.handle_pause_by_number.assert_called_once_with(s.agent_number, s.reason, tenant_uuids=self.tenants)
 
     def test_unpause_agent_by_number(self):
-        self.proxy.unpause_agent_by_number(s.agent_number)
+        self.proxy.unpause_agent_by_number(s.agent_number, tenant_uuids=self.tenants)
 
-        self.pause_handler.handle_unpause_by_number.assert_called_once_with(s.agent_number)
+        self.pause_handler.handle_unpause_by_number.assert_called_once_with(s.agent_number, tenant_uuids=self.tenants)
 
     def test_get_agent_status_by_id(self):
-        self.proxy.get_agent_status_by_id(s.agent_id)
+        self.proxy.get_agent_status_by_id(s.agent_id, tenant_uuids=self.tenants)
 
-        self.status_handler.handle_status_by_id.assert_called_once_with(s.agent_id)
+        self.status_handler.handle_status_by_id.assert_called_once_with(s.agent_id, tenant_uuids=self.tenants)
 
     def test_get_agent_status_by_number(self):
-        self.proxy.get_agent_status_by_number(s.agent_number)
+        self.proxy.get_agent_status_by_number(s.agent_number, tenant_uuids=self.tenants)
 
-        self.status_handler.handle_status_by_number.assert_called_once_with(s.agent_number)
+        self.status_handler.handle_status_by_number.assert_called_once_with(s.agent_number, tenant_uuids=self.tenants)
 
     def test_get_agent_statuses(self):
-        self.proxy.get_agent_statuses()
+        self.proxy.get_agent_statuses(tenant_uuids=self.tenants)
 
-        self.status_handler.handle_statuses.assert_called_once_with()
+        self.status_handler.handle_statuses.assert_called_once_with(tenant_uuids=self.tenants)
 
     def test_on_agent_updated(self):
         self.proxy.on_agent_updated(s.agent_id)

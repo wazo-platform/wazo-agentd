@@ -6,9 +6,9 @@
 ## Running unit tests
 
 ```
-apt-get install libpq-dev python-dev libffi-dev libyaml-dev
+apt-get install libpq-dev python3-dev libffi-dev libyaml-dev
 pip install tox
-tox --recreate -e py27
+tox --recreate -e py3
 ```
 
 ## Docker

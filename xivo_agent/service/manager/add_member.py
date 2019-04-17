@@ -1,7 +1,7 @@
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from xivo_agent.exception import AgentAlreadyInQueueError
+from xivo_agent.exception import AgentAlreadyInQueueError, QueueDifferentTenantError
 from xivo_dao.helpers import db_utils
 
 
@@ -14,10 +14,15 @@ class AddMemberManager:
         self._queue_member_dao = queue_member_dao
 
     def add_agent_to_queue(self, agent, queue):
+        self._check_agent_in_same_tenant_queue(agent, queue)
         self._check_agent_is_not_member_of_queue(agent, queue)
         self._add_queue_member(agent, queue)
         self._send_agent_added_event(agent, queue)
         self._add_to_queue_if_logged(agent, queue)
+
+    def _check_agent_in_same_tenant_queue(self, agent, queue):
+        if agent.tenant_uuid != queue.tenant_uuid:
+            raise QueueDifferentTenantError()
 
     def _check_agent_is_not_member_of_queue(self, agent, queue):
         for agent_queue in agent.queues:

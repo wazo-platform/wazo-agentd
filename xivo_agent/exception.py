@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2015 Avencall
+# Copyright 2012-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # The following strings are part of the exposed HTTP API; don't rename them
@@ -11,6 +11,8 @@ ALREADY_IN_USE = 'extension and context already in use'
 ALREADY_IN_QUEUE = 'agent already in queue'
 NOT_IN_QUEUE = 'agent not in queue'
 NO_SUCH_EXTEN = 'no such extension and context'
+CONTEXT_DIFFERENT_TENANT = 'agent and context are not in the same tenant'
+QUEUE_DIFFERENT_TENANT = 'agent and queue are not in the same tenant'
 
 
 class AgentServerError(Exception):
@@ -56,3 +58,13 @@ class AgentAlreadyInQueueError(AgentServerError):
 class ExtensionAlreadyInUseError(AgentServerError):
 
     error = ALREADY_IN_USE
+
+
+class ContextDifferentTenantError(AgentServerError):
+
+    error = CONTEXT_DIFFERENT_TENANT
+
+
+class QueueDifferentTenantError(AgentServerError):
+
+    error = QUEUE_DIFFERENT_TENANT
