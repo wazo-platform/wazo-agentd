@@ -170,7 +170,7 @@ class _AgentByNumber(_BaseResource):
 
     @required_acl('agentd.agents.by-number.{agent_number}.read')
     def get(self, agent_number):
-        tenant_uuids = [Tenant.autodetect().uuid]
+        tenant_uuids = self.build_tenant_list({'recurse': True})
         return self.service_proxy.get_agent_status_by_number(agent_number, tenant_uuids=tenant_uuids)
 
 
@@ -189,7 +189,7 @@ class _LoginAgentByNumber(_BaseResource):
     @required_acl('agentd.agents.by-number.{agent_number}.login.create')
     def post(self, agent_number):
         extension, context = _extract_extension_and_context()
-        tenant_uuids = [Tenant.autodetect().uuid]
+        tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.login_agent_by_number(agent_number, extension, context, tenant_uuids=tenant_uuids)
         return '', 204
 
@@ -209,7 +209,7 @@ class _LogoffAgentByNumber(_BaseResource):
 
     @required_acl('agentd.agents.by-number.{agent_number}.logoff.create')
     def post(self, agent_number):
-        tenant_uuids = [Tenant.autodetect().uuid]
+        tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.logoff_agent_by_number(agent_number, tenant_uuids=tenant_uuids)
         return '', 204
 
@@ -259,7 +259,7 @@ class _PauseAgentByNumber(_BaseResource):
     @required_acl('agentd.agents.by-number.{agent_number}.pause.create')
     def post(self, agent_number):
         reason = _extract_reason()
-        tenant_uuids = [Tenant.autodetect().uuid]
+        tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.pause_agent_by_number(agent_number, reason, tenant_uuids=tenant_uuids)
         return '', 204
 
@@ -268,7 +268,7 @@ class _UnpauseAgentByNumber(_BaseResource):
 
     @required_acl('agentd.agents.by-number.{agent_number}.unpause.create')
     def post(self, agent_number):
-        tenant_uuids = [Tenant.autodetect().uuid]
+        tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.unpause_agent_by_number(agent_number, tenant_uuids=tenant_uuids)
         return '', 204
 
