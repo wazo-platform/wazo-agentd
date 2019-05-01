@@ -21,7 +21,7 @@ from xivo import http_helpers
 from xivo.auth_verifier import AuthVerifier, required_acl
 from xivo.http_helpers import ReverseProxied
 from xivo.tenant_helpers import UnauthorizedTenant
-from xivo.tenant_flask_helpers import Tenant, get_auth_client, get_token
+from xivo.tenant_flask_helpers import Tenant
 
 from xivo_agent.swagger.resource import SwaggerResource
 
@@ -133,9 +133,7 @@ class _BaseResource(Resource):
             return [tenant_uuid]
 
         tenants = []
-        auth_client = get_auth_client()
-        token_object = get_token()
-        auth_client.set_token(token_object.uuid)
+        auth_client = auth_verifier.client()
 
         try:
             tenants = auth_client.tenants.list(tenant_uuid=tenant_uuid)['items']
