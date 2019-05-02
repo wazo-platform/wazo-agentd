@@ -1,5 +1,5 @@
 
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -52,7 +52,6 @@ class TestLoginAction(unittest.TestCase):
         self.agent_status_dao.add_agent_to_queues.assert_called_once_with(agent_id, agent.queues)
         self.queue_log_manager.on_agent_logged_in.assert_called_once_with(agent_number, extension, context)
         self.ami_client.queue_add.assert_called_once_with(queue.name, ANY, ANY, state_interface_pjsip, queue.penalty, skills)
-        self.ami_client.agent_login.assert_called_once_with(agent_id, agent_number, extension, context)
         self.bus_publisher.publish.assert_called_once_with(
             AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_IN),
             headers={'user_uuid:42': True, 'user_uuid:43': True, 'agent_id:10': True},

@@ -1,4 +1,4 @@
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
@@ -25,11 +25,7 @@ class LogoffAction:
         self._update_asterisk(agent_status)
         self._update_queue_log(agent_status)
         self._update_agent_status(agent_status)
-        self._update_xivo_ctid(agent_status)
         self._send_bus_status_update(agent_status)
-
-    def _update_xivo_ctid(self, agent_status):
-        self._ami_client.agent_logoff(agent_status.agent_id, agent_status.agent_number)
 
     def _update_asterisk(self, agent_status):
         for queue in agent_status.queues:

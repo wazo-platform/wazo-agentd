@@ -1,4 +1,4 @@
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -37,7 +37,6 @@ class LoginAction:
         self._update_agent_status(agent, extension, context, interface, state_interface)
         self._update_queue_log(agent, extension, context)
         self._update_asterisk(agent, interface, state_interface)
-        self._update_xivo_ctid(agent, extension, context)
         self._send_bus_status_update(agent)
 
     def _get_interface(self, agent):
@@ -66,9 +65,6 @@ class LoginAction:
                                                 queue.penalty, skills)
             if not action.success:
                 logger.warning('Failure to add interface %r to queue %r', interface, queue.name)
-
-    def _update_xivo_ctid(self, agent, extension, context):
-        self._ami_client.agent_login(agent.id, agent.number, extension, context)
 
     def _send_bus_status_update(self, agent):
         status = AgentStatusUpdateEvent.STATUS_LOGGED_IN

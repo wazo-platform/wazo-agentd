@@ -1,4 +1,4 @@
-# Copyright 2012-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from xivo_agent.ami import actions, client
@@ -63,25 +63,5 @@ class FacadeAMIClient:
             ('QueueName', queue_name),
         ]
         action = actions.UserEventAction('AgentRemovedFromQueue', headers)
-        self._ami_client.execute(action)
-        return action
-
-    def agent_login(self, agent_id, agent_number, extension, context):
-        headers = [
-            ('AgentID', agent_id),
-            ('AgentNumber', agent_number),
-            ('Extension', extension),
-            ('Context', context),
-        ]
-        action = actions.UserEventAction('AgentLogin', headers)
-        self._ami_client.execute(action)
-        return action
-
-    def agent_logoff(self, agent_id, agent_number):
-        headers = [
-            ('AgentID', agent_id),
-            ('AgentNumber', agent_number),
-        ]
-        action = actions.UserEventAction('AgentLogoff', headers)
         self._ami_client.execute(action)
         return action
