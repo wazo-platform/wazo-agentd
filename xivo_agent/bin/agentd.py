@@ -11,9 +11,10 @@ from kombu import Connection, Producer, Exchange
 from contextlib import contextmanager
 
 from xivo.chain_map import ChainMap
-from xivo.config_helper import read_config_file_hierarchy, set_xivo_uuid
+from xivo.config_helper import read_config_file_hierarchy, set_xivo_uuid, parse_config_file
 from xivo.consul_helpers import ServiceCatalogRegistration
 from xivo.daemonize import pidfile_context
+from xivo.token_renewer import TokenRenewer
 from xivo.user_rights import change_user
 from xivo.xivo_logging import setup_logging, silence_loggers
 
@@ -68,6 +69,7 @@ _DEFAULT_CONFIG = {
         'host': 'localhost',
         'port': 9497,
         'verify_certificate': '/usr/share/xivo-certs/server.crt',
+        'key_file': '/var/lib/wazo-auth-keys/xivo-confd-key.yml',
     },
     'debug': False,
     'foreground': False,
@@ -110,7 +112,8 @@ logger = logging.getLogger(__name__)
 def main():
     cli_config = _parse_args()
     file_config = read_config_file_hierarchy(ChainMap(cli_config, _DEFAULT_CONFIG))
-    config = ChainMap(cli_config, file_config, _DEFAULT_CONFIG)
+    service_key = _load_key_file(ChainMap(cli_config, file_config, _DEFAULT_CONFIG))
+    config = ChainMap(cli_config, service_key, file_config, _DEFAULT_CONFIG)
 
     user = config.get('user')
     if user:
@@ -155,12 +158,21 @@ def _parse_args():
     return config
 
 
+def _load_key_file(config):
+    key_file = parse_config_file(config['auth']['key_file'])
+    return {'auth': {'username': key_file.get('service_id'),
+                     'password': key_file.get('service_key')}}
+
+
 def _run(config):
     _init_signal()
     xivo_uuid = config['uuid']
     agent_dao = AgentDAOAdapter(orig_agent_dao)
     queue_dao = QueueDAOAdapter(orig_queue_dao)
     auth_client = AuthClient(**config['auth'])
+    token_renewer = TokenRenewer(auth_client)
+    token_renewer.subscribe_to_token_change(auth_client.set_token)
+
     with _new_ami_client(config) as ami_client:
         with _new_bus_connection(config) as producer_conn, _new_bus_connection(config) as consumer_conn:
             bus_exchange = Exchange(config['bus']['exchange_name'],
@@ -206,14 +218,15 @@ def _run(config):
 
             amqp_iface.start()
             try:
-                with ServiceCatalogRegistration('xivo-agentd',
-                                                xivo_uuid,
-                                                config['consul'],
-                                                config['service_discovery'],
-                                                config['bus'],
-                                                partial(self_check,
-                                                        config['rest_api']['https']['port'])):
-                    http_iface.run()
+                with token_renewer:
+                    with ServiceCatalogRegistration('xivo-agentd',
+                                                    xivo_uuid,
+                                                    config['consul'],
+                                                    config['service_discovery'],
+                                                    config['bus'],
+                                                    partial(self_check,
+                                                            config['rest_api']['https']['port'])):
+                        http_iface.run()
             finally:
                 amqp_iface.stop()
 
