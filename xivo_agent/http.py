@@ -168,7 +168,7 @@ class _AgentByNumber(_BaseResource):
 
     @required_acl('agentd.agents.by-number.{agent_number}.read')
     def get(self, agent_number):
-        tenant_uuids = self.build_tenant_list({'recurse': True})
+        tenant_uuids = self._build_tenant_list({'recurse': True})
         return self.service_proxy.get_agent_status_by_number(agent_number, tenant_uuids=tenant_uuids)
 
 
