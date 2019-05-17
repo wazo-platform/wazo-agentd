@@ -10,6 +10,8 @@ from functools import partial
 from kombu import Connection, Producer, Exchange
 from contextlib import contextmanager
 
+from wazo_auth_client import Client as AuthClient
+
 from xivo.chain_map import ChainMap
 from xivo.config_helper import read_config_file_hierarchy, set_xivo_uuid, parse_config_file
 from xivo.consul_helpers import ServiceCatalogRegistration
@@ -51,7 +53,6 @@ from xivo_agent.service.manager.relog import RelogManager
 from xivo_agent.service.manager.remove_member import RemoveMemberManager
 from xivo_agent.service.proxy import ServiceProxy
 from xivo_agent.service_discovery import self_check
-from xivo_auth_client import Client as AuthClient
 from xivo_bus import Marshaler, Publisher
 from xivo_dao import agent_dao as orig_agent_dao
 from xivo_dao import agent_status_dao

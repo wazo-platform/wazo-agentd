@@ -36,7 +36,7 @@ Depends:
  python3-flask-cors (>= 3.0.2),
  python3-flask-restful,
  python3-kombu,
- xivo-auth-client-python3,
+ wazo-auth-client-python3,
  xivo-bus-python3,
  xivo-libdao-python3,
  xivo-lib-python-python3,
