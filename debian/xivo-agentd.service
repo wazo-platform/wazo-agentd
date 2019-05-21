@@ -1,6 +1,6 @@
 [Unit]
 Description=xivo-agentd server
-ConditionPathExists=!/var/lib/xivo/disabled
+ConditionPathExists=!/var/lib/wazo/disabled
 After=network-online.target asterisk.service postgresql.service rabbitmq-server.service
 Before=monit.service
 
