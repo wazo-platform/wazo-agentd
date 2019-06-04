@@ -1,0 +1,3 @@
+etc/nginx/locations/https-enabled
+etc/wazo-agentd/conf.d
+var/lib/wazo-agentd
