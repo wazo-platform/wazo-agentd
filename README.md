@@ -1,6 +1,6 @@
-# xivo-agentd
+# wazo-agentd
 
-[![Build Status](https://jenkins.wazo.community/buildStatus/icon?job=xivo-agentd)](https://jenkins.wazo.community/job/xivo-agentd)
+[![Build Status](https://jenkins.wazo.community/buildStatus/icon?job=wazo-agentd)](https://jenkins.wazo.community/job/wazo-agentd)
 
 
 ## Running unit tests
@@ -13,7 +13,7 @@ tox --recreate -e py3
 
 ## Docker
 
-The official docker image for this service is `wazopbx/xivo-agentd`.
+The official docker image for this service is `wazopbx/wazo-agentd`.
 
 
 ### Getting the image
@@ -21,14 +21,14 @@ The official docker image for this service is `wazopbx/xivo-agentd`.
 To download the latest image from the docker hub
 
 ```sh
-docker pull wazopbx/xivo-agentd
+docker pull wazopbx/wazo-agentd
 ```
 
 
-### Running xivo-agentd
+### Running wazo-agentd
 
 ```sh
-docker run wazopbx/xivo-agentd
+docker run wazopbx/wazo-agentd
 ```
 
 ### Building the image
@@ -36,5 +36,5 @@ docker run wazopbx/xivo-agentd
 Building the docker image:
 
 ```sh
-docker build -t wazopbx/xivo-agentd .
+docker build -t wazopbx/wazo-agentd .
 ```

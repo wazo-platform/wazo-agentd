@@ -1,0 +1,2 @@
+debian/python3-wazo-agentd/usr/bin/* usr/bin/
+etc/* etc/

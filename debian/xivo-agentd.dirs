@@ -1,3 +1,0 @@
-etc/nginx/locations/https-enabled
-etc/xivo-agentd/conf.d
-var/lib/xivo-agentd
