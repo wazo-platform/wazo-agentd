@@ -1,0 +1,14 @@
+[Unit]
+Description=wazo-agentd server
+ConditionPathExists=!/var/lib/wazo/disabled
+After=network-online.target asterisk.service postgresql.service rabbitmq-server.service
+Before=monit.service
+
+[Service]
+Type=forking
+ExecStartPre=/usr/bin/install -d -o wazo-agentd -g wazo-agentd /var/run/wazo-agentd
+ExecStart=/usr/bin/wazo-agentd
+PIDFile=/var/run/wazo-agentd/wazo-agentd.pid
+
+[Install]
+WantedBy=multi-user.target

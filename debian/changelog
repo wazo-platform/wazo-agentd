@@ -1,3 +1,9 @@
+wazo-agentd (19.09~20190618) wazo-dev-stretch; urgency=medium
+
+  *  rename xivo-agentd to wazo-agentd
+
+ -- Wazo Maintainers <dev+pkg@wazo.community>  Tue, 18 Jun 2019 10:44:45 -0400
+
 xivo-agentd (15.06~20150317) xivo-dev; urgency=medium
 
   * rename xivo-agent to xivo-agentd

@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 
-export PYBUILD_NAME=xivo-agentd
+export PYBUILD_NAME=wazo-agentd
 export PYBUILD_DISABLE=test
 
 %:

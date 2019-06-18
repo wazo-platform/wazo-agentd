@@ -6,7 +6,7 @@ from setuptools import find_packages
 
 
 setup(
-    name='xivo-agent',
+    name='wazo-agent',
     version='0.1',
     description='Wazo agent server',
     author='Wazo Authors',
@@ -14,8 +14,8 @@ setup(
     url='http://wazo.community',
     license='GPLv3',
     packages=find_packages(),
-    scripts=['bin/xivo-agentd'],
+    scripts=['bin/wazo-agentd'],
     package_data={
-        'xivo_agent.swagger': ['*.yml'],
+        'wazo_agent.swagger': ['*.yml'],
     }
 )
