@@ -21,22 +21,33 @@ case "$1" in
             adduser --quiet $USER www-data
         fi
 
+        # migrate from xivo-agentd
+        if [ -f /var/log/xivo-agentd.log ] ; then
+            rename 's/xivo-agentd/wazo-agentd/g' /var/log/xivo-agentd.log*
+        fi
+        if [ -d /etc/xivo-agentd/conf.d ] ; then
+            find /etc/xivo-agentd/conf.d/ -mindepth 1 -exec mv {} /etc/wazo-agentd/conf.d/ \;
+            rmdir --ignore-fail-on-non-empty -p /etc/xivo-agentd/conf.d
+        fi
+        if [ -d /var/lib/xivo-agentd ] ; then
+            find /var/lib/xivo-agentd/ -mindepth 1 -exec mv {} /var/lib/wazo-agentd/ \;
+        fi
+        rm -rf /var/run/xivo-agentd
+        if getent passwd xivo-agentd > /dev/null; then
+            deluser --quiet --system --remove-home xivo-agentd
+        fi
+        # End of migration from xivo-agentd
+
         # setup permissions for the log file and home directory
         if [ ! -e "$LOG_FILENAME" ]; then
             touch "$LOG_FILENAME"
         fi
         chown $USER:$GROUP "$LOG_FILENAME" /var/lib/wazo-agentd
 
-        # move files from xivo-agentd
-        if [ -f /var/log/xivo-agentd.log ] ; then
-            rename 's/xivo-agentd/wazo-agentd/g' /var/log/xivo-agentd.log*
-        fi
-
         if [[ -z "${previous_version}" ]]; then
             ln -sf  /etc/nginx/locations/https-available/$DAEMONNAME \
                     /etc/nginx/locations/https-enabled/$DAEMONNAME
         fi
-
     ;;
     abort-upgrade|abort-remove|abort-deconfigure)
 
