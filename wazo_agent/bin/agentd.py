@@ -70,7 +70,7 @@ _DEFAULT_CONFIG = {
         'host': 'localhost',
         'port': 9497,
         'verify_certificate': '/usr/share/xivo-certs/server.crt',
-        'key_file': '/var/lib/wazo-auth-keys/xivo-agentd-key.yml',
+        'key_file': '/var/lib/wazo-auth-keys/wazo-agentd-key.yml',
     },
     'debug': False,
     'foreground': False,
