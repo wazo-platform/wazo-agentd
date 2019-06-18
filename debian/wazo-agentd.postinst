@@ -28,9 +28,9 @@ case "$1" in
         chown $USER:$GROUP "$LOG_FILENAME" /var/lib/wazo-agentd
 
         # move files from xivo-agentd
-		if [ -f /var/log/xivo-agentd.log ] ; then
-			rename 's/xivo-agentd/wazo-agentd/g' /var/log/xivo-agentd.log*
-		fi
+        if [ -f /var/log/xivo-agentd.log ] ; then
+            rename 's/xivo-agentd/wazo-agentd/g' /var/log/xivo-agentd.log*
+        fi
 
         if [[ -z "${previous_version}" ]]; then
             ln -sf  /etc/nginx/locations/https-available/$DAEMONNAME \
