@@ -14,19 +14,6 @@ X-Python-Version: >= 3.5
 Package: wazo-agentd
 Architecture: all
 Section: python
-Pre-Depends: wazo-libagentd (>= ${binary:Version})
-Depends: ${python3:Depends}, ${misc:Depends}
-Provides: xivo-agentd
-Conflicts: xivo-agentd
-Replaces: xivo-agentd
-Description: Wazo agent server
- Wazo is a system based on a powerful IPBX, to bring an easy to
- install solution for telephony and related services.
- .
-
-Package: wazo-libagentd
-Architecture: all
-Section: python
 Depends:
  ${python3:Depends},
  ${misc:Depends},
@@ -42,10 +29,10 @@ Depends:
  xivo-libdao-python3,
  xivo-lib-python-python3,
  xivo-libamid
-Provides: xivo-libagentd
-Conflicts: xivo-libagentd
-Replaces: xivo-libagentd
-Description: Wazo agent lib
+Provides: xivo-agentd, xivo-libagentd, wazo-libagentd
+Conflicts: xivo-agentd, xivo-libagentd, wazo-libagentd
+Replaces: xivo-agentd, xivo-libagentd, wazo-libagentd
+Description: Wazo agent server
  Wazo is a system based on a powerful IPBX, to bring an easy to
  install solution for telephony and related services.
  .
