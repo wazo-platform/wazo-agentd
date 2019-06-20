@@ -80,7 +80,7 @@ _DEFAULT_CONFIG = {
     'extra_config_files': '/etc/wazo-agentd/conf.d/',
     'ami': {
         'host': 'localhost',
-        'username': 'wazo_agent',
+        'username': 'wazo_agentd',
         'password': 'die0Ahn8tae',
     },
     'rest_api': {

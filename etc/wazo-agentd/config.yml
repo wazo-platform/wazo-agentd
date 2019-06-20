@@ -29,7 +29,7 @@ auth:
 # AMI (Asterisk Manager Interface) connection informations.
 ami:
   host: localhost
-  username: wazo_agent
+  username: wazo_agentd
   password: die0Ahn8tae
 
 # Bus connection to the AMQP server
