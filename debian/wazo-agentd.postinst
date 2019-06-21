@@ -22,6 +22,7 @@ case "$1" in
         fi
 
         # migrate from xivo-agentd
+        rm -f /etc/nginx/locations/https-enabled/xivo-agentd
         if [ -f /var/log/xivo-agentd.log ] ; then
             rename 's/xivo-agentd/wazo-agentd/g' /var/log/xivo-agentd.log*
         fi
