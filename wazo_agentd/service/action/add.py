@@ -1,9 +1,9 @@
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
 
-from wazo_agent.service.helper import format_agent_member_name, format_agent_skills
+from wazo_agentd.service.helper import format_agent_member_name, format_agent_skills
 from xivo_dao.helpers import db_utils
 
 logger = logging.getLogger(__name__)

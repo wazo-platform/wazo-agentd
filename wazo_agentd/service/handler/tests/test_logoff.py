@@ -3,8 +3,8 @@
 
 import unittest
 from mock import Mock
-from wazo_agent.service.handler.logoff import LogoffHandler
-from wazo_agent.service.manager.logoff import LogoffManager
+from wazo_agentd.service.handler.logoff import LogoffHandler
+from wazo_agentd.service.manager.logoff import LogoffManager
 
 
 class TestLogoffHandler(unittest.TestCase):

@@ -1,7 +1,7 @@
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from wazo_agent.exception import AgentNotLoggedError
+from wazo_agentd.exception import AgentNotLoggedError
 
 
 class PauseManager:

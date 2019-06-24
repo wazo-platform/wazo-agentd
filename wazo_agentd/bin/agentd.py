@@ -20,39 +20,39 @@ from xivo.token_renewer import TokenRenewer
 from xivo.user_rights import change_user
 from xivo.xivo_logging import setup_logging, silence_loggers
 
-from wazo_agent import ami
-from wazo_agent import amqp
-from wazo_agent import http
-from wazo_agent.dao import QueueDAOAdapter, AgentDAOAdapter
-from wazo_agent.queuelog import QueueLogManager
-from wazo_agent.service.action.add import AddToQueueAction
-from wazo_agent.service.action.login import LoginAction
-from wazo_agent.service.action.logoff import LogoffAction
-from wazo_agent.service.action.pause import PauseAction
-from wazo_agent.service.action.remove import RemoveFromQueueAction
-from wazo_agent.service.action.update import UpdatePenaltyAction
-from wazo_agent.service.handler.login import LoginHandler
-from wazo_agent.service.handler.logoff import LogoffHandler
-from wazo_agent.service.handler.membership import MembershipHandler
-from wazo_agent.service.handler.on_agent import OnAgentHandler
-from wazo_agent.service.handler.on_queue import OnQueueHandler
-from wazo_agent.service.handler.pause import PauseHandler
-from wazo_agent.service.handler.relog import RelogHandler
-from wazo_agent.service.handler.status import StatusHandler
-from wazo_agent.service.manager.add_member import AddMemberManager
-from wazo_agent.service.manager.login import LoginManager
-from wazo_agent.service.manager.logoff import LogoffManager
-from wazo_agent.service.manager.on_agent_deleted import OnAgentDeletedManager
-from wazo_agent.service.manager.on_agent_updated import OnAgentUpdatedManager
-from wazo_agent.service.manager.on_queue_added import OnQueueAddedManager
-from wazo_agent.service.manager.on_queue_deleted import OnQueueDeletedManager
-from wazo_agent.service.manager.on_queue_updated import OnQueueUpdatedManager
-from wazo_agent.service.manager.on_queue_agent_paused import OnQueueAgentPausedManager
-from wazo_agent.service.manager.pause import PauseManager
-from wazo_agent.service.manager.relog import RelogManager
-from wazo_agent.service.manager.remove_member import RemoveMemberManager
-from wazo_agent.service.proxy import ServiceProxy
-from wazo_agent.service_discovery import self_check
+from wazo_agentd import ami
+from wazo_agentd import amqp
+from wazo_agentd import http
+from wazo_agentd.dao import QueueDAOAdapter, AgentDAOAdapter
+from wazo_agentd.queuelog import QueueLogManager
+from wazo_agentd.service.action.add import AddToQueueAction
+from wazo_agentd.service.action.login import LoginAction
+from wazo_agentd.service.action.logoff import LogoffAction
+from wazo_agentd.service.action.pause import PauseAction
+from wazo_agentd.service.action.remove import RemoveFromQueueAction
+from wazo_agentd.service.action.update import UpdatePenaltyAction
+from wazo_agentd.service.handler.login import LoginHandler
+from wazo_agentd.service.handler.logoff import LogoffHandler
+from wazo_agentd.service.handler.membership import MembershipHandler
+from wazo_agentd.service.handler.on_agent import OnAgentHandler
+from wazo_agentd.service.handler.on_queue import OnQueueHandler
+from wazo_agentd.service.handler.pause import PauseHandler
+from wazo_agentd.service.handler.relog import RelogHandler
+from wazo_agentd.service.handler.status import StatusHandler
+from wazo_agentd.service.manager.add_member import AddMemberManager
+from wazo_agentd.service.manager.login import LoginManager
+from wazo_agentd.service.manager.logoff import LogoffManager
+from wazo_agentd.service.manager.on_agent_deleted import OnAgentDeletedManager
+from wazo_agentd.service.manager.on_agent_updated import OnAgentUpdatedManager
+from wazo_agentd.service.manager.on_queue_added import OnQueueAddedManager
+from wazo_agentd.service.manager.on_queue_deleted import OnQueueDeletedManager
+from wazo_agentd.service.manager.on_queue_updated import OnQueueUpdatedManager
+from wazo_agentd.service.manager.on_queue_agent_paused import OnQueueAgentPausedManager
+from wazo_agentd.service.manager.pause import PauseManager
+from wazo_agentd.service.manager.relog import RelogManager
+from wazo_agentd.service.manager.remove_member import RemoveMemberManager
+from wazo_agentd.service.proxy import ServiceProxy
+from wazo_agentd.service_discovery import self_check
 from xivo_bus import Marshaler, Publisher
 from xivo_dao import agent_dao as orig_agent_dao
 from xivo_dao import agent_status_dao

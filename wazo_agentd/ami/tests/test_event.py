@@ -1,9 +1,9 @@
-# Copyright (C) 2012-2014 Avencall
+# Copyright 2012-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from hamcrest import assert_that, equal_to
 import unittest
-from wazo_agent.ami.event import Event
+from wazo_agentd.ami.event import Event
 
 
 class TestEvent(unittest.TestCase):

@@ -8,9 +8,9 @@ from mock import Mock, ANY
 
 from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
 
-from wazo_agent.queuelog import QueueLogManager
-from wazo_agent.service.action.login import LoginAction
-from wazo_agent.service.helper import format_agent_skills
+from wazo_agentd.queuelog import QueueLogManager
+from wazo_agentd.service.action.login import LoginAction
+from wazo_agentd.service.helper import format_agent_skills
 
 
 class TestLoginAction(unittest.TestCase):

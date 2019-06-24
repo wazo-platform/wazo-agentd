@@ -1,9 +1,9 @@
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
 
-from wazo_agent.service import helper
+from wazo_agentd.service import helper
 
 
 class TestHelper(unittest.TestCase):

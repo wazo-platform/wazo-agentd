@@ -1,4 +1,4 @@
-# Copyright 2016-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from flask import make_response
@@ -8,7 +8,7 @@ from pkg_resources import resource_string
 
 class SwaggerResource(Resource):
 
-    api_package = "wazo_agent.swagger"
+    api_package = "wazo_agentd.swagger"
     api_filename = "api.yml"
     api_path = "/api/api.yml"
 

@@ -5,8 +5,8 @@ import unittest
 
 from mock import Mock
 
-from wazo_agent.service.manager.add_member import AddMemberManager
-from wazo_agent.exception import AgentAlreadyInQueueError, QueueDifferentTenantError
+from wazo_agentd.service.manager.add_member import AddMemberManager
+from wazo_agentd.exception import AgentAlreadyInQueueError, QueueDifferentTenantError
 
 
 class TestAddMemberManager(unittest.TestCase):

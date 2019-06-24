@@ -4,15 +4,15 @@
 import unittest
 
 from mock import Mock, sentinel as s
-from wazo_agent.service.handler.login import LoginHandler
-from wazo_agent.service.handler.logoff import LogoffHandler
-from wazo_agent.service.handler.membership import MembershipHandler
-from wazo_agent.service.handler.on_agent import OnAgentHandler
-from wazo_agent.service.handler.on_queue import OnQueueHandler
-from wazo_agent.service.handler.pause import PauseHandler
-from wazo_agent.service.handler.relog import RelogHandler
-from wazo_agent.service.handler.status import StatusHandler
-from wazo_agent.service.proxy import ServiceProxy
+from wazo_agentd.service.handler.login import LoginHandler
+from wazo_agentd.service.handler.logoff import LogoffHandler
+from wazo_agentd.service.handler.membership import MembershipHandler
+from wazo_agentd.service.handler.on_agent import OnAgentHandler
+from wazo_agentd.service.handler.on_queue import OnQueueHandler
+from wazo_agentd.service.handler.pause import PauseHandler
+from wazo_agentd.service.handler.relog import RelogHandler
+from wazo_agentd.service.handler.status import StatusHandler
+from wazo_agentd.service.proxy import ServiceProxy
 
 
 class TestServiceProxy(unittest.TestCase):

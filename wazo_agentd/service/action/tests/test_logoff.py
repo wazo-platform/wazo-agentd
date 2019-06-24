@@ -8,7 +8,7 @@ from mock import Mock, ANY
 
 from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
 
-from wazo_agent.service.action.logoff import LogoffAction
+from wazo_agentd.service.action.logoff import LogoffAction
 
 
 class TestLogoffAction(unittest.TestCase):

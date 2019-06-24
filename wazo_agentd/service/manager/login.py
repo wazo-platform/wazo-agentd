@@ -3,7 +3,7 @@
 
 import logging
 
-from wazo_agent.exception import AgentAlreadyLoggedError, ExtensionAlreadyInUseError, ContextDifferentTenantError
+from wazo_agentd.exception import AgentAlreadyLoggedError, ExtensionAlreadyInUseError, ContextDifferentTenantError
 from xivo_dao.helpers import db_utils
 
 logger = logging.getLogger(__name__)

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from collections import namedtuple
-from wazo_agent.exception import NoSuchAgentError, NoSuchQueueError
+from wazo_agentd.exception import NoSuchAgentError, NoSuchQueueError
 
 _Queue = namedtuple('_Queue', ['id', 'tenant_uuid', 'name', 'penalty'])
 

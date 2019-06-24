@@ -1,7 +1,7 @@
-# Copyright 2012-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from wazo_agent.ami.actions.common.action import BaseAction
+from wazo_agentd.ami.actions.common.action import BaseAction
 
 
 def QueueAddAction(queue, interface, member_name=None, state_interface=None, penalty=None, skills=None):

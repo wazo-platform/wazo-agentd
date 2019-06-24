@@ -1,11 +1,11 @@
-# Copyright 2012-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import socket
 import unittest
 from mock import Mock, patch
-from wazo_agent.ami.client import AMIClient, ReconnectingAMIClient
-from wazo_agent.ami.response import Response
+from wazo_agentd.ami.client import AMIClient, ReconnectingAMIClient
+from wazo_agentd.ami.response import Response
 
 
 class TestAMIClient(unittest.TestCase):

@@ -1,9 +1,9 @@
-# Copyright (C) 2013-2014 Avencall
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
 from mock import Mock
-from wazo_agent.service.manager.on_agent_updated import OnAgentUpdatedManager, \
+from wazo_agentd.service.manager.on_agent_updated import OnAgentUpdatedManager, \
     QueueDelta
 
 

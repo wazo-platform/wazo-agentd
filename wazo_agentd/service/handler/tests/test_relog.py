@@ -3,8 +3,8 @@
 
 import unittest
 from mock import Mock
-from wazo_agent.service.manager.relog import RelogManager
-from wazo_agent.service.handler.relog import RelogHandler
+from wazo_agentd.service.manager.relog import RelogManager
+from wazo_agentd.service.handler.relog import RelogHandler
 
 
 class TestRelogHandler(unittest.TestCase):

@@ -13,7 +13,7 @@ from requests import HTTPError
 
 from werkzeug.exceptions import BadRequest
 from werkzeug.contrib.fixers import ProxyFix
-from wazo_agent.exception import AgentServerError, NoSuchAgentError, NoSuchExtensionError, \
+from wazo_agentd.exception import AgentServerError, NoSuchAgentError, NoSuchExtensionError, \
     AgentAlreadyLoggedError, ExtensionAlreadyInUseError, AgentNotLoggedError, \
     NoSuchQueueError, AgentAlreadyInQueueError, AgentNotInQueueError, ContextDifferentTenantError, \
     QueueDifferentTenantError
@@ -23,7 +23,7 @@ from xivo.http_helpers import ReverseProxied
 from xivo.tenant_helpers import UnauthorizedTenant
 from xivo.tenant_flask_helpers import Tenant
 
-from wazo_agent.swagger.resource import SwaggerResource
+from wazo_agentd.swagger.resource import SwaggerResource
 
 logger = logging.getLogger(__name__)
 

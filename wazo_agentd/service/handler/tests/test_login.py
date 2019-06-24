@@ -3,8 +3,8 @@
 
 import unittest
 from mock import Mock
-from wazo_agent.service.handler.login import LoginHandler
-from wazo_agent.service.manager.login import LoginManager
+from wazo_agentd.service.handler.login import LoginHandler
+from wazo_agentd.service.manager.login import LoginManager
 
 
 class TestLoginHandler(unittest.TestCase):

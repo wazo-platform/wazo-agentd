@@ -1,15 +1,15 @@
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
 
 from mock import patch
-from wazo_agent.ami.actions.queueadd import QueueAddAction
+from wazo_agentd.ami.actions.queueadd import QueueAddAction
 
 
 class TestQueueAddAction(unittest.TestCase):
 
-    @patch('wazo_agent.ami.actions.queueadd.BaseAction')
+    @patch('wazo_agentd.ami.actions.queueadd.BaseAction')
     def test_queue_add_action(self, mock_base_action):
         queue = 'queue1001'
         interface = 'Local/1@foobar'

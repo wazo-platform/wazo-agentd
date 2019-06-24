@@ -1,11 +1,11 @@
-# Copyright (C) 2013-2014 Avencall
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
 from mock import Mock
-from wazo_agent.service.action.login import LoginAction
-from wazo_agent.service.action.logoff import LogoffAction
-from wazo_agent.service.manager.relog import RelogManager
+from wazo_agentd.service.action.login import LoginAction
+from wazo_agentd.service.action.logoff import LogoffAction
+from wazo_agentd.service.manager.relog import RelogManager
 
 
 class TestRelogManager(unittest.TestCase):

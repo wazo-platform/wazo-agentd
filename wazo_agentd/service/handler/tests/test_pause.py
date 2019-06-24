@@ -3,8 +3,8 @@
 
 import unittest
 from mock import Mock
-from wazo_agent.service.manager.pause import PauseManager
-from wazo_agent.service.handler.pause import PauseHandler
+from wazo_agentd.service.manager.pause import PauseManager
+from wazo_agentd.service.handler.pause import PauseHandler
 
 
 class TestPauseHandler(unittest.TestCase):

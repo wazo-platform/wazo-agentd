@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2014 Avencall
+# Copyright 2012-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from wazo_agent.ami.facade import FacadeAMIClient as new_client
+from wazo_agentd.ami.facade import FacadeAMIClient as new_client

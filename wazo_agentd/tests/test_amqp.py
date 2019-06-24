@@ -1,14 +1,14 @@
-# Copyright (C) 2015-2016 Avencall
+# Copyright 2015-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import json
 import unittest
 
 from mock import Mock, sentinel
-from wazo_agent.amqp import AMQPInterface, _EditAgentEventHandler, \
+from wazo_agentd.amqp import AMQPInterface, _EditAgentEventHandler, \
     _DeleteAgentEventHandler, _CreateQueueEventHandler, _EditQueueEventHandler, \
     _DeleteQueueEventHandler, _MessageHandler, _Worker
-from wazo_agent.service.proxy import ServiceProxy
+from wazo_agentd.service.proxy import ServiceProxy
 
 
 class TestAMQPInterface(unittest.TestCase):

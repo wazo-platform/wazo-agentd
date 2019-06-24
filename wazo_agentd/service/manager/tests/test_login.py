@@ -5,8 +5,8 @@ import unittest
 
 from mock import Mock
 
-from wazo_agent.service.manager.login import LoginManager
-from wazo_agent.exception import ContextDifferentTenantError
+from wazo_agentd.service.manager.login import LoginManager
+from wazo_agentd.exception import ContextDifferentTenantError
 
 
 class TestLoginManager(unittest.TestCase):
