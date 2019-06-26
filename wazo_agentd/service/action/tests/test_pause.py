@@ -1,0 +1,28 @@
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+import unittest
+from mock import Mock
+from wazo_agentd.service.action.pause import PauseAction
+
+
+class TestPauseAction(unittest.TestCase):
+
+    def setUp(self):
+        self.ami_client = Mock()
+        self.pause_action = PauseAction(self.ami_client)
+
+    def test_pause_agent(self):
+        agent_status = Mock()
+
+        reason = 'Want my pause'
+        self.pause_action.pause_agent(agent_status, reason)
+
+        self.ami_client.queue_pause.assert_called_once_with(agent_status.interface, '1', reason)
+
+    def test_unpause_agent(self):
+        agent_status = Mock()
+
+        self.pause_action.unpause_agent(agent_status)
+
+        self.ami_client.queue_pause.assert_called_once_with(agent_status.interface, '0')
