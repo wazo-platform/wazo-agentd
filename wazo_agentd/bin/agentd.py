@@ -172,7 +172,9 @@ def _run(config):
     queue_dao = QueueDAOAdapter(orig_queue_dao)
     auth_client = AuthClient(**config['auth'])
     token_renewer = TokenRenewer(auth_client)
-    token_renewer.subscribe_to_token_change(auth_client.set_token)
+    token_renewer.subscribe_to_token_change(
+        lambda token: auth_client.set_token(token['token'])
+    )
 
     with _new_ami_client(config) as ami_client:
         with _new_bus_connection(config) as producer_conn, _new_bus_connection(config) as consumer_conn:
