@@ -21,7 +21,7 @@ from xivo.user_rights import change_user
 from xivo.xivo_logging import setup_logging, silence_loggers
 
 from wazo_agentd import ami
-from wazo_agentd import amqp
+from wazo_agentd import bus
 from wazo_agentd import http
 from wazo_agentd.dao import QueueDAOAdapter, AgentDAOAdapter
 from wazo_agentd.queuelog import QueueLogManager
@@ -222,10 +222,10 @@ def _run(config):
             service_proxy.relog_handler = RelogHandler(relog_manager)
             service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, xivo_uuid)
 
-            amqp_iface = amqp.AMQPInterface(consumer_conn, bus_exchange, service_proxy)
+            bus_consumer = bus.Consumer(consumer_conn, bus_exchange, service_proxy)
             http_iface = http.HTTPInterface(config, service_proxy, auth_client)
 
-            amqp_iface.start()
+            bus_consumer.start()
             try:
                 with token_renewer:
                     with ServiceCatalogRegistration('wazo-agentd',
@@ -237,7 +237,7 @@ def _run(config):
                                                             config['rest_api']['https']['port'])):
                         http_iface.run()
             finally:
-                amqp_iface.stop()
+                bus_consumer.stop()
 
 
 def _init_signal():

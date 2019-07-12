@@ -13,7 +13,7 @@ from xivo_bus.resources.ami.event import AMIEvent
 logger = logging.getLogger(__name__)
 
 
-class AMQPInterface:
+class Consumer:
 
     def __init__(self, connection, exchange, service_proxy):
         self._thread = None
