@@ -89,6 +89,12 @@ _DEFAULT_CONFIG = {
       'exchange_name': 'xivo',
       'exchange_type': 'topic',
     },
+    'consul': {
+        'scheme': 'https',
+        'host': 'localhost',
+        'port': 8500,
+        'verify': '/usr/share/xivo-certs/server.crt',
+    },
     'rest_api': {
         'https': {
             'listen': '127.0.0.1',
@@ -219,15 +225,17 @@ def _run(config):
         bus_consumer.register_service(service_proxy)
         http_iface = http.HTTPInterface(config, service_proxy, auth_client)
 
+        service_discovery_args = [
+            'wazo-agentd',
+            xivo_uuid,
+            config['consul'],
+            config['service_discovery'],
+            config['bus'],
+            partial(self_check, config['rest_api']['https']['port'])
+        ]
         with token_renewer:
             with bus.consumer_thread(bus_consumer):
-                with ServiceCatalogRegistration('wazo-agentd',
-                                                xivo_uuid,
-                                                config['consul'],
-                                                config['service_discovery'],
-                                                config['bus'],
-                                                partial(self_check,
-                                                        config['rest_api']['https']['port'])):
+                with ServiceCatalogRegistration(*service_discovery_args):
                     http_iface.run()
 
 
