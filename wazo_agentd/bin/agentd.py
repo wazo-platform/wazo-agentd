@@ -66,12 +66,6 @@ from xivo_dao.resources.user import dao as user_dao
 _DEFAULT_HTTPS_PORT = 9493
 _DEFAULT_CONFIG = {
     'user': 'wazo-agentd',
-    'auth': {
-        'host': 'localhost',
-        'port': 9497,
-        'verify_certificate': '/usr/share/xivo-certs/server.crt',
-        'key_file': '/var/lib/wazo-auth-keys/wazo-agentd-key.yml',
-    },
     'debug': False,
     'foreground': False,
     'logfile': '/var/log/wazo-agentd.log',
@@ -82,6 +76,20 @@ _DEFAULT_CONFIG = {
         'host': 'localhost',
         'username': 'wazo_agentd',
         'password': 'die0Ahn8tae',
+    },
+    'auth': {
+        'host': 'localhost',
+        'port': 9497,
+        'verify_certificate': '/usr/share/xivo-certs/server.crt',
+        'key_file': '/var/lib/wazo-auth-keys/wazo-agentd-key.yml',
+    },
+    'bus': {
+      'username': 'guest',
+      'password': 'guest',
+      'host': 'localhost',
+      'port': 5672,
+      'exchange_name': 'xivo',
+      'exchange_type': 'topic',
     },
     'rest_api': {
         'https': {
