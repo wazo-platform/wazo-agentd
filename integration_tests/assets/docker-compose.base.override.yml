@@ -1,0 +1,10 @@
+version: '3.7'
+services:
+  sync:
+    depends_on:
+      - agentd
+      - auth
+      - postgres
+      - rabbitmq
+    environment:
+      TARGETS: "agentd:9493 auth:9497 postgres:5432 rabbitmq:5672"

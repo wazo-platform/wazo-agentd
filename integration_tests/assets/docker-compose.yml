@@ -1,0 +1,38 @@
+version: '3.7'
+services:
+  sync:
+    image: wazopbx/wait
+    environment:
+      TIMEOUT: '${INTEGRATION_TEST_TIMEOUT}'
+
+  agentd:
+    image: wazo-agentd-test
+    environment:
+      XIVO_UUID: 00000000-0000-0000-0000-0000000c4a7d
+    volumes:
+      - ../..:/usr/src/wazo-agentd:ro
+      - ./etc/wazo-agentd/conf.d/50-default.yml:/etc/wazo-agentd/conf.d/50-default.yml:ro
+      - ./key-file.yml:/tmp/key-file.yml:ro
+      # - '${LOCAL_GIT_REPOS}/xivo-lib-python/xivo:/usr/local/lib/python3.5/site-packages/xivo'
+      # - '${LOCAL_GIT_REPOS}/xivo-bus/xivo_bus:/usr/local/lib/python3.5/site-packages/xivo_bus'
+      # - '${LOCAL_GIT_REPOS}/wazo-auth-client/wazo_auth_client:/usr/local/lib/python3.5/site-packages/wazo_auth_client'
+    ports:
+      - '9493'
+
+  auth:
+    image: wazopbx/wazo-auth-mock
+    ports:
+      - '9497'
+
+  postgres:
+    image: wazopbx/postgres-test
+    ports:
+      - "5432"
+
+  rabbitmq:
+    image: rabbitmq
+    ports:
+      - '5672'
+    volumes:
+      - type: tmpfs
+        target: /var/lib/rabbitmq
