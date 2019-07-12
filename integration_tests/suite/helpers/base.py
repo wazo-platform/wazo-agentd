@@ -13,9 +13,13 @@ from xivo_test_helpers.asset_launching_test_case import (
 )
 from xivo_test_helpers.bus import BusClient
 
+from .database import (
+    DbHelper,
+    TENANT_UUID as TOKEN_TENANT_UUID,
+)
+
 
 TOKEN_UUID = '00000000-0000-0000-0000-000000000101'
-TOKEN_TENANT_UUID = '00000000-0000-0000-0000-000000000201'
 TOKEN_USER_UUID = '00000000-0000-0000-0000-000000000301'
 
 UNKNOWN_UUID = '00000000-0000-0000-0000-000000000000'
@@ -55,6 +59,7 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
         cls.agentd = cls.make_agentd()
         cls.auth = cls.make_auth()
         cls.bus = cls.make_bus()
+        cls.database = cls.make_database()
 
     @classmethod
     def make_agentd(cls, token=TOKEN_UUID):
@@ -82,3 +87,12 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
             logger.debug(e)
             return
         return BusClient.from_connection_fields(host='localhost', port=port)
+
+    @classmethod
+    def make_database(cls):
+        try:
+            port = cls.service_port(5432, 'postgres')
+        except NoSuchService as e:
+            logger.debug(e)
+            return
+        return DbHelper.build('asterisk', 'proformatique', 'localhost', port, 'asterisk')
