@@ -1,11 +1,18 @@
-# Copyright 2015-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
-import threading
 
-from kombu import Queue
+from contextlib import contextmanager
+from threading import Thread
+
+import kombu
+
 from kombu.mixins import ConsumerMixin
+from xivo_bus import (
+    Marshaler,
+    Publisher as _Publisher,
+)
 from xivo_bus.resources.agent.event import EditAgentEvent, DeleteAgentEvent
 from xivo_bus.resources.queue.event import CreateQueueEvent, EditQueueEvent, DeleteQueueEvent
 from xivo_bus.resources.ami.event import AMIEvent
@@ -13,14 +20,35 @@ from xivo_bus.resources.ami.event import AMIEvent
 logger = logging.getLogger(__name__)
 
 
-class Consumer:
+@contextmanager
+def consumer_thread(consumer):
+    thread_name = 'bus_consumer_thread'
+    thread = Thread(target=consumer.run, name=thread_name)
+    thread.start()
+    try:
+        yield
+    finally:
+        logger.debug('stopping bus consumer thread')
+        consumer.stop()
+        logger.debug('joining bus consumer thread')
+        thread.join()
 
-    def __init__(self, connection, exchange, service_proxy):
-        self._thread = None
-        self._worker = self._new_worker(connection, exchange, service_proxy)
 
-    def _new_worker(self, connection, exchange, service_proxy):
-        msg_handler = _MessageHandler([
+# TODO use same mechanic as other services  when we will have integration tests
+class Consumer(ConsumerMixin):
+
+    def __init__(self, global_config):
+        self._bus_url = 'amqp://{username}:{password}@{host}:{port}//'.format(**global_config['bus'])
+        self._exchange = kombu.Exchange(
+            global_config['bus']['exchange_name'],
+            type=global_config['bus']['exchange_type'],
+        )
+        self._queue = kombu.Queue(exclusive=True)
+        self._is_running = False
+        self._msg_handler = None
+
+    def register_service(self, service_proxy):
+        self._msg_handler = _MessageHandler([
             _EditAgentEventHandler(service_proxy),
             _DeleteAgentEventHandler(service_proxy),
             _CreateQueueEventHandler(service_proxy),
@@ -28,33 +56,15 @@ class Consumer:
             _DeleteQueueEventHandler(service_proxy),
             _PauseAgentEventHandler(service_proxy),
         ])
-        return _Worker(connection, exchange, msg_handler)
 
-    def start(self):
-        self._thread = threading.Thread(target=self._run)
-        self._thread.start()
-
-    def _run(self):
-        self._worker.run()
-
-    def stop(self):
-        if self._thread is None:
-            return
-
-        self._worker.should_stop = True
-        self._thread.join()
-        self._thread = None
-
-
-class _Worker(ConsumerMixin):
-
-    def __init__(self, connection, exchange, msg_handler):
-        self.connection = connection
-        self._exchange = exchange
-        self._msg_handler = msg_handler
+    def run(self):
+        logger.info("Running AMQP consumer")
+        with kombu.Connection(self._bus_url) as connection:
+            self.connection = connection
+            super().run()
 
     def get_consumers(self, Consumer, channel):
-        queues = [Queue(exchange=self._exchange, routing_key=routing_key, exclusive=True)
+        queues = [kombu.Queue(exchange=self._exchange, routing_key=routing_key, exclusive=True)
                   for routing_key in self._msg_handler.routing_keys()]
         return [Consumer(queues=queues, callbacks=[self._on_message])]
 
@@ -64,6 +74,27 @@ class _Worker(ConsumerMixin):
             self._msg_handler.handle_msg(body)
         except Exception:
             logger.warning('Unexpected error while handling AMQP message', exc_info=True)
+
+    def stop(self):
+        self.should_stop = True
+
+
+class Publisher:
+
+    def __init__(self, config):
+        self._config = config['bus']
+        self._uuid = config['uuid']
+        self._url = 'amqp://{username}:{password}@{host}:{port}//'.format(**self._config)
+
+    def publish(self, event, headers=None):
+        bus_connection = kombu.Connection(self._url)
+        bus_exchange = kombu.Exchange(
+            self._config['exchange_name'],
+            type=self._config['exchange_type'],
+        )
+        bus_producer = kombu.Producer(bus_connection, exchange=bus_exchange, auto_declare=True)
+        bus_marshaler = Marshaler(self._uuid)
+        _Publisher(bus_producer, bus_marshaler).publish(event, headers=headers)
 
 
 class _MessageHandler:

@@ -7,7 +7,6 @@ import signal
 import xivo_dao
 
 from functools import partial
-from kombu import Connection, Producer, Exchange
 from contextlib import contextmanager
 
 from wazo_auth_client import Client as AuthClient
@@ -53,7 +52,6 @@ from wazo_agentd.service.manager.relog import RelogManager
 from wazo_agentd.service.manager.remove_member import RemoveMemberManager
 from wazo_agentd.service.proxy import ServiceProxy
 from wazo_agentd.service_discovery import self_check
-from xivo_bus import Marshaler, Publisher
 from xivo_dao import agent_dao as orig_agent_dao
 from xivo_dao import agent_status_dao
 from xivo_dao import context_dao
@@ -183,61 +181,54 @@ def _run(config):
     token_renewer.subscribe_to_token_change(auth_client.set_token)
 
     with _new_ami_client(config) as ami_client:
-        with _new_bus_connection(config) as producer_conn, _new_bus_connection(config) as consumer_conn:
-            bus_exchange = Exchange(config['bus']['exchange_name'],
-                                    type=config['bus']['exchange_type'])
-            bus_producer = Producer(producer_conn, exchange=bus_exchange, auto_declare=True)
-            bus_marshaler = Marshaler(xivo_uuid)
-            bus_publisher = Publisher(bus_producer, bus_marshaler)
+        bus_consumer = bus.Consumer(config)
+        bus_publisher = bus.Publisher(config)
 
-            queue_log_manager = QueueLogManager(queue_log_dao)
+        queue_log_manager = QueueLogManager(queue_log_dao)
 
-            add_to_queue_action = AddToQueueAction(ami_client, agent_status_dao)
-            login_action = LoginAction(ami_client, queue_log_manager, agent_status_dao, line_dao, user_dao, bus_publisher)
-            logoff_action = LogoffAction(ami_client, queue_log_manager, agent_status_dao, user_dao, bus_publisher)
-            pause_action = PauseAction(ami_client)
-            remove_from_queue_action = RemoveFromQueueAction(ami_client, agent_status_dao)
-            update_penalty_action = UpdatePenaltyAction(ami_client, agent_status_dao)
+        add_to_queue_action = AddToQueueAction(ami_client, agent_status_dao)
+        login_action = LoginAction(ami_client, queue_log_manager, agent_status_dao, line_dao, user_dao, bus_publisher)
+        logoff_action = LogoffAction(ami_client, queue_log_manager, agent_status_dao, user_dao, bus_publisher)
+        pause_action = PauseAction(ami_client)
+        remove_from_queue_action = RemoveFromQueueAction(ami_client, agent_status_dao)
+        update_penalty_action = UpdatePenaltyAction(ami_client, agent_status_dao)
 
-            add_member_manager = AddMemberManager(add_to_queue_action, ami_client, agent_status_dao, queue_member_dao)
-            login_manager = LoginManager(login_action, agent_status_dao, context_dao)
-            logoff_manager = LogoffManager(logoff_action, agent_status_dao)
-            on_agent_deleted_manager = OnAgentDeletedManager(logoff_manager, agent_status_dao)
-            on_agent_updated_manager = OnAgentUpdatedManager(add_to_queue_action, remove_from_queue_action, update_penalty_action, agent_status_dao)
-            on_queue_added_manager = OnQueueAddedManager(add_to_queue_action, agent_status_dao)
-            on_queue_deleted_manager = OnQueueDeletedManager(agent_status_dao)
-            on_queue_updated_manager = OnQueueUpdatedManager(add_to_queue_action, remove_from_queue_action, agent_status_dao)
-            on_queue_agent_paused_manager = OnQueueAgentPausedManager(agent_status_dao, user_dao, bus_publisher)
-            pause_manager = PauseManager(pause_action)
-            relog_manager = RelogManager(login_action, logoff_action, agent_dao, agent_status_dao)
-            remove_member_manager = RemoveMemberManager(remove_from_queue_action, ami_client, agent_status_dao, queue_member_dao)
+        add_member_manager = AddMemberManager(add_to_queue_action, ami_client, agent_status_dao, queue_member_dao)
+        login_manager = LoginManager(login_action, agent_status_dao, context_dao)
+        logoff_manager = LogoffManager(logoff_action, agent_status_dao)
+        on_agent_deleted_manager = OnAgentDeletedManager(logoff_manager, agent_status_dao)
+        on_agent_updated_manager = OnAgentUpdatedManager(add_to_queue_action, remove_from_queue_action, update_penalty_action, agent_status_dao)
+        on_queue_added_manager = OnQueueAddedManager(add_to_queue_action, agent_status_dao)
+        on_queue_deleted_manager = OnQueueDeletedManager(agent_status_dao)
+        on_queue_updated_manager = OnQueueUpdatedManager(add_to_queue_action, remove_from_queue_action, agent_status_dao)
+        on_queue_agent_paused_manager = OnQueueAgentPausedManager(agent_status_dao, user_dao, bus_publisher)
+        pause_manager = PauseManager(pause_action)
+        relog_manager = RelogManager(login_action, logoff_action, agent_dao, agent_status_dao)
+        remove_member_manager = RemoveMemberManager(remove_from_queue_action, ami_client, agent_status_dao, queue_member_dao)
 
-            service_proxy = ServiceProxy()
-            service_proxy.login_handler = LoginHandler(login_manager, agent_dao)
-            service_proxy.logoff_handler = LogoffHandler(logoff_manager, agent_status_dao)
-            service_proxy.membership_handler = MembershipHandler(add_member_manager, remove_member_manager, agent_dao, queue_dao)
-            service_proxy.on_agent_handler = OnAgentHandler(on_agent_deleted_manager, on_agent_updated_manager, agent_dao)
-            service_proxy.on_queue_handler = OnQueueHandler(on_queue_added_manager, on_queue_updated_manager, on_queue_deleted_manager, on_queue_agent_paused_manager, queue_dao, agent_dao)
-            service_proxy.pause_handler = PauseHandler(pause_manager, agent_status_dao)
-            service_proxy.relog_handler = RelogHandler(relog_manager)
-            service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, xivo_uuid)
+        service_proxy = ServiceProxy()
+        service_proxy.login_handler = LoginHandler(login_manager, agent_dao)
+        service_proxy.logoff_handler = LogoffHandler(logoff_manager, agent_status_dao)
+        service_proxy.membership_handler = MembershipHandler(add_member_manager, remove_member_manager, agent_dao, queue_dao)
+        service_proxy.on_agent_handler = OnAgentHandler(on_agent_deleted_manager, on_agent_updated_manager, agent_dao)
+        service_proxy.on_queue_handler = OnQueueHandler(on_queue_added_manager, on_queue_updated_manager, on_queue_deleted_manager, on_queue_agent_paused_manager, queue_dao, agent_dao)
+        service_proxy.pause_handler = PauseHandler(pause_manager, agent_status_dao)
+        service_proxy.relog_handler = RelogHandler(relog_manager)
+        service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, xivo_uuid)
 
-            bus_consumer = bus.Consumer(consumer_conn, bus_exchange, service_proxy)
-            http_iface = http.HTTPInterface(config, service_proxy, auth_client)
+        bus_consumer.register_service(service_proxy)
+        http_iface = http.HTTPInterface(config, service_proxy, auth_client)
 
-            bus_consumer.start()
-            try:
-                with token_renewer:
-                    with ServiceCatalogRegistration('wazo-agentd',
-                                                    xivo_uuid,
-                                                    config['consul'],
-                                                    config['service_discovery'],
-                                                    config['bus'],
-                                                    partial(self_check,
-                                                            config['rest_api']['https']['port'])):
-                        http_iface.run()
-            finally:
-                bus_consumer.stop()
+        with token_renewer:
+            with bus.consumer_thread(bus_consumer):
+                with ServiceCatalogRegistration('wazo-agentd',
+                                                xivo_uuid,
+                                                config['consul'],
+                                                config['service_discovery'],
+                                                config['bus'],
+                                                partial(self_check,
+                                                        config['rest_api']['https']['port'])):
+                    http_iface.run()
 
 
 def _init_signal():
@@ -257,11 +248,6 @@ def _new_ami_client(config):
         yield ami_client
     finally:
         ami_client.close()
-
-
-def _new_bus_connection(config):
-    url = 'amqp://{username}:{password}@{host}:{port}//'.format(**config['bus'])
-    return Connection(url)
 
 
 if __name__ == '__main__':
