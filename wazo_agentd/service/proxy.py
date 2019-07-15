@@ -77,10 +77,6 @@ class ServiceProxy:
         with self._lock:
             return self.on_agent_handler.handle_on_agent_deleted(agent['id'])
 
-    def on_queue_added(self, queue):
-        with self._lock:
-            return self.on_queue_handler.handle_on_queue_added(queue['id'])
-
     def on_queue_updated(self, queue):
         with self._lock:
             return self.on_queue_handler.handle_on_queue_updated(queue['id'])

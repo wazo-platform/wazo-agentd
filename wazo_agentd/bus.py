@@ -15,7 +15,7 @@ from xivo_bus import (
     Publisher as _Publisher,
 )
 from xivo_bus.resources.agent.event import EditAgentEvent, DeleteAgentEvent
-from xivo_bus.resources.queue.event import CreateQueueEvent, EditQueueEvent, DeleteQueueEvent
+from xivo_bus.resources.queue.event import EditQueueEvent, DeleteQueueEvent
 from xivo_bus.resources.ami.event import AMIEvent
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,6 @@ class AgentPauseEvent(AMIEvent):
 ROUTING_KEY_MAPPING = {
     EditAgentEvent.name: EditAgentEvent.routing_key,
     DeleteAgentEvent.name: DeleteAgentEvent.routing_key,
-    CreateQueueEvent.name: CreateQueueEvent.routing_key,
     EditQueueEvent.name: EditQueueEvent.routing_key,
     DeleteQueueEvent.name: DeleteQueueEvent.routing_key,
     AgentPauseEvent.name: AgentPauseEvent.routing_key,

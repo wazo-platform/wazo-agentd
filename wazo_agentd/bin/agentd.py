@@ -54,7 +54,7 @@ from wazo_agentd.service.manager.remove_member import RemoveMemberManager
 from wazo_agentd.service.proxy import ServiceProxy
 from wazo_agentd.service_discovery import self_check
 from xivo_bus.resources.agent.event import EditAgentEvent, DeleteAgentEvent
-from xivo_bus.resources.queue.event import CreateQueueEvent, EditQueueEvent, DeleteQueueEvent
+from xivo_bus.resources.queue.event import EditQueueEvent, DeleteQueueEvent
 from xivo_dao import agent_dao as orig_agent_dao
 from xivo_dao import agent_status_dao
 from xivo_dao import context_dao
@@ -227,7 +227,6 @@ def _run(config):
 
         bus_consumer.on_event(EditAgentEvent.name,  service_proxy.on_agent_updated)
         bus_consumer.on_event(DeleteAgentEvent.name,  service_proxy.on_agent_deleted)
-        bus_consumer.on_event(CreateQueueEvent.name,  service_proxy.on_queue_added)
         bus_consumer.on_event(EditQueueEvent.name,  service_proxy.on_queue_updated)
         bus_consumer.on_event(DeleteQueueEvent.name,  service_proxy.on_queue_deleted)
         bus_consumer.on_event(AgentPauseEvent.name,  service_proxy.on_agent_paused)
