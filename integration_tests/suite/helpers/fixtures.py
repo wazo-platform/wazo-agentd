@@ -20,6 +20,22 @@ def agent(**agent):
     return _decorate
 
 
+def queue(**queue):
+    def _decorate(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            with self.database.queries() as queries:
+                queue['id'] = queries.insert_queue(**queue)
+            args = list(args) + [queue]
+            try:
+                return func(self, *args, **kwargs)
+            finally:
+                with self.database.queries() as queries:
+                    queries.delete_queue(queue['id'])
+        return wrapper
+    return _decorate
+
+
 def user_line_extension(**ule):
     def _decorate(func):
         @wraps(func)

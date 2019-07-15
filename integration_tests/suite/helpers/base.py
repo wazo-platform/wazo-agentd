@@ -11,7 +11,7 @@ from xivo_test_helpers.asset_launching_test_case import (
     AssetLaunchingTestCase,
     NoSuchService,
 )
-from xivo_test_helpers.bus import BusClient
+from .bus import BusClient
 
 from .database import (
     DbHelper,

@@ -7,10 +7,12 @@ import sqlalchemy as sa
 from contextlib import contextmanager
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text
+from xivo_dao.alchemy.agent_membership_status import AgentMembershipStatus
 from xivo_dao.alchemy.agentfeatures import AgentFeatures as Agent
 from xivo_dao.alchemy.extension import Extension
 from xivo_dao.alchemy.line_extension import LineExtension
 from xivo_dao.alchemy.linefeatures import LineFeatures as Line
+from xivo_dao.alchemy.queuefeatures import QueueFeatures as Queue
 from xivo_dao.alchemy.user_line import UserLine
 from xivo_dao.alchemy.userfeatures import UserFeatures as User
 from xivo_dao.tests.test_dao import ItemInserter
@@ -107,8 +109,57 @@ class DatabaseQueries(object):
         session.query(Agent).filter(Agent.id == agent_id).delete()
         session.commit()
 
+    def insert_queue(self, **kwargs):
+        with self.inserter() as inserter:
+            return inserter.add_queuefeatures(**kwargs).id
+
+    def delete_queue(self, queue_id):
+        session = self.Session()
+        session.query(Queue).filter(Queue.id == queue_id).delete()
+        session.commit()
+
+    def associate_user_agent(self, user_id, agent_id):
+        session = self.Session()
+        user = session.query(User).get(user_id)
+        user.agent_id = agent_id
+        session.commit()
+
+    def associate_queue_agent(self, queue_id, agent_id):
+        with self.inserter() as inserter:
+            queue = inserter.session.query(Queue).get(queue_id)
+            agent = inserter.session.query(Agent).get(agent_id)
+            return inserter.add_queue_member(
+                queue_name=queue.name,
+                interface='SIP/{}'.format(agent.users[0].lines[0].endpoint_sip.name),
+                usertype='agent',
+                category='queue',
+                channel='Agent',
+                userid=agent.id,
+            )
+
+    def insert_agent_membership_status(self, queue_id, agent_id):
+        session = self.Session()
+        queue = session.query(Queue).get(queue_id)
+        agent_membership_status = AgentMembershipStatus(
+            queue_id=queue_id,
+            agent_id=agent_id,
+            queue_name=queue.name
+        )
+        session.add(agent_membership_status)
+        session.commit()
+
+    def get_agent_membership_status(self, queue_id, agent_id):
+        session = self.Session()
+        return session.query(AgentMembershipStatus).filter(
+            AgentMembershipStatus.agent_id == agent_id,
+            AgentMembershipStatus.queue_id == queue_id,
+        ).first()
+
     def insert_user_line_extension(self, **kwargs):
         with self.inserter() as inserter:
+            sip = inserter.add_usersip()
+            kwargs['protocol'] = 'sip'
+            kwargs['protocolid'] = sip.id
             user_line = inserter.add_user_line_with_exten(**kwargs)
             return (
                 user_line.user.id,
