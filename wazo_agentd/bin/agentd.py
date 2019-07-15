@@ -22,6 +22,7 @@ from xivo.xivo_logging import setup_logging, silence_loggers
 from wazo_agentd import ami
 from wazo_agentd import bus
 from wazo_agentd import http
+from wazo_agentd.bus import AgentPauseEvent
 from wazo_agentd.dao import QueueDAOAdapter, AgentDAOAdapter
 from wazo_agentd.queuelog import QueueLogManager
 from wazo_agentd.service.action.add import AddToQueueAction
@@ -52,6 +53,8 @@ from wazo_agentd.service.manager.relog import RelogManager
 from wazo_agentd.service.manager.remove_member import RemoveMemberManager
 from wazo_agentd.service.proxy import ServiceProxy
 from wazo_agentd.service_discovery import self_check
+from xivo_bus.resources.agent.event import EditAgentEvent, DeleteAgentEvent
+from xivo_bus.resources.queue.event import CreateQueueEvent, EditQueueEvent, DeleteQueueEvent
 from xivo_dao import agent_dao as orig_agent_dao
 from xivo_dao import agent_status_dao
 from xivo_dao import context_dao
@@ -222,7 +225,13 @@ def _run(config):
         service_proxy.relog_handler = RelogHandler(relog_manager)
         service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, xivo_uuid)
 
-        bus_consumer.register_service(service_proxy)
+        bus_consumer.on_event(EditAgentEvent.name,  service_proxy.on_agent_updated)
+        bus_consumer.on_event(DeleteAgentEvent.name,  service_proxy.on_agent_deleted)
+        bus_consumer.on_event(CreateQueueEvent.name,  service_proxy.on_queue_added)
+        bus_consumer.on_event(EditQueueEvent.name,  service_proxy.on_queue_updated)
+        bus_consumer.on_event(DeleteQueueEvent.name,  service_proxy.on_queue_deleted)
+        bus_consumer.on_event(AgentPauseEvent.name,  service_proxy.on_agent_paused)
+
         http_iface = http.HTTPInterface(config, service_proxy, auth_client)
 
         service_discovery_args = [

@@ -69,30 +69,30 @@ class ServiceProxy:
         with self._lock:
             return self.status_handler.handle_statuses(tenant_uuids=tenant_uuids)
 
-    def on_agent_updated(self, agent_id):
+    def on_agent_updated(self, agent):
         with self._lock:
-            return self.on_agent_handler.handle_on_agent_updated(agent_id)
+            return self.on_agent_handler.handle_on_agent_updated(agent['id'])
 
-    def on_agent_deleted(self, agent_id):
+    def on_agent_deleted(self, agent):
         with self._lock:
-            return self.on_agent_handler.handle_on_agent_deleted(agent_id)
+            return self.on_agent_handler.handle_on_agent_deleted(agent['id'])
 
-    def on_queue_added(self, queue_id):
+    def on_queue_added(self, queue):
         with self._lock:
-            return self.on_queue_handler.handle_on_queue_added(queue_id)
+            return self.on_queue_handler.handle_on_queue_added(queue['id'])
 
-    def on_queue_updated(self, queue_id):
+    def on_queue_updated(self, queue):
         with self._lock:
-            return self.on_queue_handler.handle_on_queue_updated(queue_id)
+            return self.on_queue_handler.handle_on_queue_updated(queue['id'])
 
-    def on_queue_deleted(self, queue_id):
+    def on_queue_deleted(self, queue):
         with self._lock:
-            return self.on_queue_handler.handle_on_queue_deleted(queue_id)
+            return self.on_queue_handler.handle_on_queue_deleted(queue['id'])
 
-    def on_agent_paused(self, *args, **kwargs):
+    def on_agent_paused(self, agent):
+        paused = agent['Paused'] == '1'
         with self._lock:
-            return self.on_queue_handler.handle_on_agent_paused(*args, **kwargs)
-
-    def on_agent_unpaused(self, *args, **kwargs):
-        with self._lock:
-            return self.on_queue_handler.handle_on_agent_unpaused(*args, **kwargs)
+            if paused:
+                return self.on_queue_handler.handle_on_agent_paused(agent)
+            else:
+                return self.on_queue_handler.handle_on_agent_unpaused(agent)
