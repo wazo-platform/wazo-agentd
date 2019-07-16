@@ -1,6 +1,8 @@
 # Copyright 2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import time
+
 from hamcrest import (
     assert_that,
     is_,
@@ -24,11 +26,12 @@ class TestEventHandler(BaseIntegrationTest):
             queries.associate_queue_agent(queue['id'], agent['id'])
             queries.insert_agent_membership_status(queue['id'], agent['id'])
 
-        self.bus.send_delete_queue_event(queue['id'])
+        def test_on_msg_received():
+            self.bus.send_delete_queue_event(queue['id'])
+            time.sleep(0.5)
 
-        def event_processed():
             with self.database.queries() as queries:
                 membership = queries.get_agent_membership_status(queue['id'], agent['id'])
                 assert_that(membership, is_(None))
 
-        until.assert_(event_processed, tries=3)
+        until.assert_(test_on_msg_received, tries=10)
