@@ -16,7 +16,8 @@ RUN true \
     && python setup.py install \
     && cp -r etc/* /etc \
     && apt-get -yqq autoremove \
-    && openssl req -x509 -newkey rsa:4096 -keyout /usr/share/xivo-certs/server.key -out /usr/share/xivo-certs/server.crt -nodes -config /usr/share/xivo-certs/openssl.cfg -days 3650
+    && openssl req -x509 -newkey rsa:4096 -keyout /usr/share/xivo-certs/server.key -out /usr/share/xivo-certs/server.crt -nodes -config /usr/share/xivo-certs/openssl.cfg -days 3650 \
+    && chown wazo-agentd:wazo-agentd /usr/share/xivo-certs/*
 
 EXPOSE 9493
 
