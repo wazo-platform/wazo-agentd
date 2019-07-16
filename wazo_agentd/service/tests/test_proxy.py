@@ -35,6 +35,8 @@ class TestServiceProxy(unittest.TestCase):
         self.proxy.pause_handler = self.pause_handler
         self.proxy.relog_handler = self.relog_handler
         self.proxy.status_handler = self.status_handler
+        self.agent = {'id': s.agent_id}
+        self.queue = {'id': s.queue_id}
         self.tenants = ['fake-tenant']
 
     def test_add_agent_to_queue(self):
@@ -102,38 +104,33 @@ class TestServiceProxy(unittest.TestCase):
         self.status_handler.handle_statuses.assert_called_once_with(tenant_uuids=self.tenants)
 
     def test_on_agent_updated(self):
-        self.proxy.on_agent_updated(s.agent_id)
+        self.proxy.on_agent_updated(self.agent)
 
-        self.on_agent_handler.handle_on_agent_updated.assert_called_once_with(s.agent_id)
+        self.on_agent_handler.handle_on_agent_updated.assert_called_once_with(self.agent['id'])
 
     def test_on_agent_deleted(self):
-        self.proxy.on_agent_deleted(s.agent_id)
+        self.proxy.on_agent_deleted(self.agent)
 
-        self.on_agent_handler.handle_on_agent_deleted.assert_called_once_with(s.agent_id)
+        self.on_agent_handler.handle_on_agent_deleted.assert_called_once_with(self.agent['id'])
 
     def test_on_agent_paused(self):
-        self.proxy.on_agent_paused(s.id_, s.number, s.reason, s.queue)
+        self.agent['Paused'] = '1'
+        self.proxy.on_agent_paused(self.agent)
 
-        self.on_queue_handler.handle_on_agent_paused.assert_called_once_with(
-            s.id_, s.number, s.reason, s.queue)
+        self.on_queue_handler.handle_on_agent_paused.assert_called_once_with(self.agent)
 
     def test_on_agent_unpaused(self):
-        self.proxy.on_agent_unpaused(s.id_, s.number, s.reason, s.queue)
+        self.agent['Paused'] = '0'
+        self.proxy.on_agent_paused(self.agent)
 
-        self.on_queue_handler.handle_on_agent_unpaused.assert_called_once_with(
-            s.id_, s.number, s.reason, s.queue)
-
-    def test_on_queue_added(self):
-        self.proxy.on_queue_added(s.queue_id)
-
-        self.on_queue_handler.handle_on_queue_added.assert_called_once_with(s.queue_id)
+        self.on_queue_handler.handle_on_agent_unpaused.assert_called_once_with(self.agent)
 
     def test_on_queue_updated(self):
-        self.proxy.on_queue_updated(s.queue_id)
+        self.proxy.on_queue_updated(self.queue)
 
-        self.on_queue_handler.handle_on_queue_updated.assert_called_once_with(s.queue_id)
+        self.on_queue_handler.handle_on_queue_updated.assert_called_once_with(self.queue['id'])
 
     def test_on_queue_deleted(self):
-        self.proxy.on_queue_deleted(s.queue_id)
+        self.proxy.on_queue_deleted(self.queue)
 
-        self.on_queue_handler.handle_on_queue_deleted.assert_called_once_with(s.queue_id)
+        self.on_queue_handler.handle_on_queue_deleted.assert_called_once_with(self.queue['id'])
