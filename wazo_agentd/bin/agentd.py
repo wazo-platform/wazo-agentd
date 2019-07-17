@@ -4,10 +4,11 @@
 import argparse
 import logging
 import signal
-import xivo_dao
 
 from functools import partial
 from contextlib import contextmanager
+
+import xivo_dao
 
 from wazo_auth_client import Client as AuthClient
 
@@ -18,6 +19,17 @@ from xivo.daemonize import pidfile_context
 from xivo.token_renewer import TokenRenewer
 from xivo.user_rights import change_user
 from xivo.xivo_logging import setup_logging, silence_loggers
+
+from xivo_bus.resources.agent.event import EditAgentEvent, DeleteAgentEvent
+from xivo_bus.resources.queue.event import EditQueueEvent, DeleteQueueEvent
+from xivo_dao import agent_dao as orig_agent_dao
+from xivo_dao import agent_status_dao
+from xivo_dao import context_dao
+from xivo_dao import line_dao
+from xivo_dao import queue_dao as orig_queue_dao
+from xivo_dao import queue_log_dao
+from xivo_dao import queue_member_dao
+from xivo_dao.resources.user import dao as user_dao
 
 from wazo_agentd import ami
 from wazo_agentd import bus
@@ -53,16 +65,6 @@ from wazo_agentd.service.manager.relog import RelogManager
 from wazo_agentd.service.manager.remove_member import RemoveMemberManager
 from wazo_agentd.service.proxy import ServiceProxy
 from wazo_agentd.service_discovery import self_check
-from xivo_bus.resources.agent.event import EditAgentEvent, DeleteAgentEvent
-from xivo_bus.resources.queue.event import EditQueueEvent, DeleteQueueEvent
-from xivo_dao import agent_dao as orig_agent_dao
-from xivo_dao import agent_status_dao
-from xivo_dao import context_dao
-from xivo_dao import line_dao
-from xivo_dao import queue_dao as orig_queue_dao
-from xivo_dao import queue_log_dao
-from xivo_dao import queue_member_dao
-from xivo_dao.resources.user import dao as user_dao
 
 _DEFAULT_HTTPS_PORT = 9493
 _DEFAULT_CONFIG = {
@@ -225,11 +227,11 @@ def _run(config):
         service_proxy.relog_handler = RelogHandler(relog_manager)
         service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, xivo_uuid)
 
-        bus_consumer.on_event(EditAgentEvent.name,  service_proxy.on_agent_updated)
-        bus_consumer.on_event(DeleteAgentEvent.name,  service_proxy.on_agent_deleted)
-        bus_consumer.on_event(EditQueueEvent.name,  service_proxy.on_queue_updated)
-        bus_consumer.on_event(DeleteQueueEvent.name,  service_proxy.on_queue_deleted)
-        bus_consumer.on_event(AgentPauseEvent.name,  service_proxy.on_agent_paused)
+        bus_consumer.on_event(EditAgentEvent.name, service_proxy.on_agent_updated)
+        bus_consumer.on_event(DeleteAgentEvent.name, service_proxy.on_agent_deleted)
+        bus_consumer.on_event(EditQueueEvent.name, service_proxy.on_queue_updated)
+        bus_consumer.on_event(DeleteQueueEvent.name, service_proxy.on_queue_deleted)
+        bus_consumer.on_event(AgentPauseEvent.name, service_proxy.on_agent_paused)
 
         http_iface = http.HTTPInterface(config, service_proxy, auth_client)
 
