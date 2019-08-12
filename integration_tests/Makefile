@@ -18,7 +18,7 @@ pull-images:
 	docker pull wazopbx/wazo-auth-mock
 
 agentd:
-	docker build --pull -t wazopbx/wazo-agentd ..
+	docker build -t wazopbx/wazo-agentd ..
 	$(MAKE) agentd-test
 
 agentd-test: egg-info
