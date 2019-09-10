@@ -6,7 +6,7 @@ import logging
 import socket
 from wazo_agentd.ami.event import Event
 from wazo_agentd.ami.response import Response
-from wazo_amid.parser import parse_buffer
+from wazo_amid.ami.parser import parse_buffer
 
 logger = logging.getLogger(__name__)
 
