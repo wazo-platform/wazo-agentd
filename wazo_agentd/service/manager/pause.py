@@ -5,7 +5,6 @@ from wazo_agentd.exception import AgentNotLoggedError
 
 
 class PauseManager:
-
     def __init__(self, pause_action):
         self._pause_action = pause_action
 

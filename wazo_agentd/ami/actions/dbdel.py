@@ -5,7 +5,4 @@ from wazo_agentd.ami.actions.common.action import BaseAction
 
 
 def DBDelAction(family, key):
-    return BaseAction('DBDel', [
-        ('Family', family),
-        ('Key', key),
-    ])
+    return BaseAction('DBDel', [('Family', family), ('Key', key)])

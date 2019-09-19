@@ -7,7 +7,6 @@ from wazo_agentd.service.action.pause import PauseAction
 
 
 class TestPauseAction(unittest.TestCase):
-
     def setUp(self):
         self.ami_client = Mock()
         self.pause_action = PauseAction(self.ami_client)
@@ -18,7 +17,9 @@ class TestPauseAction(unittest.TestCase):
         reason = 'Want my pause'
         self.pause_action.pause_agent(agent_status, reason)
 
-        self.ami_client.queue_pause.assert_called_once_with(agent_status.interface, '1', reason)
+        self.ami_client.queue_pause.assert_called_once_with(
+            agent_status.interface, '1', reason
+        )
 
     def test_unpause_agent(self):
         agent_status = Mock()

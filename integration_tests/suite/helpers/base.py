@@ -13,10 +13,7 @@ from xivo_test_helpers.asset_launching_test_case import (
 )
 from .bus import BusClient
 
-from .database import (
-    DbHelper,
-    TENANT_UUID as TOKEN_TENANT_UUID,
-)
+from .database import DbHelper, TENANT_UUID as TOKEN_TENANT_UUID
 
 
 TOKEN_UUID = '00000000-0000-0000-0000-000000000101'
@@ -29,7 +26,9 @@ logger = logging.getLogger(__name__)
 
 class BaseIntegrationTest(AssetLaunchingTestCase):
 
-    assets_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'assets'))
+    assets_root = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '..', '..', 'assets')
+    )
     service = 'agentd'
 
     @classmethod
@@ -51,7 +50,11 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
         )
         cls.auth.set_token(token)
         cls.auth.set_tenants(
-            {'uuid': TOKEN_TENANT_UUID, 'name': 'name1', 'parent_uuid': TOKEN_TENANT_UUID},
+            {
+                'uuid': TOKEN_TENANT_UUID,
+                'name': 'name1',
+                'parent_uuid': TOKEN_TENANT_UUID,
+            }
         )
 
     @classmethod
@@ -68,7 +71,9 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
         except NoSuchService as e:
             logger.debug(e)
             return
-        return ChatdClient('localhost', port=port, token=token, verify_certificate=False)
+        return ChatdClient(
+            'localhost', port=port, token=token, verify_certificate=False
+        )
 
     @classmethod
     def make_auth(cls):
@@ -95,4 +100,6 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
         except NoSuchService as e:
             logger.debug(e)
             return
-        return DbHelper.build('asterisk', 'proformatique', 'localhost', port, 'asterisk')
+        return DbHelper.build(
+            'asterisk', 'proformatique', 'localhost', port, 'asterisk'
+        )

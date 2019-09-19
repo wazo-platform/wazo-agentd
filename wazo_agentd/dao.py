@@ -8,7 +8,6 @@ _Queue = namedtuple('_Queue', ['id', 'tenant_uuid', 'name', 'penalty'])
 
 
 class _AbstractDAOAdapter:
-
     def __init__(self, dao):
         self._dao = dao
 
@@ -17,7 +16,6 @@ class _AbstractDAOAdapter:
 
 
 class AgentDAOAdapter(_AbstractDAOAdapter):
-
     def get_agent(self, agent_id, tenant_uuids=None):
         try:
             return self._dao.agent_with_id(agent_id, tenant_uuids=tenant_uuids)

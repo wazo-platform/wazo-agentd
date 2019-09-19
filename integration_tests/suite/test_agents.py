@@ -1,22 +1,12 @@
 # Copyright 2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from hamcrest import (
-    assert_that,
-    calling,
-    has_properties,
-)
+from hamcrest import assert_that, calling, has_properties
 
-from wazo_agentd_client.error import (
-    AgentdClientError,
-    UNAUTHORIZED
-)
+from wazo_agentd_client.error import AgentdClientError, UNAUTHORIZED
 from xivo_test_helpers.hamcrest.raises import raises
 
-from .helpers.base import (
-    BaseIntegrationTest,
-    UNKNOWN_UUID,
-)
+from .helpers.base import BaseIntegrationTest, UNKNOWN_UUID
 
 
 class TestAgents(BaseIntegrationTest):

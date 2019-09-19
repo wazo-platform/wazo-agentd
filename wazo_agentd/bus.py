@@ -10,10 +10,7 @@ import kombu
 
 from kombu.mixins import ConsumerMixin
 from xivo.pubsub import Pubsub
-from xivo_bus import (
-    Marshaler,
-    Publisher as _Publisher,
-)
+from xivo_bus import Marshaler, Publisher as _Publisher
 from xivo_bus.resources.agent.event import EditAgentEvent, DeleteAgentEvent
 from xivo_bus.resources.queue.event import EditQueueEvent, DeleteQueueEvent
 from xivo_bus.resources.ami.event import AMIEvent
@@ -50,9 +47,10 @@ def consumer_thread(consumer):
 
 
 class Consumer(ConsumerMixin):
-
     def __init__(self, global_config):
-        self._bus_url = 'amqp://{username}:{password}@{host}:{port}//'.format(**global_config['bus'])
+        self._bus_url = 'amqp://{username}:{password}@{host}:{port}//'.format(
+            **global_config['bus']
+        )
         self._exchange = kombu.Exchange(
             global_config['bus']['exchange_name'],
             type=global_config['bus']['exchange_type'],
@@ -93,18 +91,20 @@ class Consumer(ConsumerMixin):
 
 
 class Publisher:
-
     def __init__(self, config):
         self._config = config['bus']
         self._uuid = config['uuid']
-        self._url = 'amqp://{username}:{password}@{host}:{port}//'.format(**self._config)
+        self._url = 'amqp://{username}:{password}@{host}:{port}//'.format(
+            **self._config
+        )
 
     def publish(self, event, headers=None):
         bus_connection = kombu.Connection(self._url)
         bus_exchange = kombu.Exchange(
-            self._config['exchange_name'],
-            type=self._config['exchange_type'],
+            self._config['exchange_name'], type=self._config['exchange_type']
         )
-        bus_producer = kombu.Producer(bus_connection, exchange=bus_exchange, auto_declare=True)
+        bus_producer = kombu.Producer(
+            bus_connection, exchange=bus_exchange, auto_declare=True
+        )
         bus_marshaler = Marshaler(self._uuid)
         _Publisher(bus_producer, bus_marshaler).publish(event, headers=headers)

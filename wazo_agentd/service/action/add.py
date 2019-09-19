@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 
 class AddToQueueAction:
-
     def __init__(self, ami_client, agent_status_dao):
         self._ami_client = ami_client
         self._agent_status_dao = agent_status_dao
@@ -22,10 +21,20 @@ class AddToQueueAction:
     def _update_asterisk(self, agent_status, queue):
         member_name = format_agent_member_name(agent_status.agent_number)
         skills = format_agent_skills(agent_status.agent_id)
-        action = self._ami_client.queue_add(queue.name, agent_status.interface, member_name, agent_status.state_interface,
-                                            queue.penalty, skills)
+        action = self._ami_client.queue_add(
+            queue.name,
+            agent_status.interface,
+            member_name,
+            agent_status.state_interface,
+            queue.penalty,
+            skills,
+        )
         if not action.success:
-            logger.warning('Failure to add interface %r to queue %r', agent_status.interface, queue.name)
+            logger.warning(
+                'Failure to add interface %r to queue %r',
+                agent_status.interface,
+                queue.name,
+            )
 
     def _update_agent_status(self, agent_status, queue):
         with db_utils.session_scope():

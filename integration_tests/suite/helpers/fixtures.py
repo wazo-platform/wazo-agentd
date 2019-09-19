@@ -16,7 +16,9 @@ def agent(**agent):
             finally:
                 with self.database.queries() as queries:
                     queries.delete_agent(agent['id'])
+
         return wrapper
+
     return _decorate
 
 
@@ -32,7 +34,9 @@ def queue(**queue):
             finally:
                 with self.database.queries() as queries:
                     queries.delete_queue(queue['id'])
+
         return wrapper
+
     return _decorate
 
 
@@ -41,7 +45,9 @@ def user_line_extension(**ule):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             with self.database.queries() as queries:
-                user_id, line_id, extension_id = queries.insert_user_line_extension(**ule)
+                user_id, line_id, extension_id = queries.insert_user_line_extension(
+                    **ule
+                )
                 ule['line_id'] = line_id
                 ule['extension_id'] = line_id
                 ule['user_id'] = user_id
@@ -51,5 +57,7 @@ def user_line_extension(**ule):
             finally:
                 with self.database.queries() as queries:
                     queries.delete_user_line_extension(user_id, line_id, extension_id)
+
         return wrapper
+
     return _decorate

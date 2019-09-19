@@ -3,14 +3,17 @@
 
 import logging
 
-from wazo_agentd.exception import AgentAlreadyLoggedError, ExtensionAlreadyInUseError, ContextDifferentTenantError
+from wazo_agentd.exception import (
+    AgentAlreadyLoggedError,
+    ExtensionAlreadyInUseError,
+    ContextDifferentTenantError,
+)
 from xivo_dao.helpers import db_utils
 
 logger = logging.getLogger(__name__)
 
 
 class LoginManager:
-
     def __init__(self, login_action, agent_status_dao, context_dao):
         self._login_action = login_action
         self._agent_status_dao = agent_status_dao

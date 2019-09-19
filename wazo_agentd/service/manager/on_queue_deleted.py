@@ -5,7 +5,6 @@ from xivo_dao.helpers import db_utils
 
 
 class OnQueueDeletedManager:
-
     def __init__(self, agent_status_dao):
         self._agent_status_dao = agent_status_dao
 

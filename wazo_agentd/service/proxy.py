@@ -5,7 +5,6 @@ import threading
 
 
 class ServiceProxy:
-
     def __init__(self):
         self._lock = threading.Lock()
         self.login_handler = None
@@ -19,19 +18,29 @@ class ServiceProxy:
 
     def add_agent_to_queue(self, agent_id, queue_id, tenant_uuids=None):
         with self._lock:
-            self.membership_handler.handle_add_to_queue(agent_id, queue_id, tenant_uuids=tenant_uuids)
+            self.membership_handler.handle_add_to_queue(
+                agent_id, queue_id, tenant_uuids=tenant_uuids
+            )
 
     def remove_agent_from_queue(self, agent_id, queue_id, tenant_uuids=None):
         with self._lock:
-            self.membership_handler.handle_remove_from_queue(agent_id, queue_id, tenant_uuids=tenant_uuids)
+            self.membership_handler.handle_remove_from_queue(
+                agent_id, queue_id, tenant_uuids=tenant_uuids
+            )
 
     def login_agent_by_id(self, agent_id, extension, context, tenant_uuids=None):
         with self._lock:
-            self.login_handler.handle_login_by_id(agent_id, extension, context, tenant_uuids=tenant_uuids)
+            self.login_handler.handle_login_by_id(
+                agent_id, extension, context, tenant_uuids=tenant_uuids
+            )
 
-    def login_agent_by_number(self, agent_number, extension, context, tenant_uuids=None):
+    def login_agent_by_number(
+        self, agent_number, extension, context, tenant_uuids=None
+    ):
         with self._lock:
-            self.login_handler.handle_login_by_number(agent_number, extension, context, tenant_uuids=tenant_uuids)
+            self.login_handler.handle_login_by_number(
+                agent_number, extension, context, tenant_uuids=tenant_uuids
+            )
 
     def logoff_agent_by_id(self, agent_id, tenant_uuids=None):
         with self._lock:
@@ -39,7 +48,9 @@ class ServiceProxy:
 
     def logoff_agent_by_number(self, agent_number, tenant_uuids=None):
         with self._lock:
-            self.logoff_handler.handle_logoff_by_number(agent_number, tenant_uuids=tenant_uuids)
+            self.logoff_handler.handle_logoff_by_number(
+                agent_number, tenant_uuids=tenant_uuids
+            )
 
     def logoff_all(self, tenant_uuids=None):
         with self._lock:
@@ -51,19 +62,27 @@ class ServiceProxy:
 
     def pause_agent_by_number(self, agent_number, reason, tenant_uuids=None):
         with self._lock:
-            self.pause_handler.handle_pause_by_number(agent_number, reason, tenant_uuids=tenant_uuids)
+            self.pause_handler.handle_pause_by_number(
+                agent_number, reason, tenant_uuids=tenant_uuids
+            )
 
     def unpause_agent_by_number(self, agent_number, tenant_uuids=None):
         with self._lock:
-            self.pause_handler.handle_unpause_by_number(agent_number, tenant_uuids=tenant_uuids)
+            self.pause_handler.handle_unpause_by_number(
+                agent_number, tenant_uuids=tenant_uuids
+            )
 
     def get_agent_status_by_id(self, agent_id, tenant_uuids=None):
         with self._lock:
-            return self.status_handler.handle_status_by_id(agent_id, tenant_uuids=tenant_uuids)
+            return self.status_handler.handle_status_by_id(
+                agent_id, tenant_uuids=tenant_uuids
+            )
 
     def get_agent_status_by_number(self, agent_number, tenant_uuids=None):
         with self._lock:
-            return self.status_handler.handle_status_by_number(agent_number, tenant_uuids=tenant_uuids)
+            return self.status_handler.handle_status_by_number(
+                agent_number, tenant_uuids=tenant_uuids
+            )
 
     def get_agent_statuses(self, tenant_uuids=None):
         with self._lock:

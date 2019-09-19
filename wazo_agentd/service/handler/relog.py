@@ -8,7 +8,6 @@ logger = logging.getLogger(__name__)
 
 
 class RelogHandler:
-
     def __init__(self, relog_manager):
         self._relog_manager = relog_manager
 

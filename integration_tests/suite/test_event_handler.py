@@ -3,10 +3,7 @@
 
 import time
 
-from hamcrest import (
-    assert_that,
-    is_,
-)
+from hamcrest import assert_that, is_
 from xivo_test_helpers import until
 
 from .helpers.base import BaseIntegrationTest
@@ -31,7 +28,9 @@ class TestEventHandler(BaseIntegrationTest):
             time.sleep(0.5)
 
             with self.database.queries() as queries:
-                membership = queries.get_agent_membership_status(queue['id'], agent['id'])
+                membership = queries.get_agent_membership_status(
+                    queue['id'], agent['id']
+                )
                 assert_that(membership, is_(None))
 
         until.assert_(test_on_msg_received, tries=10)

@@ -6,7 +6,6 @@ from xivo_dao.helpers import db_utils
 
 
 class QueueLogManager:
-
     def __init__(self, queue_log_dao):
         self._dao = queue_log_dao
 
@@ -16,8 +15,9 @@ class QueueLogManager:
         data1 = self._format_data1(extension, context)
 
         with db_utils.session_scope():
-            self._dao.insert_entry(time, 'NONE', 'NONE', agent, 'AGENTCALLBACKLOGIN',
-                                   data1)
+            self._dao.insert_entry(
+                time, 'NONE', 'NONE', agent, 'AGENTCALLBACKLOGIN', data1
+            )
 
     def on_agent_logged_off(self, agent_number, extension, context, logged_time):
         time = self.format_time_now()
@@ -26,8 +26,16 @@ class QueueLogManager:
         logged_time = self._format_logged_time(logged_time)
 
         with db_utils.session_scope():
-            self._dao.insert_entry(time, 'NONE', 'NONE', agent, 'AGENTCALLBACKLOGOFF',
-                                   data1, logged_time, 'CommandLogoff')
+            self._dao.insert_entry(
+                time,
+                'NONE',
+                'NONE',
+                agent,
+                'AGENTCALLBACKLOGOFF',
+                data1,
+                logged_time,
+                'CommandLogoff',
+            )
 
     def _format_agent(self, agent_number):
         return 'Agent/%s' % agent_number

@@ -9,14 +9,14 @@ from wazo_agentd.service.manager.relog import RelogManager
 
 
 class TestRelogManager(unittest.TestCase):
-
     def setUp(self):
         self.login_action = Mock(LoginAction)
         self.logoff_action = Mock(LogoffAction)
         self.agent_status_dao = Mock()
         self.agent_dao = Mock()
-        self.relog_manager = RelogManager(self.login_action, self.logoff_action,
-                                          self.agent_dao, self.agent_status_dao)
+        self.relog_manager = RelogManager(
+            self.login_action, self.logoff_action, self.agent_dao, self.agent_status_dao
+        )
 
     def test_relog_all_agents(self):
         agent_id = 42
@@ -33,4 +33,6 @@ class TestRelogManager(unittest.TestCase):
         self.agent_status_dao.get_status.assert_called_once_with(agent_id)
         self.logoff_action.logoff_agent.assert_called_once_with(agent_status)
         self.agent_dao.get_agent.assert_called_once_with(agent_id)
-        self.login_action.login_agent.assert_called_once_with(agent, agent_status.extension, agent_status.context)
+        self.login_action.login_agent.assert_called_once_with(
+            agent, agent_status.extension, agent_status.context
+        )

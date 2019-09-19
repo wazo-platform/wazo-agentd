@@ -5,12 +5,8 @@ from wazo_agentd.ami.actions.common.action import BaseAction
 
 
 class DBGetAction(BaseAction):
-
     def __init__(self, family, key):
-        BaseAction.__init__(self, 'DBGet', [
-            ('Family', family),
-            ('Key', key),
-        ])
+        BaseAction.__init__(self, 'DBGet', [('Family', family), ('Key', key)])
         self._val = None
 
     @property

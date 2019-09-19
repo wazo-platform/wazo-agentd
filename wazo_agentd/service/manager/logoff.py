@@ -6,7 +6,6 @@ from xivo_dao.helpers import db_utils
 
 
 class LogoffManager:
-
     def __init__(self, logoff_action, agent_status_dao):
         self._logoff_action = logoff_action
         self._agent_status_dao = agent_status_dao
@@ -23,5 +22,9 @@ class LogoffManager:
 
     def _get_agent_statuses(self, tenant_uuids=None):
         with db_utils.session_scope():
-            agent_ids = self._agent_status_dao.get_logged_agent_ids(tenant_uuids=tenant_uuids)
-            return [self._agent_status_dao.get_status(agent_id) for agent_id in agent_ids]
+            agent_ids = self._agent_status_dao.get_logged_agent_ids(
+                tenant_uuids=tenant_uuids
+            )
+            return [
+                self._agent_status_dao.get_status(agent_id) for agent_id in agent_ids
+            ]

@@ -22,11 +22,11 @@ class patch_datetime_now:
             with patch('datetime.datetime') as datetime_mock:
                 datetime_mock.now = Mock(*self.mock_args, **self.mock_kwargs)
                 wrapped(*args, **kwargs)
+
         return wrapper
 
 
 class TestQueuelog(unittest.TestCase):
-
     def setUp(self):
         self.queue_log_dao = Mock()
         self.queue_log_mgr = QueueLogManager(self.queue_log_dao)
@@ -54,12 +54,7 @@ class TestQueuelog(unittest.TestCase):
         self.queue_log_mgr.on_agent_logged_in('1', '1001', 'default')
 
         self.queue_log_dao.insert_entry.assert_called_once_with(
-            str_now,
-            'NONE',
-            'NONE',
-            'Agent/1',
-            'AGENTCALLBACKLOGIN',
-            '1001@default',
+            str_now, 'NONE', 'NONE', 'Agent/1', 'AGENTCALLBACKLOGIN', '1001@default'
         )
 
     @patch_datetime_now(return_value=mock_date)
@@ -79,10 +74,13 @@ class TestQueuelog(unittest.TestCase):
             'CommandLogoff',
         )
 
-    def test_on_agent_logged_off_written_logged_time_should_be_an_integer_when_given_logged_time_is_not_integer(self):
-        self.queue_log_mgr.on_agent_logged_off(sentinel.agent_number,
-                                               sentinel.extension,
-                                               sentinel.context,
-                                               12.98743)
+    def test_on_agent_logged_off_written_logged_time_should_be_an_integer_when_given_logged_time_is_not_integer(
+        self
+    ):
+        self.queue_log_mgr.on_agent_logged_off(
+            sentinel.agent_number, sentinel.extension, sentinel.context, 12.98743
+        )
 
-        self.queue_log_dao.insert_entry.assert_called_once_with(ANY, ANY, ANY, ANY, ANY, ANY, '12', ANY)
+        self.queue_log_dao.insert_entry.assert_called_once_with(
+            ANY, ANY, ANY, ANY, ANY, ANY, '12', ANY
+        )

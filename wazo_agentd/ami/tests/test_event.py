@@ -7,7 +7,6 @@ from wazo_agentd.ami.event import Event
 
 
 class TestEvent(unittest.TestCase):
-
     def setUp(self):
         headers = {'ze_field': 'ze_value', 'ze_other_field': 'ze_other_value'}
         self.event = Event('name', 'action_id', headers)

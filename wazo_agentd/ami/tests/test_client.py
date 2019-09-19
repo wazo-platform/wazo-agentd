@@ -9,7 +9,6 @@ from wazo_agentd.ami.response import Response
 
 
 class TestAMIClient(unittest.TestCase):
-
     def setUp(self):
         self.hostname = 'example.org'
         self.port = 5038
@@ -35,14 +34,14 @@ class TestAMIClient(unittest.TestCase):
         self.ami_client.disconnect()
 
     def test_execute(self):
-        ami_client = self._new_mocked_amiclient('foo', [
-            b'Response: Success',
-            b'ActionID: foo',
-            b'',
-        ])
+        ami_client = self._new_mocked_amiclient(
+            'foo', [b'Response: Success', b'ActionID: foo', b'']
+        )
         action = Mock()
         action._completed = False
-        action._on_response_received.side_effect = lambda _: setattr(action, '_completed', True)
+        action._on_response_received.side_effect = lambda _: setattr(
+            action, '_completed', True
+        )
 
         ami_client.execute(action)
 
@@ -70,10 +69,7 @@ class TestAMIClient(unittest.TestCase):
         self.assertFalse(socket_mock.called)
 
     def test_add_data_to_buffer(self):
-        ami_client = self._new_mocked_amiclient(None, [
-            b'Response: Success',
-            b''
-        ])
+        ami_client = self._new_mocked_amiclient(None, [b'Response: Success', b''])
 
         ami_client._add_data_to_buffer()
 
@@ -100,7 +96,9 @@ class TestAMIClient(unittest.TestCase):
         self.assertEqual(None, self.ami_client._msgs_queue[0].action_id)
         self.assertTrue(self.ami_client._msgs_queue[0].is_success())
 
-    def test_given_event_with_action_id_when_parse_next_msgs_then_event_msg_added_to_queue(self):
+    def test_given_event_with_action_id_when_parse_next_msgs_then_event_msg_added_to_queue(
+        self
+    ):
         self.ami_client._buffer = b'Event: Foo\r\nActionID: bar\r\n\r\n'
 
         self.ami_client._parse_next_msgs()
@@ -111,11 +109,12 @@ class TestAMIClient(unittest.TestCase):
 
 
 class TestReconnectingAMIClient(unittest.TestCase):
-
     def setUp(self):
         self.sock = Mock()
         self.on_connect_callback = Mock()
-        self.ami_client = ReconnectingAMIClient('example.org', 5038, self.on_connect_callback)
+        self.ami_client = ReconnectingAMIClient(
+            'example.org', 5038, self.on_connect_callback
+        )
         self.ami_client._sock = self.sock
 
     @patch('socket.socket')

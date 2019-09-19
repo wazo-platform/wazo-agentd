@@ -8,7 +8,6 @@ from wazo_agentd.service.handler.pause import PauseHandler
 
 
 class TestPauseHandler(unittest.TestCase):
-
     def setUp(self):
         self.pause_manager = Mock(PauseManager)
         self.agent_status_dao = Mock()
@@ -21,9 +20,13 @@ class TestPauseHandler(unittest.TestCase):
         reason = Mock()
         self.agent_status_dao.get_status_by_number.return_value = agent_status
 
-        self.pause_handler.handle_pause_by_number(agent_number, reason, tenant_uuids=self.tenants)
+        self.pause_handler.handle_pause_by_number(
+            agent_number, reason, tenant_uuids=self.tenants
+        )
 
-        self.agent_status_dao.get_status_by_number.assert_called_once_with(agent_number, tenant_uuids=self.tenants)
+        self.agent_status_dao.get_status_by_number.assert_called_once_with(
+            agent_number, tenant_uuids=self.tenants
+        )
         self.pause_manager.pause_agent.assert_called_once_with(agent_status, reason)
 
     def test_unpause_by_number(self):
@@ -31,7 +34,11 @@ class TestPauseHandler(unittest.TestCase):
         agent_status = Mock()
         self.agent_status_dao.get_status_by_number.return_value = agent_status
 
-        self.pause_handler.handle_unpause_by_number(agent_number, tenant_uuids=self.tenants)
+        self.pause_handler.handle_unpause_by_number(
+            agent_number, tenant_uuids=self.tenants
+        )
 
-        self.agent_status_dao.get_status_by_number.assert_called_once_with(agent_number, tenant_uuids=self.tenants)
+        self.agent_status_dao.get_status_by_number.assert_called_once_with(
+            agent_number, tenant_uuids=self.tenants
+        )
         self.pause_manager.unpause_agent.assert_called_once_with(agent_status)

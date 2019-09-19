@@ -7,7 +7,6 @@ from wazo_agentd.ami.actions.common.action import BaseAction
 
 
 class TestBaseAction(unittest.TestCase):
-
     def test_new_action(self):
         action = self._new_action()
 

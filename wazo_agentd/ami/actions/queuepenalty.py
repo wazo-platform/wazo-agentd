@@ -5,8 +5,7 @@ from wazo_agentd.ami.actions.common.action import BaseAction
 
 
 def QueuePenaltyAction(interface, penalty, queue=None):
-    return BaseAction('QueuePenalty', [
-        ('Interface', interface),
-        ('Penalty', penalty),
-        ('Queue', queue),
-    ])
+    return BaseAction(
+        'QueuePenalty',
+        [('Interface', interface), ('Penalty', penalty), ('Queue', queue)],
+    )

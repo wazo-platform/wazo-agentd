@@ -8,7 +8,6 @@ from wazo_agentd.service.manager.logoff import LogoffManager
 
 
 class TestLogoffHandler(unittest.TestCase):
-
     def setUp(self):
         self.logoff_manager = Mock(LogoffManager)
         self.agent_status_dao = Mock()
@@ -22,7 +21,9 @@ class TestLogoffHandler(unittest.TestCase):
 
         self.logoff_handler.handle_logoff_by_id(agent_id, tenant_uuids=self.tenants)
 
-        self.agent_status_dao.get_status.assert_called_once_with(agent_id, tenant_uuids=self.tenants)
+        self.agent_status_dao.get_status.assert_called_once_with(
+            agent_id, tenant_uuids=self.tenants
+        )
         self.logoff_manager.logoff_agent.assert_called_once_with(agent_status)
 
     def test_handle_logoff_by_number(self):
@@ -30,7 +31,11 @@ class TestLogoffHandler(unittest.TestCase):
         agent_status = Mock()
         self.agent_status_dao.get_status_by_number.return_value = agent_status
 
-        self.logoff_handler.handle_logoff_by_number(agent_number, tenant_uuids=self.tenants)
+        self.logoff_handler.handle_logoff_by_number(
+            agent_number, tenant_uuids=self.tenants
+        )
 
-        self.agent_status_dao.get_status_by_number.assert_called_once_with(agent_number, tenant_uuids=self.tenants)
+        self.agent_status_dao.get_status_by_number.assert_called_once_with(
+            agent_number, tenant_uuids=self.tenants
+        )
         self.logoff_manager.logoff_agent.assert_called_once_with(agent_status)

@@ -5,7 +5,6 @@ from xivo_dao.helpers import db_utils
 
 
 class RemoveFromQueueAction:
-
     def __init__(self, ami_client, agent_status_dao):
         self._ami_client = ami_client
         self._agent_status_dao = agent_status_dao
@@ -19,4 +18,6 @@ class RemoveFromQueueAction:
 
     def _update_agent_status(self, agent_status, queue):
         with db_utils.session_scope():
-            self._agent_status_dao.remove_agent_from_queues(agent_status.agent_id, [queue.id])
+            self._agent_status_dao.remove_agent_from_queues(
+                agent_status.agent_id, [queue.id]
+            )

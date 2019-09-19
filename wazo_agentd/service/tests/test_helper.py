@@ -7,7 +7,6 @@ from wazo_agentd.service import helper
 
 
 class TestHelper(unittest.TestCase):
-
     def test_format_agent_member_name(self):
         agent_number = '1000'
         expected = "Agent/1000"

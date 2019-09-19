@@ -5,8 +5,4 @@ from wazo_agentd.ami.actions.common.action import BaseAction
 
 
 def DBPutAction(family, key, value):
-    return BaseAction('DBPut', [
-        ('Family', family),
-        ('Key', key),
-        ('Val', value),
-    ])
+    return BaseAction('DBPut', [('Family', family), ('Key', key), ('Val', value)])

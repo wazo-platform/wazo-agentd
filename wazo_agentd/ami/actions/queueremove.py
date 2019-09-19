@@ -5,7 +5,4 @@ from wazo_agentd.ami.actions.common.action import BaseAction
 
 
 def QueueRemoveAction(queue, interface):
-    return BaseAction('QueueRemove', [
-        ('Queue', queue),
-        ('Interface', interface),
-    ])
+    return BaseAction('QueueRemove', [('Queue', queue), ('Interface', interface)])

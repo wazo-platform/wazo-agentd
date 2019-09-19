@@ -3,7 +3,6 @@
 
 
 class BaseAction:
-
     def __init__(self, name, headers):
         self._name = name
         self._lines = self._format_headers(headers)
@@ -14,8 +13,11 @@ class BaseAction:
         self._response = None
 
     def _format_headers(self, headers):
-        return ['%s: %s' % (header, value) for (header, value) in headers if
-                value is not None]
+        return [
+            '%s: %s' % (header, value)
+            for (header, value) in headers
+            if value is not None
+        ]
 
     def format(self):
         lines = ['Action: %s' % self._name]
