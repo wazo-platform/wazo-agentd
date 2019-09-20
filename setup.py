@@ -15,7 +15,5 @@ setup(
     license='GPLv3',
     packages=find_packages(),
     scripts=['bin/wazo-agentd'],
-    package_data={
-        'wazo_agentd.swagger': ['*.yml'],
-    }
+    package_data={'wazo_agentd.swagger': ['*.yml']},
 )

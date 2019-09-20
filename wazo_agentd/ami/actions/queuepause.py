@@ -5,9 +5,12 @@ from wazo_agentd.ami.actions.common.action import BaseAction
 
 
 def QueuePauseAction(interface, paused, reason=None, queue=None):
-    return BaseAction('QueuePause', [
-        ('Interface', interface),
-        ('Paused', paused),
-        ('Queue', queue),
-        ('Reason', reason),
-    ])
+    return BaseAction(
+        'QueuePause',
+        [
+            ('Interface', interface),
+            ('Paused', paused),
+            ('Queue', queue),
+            ('Reason', reason),
+        ],
+    )

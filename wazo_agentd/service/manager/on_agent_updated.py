@@ -3,8 +3,13 @@
 
 
 class OnAgentUpdatedManager:
-
-    def __init__(self, add_to_queue_action, remove_from_queue_action, update_penalty_action, agent_status_dao):
+    def __init__(
+        self,
+        add_to_queue_action,
+        remove_from_queue_action,
+        update_penalty_action,
+        agent_status_dao,
+    ):
         self._add_to_queue_action = add_to_queue_action
         self._remove_from_queue_action = remove_from_queue_action
         self._update_penalty_action = update_penalty_action
@@ -38,7 +43,6 @@ class OnAgentUpdatedManager:
 
 
 class QueueDelta:
-
     def __init__(self, added, removed, penalty_updated):
         self.added = added
         self.removed = removed
@@ -52,8 +56,11 @@ class QueueDelta:
 
         added_ids = set(new_queues_by_id).difference(old_queues_by_id)
         removed_ids = set(old_queues_by_id).difference(new_queues_by_id)
-        penalty_updated = [new_queues_by_id[queue_id] for queue_id in updated_ids if
-                           new_queues_by_id[queue_id].penalty != old_queues_by_id[queue_id].penalty]
+        penalty_updated = [
+            new_queues_by_id[queue_id]
+            for queue_id in updated_ids
+            if new_queues_by_id[queue_id].penalty != old_queues_by_id[queue_id].penalty
+        ]
 
         added_queues = [new_queues_by_id[queue_id] for queue_id in added_ids]
         removed_queues = [old_queues_by_id[queue_id] for queue_id in removed_ids]

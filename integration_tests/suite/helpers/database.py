@@ -30,12 +30,7 @@ class DbHelper(object):
     @classmethod
     def build(cls, user, password, host, port, db):
         tpl = "postgresql://{user}:{password}@{host}:{port}"
-        uri = tpl.format(
-            user=user,
-            password=password,
-            host=host,
-            port=port,
-        )
+        uri = tpl.format(user=user, password=password, host=host, port=port)
         return cls(uri, db)
 
     def __init__(self, uri, db):
@@ -70,11 +65,15 @@ class DbHelper(object):
             FROM pg_stat_activity
             WHERE pg_stat_activity.datname = '{db}'
             AND pid <> pg_backend_pid()
-            """.format(db=self.db)
+            """.format(
+                db=self.db
+            )
         )
         connection.execute("DROP DATABASE IF EXISTS {db}".format(db=self.db))
         connection.execute(
-            "CREATE DATABASE {db} TEMPLATE {template}".format(db=self.db, template=self.TEMPLATE)
+            "CREATE DATABASE {db} TEMPLATE {template}".format(
+                db=self.db, template=self.TEMPLATE
+            )
         )
         connection.close()
 
@@ -89,7 +88,6 @@ class DbHelper(object):
 
 
 class DatabaseQueries(object):
-
     def __init__(self, connection):
         self.connection = connection
         self.Session = sessionmaker(bind=connection)
@@ -141,19 +139,21 @@ class DatabaseQueries(object):
         session = self.Session()
         queue = session.query(Queue).get(queue_id)
         agent_membership_status = AgentMembershipStatus(
-            queue_id=queue_id,
-            agent_id=agent_id,
-            queue_name=queue.name
+            queue_id=queue_id, agent_id=agent_id, queue_name=queue.name
         )
         session.add(agent_membership_status)
         session.commit()
 
     def get_agent_membership_status(self, queue_id, agent_id):
         session = self.Session()
-        return session.query(AgentMembershipStatus).filter(
-            AgentMembershipStatus.agent_id == agent_id,
-            AgentMembershipStatus.queue_id == queue_id,
-        ).first()
+        return (
+            session.query(AgentMembershipStatus)
+            .filter(
+                AgentMembershipStatus.agent_id == agent_id,
+                AgentMembershipStatus.queue_id == queue_id,
+            )
+            .first()
+        )
 
     def insert_user_line_extension(self, **kwargs):
         with self.inserter() as inserter:
@@ -170,13 +170,11 @@ class DatabaseQueries(object):
     def delete_user_line_extension(self, user_id, line_id, extension_id):
         session = self.Session()
         session.query(LineExtension).filter(
-            LineExtension.line_id == line_id,
-            LineExtension.extension_id == extension_id,
+            LineExtension.line_id == line_id, LineExtension.extension_id == extension_id
         ).delete()
         session.query(Extension).filter(Extension.id == extension_id).delete()
         session.query(UserLine).filter(
-            UserLine.user_id == user_id,
-            UserLine.line_id == line_id,
+            UserLine.user_id == user_id, UserLine.line_id == line_id
         ).delete()
         session.query(Line).filter(Line.id == line_id).delete()
         session.query(User).filter(User.id == user_id).delete()

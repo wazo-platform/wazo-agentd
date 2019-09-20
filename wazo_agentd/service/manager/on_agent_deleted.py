@@ -5,7 +5,6 @@ from xivo_dao.helpers import db_utils
 
 
 class OnAgentDeletedManager:
-
     def __init__(self, logoff_action, agent_status_dao):
         self._logoff_action = logoff_action
         self._agent_status_dao = agent_status_dao

@@ -1,11 +1,7 @@
 # Copyright 2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from hamcrest import (
-    assert_that,
-    contains,
-    has_entries,
-)
+from hamcrest import assert_that, contains, has_entries
 from xivo_test_helpers import until
 
 from .helpers.base import BaseIntegrationTest
@@ -29,11 +25,13 @@ class TestAgentsByNumber(BaseIntegrationTest):
 
         def event_received():
             events = event_accumulator.accumulate()
-            assert_that(events, contains(has_entries(
-                data=has_entries(
-                    agent_id=agent['id'],
-                    status='logged_in',
-                )
-            )))
+            assert_that(
+                events,
+                contains(
+                    has_entries(
+                        data=has_entries(agent_id=agent['id'], status='logged_in')
+                    )
+                ),
+            )
 
         until.assert_(event_received, tries=3)

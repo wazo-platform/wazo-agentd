@@ -10,16 +10,17 @@ from wazo_agentd.exception import AgentAlreadyInQueueError, QueueDifferentTenant
 
 
 class TestAddMemberManager(unittest.TestCase):
-
     def setUp(self):
         self.add_to_queue_action = Mock()
         self.ami_client = Mock()
         self.agent_status_dao = Mock()
         self.queue_member_dao = Mock()
-        self.member_manager = AddMemberManager(self.add_to_queue_action,
-                                               self.ami_client,
-                                               self.agent_status_dao,
-                                               self.queue_member_dao)
+        self.member_manager = AddMemberManager(
+            self.add_to_queue_action,
+            self.ami_client,
+            self.agent_status_dao,
+            self.queue_member_dao,
+        )
 
     def test_add_agent_to_queue_same_tenant(self):
         agent = Mock(tenant_uuid='fake-tenant', queues=[])
@@ -29,9 +30,15 @@ class TestAddMemberManager(unittest.TestCase):
 
         self.member_manager.add_agent_to_queue(agent, queue)
 
-        self.add_to_queue_action.add_agent_to_queue.assert_called_once_with(agent_status, queue)
-        self.queue_member_dao.add_agent_to_queue.assert_called_once_with(agent.id, agent.number, queue.name)
-        self.ami_client.agent_added_to_queue.assert_called_once_with(agent.id, agent.number, queue.name)
+        self.add_to_queue_action.add_agent_to_queue.assert_called_once_with(
+            agent_status, queue
+        )
+        self.queue_member_dao.add_agent_to_queue.assert_called_once_with(
+            agent.id, agent.number, queue.name
+        )
+        self.ami_client.agent_added_to_queue.assert_called_once_with(
+            agent.id, agent.number, queue.name
+        )
 
     def test_add_agent_to_queue_different_tenant(self):
         agent = Mock(tenant_uuid='fake-tenant-1', queues=[])
@@ -41,7 +48,9 @@ class TestAddMemberManager(unittest.TestCase):
 
         self.assertRaises(
             QueueDifferentTenantError,
-            self.member_manager.add_agent_to_queue, agent, queue,
+            self.member_manager.add_agent_to_queue,
+            agent,
+            queue,
         )
 
         self.add_to_queue_action.add_agent_to_queue.assert_not_called()
@@ -55,7 +64,9 @@ class TestAddMemberManager(unittest.TestCase):
 
         self.assertRaises(
             AgentAlreadyInQueueError,
-            self.member_manager.add_agent_to_queue, agent, queue,
+            self.member_manager.add_agent_to_queue,
+            agent,
+            queue,
         )
 
         self.add_to_queue_action.add_agent_to_queue.assert_not_called()

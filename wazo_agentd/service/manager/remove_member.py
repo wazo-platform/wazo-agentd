@@ -6,8 +6,9 @@ from xivo_dao.helpers import db_utils
 
 
 class RemoveMemberManager:
-
-    def __init__(self, remove_from_queue_action, ami_client, agent_status_dao, queue_member_dao):
+    def __init__(
+        self, remove_from_queue_action, ami_client, agent_status_dao, queue_member_dao
+    ):
         self._remove_from_queue_action = remove_from_queue_action
         self._ami_client = ami_client
         self._agent_status_dao = agent_status_dao

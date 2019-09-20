@@ -10,9 +10,15 @@ logger = logging.getLogger(__name__)
 
 
 class OnQueueHandler:
-
-    def __init__(self, on_queue_added_manager, on_queue_updated_manager, on_queue_deleted_manager,
-                 on_queue_agent_paused_manager, queue_dao, agent_dao):
+    def __init__(
+        self,
+        on_queue_added_manager,
+        on_queue_updated_manager,
+        on_queue_deleted_manager,
+        on_queue_agent_paused_manager,
+        queue_dao,
+        agent_dao,
+    ):
         self._on_queue_added_manager = on_queue_added_manager
         self._on_queue_updated_manager = on_queue_updated_manager
         self._on_queue_deleted_manager = on_queue_deleted_manager
@@ -41,13 +47,17 @@ class OnQueueHandler:
 
     @debug.trace_duration
     def handle_on_agent_paused(self, msg):
-        logger.info('Executing on agent paused command (MemberName %s)', msg['MemberName'])
+        logger.info(
+            'Executing on agent paused command (MemberName %s)', msg['MemberName']
+        )
         pause_info = self._get_pause_info(msg)
         self._on_queue_agent_paused_manager.on_queue_agent_paused(*pause_info)
 
     @debug.trace_duration
     def handle_on_agent_unpaused(self, msg):
-        logger.info('Executing on agent unpaused command (MemberName %s)', msg['MemberName'])
+        logger.info(
+            'Executing on agent unpaused command (MemberName %s)', msg['MemberName']
+        )
         pause_info = self._get_pause_info(msg)
         self._on_queue_agent_paused_manager.on_queue_agent_unpaused(*pause_info)
 

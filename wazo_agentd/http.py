@@ -13,10 +13,19 @@ from requests import HTTPError
 
 from werkzeug.exceptions import BadRequest
 from werkzeug.contrib.fixers import ProxyFix
-from wazo_agentd.exception import AgentServerError, NoSuchAgentError, NoSuchExtensionError, \
-    AgentAlreadyLoggedError, ExtensionAlreadyInUseError, AgentNotLoggedError, \
-    NoSuchQueueError, AgentAlreadyInQueueError, AgentNotInQueueError, ContextDifferentTenantError, \
-    QueueDifferentTenantError
+from wazo_agentd.exception import (
+    AgentServerError,
+    NoSuchAgentError,
+    NoSuchExtensionError,
+    AgentAlreadyLoggedError,
+    ExtensionAlreadyInUseError,
+    AgentNotLoggedError,
+    NoSuchQueueError,
+    AgentAlreadyInQueueError,
+    AgentNotInQueueError,
+    ContextDifferentTenantError,
+    QueueDifferentTenantError,
+)
 from xivo import http_helpers
 from xivo.auth_verifier import AuthVerifier, required_acl
 from xivo.http_helpers import ReverseProxied
@@ -28,11 +37,7 @@ from wazo_agentd.swagger.resource import SwaggerResource
 logger = logging.getLogger(__name__)
 
 
-_AGENT_404_ERRORS = (
-    NoSuchAgentError,
-    NoSuchExtensionError,
-    NoSuchQueueError,
-)
+_AGENT_404_ERRORS = (NoSuchAgentError, NoSuchExtensionError, NoSuchQueueError)
 _AGENT_409_ERRORS = (
     AgentAlreadyLoggedError,
     AgentNotLoggedError,
@@ -40,18 +45,15 @@ _AGENT_409_ERRORS = (
     AgentNotInQueueError,
     ExtensionAlreadyInUseError,
 )
-_AGENT_400_ERRORS = (
-    ContextDifferentTenantError,
-    QueueDifferentTenantError,
-)
+_AGENT_400_ERRORS = (ContextDifferentTenantError, QueueDifferentTenantError)
 
 
 class AgentdAuthVerifier(AuthVerifier):
-
     def handle_unreachable(self, error):
         auth_client = self.client()
-        message = ('Could not connect to authentication server on {client.host}:{client.port}: {error}'
-                   .format(client=auth_client, error=error))
+        message = 'Could not connect to authentication server on {client.host}:{client.port}: {error}'.format(
+            client=auth_client, error=error
+        )
         logger.exception('%s', message)
         return {'error': message}, 503
 
@@ -148,7 +150,6 @@ class _BaseResource(Resource):
 
 
 class _Agents(_BaseResource):
-
     @required_acl('agentd.agents.read')
     def get(self):
         params = self.parse_params()
@@ -157,43 +158,46 @@ class _Agents(_BaseResource):
 
 
 class _AgentById(_BaseResource):
-
     @required_acl('agentd.agents.by-id.{agent_id}.read')
     def get(self, agent_id):
         tenant_uuids = self._build_tenant_list({'recurse': True})
-        return self.service_proxy.get_agent_status_by_id(agent_id, tenant_uuids=tenant_uuids)
+        return self.service_proxy.get_agent_status_by_id(
+            agent_id, tenant_uuids=tenant_uuids
+        )
 
 
 class _AgentByNumber(_BaseResource):
-
     @required_acl('agentd.agents.by-number.{agent_number}.read')
     def get(self, agent_number):
         tenant_uuids = self._build_tenant_list({'recurse': True})
-        return self.service_proxy.get_agent_status_by_number(agent_number, tenant_uuids=tenant_uuids)
+        return self.service_proxy.get_agent_status_by_number(
+            agent_number, tenant_uuids=tenant_uuids
+        )
 
 
 class _LoginAgentById(_BaseResource):
-
     @required_acl('agentd.agents.by-id.{agent_id}.login.create')
     def post(self, agent_id):
         extension, context = _extract_extension_and_context()
         tenant_uuids = self._build_tenant_list({'recurse': True})
-        self.service_proxy.login_agent_by_id(agent_id, extension, context, tenant_uuids=tenant_uuids)
+        self.service_proxy.login_agent_by_id(
+            agent_id, extension, context, tenant_uuids=tenant_uuids
+        )
         return '', 204
 
 
 class _LoginAgentByNumber(_BaseResource):
-
     @required_acl('agentd.agents.by-number.{agent_number}.login.create')
     def post(self, agent_number):
         extension, context = _extract_extension_and_context()
         tenant_uuids = self._build_tenant_list({'recurse': True})
-        self.service_proxy.login_agent_by_number(agent_number, extension, context, tenant_uuids=tenant_uuids)
+        self.service_proxy.login_agent_by_number(
+            agent_number, extension, context, tenant_uuids=tenant_uuids
+        )
         return '', 204
 
 
 class _LogoffAgentById(_BaseResource):
-
     @required_acl('agentd.agents.by-id.{agent_id}.logoff.create')
     def post(self, agent_id):
         # XXX logoff_agent_by_id raise a AgentNotLoggedError even if the agent doesn't exist;
@@ -204,16 +208,16 @@ class _LogoffAgentById(_BaseResource):
 
 
 class _LogoffAgentByNumber(_BaseResource):
-
     @required_acl('agentd.agents.by-number.{agent_number}.logoff.create')
     def post(self, agent_number):
         tenant_uuids = self._build_tenant_list({'recurse': True})
-        self.service_proxy.logoff_agent_by_number(agent_number, tenant_uuids=tenant_uuids)
+        self.service_proxy.logoff_agent_by_number(
+            agent_number, tenant_uuids=tenant_uuids
+        )
         return '', 204
 
 
 class _LogoffAgents(_BaseResource):
-
     @required_acl('agentd.agents.logoff.create')
     def post(self):
         params = self.parse_params()
@@ -223,27 +227,28 @@ class _LogoffAgents(_BaseResource):
 
 
 class _AddAgentToQueue(_BaseResource):
-
     @required_acl('agentd.agents.by-id.{agent_id}.add.create')
     def post(self, agent_id):
         queue_id = _extract_queue_id()
         tenant_uuids = self._build_tenant_list({'recurse': True})
-        self.service_proxy.add_agent_to_queue(agent_id, queue_id, tenant_uuids=tenant_uuids)
+        self.service_proxy.add_agent_to_queue(
+            agent_id, queue_id, tenant_uuids=tenant_uuids
+        )
         return '', 204
 
 
 class _RemoveAgentFromQueue(_BaseResource):
-
     @required_acl('agentd.agents.by-id.{agent_id}.delete.create')
     def post(self, agent_id):
         queue_id = _extract_queue_id()
         tenant_uuids = self._build_tenant_list({'recurse': True})
-        self.service_proxy.remove_agent_from_queue(agent_id, queue_id, tenant_uuids=tenant_uuids)
+        self.service_proxy.remove_agent_from_queue(
+            agent_id, queue_id, tenant_uuids=tenant_uuids
+        )
         return '', 204
 
 
 class _RelogAgents(_BaseResource):
-
     @required_acl('agentd.agents.relog.create')
     def post(self):
         params = self.parse_params()
@@ -253,21 +258,23 @@ class _RelogAgents(_BaseResource):
 
 
 class _PauseAgentByNumber(_BaseResource):
-
     @required_acl('agentd.agents.by-number.{agent_number}.pause.create')
     def post(self, agent_number):
         reason = _extract_reason()
         tenant_uuids = self._build_tenant_list({'recurse': True})
-        self.service_proxy.pause_agent_by_number(agent_number, reason, tenant_uuids=tenant_uuids)
+        self.service_proxy.pause_agent_by_number(
+            agent_number, reason, tenant_uuids=tenant_uuids
+        )
         return '', 204
 
 
 class _UnpauseAgentByNumber(_BaseResource):
-
     @required_acl('agentd.agents.by-number.{agent_number}.unpause.create')
     def post(self, agent_number):
         tenant_uuids = self._build_tenant_list({'recurse': True})
-        self.service_proxy.unpause_agent_by_number(agent_number, tenant_uuids=tenant_uuids)
+        self.service_proxy.unpause_agent_by_number(
+            agent_number, tenant_uuids=tenant_uuids
+        )
         return '', 204
 
 
@@ -323,8 +330,9 @@ class HTTPInterface:
 
         wsgi_app = ReverseProxied(ProxyFix(self._app))
         server = wsgi.WSGIServer(bind_addr, wsgi_app)
-        server.ssl_adapter = http_helpers.ssl_adapter(config['certificate'],
-                                                      config['private_key'])
+        server.ssl_adapter = http_helpers.ssl_adapter(
+            config['certificate'], config['private_key']
+        )
         try:
             server.start()
         finally:

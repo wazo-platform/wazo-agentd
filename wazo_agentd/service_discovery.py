@@ -8,6 +8,11 @@ import requests
 def self_check(port):
     url = 'https://localhost:{}/1.0/agents'.format(port)
     try:
-        return requests.get(url, headers={'accept': 'application/json'}, verify=False).status_code == 401
+        return (
+            requests.get(
+                url, headers={'accept': 'application/json'}, verify=False
+            ).status_code
+            == 401
+        )
     except Exception:
         return False

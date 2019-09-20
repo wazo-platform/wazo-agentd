@@ -3,7 +3,6 @@
 
 
 class PauseAction:
-
     def __init__(self, ami_client):
         self._ami_client = ami_client
 

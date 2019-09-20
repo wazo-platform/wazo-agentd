@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 
 class OnAgentHandler:
-
     def __init__(self, on_agent_deleted_manager, on_agent_updated_manager, agent_dao):
         self._on_agent_deleted_manager = on_agent_deleted_manager
         self._on_agent_updated_manager = on_agent_updated_manager

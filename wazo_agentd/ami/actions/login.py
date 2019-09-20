@@ -5,7 +5,4 @@ from wazo_agentd.ami.actions.common.action import BaseAction
 
 
 def LoginAction(username, password):
-    return BaseAction('Login', [
-        ('Username', username),
-        ('Secret', password),
-    ])
+    return BaseAction('Login', [('Username', username), ('Secret', password)])

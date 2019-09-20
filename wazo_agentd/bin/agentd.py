@@ -13,7 +13,11 @@ import xivo_dao
 from wazo_auth_client import Client as AuthClient
 
 from xivo.chain_map import ChainMap
-from xivo.config_helper import read_config_file_hierarchy, set_xivo_uuid, parse_config_file
+from xivo.config_helper import (
+    read_config_file_hierarchy,
+    set_xivo_uuid,
+    parse_config_file,
+)
 from xivo.consul_helpers import ServiceCatalogRegistration
 from xivo.daemonize import pidfile_context
 from xivo.token_renewer import TokenRenewer
@@ -75,11 +79,7 @@ _DEFAULT_CONFIG = {
     'pidfile': '/var/run/wazo-agentd/wazo-agentd.pid',
     'config_file': '/etc/wazo-agentd/config.yml',
     'extra_config_files': '/etc/wazo-agentd/conf.d/',
-    'ami': {
-        'host': 'localhost',
-        'username': 'wazo_agentd',
-        'password': 'die0Ahn8tae',
-    },
+    'ami': {'host': 'localhost', 'username': 'wazo_agentd', 'password': 'die0Ahn8tae'},
     'auth': {
         'host': 'localhost',
         'port': 9497,
@@ -87,12 +87,12 @@ _DEFAULT_CONFIG = {
         'key_file': '/var/lib/wazo-auth-keys/wazo-agentd-key.yml',
     },
     'bus': {
-      'username': 'guest',
-      'password': 'guest',
-      'host': 'localhost',
-      'port': 5672,
-      'exchange_name': 'xivo',
-      'exchange_type': 'topic',
+        'username': 'guest',
+        'password': 'guest',
+        'host': 'localhost',
+        'port': 5672,
+        'exchange_name': 'xivo',
+        'exchange_type': 'topic',
     },
     'consul': {
         'scheme': 'https',
@@ -110,7 +110,7 @@ _DEFAULT_CONFIG = {
         'cors': {
             'enabled': True,
             'allow_headers': ['Content-Type', 'X-Auth-Token', 'Wazo-Tenant'],
-        }
+        },
     },
     'service_discovery': {
         'enabled': True,
@@ -157,10 +157,12 @@ def main():
 
 def _parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--foreground', action='store_true',
-                        help='run in foreground')
-    parser.add_argument('-v', '--verbose', action='store_true',
-                        help='increase verbosity')
+    parser.add_argument(
+        '-f', '--foreground', action='store_true', help='run in foreground'
+    )
+    parser.add_argument(
+        '-v', '--verbose', action='store_true', help='increase verbosity'
+    )
     parser.add_argument('-u', '--user', action='store', help='User to run the daemon')
 
     parsed = parser.parse_args()
@@ -178,8 +180,12 @@ def _parse_args():
 
 def _load_key_file(config):
     key_file = parse_config_file(config['auth']['key_file'])
-    return {'auth': {'username': key_file.get('service_id'),
-                     'password': key_file.get('service_key')}}
+    return {
+        'auth': {
+            'username': key_file.get('service_id'),
+            'password': key_file.get('service_key'),
+        }
+    }
 
 
 def _run(config):
@@ -198,34 +204,75 @@ def _run(config):
         queue_log_manager = QueueLogManager(queue_log_dao)
 
         add_to_queue_action = AddToQueueAction(ami_client, agent_status_dao)
-        login_action = LoginAction(ami_client, queue_log_manager, agent_status_dao, line_dao, user_dao, bus_publisher)
-        logoff_action = LogoffAction(ami_client, queue_log_manager, agent_status_dao, user_dao, bus_publisher)
+        login_action = LoginAction(
+            ami_client,
+            queue_log_manager,
+            agent_status_dao,
+            line_dao,
+            user_dao,
+            bus_publisher,
+        )
+        logoff_action = LogoffAction(
+            ami_client, queue_log_manager, agent_status_dao, user_dao, bus_publisher
+        )
         pause_action = PauseAction(ami_client)
         remove_from_queue_action = RemoveFromQueueAction(ami_client, agent_status_dao)
         update_penalty_action = UpdatePenaltyAction(ami_client, agent_status_dao)
 
-        add_member_manager = AddMemberManager(add_to_queue_action, ami_client, agent_status_dao, queue_member_dao)
+        add_member_manager = AddMemberManager(
+            add_to_queue_action, ami_client, agent_status_dao, queue_member_dao
+        )
         login_manager = LoginManager(login_action, agent_status_dao, context_dao)
         logoff_manager = LogoffManager(logoff_action, agent_status_dao)
-        on_agent_deleted_manager = OnAgentDeletedManager(logoff_manager, agent_status_dao)
-        on_agent_updated_manager = OnAgentUpdatedManager(add_to_queue_action, remove_from_queue_action, update_penalty_action, agent_status_dao)
-        on_queue_added_manager = OnQueueAddedManager(add_to_queue_action, agent_status_dao)
+        on_agent_deleted_manager = OnAgentDeletedManager(
+            logoff_manager, agent_status_dao
+        )
+        on_agent_updated_manager = OnAgentUpdatedManager(
+            add_to_queue_action,
+            remove_from_queue_action,
+            update_penalty_action,
+            agent_status_dao,
+        )
+        on_queue_added_manager = OnQueueAddedManager(
+            add_to_queue_action, agent_status_dao
+        )
         on_queue_deleted_manager = OnQueueDeletedManager(agent_status_dao)
-        on_queue_updated_manager = OnQueueUpdatedManager(add_to_queue_action, remove_from_queue_action, agent_status_dao)
-        on_queue_agent_paused_manager = OnQueueAgentPausedManager(agent_status_dao, user_dao, bus_publisher)
+        on_queue_updated_manager = OnQueueUpdatedManager(
+            add_to_queue_action, remove_from_queue_action, agent_status_dao
+        )
+        on_queue_agent_paused_manager = OnQueueAgentPausedManager(
+            agent_status_dao, user_dao, bus_publisher
+        )
         pause_manager = PauseManager(pause_action)
-        relog_manager = RelogManager(login_action, logoff_action, agent_dao, agent_status_dao)
-        remove_member_manager = RemoveMemberManager(remove_from_queue_action, ami_client, agent_status_dao, queue_member_dao)
+        relog_manager = RelogManager(
+            login_action, logoff_action, agent_dao, agent_status_dao
+        )
+        remove_member_manager = RemoveMemberManager(
+            remove_from_queue_action, ami_client, agent_status_dao, queue_member_dao
+        )
 
         service_proxy = ServiceProxy()
         service_proxy.login_handler = LoginHandler(login_manager, agent_dao)
         service_proxy.logoff_handler = LogoffHandler(logoff_manager, agent_status_dao)
-        service_proxy.membership_handler = MembershipHandler(add_member_manager, remove_member_manager, agent_dao, queue_dao)
-        service_proxy.on_agent_handler = OnAgentHandler(on_agent_deleted_manager, on_agent_updated_manager, agent_dao)
-        service_proxy.on_queue_handler = OnQueueHandler(on_queue_added_manager, on_queue_updated_manager, on_queue_deleted_manager, on_queue_agent_paused_manager, queue_dao, agent_dao)
+        service_proxy.membership_handler = MembershipHandler(
+            add_member_manager, remove_member_manager, agent_dao, queue_dao
+        )
+        service_proxy.on_agent_handler = OnAgentHandler(
+            on_agent_deleted_manager, on_agent_updated_manager, agent_dao
+        )
+        service_proxy.on_queue_handler = OnQueueHandler(
+            on_queue_added_manager,
+            on_queue_updated_manager,
+            on_queue_deleted_manager,
+            on_queue_agent_paused_manager,
+            queue_dao,
+            agent_dao,
+        )
         service_proxy.pause_handler = PauseHandler(pause_manager, agent_status_dao)
         service_proxy.relog_handler = RelogHandler(relog_manager)
-        service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, xivo_uuid)
+        service_proxy.status_handler = StatusHandler(
+            agent_dao, agent_status_dao, xivo_uuid
+        )
 
         bus_consumer.on_event(EditAgentEvent.name, service_proxy.on_agent_updated)
         bus_consumer.on_event(DeleteAgentEvent.name, service_proxy.on_agent_deleted)
@@ -241,7 +288,7 @@ def _run(config):
             config['consul'],
             config['service_discovery'],
             config['bus'],
-            partial(self_check, config['rest_api']['https']['port'])
+            partial(self_check, config['rest_api']['https']['port']),
         ]
         with token_renewer:
             with bus.consumer_thread(bus_consumer):
@@ -259,9 +306,9 @@ def _handle_sigterm(signum, frame):
 
 @contextmanager
 def _new_ami_client(config):
-    ami_client = ami.new_client(config['ami']['host'],
-                                config['ami']['username'],
-                                config['ami']['password'])
+    ami_client = ami.new_client(
+        config['ami']['host'], config['ami']['username'], config['ami']['password']
+    )
     try:
         yield ami_client
     finally:

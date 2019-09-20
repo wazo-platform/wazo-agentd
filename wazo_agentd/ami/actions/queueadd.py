@@ -4,12 +4,17 @@
 from wazo_agentd.ami.actions.common.action import BaseAction
 
 
-def QueueAddAction(queue, interface, member_name=None, state_interface=None, penalty=None, skills=None):
-    return BaseAction('QueueAdd', [
-        ('Queue', queue),
-        ('Interface', interface),
-        ('MemberName', member_name),
-        ('StateInterface', state_interface),
-        ('Penalty', penalty),
-        ('Skills', skills),
-    ])
+def QueueAddAction(
+    queue, interface, member_name=None, state_interface=None, penalty=None, skills=None
+):
+    return BaseAction(
+        'QueueAdd',
+        [
+            ('Queue', queue),
+            ('Interface', interface),
+            ('MemberName', member_name),
+            ('StateInterface', state_interface),
+            ('Penalty', penalty),
+            ('Skills', skills),
+        ],
+    )

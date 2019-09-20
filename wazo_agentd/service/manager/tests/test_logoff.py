@@ -9,12 +9,10 @@ from wazo_agentd.service.manager.logoff import LogoffManager
 
 
 class TestLogoffManager(unittest.TestCase):
-
     def setUp(self):
         self.logoff_action = Mock()
         self.agent_status_dao = Mock()
-        self.logoff_manager = LogoffManager(self.logoff_action,
-                                            self.agent_status_dao)
+        self.logoff_manager = LogoffManager(self.logoff_action, self.agent_status_dao)
 
     def test_logoff_agent(self):
         agent_status = Mock()

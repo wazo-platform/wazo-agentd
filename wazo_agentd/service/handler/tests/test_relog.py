@@ -8,7 +8,6 @@ from wazo_agentd.service.handler.relog import RelogHandler
 
 
 class TestRelogHandler(unittest.TestCase):
-
     def setUp(self):
         self.relog_manager = Mock(RelogManager)
         self.agent_status_dao = Mock()
@@ -18,4 +17,6 @@ class TestRelogHandler(unittest.TestCase):
     def test_handle_relog_all(self):
         self.relog_handler.handle_relog_all(tenant_uuids=self.tenants)
 
-        self.relog_manager.relog_all_agents.assert_called_once_with(tenant_uuids=self.tenants)
+        self.relog_manager.relog_all_agents.assert_called_once_with(
+            tenant_uuids=self.tenants
+        )

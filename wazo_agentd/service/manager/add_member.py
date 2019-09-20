@@ -6,8 +6,9 @@ from xivo_dao.helpers import db_utils
 
 
 class AddMemberManager:
-
-    def __init__(self, add_to_queue_action, ami_client, agent_status_dao, queue_member_dao):
+    def __init__(
+        self, add_to_queue_action, ami_client, agent_status_dao, queue_member_dao
+    ):
         self._add_to_queue_action = add_to_queue_action
         self._ami_client = ami_client
         self._agent_status_dao = agent_status_dao
@@ -31,7 +32,9 @@ class AddMemberManager:
 
     def _add_queue_member(self, agent, queue):
         with db_utils.session_scope():
-            self._queue_member_dao.add_agent_to_queue(agent.id, agent.number, queue.name)
+            self._queue_member_dao.add_agent_to_queue(
+                agent.id, agent.number, queue.name
+            )
 
     def _send_agent_added_event(self, agent, queue):
         self._ami_client.agent_added_to_queue(agent.id, agent.number, queue.name)

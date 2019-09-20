@@ -12,8 +12,15 @@ logger = logging.getLogger(__name__)
 
 
 class LoginAction:
-
-    def __init__(self, ami_client, queue_log_manager, agent_status_dao, line_dao, user_dao, bus_publisher):
+    def __init__(
+        self,
+        ami_client,
+        queue_log_manager,
+        agent_status_dao,
+        line_dao,
+        user_dao,
+        bus_publisher,
+    ):
         self._ami_client = ami_client
         self._queue_log_manager = queue_log_manager
         self._agent_status_dao = agent_status_dao
@@ -45,13 +52,19 @@ class LoginAction:
     def _get_state_interface(self, extension, context):
         try:
             with db_utils.session_scope():
-                return self._line_dao.get_interface_from_exten_and_context(extension, context)
+                return self._line_dao.get_interface_from_exten_and_context(
+                    extension, context
+                )
         except LookupError:
             raise NoSuchExtensionError(extension, context)
 
-    def _update_agent_status(self, agent, extension, context, interface, state_interface):
+    def _update_agent_status(
+        self, agent, extension, context, interface, state_interface
+    ):
         with db_utils.session_scope():
-            self._agent_status_dao.log_in_agent(agent.id, agent.number, extension, context, interface, state_interface)
+            self._agent_status_dao.log_in_agent(
+                agent.id, agent.number, extension, context, interface, state_interface
+            )
             self._agent_status_dao.add_agent_to_queues(agent.id, agent.queues)
 
     def _update_queue_log(self, agent, extension, context):
@@ -61,10 +74,18 @@ class LoginAction:
         member_name = format_agent_member_name(agent.number)
         skills = format_agent_skills(agent.id)
         for queue in agent.queues:
-            action = self._ami_client.queue_add(queue.name, interface, member_name, state_interface,
-                                                queue.penalty, skills)
+            action = self._ami_client.queue_add(
+                queue.name,
+                interface,
+                member_name,
+                state_interface,
+                queue.penalty,
+                skills,
+            )
             if not action.success:
-                logger.warning('Failure to add interface %r to queue %r', interface, queue.name)
+                logger.warning(
+                    'Failure to add interface %r to queue %r', interface, queue.name
+                )
 
     def _send_bus_status_update(self, agent):
         status = AgentStatusUpdateEvent.STATUS_LOGGED_IN
@@ -73,6 +94,8 @@ class LoginAction:
         with db_utils.session_scope():
             users = self._user_dao.find_all_by_agent_id(agent.id)
             logger.debug('Found %s users.', len(users))
-            headers = {'user_uuid:{uuid}'.format(uuid=user.uuid): True for user in users}
+            headers = {
+                'user_uuid:{uuid}'.format(uuid=user.uuid): True for user in users
+            }
             headers['agent_id:{id}'.format(id=str(agent.id))] = True
             self._bus_publisher.publish(event, headers=headers)

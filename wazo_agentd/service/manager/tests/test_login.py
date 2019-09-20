@@ -10,14 +10,13 @@ from wazo_agentd.exception import ContextDifferentTenantError
 
 
 class TestLoginManager(unittest.TestCase):
-
     def setUp(self):
         self.login_action = Mock()
         self.agent_status_dao = Mock()
         self.context_dao = Mock()
-        self.login_manager = LoginManager(self.login_action,
-                                          self.agent_status_dao,
-                                          self.context_dao)
+        self.login_manager = LoginManager(
+            self.login_action, self.agent_status_dao, self.context_dao
+        )
 
     def test_login_agent(self):
         agent = Mock(tenant_uuid='fake-tenant')
@@ -45,7 +44,10 @@ class TestLoginManager(unittest.TestCase):
 
         self.assertRaises(
             ContextDifferentTenantError,
-            self.login_manager.login_agent, agent, extension, context,
+            self.login_manager.login_agent,
+            agent,
+            extension,
+            context,
         )
 
         self.login_action.login_agent.assert_not_called()

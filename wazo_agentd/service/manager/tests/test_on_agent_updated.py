@@ -3,12 +3,13 @@
 
 import unittest
 from mock import Mock
-from wazo_agentd.service.manager.on_agent_updated import OnAgentUpdatedManager, \
-    QueueDelta
+from wazo_agentd.service.manager.on_agent_updated import (
+    OnAgentUpdatedManager,
+    QueueDelta,
+)
 
 
 class TestQueueDelta(unittest.TestCase):
-
     def setUp(self):
         self.queue1 = Mock()
         self.queue1.id = 1
@@ -41,16 +42,17 @@ class TestQueueDelta(unittest.TestCase):
 
 
 class TestOnAgentUpdatedManager(unittest.TestCase):
-
     def setUp(self):
         self.add_to_queue_action = Mock()
         self.remove_from_queue_action = Mock()
         self.update_penalty_action = Mock()
         self.agent_status_dao = Mock()
-        self.on_agent_updated_manager = OnAgentUpdatedManager(self.add_to_queue_action,
-                                                              self.remove_from_queue_action,
-                                                              self.update_penalty_action,
-                                                              self.agent_status_dao)
+        self.on_agent_updated_manager = OnAgentUpdatedManager(
+            self.add_to_queue_action,
+            self.remove_from_queue_action,
+            self.update_penalty_action,
+            self.agent_status_dao,
+        )
 
     def test_on_agent_updated(self):
         old_queue = Mock()
@@ -76,6 +78,12 @@ class TestOnAgentUpdatedManager(unittest.TestCase):
 
         self.on_agent_updated_manager.on_agent_updated(agent)
 
-        self.add_to_queue_action.add_agent_to_queue.assert_called_once_with(agent_status, new_queue)
-        self.remove_from_queue_action.remove_agent_from_queue.assert_called_once_with(agent_status, old_queue)
-        self.update_penalty_action.update.assert_called_once_with(agent_status, updated_queue_after)
+        self.add_to_queue_action.add_agent_to_queue.assert_called_once_with(
+            agent_status, new_queue
+        )
+        self.remove_from_queue_action.remove_agent_from_queue.assert_called_once_with(
+            agent_status, old_queue
+        )
+        self.update_penalty_action.update.assert_called_once_with(
+            agent_status, updated_queue_after
+        )

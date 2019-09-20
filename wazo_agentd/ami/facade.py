@@ -19,7 +19,9 @@ class FacadeAMIClient:
     _PORT = 5038
 
     def __init__(self, hostname, username, password):
-        self._ami_client = client.ReconnectingAMIClient(hostname, self._PORT, self._login)
+        self._ami_client = client.ReconnectingAMIClient(
+            hostname, self._PORT, self._login
+        )
         self._username = username
         self._password = password
         self._add_action_functions()
@@ -41,6 +43,7 @@ class FacadeAMIClient:
             action = action_factory(*args, **kwargs)
             self._ami_client.execute(action)
             return action
+
         return aux
 
     def close(self):

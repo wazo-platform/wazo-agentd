@@ -11,8 +11,9 @@ logger = logging.getLogger(__name__)
 
 
 class LogoffAction:
-
-    def __init__(self, ami_client, queue_log_manager, agent_status_dao, user_dao, bus_publisher):
+    def __init__(
+        self, ami_client, queue_log_manager, agent_status_dao, user_dao, bus_publisher
+    ):
         self._ami_client = ami_client
         self._queue_log_manager = queue_log_manager
         self._agent_status_dao = agent_status_dao
@@ -33,7 +34,12 @@ class LogoffAction:
 
     def _update_queue_log(self, agent_status):
         login_time = self._compute_login_time(agent_status.login_at)
-        self._queue_log_manager.on_agent_logged_off(agent_status.agent_number, agent_status.extension, agent_status.context, login_time)
+        self._queue_log_manager.on_agent_logged_off(
+            agent_status.agent_number,
+            agent_status.extension,
+            agent_status.context,
+            login_time,
+        )
 
     def _compute_login_time(self, login_at):
         delta = datetime.datetime.utcnow() - login_at
@@ -51,6 +57,8 @@ class LogoffAction:
         with db_utils.session_scope():
             users = self._user_dao.find_all_by_agent_id(agent_id)
             logger.debug('Found %s users.', len(users))
-            headers = {'user_uuid:{uuid}'.format(uuid=user.uuid): True for user in users}
+            headers = {
+                'user_uuid:{uuid}'.format(uuid=user.uuid): True for user in users
+            }
             headers['agent_id:{id}'.format(id=str(agent_id))] = True
             self._bus_publisher.publish(event, headers=headers)

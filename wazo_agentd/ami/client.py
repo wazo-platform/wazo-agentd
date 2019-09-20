@@ -74,7 +74,9 @@ class AMIClient:
         self._msgs_queue.append(message)
 
     def _parse_next_msgs(self):
-        self._buffer = parse_buffer(self._buffer, self.event_callback, self.response_callback)
+        self._buffer = parse_buffer(
+            self._buffer, self.event_callback, self.response_callback
+        )
 
     def _process_msgs_queue(self):
         while self._msgs_queue:
@@ -117,7 +119,6 @@ class AMIClient:
 
 
 class ReconnectingAMIClient(AMIClient):
-
     def __init__(self, hostname, port, on_connect_callback):
         AMIClient.__init__(self, hostname, port, on_connect_callback)
         self._try_reconnection = True
@@ -139,7 +140,9 @@ class ReconnectingAMIClient(AMIClient):
             return b''
         else:
             if not data:
-                logger.error('Could not read data from socket: remote connection closed')
+                logger.error(
+                    'Could not read data from socket: remote connection closed'
+                )
                 self._reconnect()
                 return b''
             return data

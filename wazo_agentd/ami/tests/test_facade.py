@@ -7,7 +7,6 @@ from wazo_agentd.ami.facade import FacadeAMIClient
 
 
 class TestFacade(unittest.TestCase):
-
     @patch('wazo_agentd.ami.client.ReconnectingAMIClient')
     def test_new(self, ReconnectingAMIClient):
         facade = FacadeAMIClient('example.org', '1', '2')
@@ -15,7 +14,9 @@ class TestFacade(unittest.TestCase):
 
         facade.db_del('foo', 'bar')
 
-        ReconnectingAMIClient.assert_called_once_with('example.org', 5038, facade._login)
+        ReconnectingAMIClient.assert_called_once_with(
+            'example.org', 5038, facade._login
+        )
         self.assertTrue(facade._ami_client.execute.called)
 
     @patch('wazo_agentd.ami.client.ReconnectingAMIClient', Mock())
