@@ -33,7 +33,7 @@ case "$1" in
         if [ -d /var/lib/xivo-agentd ] ; then
             find /var/lib/xivo-agentd/ -mindepth 1 -exec mv {} /var/lib/wazo-agentd/ \;
         fi
-        rm -rf /var/run/xivo-agentd
+        rm -rf /run/xivo-agentd
         if getent passwd xivo-agentd > /dev/null; then
             deluser --quiet --system --remove-home xivo-agentd
         fi

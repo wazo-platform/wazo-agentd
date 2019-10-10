@@ -9,7 +9,7 @@ WORKDIR /usr/src/agentd
 RUN true \
     && adduser --quiet --system --group wazo-agentd \
     && mkdir -p /etc/wazo-agentd/conf.d \
-    && install -o wazo-agentd -g wazo-agentd -d /var/run/wazo-agentd \
+    && install -o wazo-agentd -g wazo-agentd -d /run/wazo-agentd \
     && touch /var/log/wazo-agentd.log \
     && chown wazo-agentd:wazo-agentd /var/log/wazo-agentd.log \
     && pip install -r requirements.txt \

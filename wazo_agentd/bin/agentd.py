@@ -76,7 +76,7 @@ _DEFAULT_CONFIG = {
     'debug': False,
     'foreground': False,
     'logfile': '/var/log/wazo-agentd.log',
-    'pidfile': '/var/run/wazo-agentd/wazo-agentd.pid',
+    'pidfile': '/run/wazo-agentd/wazo-agentd.pid',
     'config_file': '/etc/wazo-agentd/config.yml',
     'extra_config_files': '/etc/wazo-agentd/conf.d/',
     'ami': {'host': 'localhost', 'username': 'wazo_agentd', 'password': 'die0Ahn8tae'},
