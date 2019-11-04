@@ -75,7 +75,7 @@ class TestQueuelog(unittest.TestCase):
         )
 
     def test_on_agent_logged_off_written_logged_time_should_be_an_integer_when_given_logged_time_is_not_integer(
-        self
+        self,
     ):
         self.queue_log_mgr.on_agent_logged_off(
             sentinel.agent_number, sentinel.extension, sentinel.context, 12.98743

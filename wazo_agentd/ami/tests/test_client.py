@@ -97,7 +97,7 @@ class TestAMIClient(unittest.TestCase):
         self.assertTrue(self.ami_client._msgs_queue[0].is_success())
 
     def test_given_event_with_action_id_when_parse_next_msgs_then_event_msg_added_to_queue(
-        self
+        self,
     ):
         self.ami_client._buffer = b'Event: Foo\r\nActionID: bar\r\n\r\n'
 
