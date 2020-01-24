@@ -83,6 +83,7 @@ _DEFAULT_CONFIG = {
     'auth': {
         'host': 'localhost',
         'port': 9497,
+        'https': True,
         'verify_certificate': '/usr/share/xivo-certs/server.crt',
         'key_file': '/var/lib/wazo-auth-keys/wazo-agentd-key.yml',
     },
@@ -288,7 +289,7 @@ def _run(config):
             config['consul'],
             config['service_discovery'],
             config['bus'],
-            partial(self_check, config['rest_api']['https']['port']),
+            partial(self_check, config['rest_api']['https']),
         ]
         with token_renewer:
             with bus.consumer_thread(bus_consumer):

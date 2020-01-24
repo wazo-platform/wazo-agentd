@@ -5,8 +5,13 @@ import requests
 
 
 # this function is not executed from the main thread
-def self_check(port):
-    url = 'https://localhost:{}/1.0/agents'.format(port)
+def self_check(config):
+    port = config["port"]
+    scheme = "http"
+    if config["certificate"] and config["private_key"]:
+        scheme = "https"
+
+    url = "{}://{}:{}/1.0/agents".format(scheme, "localhost", port)
     try:
         return (
             requests.get(
