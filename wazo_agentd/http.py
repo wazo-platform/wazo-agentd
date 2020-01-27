@@ -330,9 +330,10 @@ class HTTPInterface:
 
         wsgi_app = ReverseProxied(ProxyFix(self._app))
         server = wsgi.WSGIServer(bind_addr, wsgi_app)
-        server.ssl_adapter = http_helpers.ssl_adapter(
-            config['certificate'], config['private_key']
-        )
+        if config['certificate'] and config['private_key']:
+            server.ssl_adapter = http_helpers.ssl_adapter(
+                config['certificate'], config['private_key']
+            )
         try:
             server.start()
         finally:
