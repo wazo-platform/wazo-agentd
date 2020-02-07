@@ -15,4 +15,4 @@ pyyaml==3.13  # from xivo-lib-python
 requests==2.21.0  # from xivo-*-client
 sqlalchemy==1.2.18  # from xivo-dao
 unidecode==1.0.23  # from xivo-dao
-werkzeug==0.14.1
+werkzeug==0.15.3
