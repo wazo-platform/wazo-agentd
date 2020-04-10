@@ -2,7 +2,6 @@ db_uri: postgresql://asterisk:proformatique@postgres/asterisk
 auth:
   host: auth
   key_file: /tmp/key-file.yml
-  verify_certificate: false
 bus:
   host: rabbitmq
 service_discovery:
