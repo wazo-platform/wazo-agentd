@@ -1,4 +1,4 @@
-# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -14,14 +14,14 @@ logger = logging.getLogger(__name__)
 class LoginAction:
     def __init__(
         self,
-        ami_client,
+        amid_client,
         queue_log_manager,
         agent_status_dao,
         line_dao,
         user_dao,
         bus_publisher,
     ):
-        self._ami_client = ami_client
+        self._amid_client = amid_client
         self._queue_log_manager = queue_log_manager
         self._agent_status_dao = agent_status_dao
         self._line_dao = line_dao
@@ -74,15 +74,18 @@ class LoginAction:
         member_name = format_agent_member_name(agent.number)
         skills = format_agent_skills(agent.id)
         for queue in agent.queues:
-            action = self._ami_client.queue_add(
-                queue.name,
-                interface,
-                member_name,
-                state_interface,
-                queue.penalty,
-                skills,
+            response = self._amid_client.action(
+                'QueueAdd',
+                {
+                    'Queue': queue.name,
+                    'Interface': interface,
+                    'MemberName': member_name,
+                    'StateInterface': state_interface,
+                    'Penalty': queue.penalty,
+                    'Skills': skills,
+                }
             )
-            if not action.success:
+            if response[0]['Response'] != 'Success':
                 logger.warning(
                     'Failure to add interface %r to queue %r', interface, queue.name
                 )

@@ -1,4 +1,4 @@
-# Copyright 2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from hamcrest import assert_that, contains, has_entries
@@ -35,3 +35,12 @@ class TestAgentsByNumber(BaseIntegrationTest):
             )
 
         until.assert_(event_received, tries=3)
+
+    @fixtures.user_line_extension(exten='1001', context='default')
+    @fixtures.agent(number='1001')
+    def test_login_agent(self, user_line_extension, agent):
+        self.agentd.agents.login_agent_by_number(
+            agent['number'],
+            user_line_extension['exten'],
+            user_line_extension['context'],
+        )

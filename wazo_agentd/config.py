@@ -18,6 +18,12 @@ _DEFAULT_CONFIG = {
     'config_file': '/etc/wazo-agentd/config.yml',
     'extra_config_files': '/etc/wazo-agentd/conf.d/',
     'ami': {'host': 'localhost', 'username': 'wazo_agentd', 'password': 'die0Ahn8tae'},
+    'amid': {
+        'host': 'localhost',
+        'port': 9491,
+        'prefix': None,
+        'https': False,
+    },
     'auth': {
         'host': 'localhost',
         'port': 9497,
