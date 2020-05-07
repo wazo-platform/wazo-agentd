@@ -5,7 +5,6 @@ After=network-online.target asterisk.service postgresql.service rabbitmq-server.
 Before=monit.service
 
 [Service]
-Type=forking
 ExecStartPre=/usr/bin/install -d -o wazo-agentd -g wazo-agentd /run/wazo-agentd
 ExecStart=/usr/bin/wazo-agentd
 PIDFile=/run/wazo-agentd/wazo-agentd.pid

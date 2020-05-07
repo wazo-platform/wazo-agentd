@@ -70,11 +70,12 @@ from wazo_agentd.service.manager.remove_member import RemoveMemberManager
 from wazo_agentd.service.proxy import ServiceProxy
 from wazo_agentd.service_discovery import self_check
 
+FOREGROUND = True  # Always in foreground systemd takes care of daemonizing
+
 _DEFAULT_HTTPS_PORT = 9493
 _DEFAULT_CONFIG = {
     'user': 'wazo-agentd',
     'debug': False,
-    'foreground': False,
     'logfile': '/var/log/wazo-agentd.log',
     'pidfile': '/run/wazo-agentd/wazo-agentd.pid',
     'config_file': '/etc/wazo-agentd/config.yml',
@@ -140,11 +141,11 @@ def main():
 
     xivo_dao.init_db_from_config(config)
 
-    setup_logging(config['logfile'], config['foreground'], config['debug'])
+    setup_logging(config['logfile'], FOREGROUND, config['debug'])
     silence_loggers(['Flask-Cors'], logging.WARNING)
     set_xivo_uuid(config, logger)
 
-    with pidfile_context(config['pidfile'], config['foreground']):
+    with pidfile_context(config['pidfile'], FOREGROUND):
         logger.info('Starting wazo-agentd')
         try:
             _run(config)
@@ -159,9 +160,6 @@ def main():
 def _parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-f', '--foreground', action='store_true', help='run in foreground'
-    )
-    parser.add_argument(
         '-v', '--verbose', action='store_true', help='increase verbosity'
     )
     parser.add_argument('-u', '--user', action='store', help='User to run the daemon')
@@ -169,8 +167,6 @@ def _parse_args():
     parsed = parser.parse_args()
 
     config = {}
-    if parsed.foreground:
-        config['foreground'] = parsed.foreground
     if parsed.verbose:
         config['debug'] = parsed.verbose
     if parsed.user:
