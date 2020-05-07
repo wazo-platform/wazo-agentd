@@ -21,4 +21,4 @@ RUN true \
 
 EXPOSE 9493
 
-CMD ["wazo-agentd", "-f"]
+CMD ["wazo-agentd"]

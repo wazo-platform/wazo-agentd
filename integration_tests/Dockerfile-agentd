@@ -6,5 +6,3 @@ COPY . /usr/src/wazo-agentd
 
 WORKDIR /usr/src/wazo-agentd
 RUN python setup.py develop
-
-CMD ["/usr/local/bin/wazo-agentd", "-f"]
