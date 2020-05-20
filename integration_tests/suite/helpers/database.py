@@ -1,4 +1,4 @@
-# Copyright 2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -158,8 +158,7 @@ class DatabaseQueries(object):
     def insert_user_line_extension(self, **kwargs):
         with self.inserter() as inserter:
             sip = inserter.add_usersip()
-            kwargs['protocol'] = 'sip'
-            kwargs['protocolid'] = sip.id
+            kwargs['endpoint_sip_id'] = sip.id
             user_line = inserter.add_user_line_with_exten(**kwargs)
             return (
                 user_line.user.id,
