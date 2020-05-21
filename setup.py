@@ -16,6 +16,8 @@ setup(
     packages=find_packages(),
     package_data={'wazo_agentd.swagger': ['*.yml']},
     entry_points={
-        'console_scripts': ['wazo-agentd=wazo_agentd.bin.agentd:main'],
+        'console_scripts': [
+            'wazo-agentd=wazo_agentd.main:main',
+        ],
     }
 )
