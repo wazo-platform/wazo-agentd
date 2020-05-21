@@ -14,6 +14,8 @@ setup(
     url='http://wazo.community',
     license='GPLv3',
     packages=find_packages(),
-    scripts=['bin/wazo-agentd'],
     package_data={'wazo_agentd.swagger': ['*.yml']},
+    entry_points={
+        'console_scripts': ['wazo-agentd=wazo_agentd.bin.agentd:main'],
+    }
 )
