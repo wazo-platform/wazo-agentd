@@ -18,6 +18,7 @@ setup(
     entry_points={
         'console_scripts': [
             'wazo-agentd=wazo_agentd.main:main',
+            'wazo-agentd-wait=wazo_agentd.wait:main'
         ],
     }
 )
