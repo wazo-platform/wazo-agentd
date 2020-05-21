@@ -11,7 +11,7 @@ from xivo.config_helper import (
     read_config_file_hierarchy,
 )
 
-from wazo_agentd.main import _DEFAULT_CONFIG
+from wazo_agentd.config import _DEFAULT_CONFIG
 
 HOST = 'localhost'
 TIMEOUT = 60

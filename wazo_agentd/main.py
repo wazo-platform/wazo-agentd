@@ -1,9 +1,9 @@
 # Copyright 2012-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import argparse
 import logging
 import signal
+import sys
 
 from functools import partial
 from contextlib import contextmanager
@@ -12,11 +12,8 @@ import xivo_dao
 
 from wazo_auth_client import Client as AuthClient
 
-from xivo.chain_map import ChainMap
 from xivo.config_helper import (
-    read_config_file_hierarchy,
     set_xivo_uuid,
-    parse_config_file,
 )
 from xivo.consul_helpers import ServiceCatalogRegistration
 from xivo.daemonize import pidfile_context
@@ -39,6 +36,7 @@ from wazo_agentd import ami
 from wazo_agentd import bus
 from wazo_agentd import http
 from wazo_agentd.bus import AgentPauseEvent
+from wazo_agentd.config import load as load_config
 from wazo_agentd.dao import QueueDAOAdapter, AgentDAOAdapter
 from wazo_agentd.queuelog import QueueLogManager
 from wazo_agentd.service.action.add import AddToQueueAction
@@ -70,68 +68,14 @@ from wazo_agentd.service.manager.remove_member import RemoveMemberManager
 from wazo_agentd.service.proxy import ServiceProxy
 from wazo_agentd.service_discovery import self_check
 
-FOREGROUND = True  # Always in foreground systemd takes care of daemonizing
-
-_DEFAULT_HTTP_PORT = 9493
-_DEFAULT_CONFIG = {
-    'user': 'wazo-agentd',
-    'debug': False,
-    'logfile': '/var/log/wazo-agentd.log',
-    'pidfile': '/run/wazo-agentd/wazo-agentd.pid',
-    'config_file': '/etc/wazo-agentd/config.yml',
-    'extra_config_files': '/etc/wazo-agentd/conf.d/',
-    'ami': {'host': 'localhost', 'username': 'wazo_agentd', 'password': 'die0Ahn8tae'},
-    'auth': {
-        'host': 'localhost',
-        'port': 9497,
-        'prefix': None,
-        'https': False,
-        'key_file': '/var/lib/wazo-auth-keys/wazo-agentd-key.yml',
-    },
-    'bus': {
-        'username': 'guest',
-        'password': 'guest',
-        'host': 'localhost',
-        'port': 5672,
-        'exchange_name': 'xivo',
-        'exchange_type': 'topic',
-    },
-    'consul': {
-        'scheme': 'http',
-        'host': 'localhost',
-        'port': 8500,
-        'verify': '/usr/share/xivo-certs/server.crt',
-    },
-    'rest_api': {
-        'listen': '127.0.0.1',
-        'port': _DEFAULT_HTTP_PORT,
-        'certificate': None,
-        'private_key': None,
-        'cors': {
-            'enabled': True,
-            'allow_headers': ['Content-Type', 'X-Auth-Token', 'Wazo-Tenant'],
-        },
-    },
-    'service_discovery': {
-        'enabled': True,
-        'advertise_address': 'localhost',
-        'advertise_port': _DEFAULT_HTTP_PORT,
-        'advertise_address_interface': 'eth0',
-        'refresh_interval': 25,
-        'retry_interval': 2,
-        'ttl_interval': 30,
-        'extra_tags': [],
-    },
-}
-
 logger = logging.getLogger(__name__)
 
+FOREGROUND = True  # Always in foreground systemd takes care of daemonizing
 
-def main():
-    cli_config = _parse_args()
-    file_config = read_config_file_hierarchy(ChainMap(cli_config, _DEFAULT_CONFIG))
-    service_key = _load_key_file(ChainMap(cli_config, file_config, _DEFAULT_CONFIG))
-    config = ChainMap(cli_config, service_key, file_config, _DEFAULT_CONFIG)
+
+def main(argv=None):
+    argv = argv or sys.argv[1:]
+    config = load_config(logger, argv)
 
     user = config.get('user')
     if user:
@@ -153,34 +97,6 @@ def main():
             pass
         finally:
             logger.info('Stopping wazo-agentd')
-
-
-def _parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '-v', '--verbose', action='store_true', help='increase verbosity'
-    )
-    parser.add_argument('-u', '--user', action='store', help='User to run the daemon')
-
-    parsed = parser.parse_args()
-
-    config = {}
-    if parsed.verbose:
-        config['debug'] = parsed.verbose
-    if parsed.user:
-        config['user'] = parsed.user
-
-    return config
-
-
-def _load_key_file(config):
-    key_file = parse_config_file(config['auth']['key_file'])
-    return {
-        'auth': {
-            'username': key_file.get('service_id'),
-            'password': key_file.get('service_key'),
-        }
-    }
 
 
 def _run(config):
@@ -308,7 +224,3 @@ def _new_ami_client(config):
         yield ami_client
     finally:
         ami_client.close()
-
-
-if __name__ == '__main__':
-    main()
