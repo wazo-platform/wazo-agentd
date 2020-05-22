@@ -12,9 +12,7 @@ import xivo_dao
 
 from wazo_auth_client import Client as AuthClient
 
-from xivo.config_helper import (
-    set_xivo_uuid,
-)
+from xivo.config_helper import set_xivo_uuid
 from xivo.consul_helpers import ServiceCatalogRegistration
 from xivo.daemonize import pidfile_context
 from xivo.token_renewer import TokenRenewer
