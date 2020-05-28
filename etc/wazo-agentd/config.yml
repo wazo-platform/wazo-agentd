@@ -59,10 +59,6 @@ rest_api:
   # Listening port
   port: 9493
 
-  # SSL files
-  certificate: /usr/share/xivo-certs/server.crt
-  private_key: /usr/share/xivo-certs/server.key
-
   #CORS configuration. See Flask-CORS documentation for other values.
   cors:
 

@@ -72,7 +72,7 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
             logger.debug(e)
             return
         return AgentdClient(
-            'localhost', port=port, token=token, verify_certificate=False
+            'localhost', port=port, prefix=False, https=False, token=token,
         )
 
     @classmethod

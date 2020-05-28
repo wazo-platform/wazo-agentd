@@ -72,7 +72,7 @@ from wazo_agentd.service_discovery import self_check
 
 FOREGROUND = True  # Always in foreground systemd takes care of daemonizing
 
-_DEFAULT_HTTPS_PORT = 9493
+_DEFAULT_HTTP_PORT = 9493
 _DEFAULT_CONFIG = {
     'user': 'wazo-agentd',
     'debug': False,
@@ -104,9 +104,9 @@ _DEFAULT_CONFIG = {
     },
     'rest_api': {
         'listen': '127.0.0.1',
-        'port': _DEFAULT_HTTPS_PORT,
-        'certificate': '/usr/share/xivo-certs/server.crt',
-        'private_key': '/usr/share/xivo-certs/server.key',
+        'port': _DEFAULT_HTTP_PORT,
+        'certificate': None,
+        'private_key': None,
         'cors': {
             'enabled': True,
             'allow_headers': ['Content-Type', 'X-Auth-Token', 'Wazo-Tenant'],
@@ -115,7 +115,7 @@ _DEFAULT_CONFIG = {
     'service_discovery': {
         'enabled': True,
         'advertise_address': 'localhost',
-        'advertise_port': _DEFAULT_HTTPS_PORT,
+        'advertise_port': _DEFAULT_HTTP_PORT,
         'advertise_address_interface': 'eth0',
         'refresh_interval': 25,
         'retry_interval': 2,

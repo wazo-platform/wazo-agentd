@@ -2,6 +2,7 @@
 
 ## 20.08
 
+* Deprecate SSL configuration
 * The `https` section has moved to `rest_api` to be similar with other daemons.
 
 ## 19.06
