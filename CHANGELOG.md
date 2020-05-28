@@ -1,5 +1,9 @@
 # Changelog
 
+## 20.08
+
+* The `https` section has moved to `rest_api` to be similar with other daemons.
+
 ## 19.06
 
 * The following endpoints are now multi-tenant.

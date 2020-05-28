@@ -53,16 +53,15 @@ consul:
 # REST API server
 rest_api:
 
-  https:
-    # Listening address
-    listen: 0.0.0.0
+  # Listening address
+  listen: 127.0.0.1
 
-    # Listening port
-    port: 9493
+  # Listening port
+  port: 9493
 
-    # SSL files
-    certificate: /usr/share/xivo-certs/server.crt
-    private_key: /usr/share/xivo-certs/server.key
+  # SSL files
+  certificate: /usr/share/xivo-certs/server.crt
+  private_key: /usr/share/xivo-certs/server.key
 
   #CORS configuration. See Flask-CORS documentation for other values.
   cors:

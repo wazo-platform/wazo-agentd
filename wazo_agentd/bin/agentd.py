@@ -103,12 +103,10 @@ _DEFAULT_CONFIG = {
         'verify': '/usr/share/xivo-certs/server.crt',
     },
     'rest_api': {
-        'https': {
-            'listen': '127.0.0.1',
-            'port': _DEFAULT_HTTPS_PORT,
-            'certificate': '/usr/share/xivo-certs/server.crt',
-            'private_key': '/usr/share/xivo-certs/server.key',
-        },
+        'listen': '127.0.0.1',
+        'port': _DEFAULT_HTTPS_PORT,
+        'certificate': '/usr/share/xivo-certs/server.crt',
+        'private_key': '/usr/share/xivo-certs/server.key',
         'cors': {
             'enabled': True,
             'allow_headers': ['Content-Type', 'X-Auth-Token', 'Wazo-Tenant'],
@@ -285,7 +283,7 @@ def _run(config):
             config['consul'],
             config['service_discovery'],
             config['bus'],
-            partial(self_check, config['rest_api']['https']),
+            partial(self_check, config['rest_api']),
         ]
         with token_renewer:
             with bus.consumer_thread(bus_consumer):
