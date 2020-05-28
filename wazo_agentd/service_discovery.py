@@ -1,4 +1,4 @@
-# Copyright 2016-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import requests
@@ -12,12 +12,9 @@ def self_check(config):
         scheme = "https"
 
     url = "{}://{}:{}/1.0/agents".format(scheme, "localhost", port)
+    headers = {'accept': 'application/json'}
     try:
-        return (
-            requests.get(
-                url, headers={'accept': 'application/json'}, verify=False
-            ).status_code
-            == 401
-        )
+        response = requests.get(url, headers=headers, verify=False)
+        return response.status_code == 401
     except Exception:
         return False
