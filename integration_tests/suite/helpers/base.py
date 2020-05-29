@@ -1,10 +1,10 @@
-# Copyright 2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
 import os
 
-from wazo_agentd_client import Client as ChatdClient
+from wazo_agentd_client import Client as AgentdClient
 
 from xivo_test_helpers.auth import AuthClient, MockUserToken
 from xivo_test_helpers.asset_launching_test_case import (
@@ -71,8 +71,8 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
         except NoSuchService as e:
             logger.debug(e)
             return
-        return ChatdClient(
-            'localhost', port=port, token=token, verify_certificate=False
+        return AgentdClient(
+            'localhost', port=port, prefix=False, https=False, token=token,
         )
 
     @classmethod

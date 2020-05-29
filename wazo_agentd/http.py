@@ -1,4 +1,4 @@
-# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -325,14 +325,16 @@ class HTTPInterface:
             api.add_resource(resource, url)
 
     def run(self):
-        config = self._config['https']
-        bind_addr = (config['listen'], config['port'])
+        bind_addr = (self._config['listen'], self._config['port'])
 
         wsgi_app = ReverseProxied(ProxyFix(self._app))
         server = wsgi.WSGIServer(bind_addr, wsgi_app)
-        if config['certificate'] and config['private_key']:
+        if self._config['certificate'] and self._config['private_key']:
+            logger.warning(
+                'Using service SSL configuration is deprecated. Please use NGINX instead.'
+            )
             server.ssl_adapter = http_helpers.ssl_adapter(
-                config['certificate'], config['private_key']
+                self._config['certificate'], self._config['private_key']
             )
         try:
             server.start()

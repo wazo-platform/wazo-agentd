@@ -1,8 +1,11 @@
-Changelog
-=========
+# Changelog
 
-19.06
------
+## 20.08
+
+* Deprecate SSL configuration
+* The `https` section has been moved to `rest_api` to be similar to other daemons.
+
+## 19.06
 
 * The following endpoints are now multi-tenant.
 
@@ -15,30 +18,22 @@ Changelog
 
   * `/agents`
 
-
-17.05
------
+## 17.05
 
 * Add an optional `reason` field to the body of the pause resource.
 
   * POST `/agents/by-number/{agent_number}/pause`
 
-
-15.19
------
+## 15.19
 
 * Token authentication is now required for all routes, i.e. it is not possible to interact with
   xivo-agentd without a wazo-auth authentication token.
 
-
-15.18
------
+## 15.18
 
 * xivo-agentd now uses HTTPS instead of HTTP.
 
-
-15.15
------
+## 15.15
 
 * The resources returning agent statuses, i.e.:
 
