@@ -7,6 +7,7 @@ Before=monit.service
 [Service]
 ExecStartPre=/usr/bin/install -d -o wazo-agentd -g wazo-agentd /run/wazo-agentd
 ExecStart=/usr/bin/wazo-agentd
+ExecStartPost=/usr/bin/wazo-agentd-wait
 PIDFile=/run/wazo-agentd/wazo-agentd.pid
 
 [Install]
