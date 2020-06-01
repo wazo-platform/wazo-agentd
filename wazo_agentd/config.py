@@ -71,16 +71,14 @@ def load(logger, argv):
 
 def _parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '-v', '--verbose', action='store_true', help='increase verbosity'
-    )
+    parser.add_argument('-d', '--debug', action='store_true', help='Log debug messages')
     parser.add_argument('-u', '--user', action='store', help='User to run the daemon')
 
     parsed = parser.parse_args()
 
     config = {}
-    if parsed.verbose:
-        config['debug'] = parsed.verbose
+    if parsed.debug:
+        config['debug'] = parsed.debug
     if parsed.user:
         config['user'] = parsed.user
 
