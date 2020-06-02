@@ -13,7 +13,7 @@ info:
 x-xivo-name: agentd
 x-xivo-port: 9493
 schemes:
-- https
+- http
 securityDefinitions:
   wazo_auth_token:
     type: apiKey
