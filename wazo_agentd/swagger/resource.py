@@ -1,6 +1,8 @@
 # Copyright 2016-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import yaml
+
 from flask import make_response
 from flask_restful import Resource
 from pkg_resources import resource_string
@@ -19,8 +21,9 @@ class SwaggerResource(Resource):
 
     def get(self):
         try:
-            api_spec = resource_string(self.api_package, self.api_filename)
+            api_spec = yaml.load(resource_string(self.api_package, self.api_filename))
         except IOError:
             return {'error': "API spec does not exist"}, 404
         reverse_proxy_fix_api_spec(api_spec)
-        return make_response(api_spec, 200, {'Content-Type': 'application/x-yaml'})
+        response = yaml.dump(dict(api_spec))
+        return make_response(response, 200, {'Content-Type': 'application/x-yaml'})
