@@ -82,7 +82,7 @@ def main(argv=None):
     xivo_dao.init_db_from_config(config)
 
     setup_logging(config['logfile'], FOREGROUND, config['debug'])
-    silence_loggers(['Flask-Cors'], logging.WARNING)
+    silence_loggers(['Flask-Cors', 'amqp'], logging.WARNING)
     set_xivo_uuid(config, logger)
 
     with pidfile_context(config['pidfile'], FOREGROUND):
