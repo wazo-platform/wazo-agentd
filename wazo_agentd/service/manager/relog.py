@@ -39,5 +39,5 @@ class RelogManager:
         with db_utils.session_scope():
             agent = self._agent_dao.get_agent(agent_status.agent_id)
         self._login_action.login_agent(
-            agent, agent_status.extension, agent_status.context
+            agent, agent_status.extension, agent_status.context, agent_status.state_interface
         )

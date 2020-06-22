@@ -400,6 +400,10 @@ definitions:
       context:
         type: string
         description: Context
+      state_interface:
+        type: string
+        required: false
+        description: Optional interface to join the agent
   Queue:
     title: Queue
     properties:

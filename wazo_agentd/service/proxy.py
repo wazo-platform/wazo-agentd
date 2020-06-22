@@ -28,18 +28,18 @@ class ServiceProxy:
                 agent_id, queue_id, tenant_uuids=tenant_uuids
             )
 
-    def login_agent_by_id(self, agent_id, extension, context, tenant_uuids=None):
+    def login_agent_by_id(self, agent_id, extension, context, state_interface, tenant_uuids=None):
         with self._lock:
             self.login_handler.handle_login_by_id(
-                agent_id, extension, context, tenant_uuids=tenant_uuids
+                agent_id, extension, context, state_interface, tenant_uuids=tenant_uuids
             )
 
     def login_agent_by_number(
-        self, agent_number, extension, context, tenant_uuids=None
+        self, agent_number, extension, context, state_interface, tenant_uuids=None
     ):
         with self._lock:
             self.login_handler.handle_login_by_number(
-                agent_number, extension, context, tenant_uuids=tenant_uuids
+                agent_number, extension, context, state_interface, tenant_uuids=tenant_uuids
             )
 
     def logoff_agent_by_id(self, agent_id, tenant_uuids=None):

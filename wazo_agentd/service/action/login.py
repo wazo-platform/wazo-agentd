@@ -28,12 +28,13 @@ class LoginAction:
         self._user_dao = user_dao
         self._bus_publisher = bus_publisher
 
-    def login_agent(self, agent, extension, context):
+    def login_agent(self, agent, extension, context, state_interface):
         # Precondition:
         # * agent is not logged
         # * extension@context is not used
         interface = self._get_interface(agent)
-        state_interface = self._get_state_interface(extension, context)
+        if not state_interface:
+            state_interface = self._get_state_interface(extension, context)
 
         # TODO PJSIP: clean after migration
         if state_interface.startswith('SIP/'):

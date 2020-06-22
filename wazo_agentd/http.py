@@ -94,11 +94,14 @@ def _extract_field(obj, key, type_):
     return value
 
 
-def _extract_extension_and_context():
+def _extract_extension_and_context_and_interface():
     obj = request.get_json()
     extension = _extract_field(obj, 'extension', str)
     context = _extract_field(obj, 'context', str)
-    return extension, context
+    interface = None
+    if obj.get('interface'):
+        interface = _extract_field(obj, 'interface', basestring)
+    return extension, context, interface
 
 
 def _extract_queue_id():
@@ -178,10 +181,10 @@ class _AgentByNumber(_BaseResource):
 class _LoginAgentById(_BaseResource):
     @required_acl('agentd.agents.by-id.{agent_id}.login.create')
     def post(self, agent_id):
-        extension, context = _extract_extension_and_context()
+        extension, context, state_interface = _extract_extension_and_context_and_interface()
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.login_agent_by_id(
-            agent_id, extension, context, tenant_uuids=tenant_uuids
+            agent_id, extension, context, state_interface, tenant_uuids=tenant_uuids
         )
         return '', 204
 
@@ -189,10 +192,10 @@ class _LoginAgentById(_BaseResource):
 class _LoginAgentByNumber(_BaseResource):
     @required_acl('agentd.agents.by-number.{agent_number}.login.create')
     def post(self, agent_number):
-        extension, context = _extract_extension_and_context()
+        extension, context, state_interface = _extract_extension_and_context_and_interface()
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.login_agent_by_number(
-            agent_number, extension, context, tenant_uuids=tenant_uuids
+            agent_number, extension, context, state_interface, tenant_uuids=tenant_uuids
         )
         return '', 204
 

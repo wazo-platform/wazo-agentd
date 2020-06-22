@@ -19,11 +19,11 @@ class LoginManager:
         self._agent_status_dao = agent_status_dao
         self._context_dao = context_dao
 
-    def login_agent(self, agent, extension, context):
+    def login_agent(self, agent, extension, context, state_interface):
         self._check_context_is_in_same_tenant(agent, context)
         self._check_agent_is_not_logged(agent)
         self._check_extension_is_not_in_use(extension, context)
-        self._login_action.login_agent(agent, extension, context)
+        self._login_action.login_agent(agent, extension, context, state_interface)
 
     def _check_context_is_in_same_tenant(self, agent, context):
         with db_utils.session_scope():
