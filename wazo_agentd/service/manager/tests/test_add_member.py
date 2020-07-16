@@ -43,7 +43,7 @@ class TestAddMemberManager(unittest.TestCase):
                 'AgentID': agent.id,
                 'AgentNumber': agent.number,
                 'QueueName': queue.name,
-            }
+            },
         )
 
     def test_add_agent_to_queue_different_tenant(self):

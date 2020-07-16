@@ -20,7 +20,7 @@ class UpdatePenaltyAction:
                 'Queue': queue.name,
                 'Interface': agent_status.interface,
                 'Penalty': queue.penalty,
-            }
+            },
         )
 
     def _update_agent_status(self, agent_status, queue):

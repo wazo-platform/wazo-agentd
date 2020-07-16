@@ -44,7 +44,7 @@ class AddMemberManager:
                 'AgentID': agent.id,
                 'AgentNumber': agent.number,
                 'QueueName': queue.name,
-            }
+            },
         )
 
     def _add_to_queue_if_logged(self, agent, queue):

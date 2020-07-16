@@ -45,11 +45,7 @@ class TestLogoffAction(unittest.TestCase):
         self.logoff_action.logoff_agent(agent_status)
 
         self.amid_client.action.assert_called_once_with(
-            'QueueRemove',
-            {
-                'Queue': queue.name,
-                'Interface': agent_status.interface,
-            }
+            'QueueRemove', {'Queue': queue.name, 'Interface': agent_status.interface}
         )
         self.queue_log_manager.on_agent_logged_off.assert_called_once_with(
             agent_number, agent_status.extension, agent_status.context, ANY

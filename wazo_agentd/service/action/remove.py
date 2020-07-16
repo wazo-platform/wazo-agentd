@@ -15,11 +15,7 @@ class RemoveFromQueueAction:
 
     def _update_asterisk(self, agent_status, queue):
         self._amid_client.action(
-            'QueueRemove',
-            {
-                'Queue': queue.name,
-                'Interface': agent_status.interface,
-            }
+            'QueueRemove', {'Queue': queue.name, 'Interface': agent_status.interface}
         )
 
     def _update_agent_status(self, agent_status, queue):

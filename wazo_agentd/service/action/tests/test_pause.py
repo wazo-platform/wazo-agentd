@@ -24,7 +24,7 @@ class TestPauseAction(unittest.TestCase):
                 'Interface': agent_status.interface,
                 'Paused': '1',
                 'Reason': reason,
-            }
+            },
         )
 
     def test_unpause_agent(self):
@@ -39,5 +39,5 @@ class TestPauseAction(unittest.TestCase):
                 'Interface': agent_status.interface,
                 'Paused': '0',
                 'Reason': None,
-            }
+            },
         )

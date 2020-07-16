@@ -133,18 +133,14 @@ def _run(config):
     )
     login_manager = LoginManager(login_action, agent_status_dao, context_dao)
     logoff_manager = LogoffManager(logoff_action, agent_status_dao)
-    on_agent_deleted_manager = OnAgentDeletedManager(
-        logoff_manager, agent_status_dao
-    )
+    on_agent_deleted_manager = OnAgentDeletedManager(logoff_manager, agent_status_dao)
     on_agent_updated_manager = OnAgentUpdatedManager(
         add_to_queue_action,
         remove_from_queue_action,
         update_penalty_action,
         agent_status_dao,
     )
-    on_queue_added_manager = OnQueueAddedManager(
-        add_to_queue_action, agent_status_dao
-    )
+    on_queue_added_manager = OnQueueAddedManager(add_to_queue_action, agent_status_dao)
     on_queue_deleted_manager = OnQueueDeletedManager(agent_status_dao)
     on_queue_updated_manager = OnQueueUpdatedManager(
         add_to_queue_action, remove_from_queue_action, agent_status_dao
@@ -179,9 +175,7 @@ def _run(config):
     )
     service_proxy.pause_handler = PauseHandler(pause_manager, agent_status_dao)
     service_proxy.relog_handler = RelogHandler(relog_manager)
-    service_proxy.status_handler = StatusHandler(
-        agent_dao, agent_status_dao, xivo_uuid
-    )
+    service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, xivo_uuid)
 
     bus_consumer.on_event(EditAgentEvent.name, service_proxy.on_agent_updated)
     bus_consumer.on_event(DeleteAgentEvent.name, service_proxy.on_agent_deleted)

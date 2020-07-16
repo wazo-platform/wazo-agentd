@@ -72,7 +72,7 @@ class TestLoginAction(unittest.TestCase):
                 'StateInterface': state_interface_pjsip,
                 'Penalty': queue.penalty,
                 'Skills': skills,
-            }
+            },
         )
         self.bus_publisher.publish.assert_called_once_with(
             AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_IN),

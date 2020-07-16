@@ -83,7 +83,7 @@ class LoginAction:
                     'StateInterface': state_interface,
                     'Penalty': queue.penalty,
                     'Skills': skills,
-                }
+                },
             )
             if response[0]['Response'] != 'Success':
                 logger.warning(

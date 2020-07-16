@@ -38,7 +38,7 @@ class RemoveMemberManager:
                 'AgentID': agent.id,
                 'AgentNumber': agent.number,
                 'QueueName': queue.name,
-            }
+            },
         )
 
     def _remove_from_queue_if_logged(self, agent, queue):

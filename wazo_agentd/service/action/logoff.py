@@ -32,10 +32,7 @@ class LogoffAction:
         for queue in agent_status.queues:
             self._amid_client.action(
                 'QueueRemove',
-                {
-                    'Queue': queue.name,
-                    'Interface': agent_status.interface,
-                }
+                {'Queue': queue.name, 'Interface': agent_status.interface},
             )
 
     def _update_queue_log(self, agent_status):
