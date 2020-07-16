@@ -1,4 +1,4 @@
-# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -8,8 +8,8 @@ from wazo_agentd.service.action.pause import PauseAction
 
 class TestPauseAction(unittest.TestCase):
     def setUp(self):
-        self.ami_client = Mock()
-        self.pause_action = PauseAction(self.ami_client)
+        self.amid_client = Mock()
+        self.pause_action = PauseAction(self.amid_client)
 
     def test_pause_agent(self):
         agent_status = Mock()
@@ -17,8 +17,14 @@ class TestPauseAction(unittest.TestCase):
         reason = 'Want my pause'
         self.pause_action.pause_agent(agent_status, reason)
 
-        self.ami_client.queue_pause.assert_called_once_with(
-            agent_status.interface, '1', reason
+        self.amid_client.action.assert_called_once_with(
+            'QueuePause',
+            {
+                'Queue': None,
+                'Interface': agent_status.interface,
+                'Paused': '1',
+                'Reason': reason,
+            }
         )
 
     def test_unpause_agent(self):
@@ -26,4 +32,12 @@ class TestPauseAction(unittest.TestCase):
 
         self.pause_action.unpause_agent(agent_status)
 
-        self.ami_client.queue_pause.assert_called_once_with(agent_status.interface, '0')
+        self.amid_client.action.assert_called_once_with(
+            'QueuePause',
+            {
+                'Queue': None,
+                'Interface': agent_status.interface,
+                'Paused': '0',
+                'Reason': None,
+            }
+        )
