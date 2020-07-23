@@ -1,4 +1,4 @@
-# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
@@ -12,9 +12,9 @@ logger = logging.getLogger(__name__)
 
 class LogoffAction:
     def __init__(
-        self, ami_client, queue_log_manager, agent_status_dao, user_dao, bus_publisher
+        self, amid_client, queue_log_manager, agent_status_dao, user_dao, bus_publisher
     ):
-        self._ami_client = ami_client
+        self._amid_client = amid_client
         self._queue_log_manager = queue_log_manager
         self._agent_status_dao = agent_status_dao
         self._user_dao = user_dao
@@ -30,7 +30,10 @@ class LogoffAction:
 
     def _update_asterisk(self, agent_status):
         for queue in agent_status.queues:
-            self._ami_client.queue_remove(queue.name, agent_status.interface)
+            self._amid_client.action(
+                'QueueRemove',
+                {'Queue': queue.name, 'Interface': agent_status.interface},
+            )
 
     def _update_queue_log(self, agent_status):
         login_time = self._compute_login_time(agent_status.login_at)
