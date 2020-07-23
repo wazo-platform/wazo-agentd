@@ -36,3 +36,28 @@ class TestAgents(BaseIntegrationTest):
 
         status = self.agentd.agents.get_agent_status(agent['id'])
         assert_that(status.logged, is_(False))
+
+    @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
+    @fixtures.agent(number='1234')
+    def test_agent_status(self, user_line_extension, agent):
+
+        self.agentd.agents.login_agent(
+            agent['id'], user_line_extension['exten'], user_line_extension['context'],
+        )
+
+        status = self.agentd.agents.get_agent_status(agent['id'])
+        assert_that(
+            status,
+            has_properties(
+                {
+                    'id': agent['id'],
+                    'logged': True,
+                    'context': 'default',
+                    'extension': '1001',
+                    'number': '1234',
+                    'paused': False,
+                    'paused_reason': None,
+                    'state_interface': 'PJSIP/abcdef',
+                }
+            ),
+        )
