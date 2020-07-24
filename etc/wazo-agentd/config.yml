@@ -21,17 +21,17 @@ pidfile: /run/wazo-agentd/wazo-agentd.pid
 # Database connection informations.
 db_uri: postgresql://asterisk:proformatique@localhost/asterisk
 
+amid:
+  host: localhost
+  port: 9491
+  prefix: null
+  https: false
+
 auth:
   host: localhost
   port: 9497
   prefix: null
   https: false
-
-# AMI (Asterisk Manager Interface) connection informations.
-ami:
-  host: localhost
-  username: wazo_agentd
-  password: die0Ahn8tae
 
 # Bus connection to the AMQP server
 bus:

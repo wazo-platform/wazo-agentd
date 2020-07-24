@@ -1,4 +1,4 @@
-# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -6,6 +6,7 @@ import logging
 from wazo_agentd.exception import (
     AgentAlreadyLoggedError,
     ExtensionAlreadyInUseError,
+    NoSuchExtensionError,
     ContextDifferentTenantError,
 )
 from xivo_dao.helpers import db_utils
@@ -28,8 +29,10 @@ class LoginManager:
     def _check_context_is_in_same_tenant(self, agent, context):
         with db_utils.session_scope():
             retrieved_context = self._context_dao.get(context)
-            if retrieved_context:
-                context_tenant_uuid = retrieved_context.tenant_uuid
+            if not retrieved_context:
+                raise NoSuchExtensionError()
+
+            context_tenant_uuid = retrieved_context.tenant_uuid
             if agent.tenant_uuid != context_tenant_uuid:
                 raise ContextDifferentTenantError()
 

@@ -26,7 +26,7 @@ Depends:
  python3-werkzeug,
  rename,
  wazo-auth-client-python3,
- wazo-libamid,
+ wazo-amid-client-python3,
  xivo-bus-python3,
  xivo-libdao-python3,
  xivo-lib-python-python3

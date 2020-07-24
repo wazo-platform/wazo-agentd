@@ -1,4 +1,4 @@
-# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
@@ -13,13 +13,13 @@ from wazo_agentd.service.action.logoff import LogoffAction
 
 class TestLogoffAction(unittest.TestCase):
     def setUp(self):
-        self.ami_client = Mock()
+        self.amid_client = Mock()
         self.queue_log_manager = Mock()
         self.agent_status_dao = Mock()
         self.user_dao = Mock()
         self.bus_publisher = Mock()
         self.logoff_action = LogoffAction(
-            self.ami_client,
+            self.amid_client,
             self.queue_log_manager,
             self.agent_status_dao,
             self.user_dao,
@@ -44,8 +44,8 @@ class TestLogoffAction(unittest.TestCase):
 
         self.logoff_action.logoff_agent(agent_status)
 
-        self.ami_client.queue_remove.assert_called_once_with(
-            queue_name, agent_status.interface
+        self.amid_client.action.assert_called_once_with(
+            'QueueRemove', {'Queue': queue.name, 'Interface': agent_status.interface}
         )
         self.queue_log_manager.on_agent_logged_off.assert_called_once_with(
             agent_number, agent_status.extension, agent_status.context, ANY

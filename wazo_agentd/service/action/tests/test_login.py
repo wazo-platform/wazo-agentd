@@ -1,4 +1,4 @@
-# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -14,14 +14,14 @@ from wazo_agentd.service.helper import format_agent_skills
 
 class TestLoginAction(unittest.TestCase):
     def setUp(self):
-        self.ami_client = Mock()
+        self.amid_client = Mock()
         self.queue_log_manager = Mock(QueueLogManager)
         self.agent_status_dao = Mock()
         self.line_dao = Mock()
         self.user_dao = Mock()
         self.bus_publisher = Mock()
         self.login_action = LoginAction(
-            self.ami_client,
+            self.amid_client,
             self.queue_log_manager,
             self.agent_status_dao,
             self.line_dao,
@@ -50,6 +50,7 @@ class TestLoginAction(unittest.TestCase):
             Mock(uuid='42'),
             Mock(uuid='43'),
         ]
+        self.amid_client.action.return_value = [{'Response': 'Ok'}]
 
         self.login_action.login_agent(agent, extension, context)
 
@@ -62,8 +63,16 @@ class TestLoginAction(unittest.TestCase):
         self.queue_log_manager.on_agent_logged_in.assert_called_once_with(
             agent_number, extension, context
         )
-        self.ami_client.queue_add.assert_called_once_with(
-            queue.name, ANY, ANY, state_interface_pjsip, queue.penalty, skills
+        self.amid_client.action.assert_called_once_with(
+            'QueueAdd',
+            {
+                'Queue': queue.name,
+                'Interface': ANY,
+                'MemberName': ANY,
+                'StateInterface': state_interface_pjsip,
+                'Penalty': queue.penalty,
+                'Skills': skills,
+            },
         )
         self.bus_publisher.publish.assert_called_once_with(
             AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_IN),
