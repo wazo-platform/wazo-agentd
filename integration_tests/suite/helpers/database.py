@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text
 from xivo_dao.alchemy.agent_membership_status import AgentMembershipStatus
 from xivo_dao.alchemy.agentfeatures import AgentFeatures as Agent
+from xivo_dao.alchemy.agent_login_status import AgentLoginStatus
 from xivo_dao.alchemy.extension import Extension
 from xivo_dao.alchemy.line_extension import LineExtension
 from xivo_dao.alchemy.linefeatures import LineFeatures as Line
@@ -105,6 +106,9 @@ class DatabaseQueries(object):
     def delete_agent(self, agent_id):
         session = self.Session()
         session.query(Agent).filter(Agent.id == agent_id).delete()
+        session.query(AgentLoginStatus).filter(
+            AgentLoginStatus.agent_id == agent_id
+        ).delete()
         session.commit()
 
     def insert_queue(self, **kwargs):
