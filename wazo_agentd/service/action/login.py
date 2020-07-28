@@ -34,17 +34,20 @@ class LoginAction:
         # * extension@context is not used
         interface = self._get_interface(agent)
         state_interface = self._get_state_interface(extension, context)
+        state_interface = self._pjsip_fixup(state_interface)
 
-        # TODO PJSIP: clean after migration
-        if state_interface.startswith('SIP/'):
-            state_interface = 'PJ{}'.format(state_interface)
-        if state_interface.startswith('sip/'):
-            state_interface = 'pj{}'.format(state_interface)
 
         self._update_agent_status(agent, extension, context, interface, state_interface)
         self._update_queue_log(agent, extension, context)
         self._update_asterisk(agent, interface, state_interface)
         self._send_bus_status_update(agent)
+
+    def _pjsip_fixup(self, state_interface):
+        # TODO PJSIP: clean after migration
+        if state_interface.startswith('SIP/'):
+            return 'PJ{}'.format(state_interface)
+        if state_interface.startswith('sip/'):
+            return 'pj{}'.format(state_interface)
 
     def _get_interface(self, agent):
         return 'Local/id-{0}@agentcallback'.format(agent.id)
