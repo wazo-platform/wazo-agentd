@@ -3,7 +3,7 @@
 
 import logging
 
-from wazo_agentd.exception import NoSuchExtensionError
+from wazo_agentd.exception import NoSuchExtensionError, NoSuchLineError
 from wazo_agentd.service.helper import format_agent_member_name, format_agent_skills
 from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
 from xivo_dao.helpers import db_utils

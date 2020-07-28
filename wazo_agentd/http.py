@@ -21,6 +21,7 @@ from wazo_agentd.exception import (
     ExtensionAlreadyInUseError,
     AgentNotLoggedError,
     NoSuchQueueError,
+    NoSuchLineError,
     AgentAlreadyInQueueError,
     AgentNotInQueueError,
     ContextDifferentTenantError,
@@ -45,7 +46,11 @@ _AGENT_409_ERRORS = (
     AgentNotInQueueError,
     ExtensionAlreadyInUseError,
 )
-_AGENT_400_ERRORS = (ContextDifferentTenantError, QueueDifferentTenantError)
+_AGENT_400_ERRORS = (
+    ContextDifferentTenantError,
+    NoSuchLineError,
+    QueueDifferentTenantError,
+)
 
 
 class AgentdAuthVerifier(AuthVerifier):

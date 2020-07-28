@@ -4,6 +4,7 @@
 # The following strings are part of the exposed HTTP API; don't rename them
 # or you'll break the API.
 NO_SUCH_AGENT = 'no such agent'
+NO_SUCH_LINE = 'no such line'
 NO_SUCH_QUEUE = 'no such queue'
 ALREADY_LOGGED = 'already logged'
 NOT_LOGGED = 'not logged in'
@@ -28,6 +29,11 @@ class NoSuchAgentError(AgentServerError):
 class NoSuchExtensionError(AgentServerError):
 
     error = NO_SUCH_EXTEN
+
+
+class NoSuchLineError(AgentServerError):
+
+    error = NO_SUCH_LINE
 
 
 class NoSuchQueueError(AgentServerError):

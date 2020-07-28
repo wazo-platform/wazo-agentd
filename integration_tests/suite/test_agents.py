@@ -3,10 +3,10 @@
 
 from hamcrest import assert_that, calling, has_properties, is_
 
-from wazo_agentd_client.error import AgentdClientError, UNAUTHORIZED
+from wazo_agentd_client.error import AgentdClientError, NO_SUCH_LINE, UNAUTHORIZED
 from xivo_test_helpers.hamcrest.raises import raises
 
-from .helpers.base import BaseIntegrationTest, UNKNOWN_UUID
+from .helpers.base import BaseIntegrationTest, UNKNOWN_UUID, UNKNOWN_ID
 from .helpers import associations, fixtures
 
 
@@ -87,4 +87,17 @@ class TestAgents(BaseIntegrationTest):
                         'state_interface': 'PJSIP/abcdef',
                     }
                 ),
+            )
+
+    @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
+    @fixtures.agent(number='1234')
+    def test_login_user_on_unknown_line(self, user_line_extension, agent):
+        self.create_user_token(user_line_extension['user_uuid'])
+
+        with associations.user_agent(
+            self.database, user_line_extension['user_id'], agent['id']
+        ):
+            assert_that(
+                calling(self.agentd.agents.login_user_agent).with_args(UNKNOWN_ID),
+                raises(AgentdClientError, has_properties(error=NO_SUCH_LINE)),
             )
