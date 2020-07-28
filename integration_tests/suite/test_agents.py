@@ -7,7 +7,7 @@ from wazo_agentd_client.error import AgentdClientError, UNAUTHORIZED
 from xivo_test_helpers.hamcrest.raises import raises
 
 from .helpers.base import BaseIntegrationTest, UNKNOWN_UUID
-from .helpers import fixtures
+from .helpers import associations, fixtures
 
 
 class TestAgents(BaseIntegrationTest):
@@ -61,3 +61,30 @@ class TestAgents(BaseIntegrationTest):
                 }
             ),
         )
+
+    @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
+    @fixtures.agent(number='1234')
+    def test_login_user_on_specific_line(self, user_line_extension, agent):
+        self.create_user_token(user_line_extension['user_uuid'])
+
+        with associations.user_agent(
+            self.database, user_line_extension['user_id'], agent['id']
+        ):
+            self.agentd.agents.login_user_agent(user_line_extension['line_id'])
+
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert_that(
+                status,
+                has_properties(
+                    {
+                        'id': agent['id'],
+                        'logged': True,
+                        'context': 'default',
+                        'extension': '1001',
+                        'number': '1234',
+                        'paused': False,
+                        'paused_reason': None,
+                        'state_interface': 'PJSIP/abcdef',
+                    }
+                ),
+            )

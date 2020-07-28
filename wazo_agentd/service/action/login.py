@@ -36,6 +36,21 @@ class LoginAction:
         state_interface = self._get_state_interface(extension, context)
         state_interface = self._pjsip_fixup(state_interface)
 
+        self._update_agent_status(agent, extension, context, interface, state_interface)
+        self._update_queue_log(agent, extension, context)
+        self._update_asterisk(agent, interface, state_interface)
+        self._send_bus_status_update(agent)
+
+    def login_agent_on_line(self, agent, line_id):
+        # Precondition:
+        # * agent is not logged
+        # * line has an extension
+        interface = self._get_interface(agent)
+        state_interface = self._get_state_interface_from_line_id(line_id)
+        state_interface = self._pjsip_fixup(state_interface)
+        extension, context = self._line_dao.get_main_extension_context_from_line_id(
+            line_id
+        )
 
         self._update_agent_status(agent, extension, context, interface, state_interface)
         self._update_queue_log(agent, extension, context)
@@ -60,6 +75,13 @@ class LoginAction:
                 )
         except LookupError:
             raise NoSuchExtensionError(extension, context)
+
+    def _get_state_interface_from_line_id(self, line_id):
+        try:
+            with db_utils.session_scope():
+                return self._line_dao.get_interface_from_line_id(line_id)
+        except LookupError:
+            raise NoSuchLineError(line_id)
 
     def _update_agent_status(
         self, agent, extension, context, interface, state_interface

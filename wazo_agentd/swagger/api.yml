@@ -179,6 +179,34 @@ paths:
             on this extension and context
           schema:
             $ref: '#/definitions/Error'
+  /users/me/agent/login:
+    post:
+      summary: Log the agent of the user holding the authentication token
+      description: '**Required ACL:** `agentd.users.me.agent.login.create`'
+      operationId: login_user_agent
+      tags:
+      - agent
+      - user
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - name: body
+        in: body
+        description: The line on which to log the agent
+        required: true
+        schema:
+          $ref: '#/definitions/UserAgentLoginInfo'
+      responses:
+        '204':
+          description: The operation was performed succesfully
+        '400':
+          description: The user does not own the line; or the token has no user; or wrong tenant; or the user has no agent
+          schema:
+            $ref: '#/definitions/Error'
+        '409':
+          description: Agent is already logged or another agent is already logged
+            on this line
+          schema:
+            $ref: '#/definitions/Error'
   /agents/by-id/{agent_id}/logoff:
     post:
       summary: Logoff an agent.
@@ -400,6 +428,12 @@ definitions:
       context:
         type: string
         description: Context
+  UserAgentLoginInfo:
+    title: Login information
+    properties:
+      line_id:
+        type: integer
+        description: ID of the line where the agent should be logged
   Queue:
     title: Queue
     properties:

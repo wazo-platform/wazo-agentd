@@ -42,6 +42,12 @@ class ServiceProxy:
                 agent_number, extension, context, tenant_uuids=tenant_uuids
             )
 
+    def login_user_agent(self, user_uuid, line_id, tenant_uuids=None):
+        with self._lock:
+            self.login_handler.handle_login_user_agent(
+                user_uuid, line_id, tenant_uuids=tenant_uuids
+            )
+
     def logoff_agent_by_id(self, agent_id, tenant_uuids=None):
         with self._lock:
             self.logoff_handler.handle_logoff_by_id(agent_id, tenant_uuids=tenant_uuids)

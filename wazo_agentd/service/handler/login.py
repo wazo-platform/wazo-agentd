@@ -39,5 +39,14 @@ class LoginHandler:
             )
         self._handle_login(agent, extension, context)
 
+    @debug.trace_duration
+    def handle_login_user_agent(self, user_uuid, line_id, tenant_uuids=None):
+        logger.info(
+            'Executing login command (agent of user %s) on line %d', user_uuid, line_id
+        )
+        with db_utils.session_scope():
+            agent = self._agent_dao.get_agent_by_user_uuid(user_uuid)
+        self._login_manager.login_user_agent(agent, user_uuid, line_id)
+
     def _handle_login(self, agent, extension, context):
         self._login_manager.login_agent(agent, extension, context)

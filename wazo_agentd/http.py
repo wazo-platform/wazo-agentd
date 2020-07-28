@@ -30,7 +30,7 @@ from xivo import http_helpers
 from xivo.auth_verifier import AuthVerifier, required_acl
 from xivo.http_helpers import ReverseProxied
 from xivo.tenant_helpers import UnauthorizedTenant
-from xivo.tenant_flask_helpers import Tenant
+from xivo.tenant_flask_helpers import Tenant, token
 
 from wazo_agentd.swagger.resource import SwaggerResource
 
@@ -101,6 +101,12 @@ def _extract_extension_and_context():
     return extension, context
 
 
+def _extract_line_id():
+    obj = request.get_json()
+    line_id = _extract_field(obj, 'line_id', int)
+    return line_id
+
+
 def _extract_queue_id():
     obj = request.get_json()
     queue_id = _extract_field(obj, 'queue_id', int)
@@ -115,6 +121,10 @@ def _extract_reason():
         if len(reason) > 80:
             raise BadRequest('invalid value for key reason, max length 80')
     return reason
+
+
+def _extract_user_uuid():
+    return token.user_uuid
 
 
 class _BaseResource(Resource):
@@ -193,6 +203,18 @@ class _LoginAgentByNumber(_BaseResource):
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.login_agent_by_number(
             agent_number, extension, context, tenant_uuids=tenant_uuids
+        )
+        return '', 204
+
+
+class _LoginUserAgent(_BaseResource):
+    @required_acl('agentd.users.me.agents.login.create')
+    def post(self):
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        user_uuid = _extract_user_uuid()
+        line_id = _extract_line_id()
+        self.service_proxy.login_user_agent(
+            user_uuid, line_id, tenant_uuids=tenant_uuids
         )
         return '', 204
 
@@ -288,6 +310,7 @@ class HTTPInterface:
         (_AgentByNumber, '/agents/by-number/<agent_number>'),
         (_LoginAgentById, '/agents/by-id/<int:agent_id>/login'),
         (_LoginAgentByNumber, '/agents/by-number/<agent_number>/login'),
+        (_LoginUserAgent, '/users/me/agents/login'),
         (_LogoffAgentById, '/agents/by-id/<int:agent_id>/logoff'),
         (_LogoffAgentByNumber, '/agents/by-number/<agent_number>/logoff'),
         (_AddAgentToQueue, '/agents/by-id/<int:agent_id>/add'),

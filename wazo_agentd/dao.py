@@ -28,6 +28,12 @@ class AgentDAOAdapter(_AbstractDAOAdapter):
         except LookupError:
             raise NoSuchAgentError()
 
+    def get_agent_by_user_uuid(self, user_uuid, tenant_uuids=None):
+        try:
+            return self._dao.agent_with_user_uuid(user_uuid, tenant_uuids=tenant_uuids)
+        except LookupError:
+            raise NoSuchAgentError()
+
 
 class QueueDAOAdapter(_AbstractDAOAdapter):
 

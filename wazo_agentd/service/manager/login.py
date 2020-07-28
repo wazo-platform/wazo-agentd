@@ -26,6 +26,10 @@ class LoginManager:
         self._check_extension_is_not_in_use(extension, context)
         self._login_action.login_agent(agent, extension, context)
 
+    def login_user_agent(self, agent, user_uuid, line_id):
+        self._check_agent_is_not_logged(agent)
+        self._login_action.login_agent_on_line(agent, line_id)
+
     def _check_context_is_in_same_tenant(self, agent, context):
         with db_utils.session_scope():
             retrieved_context = self._context_dao.get(context)

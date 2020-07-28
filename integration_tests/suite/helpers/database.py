@@ -126,6 +126,13 @@ class DatabaseQueries(object):
         user.agent_id = agent_id
         session.commit()
 
+    def dissociate_user_agent(self, user_id, agent_id):
+        del agent_id
+        session = self.Session()
+        user = session.query(User).get(user_id)
+        user.agent_id = None
+        session.commit()
+
     def associate_queue_agent(self, queue_id, agent_id):
         with self.inserter() as inserter:
             queue = inserter.session.query(Queue).get(queue_id)
@@ -164,11 +171,12 @@ class DatabaseQueries(object):
             sip = inserter.add_usersip()
             kwargs['endpoint_sip_id'] = sip.id
             user_line = inserter.add_user_line_with_exten(**kwargs)
-            return (
-                user_line.user.id,
-                user_line.line.id,
-                user_line.line.extensions[0].id,
-            )
+            return {
+                'user_id': user_line.user.id,
+                'user_uuid': user_line.user.uuid,
+                'line_id': user_line.line.id,
+                'extension_id': user_line.line.extensions[0].id,
+            }
 
     def delete_user_line_extension(self, user_id, line_id, extension_id):
         session = self.Session()
