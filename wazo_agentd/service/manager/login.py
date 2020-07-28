@@ -5,9 +5,10 @@ import logging
 
 from wazo_agentd.exception import (
     AgentAlreadyLoggedError,
+    ContextDifferentTenantError,
     ExtensionAlreadyInUseError,
     NoSuchExtensionError,
-    ContextDifferentTenantError,
+    NoSuchLineError,
 )
 from xivo_dao.helpers import db_utils
 
@@ -15,9 +16,10 @@ logger = logging.getLogger(__name__)
 
 
 class LoginManager:
-    def __init__(self, login_action, agent_status_dao, context_dao):
+    def __init__(self, login_action, agent_status_dao, context_dao, line_dao):
         self._login_action = login_action
         self._agent_status_dao = agent_status_dao
+        self._line_dao = line_dao
         self._context_dao = context_dao
 
     def login_agent(self, agent, extension, context):
@@ -28,6 +30,7 @@ class LoginManager:
 
     def login_user_agent(self, agent, user_uuid, line_id):
         self._check_agent_is_not_logged(agent)
+        self._check_user_owns_line(user_uuid, line_id)
         self._login_action.login_agent_on_line(agent, line_id)
 
     def _check_context_is_in_same_tenant(self, agent, context):
@@ -50,3 +53,8 @@ class LoginManager:
         with db_utils.session_scope():
             if self._agent_status_dao.is_extension_in_use(extension, context):
                 raise ExtensionAlreadyInUseError()
+
+    def _check_user_owns_line(self, user_uuid, line_id):
+        with db_utils.session_scope():
+            if not self._line_dao.is_line_owned_by_user(user_uuid, line_id):
+                raise NoSuchLineError()

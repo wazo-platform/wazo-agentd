@@ -127,7 +127,7 @@ def _run(config):
     add_member_manager = AddMemberManager(
         add_to_queue_action, amid_client, agent_status_dao, queue_member_dao
     )
-    login_manager = LoginManager(login_action, agent_status_dao, context_dao)
+    login_manager = LoginManager(login_action, agent_status_dao, context_dao, line_dao)
     logoff_manager = LogoffManager(logoff_action, agent_status_dao)
     on_agent_deleted_manager = OnAgentDeletedManager(logoff_manager, agent_status_dao)
     on_agent_updated_manager = OnAgentUpdatedManager(
