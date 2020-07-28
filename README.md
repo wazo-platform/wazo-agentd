@@ -35,3 +35,14 @@ Building the docker image:
 ```sh
 docker build -t wazopbx/wazo-agentd .
 ```
+
+## Development
+
+Processing is split among the following steps, in order:
+
+* HTTP request
+* HTTP parser: `http.py`
+* Service Proxy (exposes all available operations, calls handler): `service/proxy.py`
+* Service Handler (adapts query to manager operations, calls manager): `service/handler/*.py`
+* Service manager (validation, triggers action): `service/manager/*.py`
+* Service action (updates DB, sends messages and events): `service/action/*.py`
