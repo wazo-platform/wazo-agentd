@@ -69,7 +69,7 @@ class TestAgents(BaseIntegrationTest):
 
     @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
     @fixtures.agent(number='1234')
-    def test_login_user_on_specific_line(self, user_line_extension, agent):
+    def test_login_logoff_user_agent_on_specific_line(self, user_line_extension, agent):
         self.create_user_token(user_line_extension['user_uuid'])
 
         with associations.user_agent(
@@ -87,9 +87,24 @@ class TestAgents(BaseIntegrationTest):
                         'context': 'default',
                         'extension': '1001',
                         'number': '1234',
-                        'paused': False,
-                        'paused_reason': None,
                         'state_interface': 'PJSIP/abcdef',
+                    }
+                ),
+            )
+
+            self.agentd.agents.logoff_user_agent()
+
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert_that(
+                status,
+                has_properties(
+                    {
+                        'id': agent['id'],
+                        'logged': False,
+                        'context': None,
+                        'extension': None,
+                        'number': '1234',
+                        'state_interface': None,
                     }
                 ),
             )
