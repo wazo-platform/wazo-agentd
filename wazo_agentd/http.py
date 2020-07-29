@@ -92,10 +92,6 @@ def _common_error_handler(fun):
     return aux
 
 
-def _extract_user_uuid():
-    return token.user_uuid
-
-
 class _BaseResource(Resource):
 
     method_decorators = [auth_verifier.verify_token, _common_error_handler]
@@ -180,7 +176,7 @@ class _LoginUserAgent(_BaseResource):
     @required_acl('agentd.users.me.agents.login.create')
     def post(self):
         tenant_uuids = self._build_tenant_list({'recurse': True})
-        user_uuid = _extract_user_uuid()
+        user_uuid = token.user_uuid
         body = user_agent_login_schema.load(request.get_json(force=True))
         self.service_proxy.login_user_agent(
             user_uuid, body['line_id'], tenant_uuids=tenant_uuids
@@ -212,7 +208,7 @@ class _LogoffUserAgent(_BaseResource):
     @required_acl('agentd.users.me.agents.logoff.create')
     def post(self):
         tenant_uuids = self._build_tenant_list({'recurse': True})
-        user_uuid = _extract_user_uuid()
+        user_uuid = token.user_uuid
         self.service_proxy.logoff_user_agent(user_uuid, tenant_uuids=tenant_uuids)
         return '', 204
 
