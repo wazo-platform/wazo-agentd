@@ -36,6 +36,7 @@ from xivo.tenant_flask_helpers import Tenant, token
 from wazo_agentd.swagger.resource import SwaggerResource
 from wazo_agentd.schemas import (
     agent_login_schema,
+    queue_schema,
     user_agent_login_schema,
 )
 
@@ -101,12 +102,6 @@ def _extract_field(obj, key, type_):
         raise BadRequest('invalid type for key {}'.format(key))
 
     return value
-
-
-def _extract_queue_id():
-    obj = request.get_json()
-    queue_id = _extract_field(obj, 'queue_id', int)
-    return queue_id
 
 
 def _extract_reason():
@@ -256,10 +251,10 @@ class _LogoffAgents(_BaseResource):
 class _AddAgentToQueue(_BaseResource):
     @required_acl('agentd.agents.by-id.{agent_id}.add.create')
     def post(self, agent_id):
-        queue_id = _extract_queue_id()
+        body = queue_schema.load(request.get_json(force=True))
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.add_agent_to_queue(
-            agent_id, queue_id, tenant_uuids=tenant_uuids
+            agent_id, body['queue_id'], tenant_uuids=tenant_uuids
         )
         return '', 204
 
@@ -267,10 +262,10 @@ class _AddAgentToQueue(_BaseResource):
 class _RemoveAgentFromQueue(_BaseResource):
     @required_acl('agentd.agents.by-id.{agent_id}.delete.create')
     def post(self, agent_id):
-        queue_id = _extract_queue_id()
+        body = queue_schema.load(request.get_json(force=True))
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.remove_agent_from_queue(
-            agent_id, queue_id, tenant_uuids=tenant_uuids
+            agent_id, body['queue_id'], tenant_uuids=tenant_uuids
         )
         return '', 204
 

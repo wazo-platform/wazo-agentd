@@ -24,5 +24,10 @@ class UserAgentLoginSchema(BaseSchema):
     line_id = fields.Integer(required=True)
 
 
+class QueueSchema(BaseSchema):
+    queue_id = fields.Integer(required=True)
+
+
 agent_login_schema = AgentLoginSchema()
+queue_schema = QueueSchema()
 user_agent_login_schema = UserAgentLoginSchema()
