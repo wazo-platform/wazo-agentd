@@ -34,6 +34,7 @@ from xivo.tenant_helpers import UnauthorizedTenant
 from xivo.tenant_flask_helpers import Tenant, token
 
 from wazo_agentd.swagger.resource import SwaggerResource
+from wazo_agentd.schemas import agent_login_schema
 
 logger = logging.getLogger(__name__)
 
@@ -97,13 +98,6 @@ def _extract_field(obj, key, type_):
         raise BadRequest('invalid type for key {}'.format(key))
 
     return value
-
-
-def _extract_extension_and_context():
-    obj = request.get_json()
-    extension = _extract_field(obj, 'extension', str)
-    context = _extract_field(obj, 'context', str)
-    return extension, context
 
 
 def _extract_line_id():
@@ -193,10 +187,10 @@ class _AgentByNumber(_BaseResource):
 class _LoginAgentById(_BaseResource):
     @required_acl('agentd.agents.by-id.{agent_id}.login.create')
     def post(self, agent_id):
-        extension, context = _extract_extension_and_context()
+        body = agent_login_schema.load(request.get_json(force=True))
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.login_agent_by_id(
-            agent_id, extension, context, tenant_uuids=tenant_uuids
+            agent_id, body['extension'], body['context'], tenant_uuids=tenant_uuids
         )
         return '', 204
 
@@ -204,10 +198,10 @@ class _LoginAgentById(_BaseResource):
 class _LoginAgentByNumber(_BaseResource):
     @required_acl('agentd.agents.by-number.{agent_number}.login.create')
     def post(self, agent_number):
-        extension, context = _extract_extension_and_context()
+        body = agent_login_schema.load(request.get_json(force=True))
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.login_agent_by_number(
-            agent_number, extension, context, tenant_uuids=tenant_uuids
+            agent_number, body['extension'], body['context'], tenant_uuids=tenant_uuids
         )
         return '', 204
 
