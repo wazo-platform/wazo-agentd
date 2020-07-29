@@ -34,7 +34,10 @@ from xivo.tenant_helpers import UnauthorizedTenant
 from xivo.tenant_flask_helpers import Tenant, token
 
 from wazo_agentd.swagger.resource import SwaggerResource
-from wazo_agentd.schemas import agent_login_schema
+from wazo_agentd.schemas import (
+    agent_login_schema,
+    user_agent_login_schema,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -98,12 +101,6 @@ def _extract_field(obj, key, type_):
         raise BadRequest('invalid type for key {}'.format(key))
 
     return value
-
-
-def _extract_line_id():
-    obj = request.get_json()
-    line_id = _extract_field(obj, 'line_id', int)
-    return line_id
 
 
 def _extract_queue_id():
@@ -211,9 +208,9 @@ class _LoginUserAgent(_BaseResource):
     def post(self):
         tenant_uuids = self._build_tenant_list({'recurse': True})
         user_uuid = _extract_user_uuid()
-        line_id = _extract_line_id()
+        body = user_agent_login_schema.load(request.get_json(force=True))
         self.service_proxy.login_user_agent(
-            user_uuid, line_id, tenant_uuids=tenant_uuids
+            user_uuid, body['line_id'], tenant_uuids=tenant_uuids
         )
         return '', 204
 

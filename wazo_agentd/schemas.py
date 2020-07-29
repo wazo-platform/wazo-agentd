@@ -20,4 +20,9 @@ class AgentLoginSchema(BaseSchema):
     context = fields.String(required=True)
 
 
+class UserAgentLoginSchema(BaseSchema):
+    line_id = fields.Integer(required=True)
+
+
 agent_login_schema = AgentLoginSchema()
+user_agent_login_schema = UserAgentLoginSchema()
