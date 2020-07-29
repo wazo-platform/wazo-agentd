@@ -39,7 +39,7 @@ class LogoffHandler:
             agent_status = self._agent_status_dao.get_status_by_user(
                 user_uuid, tenant_uuids=tenant_uuids
             )
-        self._handle_logoff(agent_status)
+        self._logoff_manager.logoff_user_agent(user_uuid, agent_status, tenant_uuids)
 
     @debug.trace_duration
     def handle_logoff_all(self, tenant_uuids=None):

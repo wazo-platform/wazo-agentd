@@ -75,6 +75,7 @@ class TestAgents(BaseIntegrationTest):
         with associations.user_agent(
             self.database, user_line_extension['user_id'], agent['id']
         ):
+            # login
             self.agentd.agents.login_user_agent(user_line_extension['line_id'])
 
             status = self.agentd.agents.get_agent_status(agent['id'])
@@ -92,6 +93,7 @@ class TestAgents(BaseIntegrationTest):
                 ),
             )
 
+            # logoff
             self.agentd.agents.logoff_user_agent()
 
             status = self.agentd.agents.get_agent_status(agent['id'])
@@ -141,9 +143,27 @@ class TestAgents(BaseIntegrationTest):
             )
 
     @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
-    def test_login_user_agent_without_agent(self, user_line_extension):
+    def test_login_logoff_user_agent_without_agent(self, user_line_extension):
         self.create_user_token(user_line_extension['user_uuid'])
 
+        # login
+        assert_that(
+            calling(self.agentd.agents.login_user_agent).with_args(
+                user_line_extension['line_id']
+            ),
+            raises(AgentdClientError, has_properties(error=NO_SUCH_AGENT)),
+        )
+        # logoff
+        assert_that(
+            calling(self.agentd.agents.logoff_user_agent),
+            raises(AgentdClientError, has_properties(error=NO_SUCH_AGENT)),
+        )
+
+    @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
+    def test_login_logoff_user_agent_without_user(self, user_line_extension):
+        self.create_user_token(UNKNOWN_UUID)
+
+        # login
         assert_that(
             calling(self.agentd.agents.login_user_agent).with_args(
                 user_line_extension['line_id']
@@ -151,13 +171,8 @@ class TestAgents(BaseIntegrationTest):
             raises(AgentdClientError, has_properties(error=NO_SUCH_AGENT)),
         )
 
-    @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
-    def test_login_user_agent_without_user(self, user_line_extension):
-        self.create_user_token(UNKNOWN_UUID)
-
+        # logoff
         assert_that(
-            calling(self.agentd.agents.login_user_agent).with_args(
-                user_line_extension['line_id']
-            ),
+            calling(self.agentd.agents.logoff_user_agent),
             raises(AgentdClientError, has_properties(error=NO_SUCH_AGENT)),
         )
