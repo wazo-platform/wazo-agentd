@@ -26,6 +26,19 @@ class TestAgents(BaseIntegrationTest):
             raises(AgentdClientError, has_properties(error=UNAUTHORIZED)),
         )
 
+    def test_login_wrong_parameters(self):
+        SOME_INTEGER = 1234
+
+        assert_that(
+            calling(self.agentd.agents.login_agent).with_args(
+                UNKNOWN_ID, SOME_INTEGER, SOME_INTEGER
+            ),
+            raises(
+                AgentdClientError,
+                has_properties(error='invalid fields: extension, context'),
+            ),
+        )
+
     @fixtures.user_line_extension(exten='1001', context='default')
     @fixtures.agent()
     def test_login_logoff(self, user_line_extension, agent):

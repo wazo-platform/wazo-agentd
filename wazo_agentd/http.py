@@ -9,6 +9,7 @@ from flask import Flask
 from flask import request
 from flask_cors import CORS
 from flask_restful import Api, Resource
+from marshmallow import ValidationError
 from requests import HTTPError
 
 from werkzeug.contrib.fixers import ProxyFix
@@ -78,6 +79,8 @@ def _common_error_handler(fun):
     def aux(*args, **kwargs):
         try:
             return fun(*args, **kwargs)
+        except ValidationError as e:
+            return {'error': 'invalid fields: ' + ', '.join(e.messages.keys())}, 400
         except _AGENT_400_ERRORS as e:
             return {'error': e.error}, 400
         except UnauthorizedTenant as e:
