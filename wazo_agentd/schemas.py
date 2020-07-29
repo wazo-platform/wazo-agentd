@@ -3,7 +3,7 @@
 
 from marshmallow import Schema, pre_load, EXCLUDE
 
-from xivo.mallow import fields
+from xivo.mallow import fields, validate
 
 
 class BaseSchema(Schema):
@@ -24,10 +24,17 @@ class UserAgentLoginSchema(BaseSchema):
     line_id = fields.Integer(required=True)
 
 
+class PauseSchema(BaseSchema):
+    reason = fields.String(
+        validate=validate.Length(min=1, max=80), missing=None, default=None
+    )
+
+
 class QueueSchema(BaseSchema):
     queue_id = fields.Integer(required=True)
 
 
 agent_login_schema = AgentLoginSchema()
+pause_schema = PauseSchema()
 queue_schema = QueueSchema()
 user_agent_login_schema = UserAgentLoginSchema()

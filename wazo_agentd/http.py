@@ -11,7 +11,6 @@ from flask_cors import CORS
 from flask_restful import Api, Resource
 from requests import HTTPError
 
-from werkzeug.exceptions import BadRequest
 from werkzeug.contrib.fixers import ProxyFix
 from wazo_agentd.exception import (
     AgentServerError,
@@ -36,6 +35,7 @@ from xivo.tenant_flask_helpers import Tenant, token
 from wazo_agentd.swagger.resource import SwaggerResource
 from wazo_agentd.schemas import (
     agent_login_schema,
+    pause_schema,
     queue_schema,
     user_agent_login_schema,
 )
@@ -90,28 +90,6 @@ def _common_error_handler(fun):
             return {'error': e.error}, 500
 
     return aux
-
-
-def _extract_field(obj, key, type_):
-    try:
-        value = obj[key]
-    except (KeyError, TypeError):
-        raise BadRequest('missing key {}'.format(key))
-
-    if not isinstance(value, type_):
-        raise BadRequest('invalid type for key {}'.format(key))
-
-    return value
-
-
-def _extract_reason():
-    obj = request.get_json()
-    reason = None
-    if obj:
-        reason = _extract_field(obj, 'reason', str)
-        if len(reason) > 80:
-            raise BadRequest('invalid value for key reason, max length 80')
-    return reason
 
 
 def _extract_user_uuid():
@@ -282,10 +260,10 @@ class _RelogAgents(_BaseResource):
 class _PauseAgentByNumber(_BaseResource):
     @required_acl('agentd.agents.by-number.{agent_number}.pause.create')
     def post(self, agent_number):
-        reason = _extract_reason()
+        body = pause_schema.load(request.get_json(force=True))
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.pause_agent_by_number(
-            agent_number, reason, tenant_uuids=tenant_uuids
+            agent_number, body['reason'], tenant_uuids=tenant_uuids
         )
         return '', 204
 
