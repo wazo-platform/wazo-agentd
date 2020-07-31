@@ -179,10 +179,10 @@ paths:
             on this extension and context
           schema:
             $ref: '#/definitions/Error'
-  /users/me/agent/login:
+  /users/me/agents/login:
     post:
       summary: Log the agent of the user holding the authentication token
-      description: '**Required ACL:** `agentd.users.me.agent.login.create`'
+      description: '**Required ACL:** `agentd.users.me.agents.login.create`'
       operationId: login_user_agent
       tags:
       - agent
@@ -245,10 +245,10 @@ paths:
           description: Agent does not exist or is not logged
           schema:
             $ref: '#/definitions/Error'
-  /users/me/agent/logoff:
+  /users/me/agents/logoff:
     post:
       summary: Logoff the agent of the user holding the authentication token
-      description: '**Required ACL:** `agentd.users.me.agent.logoff.create`'
+      description: '**Required ACL:** `agentd.users.me.agents.logoff.create`'
       operationId: logoff_user_agent
       tags:
       - agent
