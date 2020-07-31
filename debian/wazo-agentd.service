@@ -2,13 +2,14 @@
 Description=wazo-agentd server
 ConditionPathExists=!/var/lib/wazo/disabled
 After=network-online.target asterisk.service postgresql.service rabbitmq-server.service
-Before=monit.service
+StartLimitBurst=15
+StartLimitIntervalSec=150
 
 [Service]
-ExecStartPre=/usr/bin/install -d -o wazo-agentd -g wazo-agentd /run/wazo-agentd
 ExecStart=/usr/bin/wazo-agentd
 ExecStartPost=/usr/bin/wazo-agentd-wait
-PIDFile=/run/wazo-agentd/wazo-agentd.pid
+Restart=on-failure
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
