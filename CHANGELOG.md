@@ -1,5 +1,12 @@
 # Changelog
 
+## 20.11
+
+* Added endpoints for user agents login/logoff:
+
+  * POST `/users/me/agents/login`
+  * POST `/users/me/agents/logoff`
+
 ## 20.08
 
 * Deprecate SSL configuration
