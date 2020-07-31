@@ -156,7 +156,7 @@ class _AgentByNumber(_BaseResource):
 class _LoginAgentById(_BaseResource):
     @required_acl('agentd.agents.by-id.{agent_id}.login.create')
     def post(self, agent_id):
-        body = agent_login_schema.load(request.get_json(force=True))
+        body = agent_login_schema.load(request.get_json())
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.login_agent_by_id(
             agent_id, body['extension'], body['context'], tenant_uuids=tenant_uuids
@@ -167,7 +167,7 @@ class _LoginAgentById(_BaseResource):
 class _LoginAgentByNumber(_BaseResource):
     @required_acl('agentd.agents.by-number.{agent_number}.login.create')
     def post(self, agent_number):
-        body = agent_login_schema.load(request.get_json(force=True))
+        body = agent_login_schema.load(request.get_json())
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.login_agent_by_number(
             agent_number, body['extension'], body['context'], tenant_uuids=tenant_uuids
@@ -180,7 +180,7 @@ class _LoginUserAgent(_BaseResource):
     def post(self):
         tenant_uuids = self._build_tenant_list({'recurse': True})
         user_uuid = token.user_uuid
-        body = user_agent_login_schema.load(request.get_json(force=True))
+        body = user_agent_login_schema.load(request.get_json())
         self.service_proxy.login_user_agent(
             user_uuid, body['line_id'], tenant_uuids=tenant_uuids
         )
@@ -228,7 +228,7 @@ class _LogoffAgents(_BaseResource):
 class _AddAgentToQueue(_BaseResource):
     @required_acl('agentd.agents.by-id.{agent_id}.add.create')
     def post(self, agent_id):
-        body = queue_schema.load(request.get_json(force=True))
+        body = queue_schema.load(request.get_json())
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.add_agent_to_queue(
             agent_id, body['queue_id'], tenant_uuids=tenant_uuids
@@ -239,7 +239,7 @@ class _AddAgentToQueue(_BaseResource):
 class _RemoveAgentFromQueue(_BaseResource):
     @required_acl('agentd.agents.by-id.{agent_id}.delete.create')
     def post(self, agent_id):
-        body = queue_schema.load(request.get_json(force=True))
+        body = queue_schema.load(request.get_json())
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.remove_agent_from_queue(
             agent_id, body['queue_id'], tenant_uuids=tenant_uuids
@@ -259,7 +259,7 @@ class _RelogAgents(_BaseResource):
 class _PauseAgentByNumber(_BaseResource):
     @required_acl('agentd.agents.by-number.{agent_number}.pause.create')
     def post(self, agent_number):
-        body = pause_schema.load(request.get_json(force=True))
+        body = pause_schema.load(request.get_json())
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.pause_agent_by_number(
             agent_number, body['reason'], tenant_uuids=tenant_uuids
