@@ -14,8 +14,9 @@ class TestLoginManager(unittest.TestCase):
         self.login_action = Mock()
         self.agent_status_dao = Mock()
         self.context_dao = Mock()
+        self.line_dao = Mock()
         self.login_manager = LoginManager(
-            self.login_action, self.agent_status_dao, self.context_dao
+            self.login_action, self.agent_status_dao, self.context_dao, self.line_dao,
         )
 
     def test_login_agent(self):
@@ -51,3 +52,15 @@ class TestLoginManager(unittest.TestCase):
         )
 
         self.login_action.login_agent.assert_not_called()
+
+    def test_login_user_agent(self):
+        agent = Mock(tenant_uuid='fake-tenant')
+        user_uuid = 'my-user-uuid'
+        line_id = 12
+
+        self.agent_status_dao.get_status.return_value = None
+        self.line_dao.is_line_owned_by_user.return_value = True
+
+        self.login_manager.login_user_agent(agent, user_uuid, line_id)
+
+        self.login_action.login_agent_on_line.assert_called_once_with(agent, line_id)

@@ -45,7 +45,9 @@ class LoginHandler:
             'Executing login command (agent of user %s) on line %d', user_uuid, line_id
         )
         with db_utils.session_scope():
-            agent = self._agent_dao.get_agent_by_user_uuid(user_uuid)
+            agent = self._agent_dao.get_agent_by_user_uuid(
+                user_uuid, tenant_uuids=tenant_uuids
+            )
         self._login_manager.login_user_agent(agent, user_uuid, line_id)
 
     def _handle_login(self, agent, extension, context):
