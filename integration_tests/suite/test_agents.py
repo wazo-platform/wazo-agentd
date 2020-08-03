@@ -1,7 +1,7 @@
 # Copyright 2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from hamcrest import assert_that, calling, has_properties, is_
+from hamcrest import all_of, assert_that, calling, has_properties, is_, matches_regexp
 
 from wazo_agentd_client.error import (
     AgentdClientError,
@@ -35,7 +35,13 @@ class TestAgents(BaseIntegrationTest):
             ),
             raises(
                 AgentdClientError,
-                has_properties(error='invalid fields: extension, context'),
+                has_properties(
+                    error=all_of(
+                        matches_regexp('invalid fields: .*'),
+                        matches_regexp('extension'),
+                        matches_regexp('context'),
+                    )
+                ),
             ),
         )
 
