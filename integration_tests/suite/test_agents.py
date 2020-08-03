@@ -79,8 +79,6 @@ class TestAgents(BaseIntegrationTest):
                     'context': 'default',
                     'extension': '1001',
                     'number': '1234',
-                    'paused': False,
-                    'paused_reason': None,
                     'state_interface': 'PJSIP/abcdef',
                 }
             ),
