@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text
 from xivo_dao.alchemy.agent_membership_status import AgentMembershipStatus
 from xivo_dao.alchemy.agentfeatures import AgentFeatures as Agent
+from xivo_dao.alchemy.agent_login_status import AgentLoginStatus
 from xivo_dao.alchemy.extension import Extension
 from xivo_dao.alchemy.line_extension import LineExtension
 from xivo_dao.alchemy.linefeatures import LineFeatures as Line
@@ -105,6 +106,9 @@ class DatabaseQueries(object):
     def delete_agent(self, agent_id):
         session = self.Session()
         session.query(Agent).filter(Agent.id == agent_id).delete()
+        session.query(AgentLoginStatus).filter(
+            AgentLoginStatus.agent_id == agent_id
+        ).delete()
         session.commit()
 
     def insert_queue(self, **kwargs):
@@ -120,6 +124,13 @@ class DatabaseQueries(object):
         session = self.Session()
         user = session.query(User).get(user_id)
         user.agent_id = agent_id
+        session.commit()
+
+    def dissociate_user_agent(self, user_id, agent_id):
+        del agent_id
+        session = self.Session()
+        user = session.query(User).get(user_id)
+        user.agent_id = None
         session.commit()
 
     def associate_queue_agent(self, queue_id, agent_id):
@@ -160,11 +171,12 @@ class DatabaseQueries(object):
             sip = inserter.add_usersip()
             kwargs['endpoint_sip_id'] = sip.id
             user_line = inserter.add_user_line_with_exten(**kwargs)
-            return (
-                user_line.user.id,
-                user_line.line.id,
-                user_line.line.extensions[0].id,
-            )
+            return {
+                'user_id': user_line.user.id,
+                'user_uuid': user_line.user.uuid,
+                'line_id': user_line.line.id,
+                'extension_id': user_line.line.extensions[0].id,
+            }
 
     def delete_user_line_extension(self, user_id, line_id, extension_id):
         session = self.Session()

@@ -3,6 +3,7 @@
 
 import logging
 import os
+import uuid
 
 from wazo_agentd_client import Client as AgentdClient
 
@@ -20,6 +21,7 @@ TOKEN_UUID = '00000000-0000-0000-0000-000000000101'
 TOKEN_USER_UUID = '00000000-0000-0000-0000-000000000301'
 
 UNKNOWN_UUID = '00000000-0000-0000-0000-000000000000'
+UNKNOWN_ID = 9999999999999
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +58,18 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
                 'parent_uuid': TOKEN_TENANT_UUID,
             }
         )
+
+    @classmethod
+    def create_user_token(cls, user_uuid):
+        token_uuid = str(uuid.uuid4())
+        token = MockUserToken(
+            token_uuid,
+            user_uuid,
+            metadata={'uuid': user_uuid, 'tenant_uuid': TOKEN_TENANT_UUID},
+        )
+        cls.auth.set_token(token)
+        cls.agentd.set_token(token_uuid)
+        return token_uuid
 
     @classmethod
     def reset_clients(cls):

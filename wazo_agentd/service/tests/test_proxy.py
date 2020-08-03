@@ -71,6 +71,13 @@ class TestServiceProxy(unittest.TestCase):
             s.agent_number, s.extension, s.context, tenant_uuids=self.tenants
         )
 
+    def test_login_user_agent(self):
+        self.proxy.login_user_agent(s.user_uuid, s.line_id, tenant_uuids=self.tenants)
+
+        self.login_handler.handle_login_user_agent.assert_called_once_with(
+            s.user_uuid, s.line_id, tenant_uuids=self.tenants
+        )
+
     def test_logoff_agent_by_id(self):
         self.proxy.logoff_agent_by_id(s.agent_id, tenant_uuids=self.tenants)
 
@@ -83,6 +90,13 @@ class TestServiceProxy(unittest.TestCase):
 
         self.logoff_handler.handle_logoff_by_number.assert_called_once_with(
             s.agent_number, tenant_uuids=self.tenants
+        )
+
+    def test_logoff_user_agent(self):
+        self.proxy.logoff_user_agent(s.user_uuid, tenant_uuids=self.tenants)
+
+        self.logoff_handler.handle_logoff_user_agent.assert_called_once_with(
+            s.user_uuid, tenant_uuids=self.tenants
         )
 
     def test_logoff_all(self):

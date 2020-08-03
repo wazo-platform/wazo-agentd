@@ -49,3 +49,20 @@ class TestLoginHandler(unittest.TestCase):
         self.login_manager.login_agent.assert_called_once_with(
             agent, extension, context
         )
+
+    def test_handle_login_user_agent(self):
+        user_uuid = 'my-user-uuid'
+        line_id = 12
+        agent = Mock()
+        self.agent_dao.get_agent_by_user_uuid.return_value = agent
+
+        self.login_handler.handle_login_user_agent(
+            user_uuid, line_id, tenant_uuids=self.tenants
+        )
+
+        self.agent_dao.get_agent_by_user_uuid.assert_called_once_with(
+            user_uuid, tenant_uuids=self.tenants
+        )
+        self.login_manager.login_user_agent.assert_called_once_with(
+            agent, user_uuid, line_id
+        )

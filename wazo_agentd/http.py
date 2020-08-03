@@ -9,9 +9,9 @@ from flask import Flask
 from flask import request
 from flask_cors import CORS
 from flask_restful import Api, Resource
+from marshmallow import ValidationError
 from requests import HTTPError
 
-from werkzeug.exceptions import BadRequest
 from werkzeug.contrib.fixers import ProxyFix
 from wazo_agentd.exception import (
     AgentServerError,
@@ -21,6 +21,7 @@ from wazo_agentd.exception import (
     ExtensionAlreadyInUseError,
     AgentNotLoggedError,
     NoSuchQueueError,
+    NoSuchLineError,
     AgentAlreadyInQueueError,
     AgentNotInQueueError,
     ContextDifferentTenantError,
@@ -30,9 +31,15 @@ from xivo import http_helpers
 from xivo.auth_verifier import AuthVerifier, required_acl
 from xivo.http_helpers import ReverseProxied
 from xivo.tenant_helpers import UnauthorizedTenant
-from xivo.tenant_flask_helpers import Tenant
+from xivo.tenant_flask_helpers import Tenant, token
 
 from wazo_agentd.swagger.resource import SwaggerResource
+from wazo_agentd.schemas import (
+    agent_login_schema,
+    pause_schema,
+    queue_schema,
+    user_agent_login_schema,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +52,11 @@ _AGENT_409_ERRORS = (
     AgentNotInQueueError,
     ExtensionAlreadyInUseError,
 )
-_AGENT_400_ERRORS = (ContextDifferentTenantError, QueueDifferentTenantError)
+_AGENT_400_ERRORS = (
+    ContextDifferentTenantError,
+    NoSuchLineError,
+    QueueDifferentTenantError,
+)
 
 
 class AgentdAuthVerifier(AuthVerifier):
@@ -68,6 +79,8 @@ def _common_error_handler(fun):
     def aux(*args, **kwargs):
         try:
             return fun(*args, **kwargs)
+        except ValidationError as e:
+            return {'error': 'invalid fields: ' + ', '.join(e.messages.keys())}, 400
         except _AGENT_400_ERRORS as e:
             return {'error': e.error}, 400
         except UnauthorizedTenant as e:
@@ -80,41 +93,6 @@ def _common_error_handler(fun):
             return {'error': e.error}, 500
 
     return aux
-
-
-def _extract_field(obj, key, type_):
-    try:
-        value = obj[key]
-    except (KeyError, TypeError):
-        raise BadRequest('missing key {}'.format(key))
-
-    if not isinstance(value, type_):
-        raise BadRequest('invalid type for key {}'.format(key))
-
-    return value
-
-
-def _extract_extension_and_context():
-    obj = request.get_json()
-    extension = _extract_field(obj, 'extension', str)
-    context = _extract_field(obj, 'context', str)
-    return extension, context
-
-
-def _extract_queue_id():
-    obj = request.get_json()
-    queue_id = _extract_field(obj, 'queue_id', int)
-    return queue_id
-
-
-def _extract_reason():
-    obj = request.get_json()
-    reason = None
-    if obj:
-        reason = _extract_field(obj, 'reason', str)
-        if len(reason) > 80:
-            raise BadRequest('invalid value for key reason, max length 80')
-    return reason
 
 
 class _BaseResource(Resource):
@@ -178,10 +156,10 @@ class _AgentByNumber(_BaseResource):
 class _LoginAgentById(_BaseResource):
     @required_acl('agentd.agents.by-id.{agent_id}.login.create')
     def post(self, agent_id):
-        extension, context = _extract_extension_and_context()
+        body = agent_login_schema.load(request.get_json())
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.login_agent_by_id(
-            agent_id, extension, context, tenant_uuids=tenant_uuids
+            agent_id, body['extension'], body['context'], tenant_uuids=tenant_uuids
         )
         return '', 204
 
@@ -189,10 +167,22 @@ class _LoginAgentById(_BaseResource):
 class _LoginAgentByNumber(_BaseResource):
     @required_acl('agentd.agents.by-number.{agent_number}.login.create')
     def post(self, agent_number):
-        extension, context = _extract_extension_and_context()
+        body = agent_login_schema.load(request.get_json())
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.login_agent_by_number(
-            agent_number, extension, context, tenant_uuids=tenant_uuids
+            agent_number, body['extension'], body['context'], tenant_uuids=tenant_uuids
+        )
+        return '', 204
+
+
+class _LoginUserAgent(_BaseResource):
+    @required_acl('agentd.users.me.agents.login.create')
+    def post(self):
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        user_uuid = token.user_uuid
+        body = user_agent_login_schema.load(request.get_json())
+        self.service_proxy.login_user_agent(
+            user_uuid, body['line_id'], tenant_uuids=tenant_uuids
         )
         return '', 204
 
@@ -217,6 +207,15 @@ class _LogoffAgentByNumber(_BaseResource):
         return '', 204
 
 
+class _LogoffUserAgent(_BaseResource):
+    @required_acl('agentd.users.me.agents.logoff.create')
+    def post(self):
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        user_uuid = token.user_uuid
+        self.service_proxy.logoff_user_agent(user_uuid, tenant_uuids=tenant_uuids)
+        return '', 204
+
+
 class _LogoffAgents(_BaseResource):
     @required_acl('agentd.agents.logoff.create')
     def post(self):
@@ -229,10 +228,10 @@ class _LogoffAgents(_BaseResource):
 class _AddAgentToQueue(_BaseResource):
     @required_acl('agentd.agents.by-id.{agent_id}.add.create')
     def post(self, agent_id):
-        queue_id = _extract_queue_id()
+        body = queue_schema.load(request.get_json())
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.add_agent_to_queue(
-            agent_id, queue_id, tenant_uuids=tenant_uuids
+            agent_id, body['queue_id'], tenant_uuids=tenant_uuids
         )
         return '', 204
 
@@ -240,10 +239,10 @@ class _AddAgentToQueue(_BaseResource):
 class _RemoveAgentFromQueue(_BaseResource):
     @required_acl('agentd.agents.by-id.{agent_id}.delete.create')
     def post(self, agent_id):
-        queue_id = _extract_queue_id()
+        body = queue_schema.load(request.get_json())
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.remove_agent_from_queue(
-            agent_id, queue_id, tenant_uuids=tenant_uuids
+            agent_id, body['queue_id'], tenant_uuids=tenant_uuids
         )
         return '', 204
 
@@ -260,10 +259,10 @@ class _RelogAgents(_BaseResource):
 class _PauseAgentByNumber(_BaseResource):
     @required_acl('agentd.agents.by-number.{agent_number}.pause.create')
     def post(self, agent_number):
-        reason = _extract_reason()
+        body = pause_schema.load(request.get_json())
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.pause_agent_by_number(
-            agent_number, reason, tenant_uuids=tenant_uuids
+            agent_number, body['reason'], tenant_uuids=tenant_uuids
         )
         return '', 204
 
@@ -288,8 +287,10 @@ class HTTPInterface:
         (_AgentByNumber, '/agents/by-number/<agent_number>'),
         (_LoginAgentById, '/agents/by-id/<int:agent_id>/login'),
         (_LoginAgentByNumber, '/agents/by-number/<agent_number>/login'),
+        (_LoginUserAgent, '/users/me/agents/login'),
         (_LogoffAgentById, '/agents/by-id/<int:agent_id>/logoff'),
         (_LogoffAgentByNumber, '/agents/by-number/<agent_number>/logoff'),
+        (_LogoffUserAgent, '/users/me/agents/logoff'),
         (_AddAgentToQueue, '/agents/by-id/<int:agent_id>/add'),
         (_RemoveAgentFromQueue, '/agents/by-id/<int:agent_id>/remove'),
         (_PauseAgentByNumber, '/agents/by-number/<agent_number>/pause'),

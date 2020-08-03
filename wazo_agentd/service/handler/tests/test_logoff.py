@@ -39,3 +39,19 @@ class TestLogoffHandler(unittest.TestCase):
             agent_number, tenant_uuids=self.tenants
         )
         self.logoff_manager.logoff_agent.assert_called_once_with(agent_status)
+
+    def test_handle_logoff_user_agent(self):
+        user_uuid = 'my-user-uuid'
+        agent_status = Mock()
+        self.agent_status_dao.get_status_by_user.return_value = agent_status
+
+        self.logoff_handler.handle_logoff_user_agent(
+            user_uuid, tenant_uuids=self.tenants
+        )
+
+        self.agent_status_dao.get_status_by_user.assert_called_once_with(
+            user_uuid, tenant_uuids=self.tenants
+        )
+        self.logoff_manager.logoff_user_agent.assert_called_once_with(
+            user_uuid, agent_status, tenant_uuids=self.tenants
+        )

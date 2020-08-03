@@ -78,3 +78,56 @@ class TestLoginAction(unittest.TestCase):
             AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_IN),
             headers={'user_uuid:42': True, 'user_uuid:43': True, 'agent_id:10': True},
         )
+
+    def test_login_agent_on_line(self):
+        agent_id = 10
+        line_id = 12
+        agent_number = '10'
+        queue = Mock()
+        agent = Mock()
+        agent.id = agent_id
+        agent.number = agent_number
+        agent.queues = [queue]
+        extension = '1001'
+        context = 'default'
+        state_interface_sip = 'SIP/abcd'
+        state_interface_pjsip = 'PJSIP/abcd'
+        skills = format_agent_skills(agent_id)
+
+        self.line_dao.get_interface_from_line_id.return_value = state_interface_sip
+        self.line_dao.get_main_extension_context_from_line_id.return_value = (
+            extension,
+            context,
+        )
+        self.user_dao.find_all_by_agent_id.return_value = [
+            Mock(uuid='42'),
+            Mock(uuid='43'),
+        ]
+        self.amid_client.action.return_value = [{'Response': 'Ok'}]
+
+        self.login_action.login_agent_on_line(agent, line_id)
+
+        self.agent_status_dao.log_in_agent.assert_called_once_with(
+            agent_id, agent_number, extension, context, ANY, state_interface_pjsip
+        )
+        self.agent_status_dao.add_agent_to_queues.assert_called_once_with(
+            agent_id, agent.queues
+        )
+        self.queue_log_manager.on_agent_logged_in.assert_called_once_with(
+            agent_number, extension, context
+        )
+        self.amid_client.action.assert_called_once_with(
+            'QueueAdd',
+            {
+                'Queue': queue.name,
+                'Interface': ANY,
+                'MemberName': ANY,
+                'StateInterface': state_interface_pjsip,
+                'Penalty': queue.penalty,
+                'Skills': skills,
+            },
+        )
+        self.bus_publisher.publish.assert_called_once_with(
+            AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_IN),
+            headers={'user_uuid:42': True, 'user_uuid:43': True, 'agent_id:10': True},
+        )

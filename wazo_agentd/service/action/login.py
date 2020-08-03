@@ -3,7 +3,7 @@
 
 import logging
 
-from wazo_agentd.exception import NoSuchExtensionError
+from wazo_agentd.exception import NoSuchExtensionError, NoSuchLineError
 from wazo_agentd.service.helper import format_agent_member_name, format_agent_skills
 from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
 from xivo_dao.helpers import db_utils
@@ -34,13 +34,30 @@ class LoginAction:
         # * extension@context is not used
         interface = self._get_interface(agent)
         state_interface = self._get_state_interface(extension, context)
+        state_interface = self._pjsip_fixup(state_interface)
 
+        self._do_login(agent, extension, context, interface, state_interface)
+
+    def login_agent_on_line(self, agent, line_id):
+        # Precondition:
+        # * agent is not logged
+        # * line has an extension
+        interface = self._get_interface(agent)
+        state_interface = self._get_state_interface_from_line_id(line_id)
+        state_interface = self._pjsip_fixup(state_interface)
+        extension, context = self._line_dao.get_main_extension_context_from_line_id(
+            line_id
+        )
+        self._do_login(agent, extension, context, interface, state_interface)
+
+    def _pjsip_fixup(self, state_interface):
         # TODO PJSIP: clean after migration
         if state_interface.startswith('SIP/'):
-            state_interface = 'PJ{}'.format(state_interface)
+            return 'PJ{}'.format(state_interface)
         if state_interface.startswith('sip/'):
-            state_interface = 'pj{}'.format(state_interface)
+            return 'pj{}'.format(state_interface)
 
+    def _do_login(self, agent, extension, context, interface, state_interface):
         self._update_agent_status(agent, extension, context, interface, state_interface)
         self._update_queue_log(agent, extension, context)
         self._update_asterisk(agent, interface, state_interface)
@@ -57,6 +74,13 @@ class LoginAction:
                 )
         except LookupError:
             raise NoSuchExtensionError(extension, context)
+
+    def _get_state_interface_from_line_id(self, line_id):
+        try:
+            with db_utils.session_scope():
+                return self._line_dao.get_interface_from_line_id(line_id)
+        except LookupError:
+            raise NoSuchLineError(line_id)
 
     def _update_agent_status(
         self, agent, extension, context, interface, state_interface
