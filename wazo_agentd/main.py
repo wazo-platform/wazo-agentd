@@ -14,7 +14,6 @@ from wazo_auth_client import Client as AuthClient
 
 from xivo.config_helper import set_xivo_uuid
 from xivo.consul_helpers import ServiceCatalogRegistration
-from xivo.daemonize import pidfile_context
 from xivo.token_renewer import TokenRenewer
 from xivo.user_rights import change_user
 from xivo.xivo_logging import setup_logging, silence_loggers
@@ -67,8 +66,6 @@ from wazo_agentd.service_discovery import self_check
 
 logger = logging.getLogger(__name__)
 
-FOREGROUND = True  # Always in foreground systemd takes care of daemonizing
-
 
 def main(argv=None):
     argv = argv or sys.argv[1:]
@@ -80,20 +77,19 @@ def main(argv=None):
 
     xivo_dao.init_db_from_config(config)
 
-    setup_logging(config['logfile'], FOREGROUND, config['debug'])
+    setup_logging(config['logfile'], debug=config['debug'])
     silence_loggers(['Flask-Cors', 'amqp'], logging.WARNING)
     set_xivo_uuid(config, logger)
 
-    with pidfile_context(config['pidfile'], FOREGROUND):
-        logger.info('Starting wazo-agentd')
-        try:
-            _run(config)
-        except Exception:
-            logger.exception('Unexpected error:')
-        except KeyboardInterrupt:
-            pass
-        finally:
-            logger.info('Stopping wazo-agentd')
+    logger.info('Starting wazo-agentd')
+    try:
+        _run(config)
+    except Exception:
+        logger.exception('Unexpected error:')
+    except KeyboardInterrupt:
+        pass
+    finally:
+        logger.info('Stopping wazo-agentd')
 
 
 def _run(config):
