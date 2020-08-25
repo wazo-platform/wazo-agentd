@@ -7,7 +7,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 COPY . /usr/src/agentd
 WORKDIR /usr/src/agentd
-RUN pip install -r requirements.txt
+RUN apt-get update && apt-get install -y gcc && pip install -r requirements.txt
 RUN python setup.py install
 
 FROM python:3.7-slim-buster AS build-image
