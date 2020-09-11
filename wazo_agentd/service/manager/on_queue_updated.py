@@ -1,4 +1,4 @@
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from xivo_dao.helpers import db_utils
@@ -15,8 +15,8 @@ class OnQueueUpdatedManager:
             added_agent_statuses = self._agent_status_dao.get_statuses_to_add_to_queue(
                 queue.id
             )
-            removed_agent_statuses = self._agent_status_dao.get_statuses_to_remove_from_queue(
-                queue.id
+            removed_agent_statuses = (
+                self._agent_status_dao.get_statuses_to_remove_from_queue(queue.id)
             )
 
         self._manage_added_agents(added_agent_statuses, queue)
