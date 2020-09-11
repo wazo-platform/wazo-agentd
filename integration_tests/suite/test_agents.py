@@ -1,4 +1,4 @@
-# Copyright 2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from hamcrest import all_of, assert_that, calling, has_properties, is_, matches_regexp
@@ -50,7 +50,9 @@ class TestAgents(BaseIntegrationTest):
     def test_login_logoff(self, user_line_extension, agent):
 
         self.agentd.agents.login_agent(
-            agent['id'], user_line_extension['exten'], user_line_extension['context'],
+            agent['id'],
+            user_line_extension['exten'],
+            user_line_extension['context'],
         )
 
         status = self.agentd.agents.get_agent_status(agent['id'])
@@ -66,7 +68,9 @@ class TestAgents(BaseIntegrationTest):
     def test_agent_status(self, user_line_extension, agent):
 
         self.agentd.agents.login_agent(
-            agent['id'], user_line_extension['exten'], user_line_extension['context'],
+            agent['id'],
+            user_line_extension['exten'],
+            user_line_extension['context'],
         )
 
         status = self.agentd.agents.get_agent_status(agent['id'])
