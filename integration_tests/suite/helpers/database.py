@@ -168,8 +168,8 @@ class DatabaseQueries(object):
 
     def insert_user_line_extension(self, **kwargs):
         with self.inserter() as inserter:
-            sip = inserter.add_usersip()
-            kwargs['endpoint_sip_id'] = sip.id
+            sip = inserter.add_endpoint_sip()
+            kwargs['endpoint_sip_uuid'] = sip.uuid
             user_line = inserter.add_user_line_with_exten(**kwargs)
             return {
                 'user_id': user_line.user.id,
