@@ -10,12 +10,12 @@ egg-info:
 	cd .. && python setup.py egg_info
 
 agentd:
-	docker build -t wazopbx/wazo-agentd ..
+	docker build -t wazoplatform/wazo-agentd ..
 
 agentd-test: egg-info
 	docker build --no-cache -t wazo-agentd-test -f Dockerfile-agentd ..
 
 db:
-	docker build --no-cache -t wazopbx/wazo-confd-db-test -f $(POSTGRES_DOCKER) $(MANAGE_DB_DIR)
+	docker build --no-cache -t wazoplatform/wazo-confd-db-test -f $(POSTGRES_DOCKER) $(MANAGE_DB_DIR)
 
 .PHONY: test-setup test egg-info agentd agentd-test db
