@@ -2,6 +2,8 @@ debug: true
 rest_api:
   listen: 0.0.0.0
 db_uri: postgresql://asterisk:proformatique@postgres/asterisk
+amid:
+  host: amid
 auth:
   host: auth
   key_file: /tmp/key-file.yml

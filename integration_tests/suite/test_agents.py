@@ -1,7 +1,14 @@
 # Copyright 2019-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from hamcrest import all_of, assert_that, calling, has_properties, is_, matches_regexp
+from hamcrest import (
+    all_of,
+    assert_that,
+    calling,
+    has_properties,
+    is_,
+    matches_regexp,
+)
 
 from wazo_agentd_client.error import (
     AgentdClientError,
@@ -10,6 +17,7 @@ from wazo_agentd_client.error import (
     NO_SUCH_LINE,
     UNAUTHORIZED,
 )
+from xivo_test_helpers import until
 from xivo_test_helpers.hamcrest.raises import raises
 
 from .helpers.base import BaseIntegrationTest, UNKNOWN_UUID, UNKNOWN_ID
@@ -118,15 +126,21 @@ class TestAgents(BaseIntegrationTest):
 
             # pause
             self.agentd.agents.pause_user_agent()
+            self.bus.send_queue_member_pause('1234', paused=True)
 
-            status = self.agentd.agents.get_agent_status(agent['id'])
-            assert_that(status, has_properties(paused=True))
+            def test_on_msg_received():
+                status = self.agentd.agents.get_agent_status(agent['id'])
+                assert_that(status, has_properties(paused=True))
+            until.assert_(test_on_msg_received, tries=10)
 
             # resume
             self.agentd.agents.resume_user_agent()
+            self.bus.send_queue_member_pause('1234', paused=False)
 
-            status = self.agentd.agents.get_agent_status(agent['id'])
-            assert_that(status, has_properties(paused=False))
+            def test_on_msg_received():
+                status = self.agentd.agents.get_agent_status(agent['id'])
+                assert_that(status, has_properties(paused=False))
+            until.assert_(test_on_msg_received, tries=10)
 
             # logoff
             self.agentd.agents.logoff_user_agent()

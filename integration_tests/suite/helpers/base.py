@@ -12,6 +12,7 @@ from xivo_test_helpers.asset_launching_test_case import (
     AssetLaunchingTestCase,
     NoSuchService,
 )
+from .amid import AmidClient
 from .bus import BusClient
 
 from .database import DbHelper, TENANT_UUID as TOKEN_TENANT_UUID
@@ -73,10 +74,13 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
 
     @classmethod
     def reset_clients(cls):
+        cls.amid = cls.make_amid()
         cls.agentd = cls.make_agentd()
         cls.auth = cls.make_auth()
         cls.bus = cls.make_bus()
         cls.database = cls.make_database()
+
+        cls.amid.set_queuepause()
 
     @classmethod
     def make_agentd(cls, token=TOKEN_UUID):
@@ -101,6 +105,15 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
             logger.debug(e)
             return
         return AuthClient('localhost', port=port)
+
+    @classmethod
+    def make_amid(cls):
+        try:
+            port = cls.service_port(9491, 'amid')
+        except NoSuchService as e:
+            logger.debug(e)
+            return
+        return AmidClient('localhost', port=port)
 
     @classmethod
     def make_bus(cls):

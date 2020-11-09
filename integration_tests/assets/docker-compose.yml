@@ -25,6 +25,11 @@ services:
     ports:
       - '9497'
 
+  amid:
+    image: wazoplatform/wazo-amid-mock
+    ports:
+      - '9491'
+
   postgres:
     image: wazoplatform/wazo-confd-db-test
     ports:
