@@ -153,6 +153,16 @@ class _AgentByNumber(_BaseResource):
         )
 
 
+class _UserAgent(_BaseResource):
+    @required_acl('agentd.users.me.agents.login.create')
+    def get(self):
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        user_uuid = token.user_uuid
+        return self.service_proxy.get_user_agent_status(
+            user_uuid, tenant_uuids=tenant_uuids
+        )
+
+
 class _LoginAgentById(_BaseResource):
     @required_acl('agentd.agents.by-id.{agent_id}.login.create')
     def post(self, agent_id):
@@ -306,6 +316,7 @@ class HTTPInterface:
         (_Agents, '/agents'),
         (_AgentById, '/agents/by-id/<int:agent_id>'),
         (_AgentByNumber, '/agents/by-number/<agent_number>'),
+        (_UserAgent, '/users/me/agents'),
         (_LoginAgentById, '/agents/by-id/<int:agent_id>/login'),
         (_LoginAgentByNumber, '/agents/by-number/<agent_number>/login'),
         (_LoginUserAgent, '/users/me/agents/login'),

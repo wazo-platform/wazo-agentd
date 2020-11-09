@@ -108,6 +108,12 @@ class ServiceProxy:
                 agent_number, tenant_uuids=tenant_uuids
             )
 
+    def get_user_agent_status(self, user_uuid, tenant_uuids=None):
+        with self._lock:
+            return self.status_handler.handle_status_by_user(
+                user_uuid, tenant_uuids=tenant_uuids
+            )
+
     def get_agent_statuses(self, tenant_uuids=None):
         with self._lock:
             return self.status_handler.handle_statuses(tenant_uuids=tenant_uuids)

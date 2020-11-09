@@ -108,7 +108,7 @@ class TestAgents(BaseIntegrationTest):
             # login
             self.agentd.agents.login_user_agent(user_line_extension['line_id'])
 
-            status = self.agentd.agents.get_agent_status(agent['id'])
+            status = self.agentd.agents.get_user_agent_status()
             assert_that(
                 status,
                 has_properties(
@@ -129,7 +129,7 @@ class TestAgents(BaseIntegrationTest):
             self.bus.send_queue_member_pause('1234', paused=True)
 
             def test_on_msg_received():
-                status = self.agentd.agents.get_agent_status(agent['id'])
+                status = self.agentd.agents.get_user_agent_status()
                 assert_that(status, has_properties(paused=True))
             until.assert_(test_on_msg_received, tries=10)
 
@@ -138,14 +138,14 @@ class TestAgents(BaseIntegrationTest):
             self.bus.send_queue_member_pause('1234', paused=False)
 
             def test_on_msg_received():
-                status = self.agentd.agents.get_agent_status(agent['id'])
+                status = self.agentd.agents.get_user_agent_status()
                 assert_that(status, has_properties(paused=False))
             until.assert_(test_on_msg_received, tries=10)
 
             # logoff
             self.agentd.agents.logoff_user_agent()
 
-            status = self.agentd.agents.get_agent_status(agent['id'])
+            status = self.agentd.agents.get_user_agent_status()
             assert_that(
                 status,
                 has_properties(
@@ -193,8 +193,14 @@ class TestAgents(BaseIntegrationTest):
             )
 
     @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
-    def test_login_pause_unpause_logoff_user_agent_without_agent(self, user_line_extension):
+    def test_get_login_pause_unpause_logoff_user_agent_without_agent(self, user_line_extension):
         self.create_user_token(user_line_extension['user_uuid'])
+
+        # get
+        assert_that(
+            calling(self.agentd.agents.get_user_agent_status),
+            raises(AgentdClientError, has_properties(error=NO_SUCH_AGENT)),
+        )
 
         # login
         assert_that(
@@ -225,6 +231,12 @@ class TestAgents(BaseIntegrationTest):
     @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
     def test_login_pause_unpause_logoff_user_agent_without_user(self, user_line_extension):
         self.create_user_token(UNKNOWN_UUID)
+
+        # get
+        assert_that(
+            calling(self.agentd.agents.get_user_agent_status),
+            raises(AgentdClientError, has_properties(error=NO_SUCH_AGENT)),
+        )
 
         # login
         assert_that(

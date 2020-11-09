@@ -1,4 +1,4 @@
-# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -28,6 +28,15 @@ class StatusHandler:
         with db_utils.session_scope():
             agent = self._agent_dao.get_agent_by_number(
                 agent_number, tenant_uuids=tenant_uuids
+            )
+        return self._handle_status(agent)
+
+    @debug.trace_duration
+    def handle_status_by_user(self, user_uuid, tenant_uuids=None):
+        logger.info('Executing status command (agent of user %s)', user_uuid)
+        with db_utils.session_scope():
+            agent = self._agent_dao.get_agent_by_user_uuid(
+                user_uuid, tenant_uuids=tenant_uuids
             )
         return self._handle_status(agent)
 

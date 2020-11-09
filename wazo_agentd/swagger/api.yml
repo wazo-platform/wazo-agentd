@@ -179,6 +179,25 @@ paths:
             on this extension and context
           schema:
             $ref: '#/definitions/Error'
+  /users/me/agents:
+    get:
+      summary: Get agent status of the user holding the authentication token.
+      description: '**Required ACL:** `agentd.users.me.agents.read`'
+      operationId: get_user_agent
+      tags:
+      - agent
+      - user
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      responses:
+        '200':
+          description: The agent status
+          schema:
+            $ref: '#/definitions/AgentStatus'
+        '404':
+          description: Agent does not exist
+          schema:
+            $ref: '#/definitions/Error'
   /users/me/agents/login:
     post:
       summary: Log the agent of the user holding the authentication token
@@ -197,7 +216,7 @@ paths:
           $ref: '#/definitions/UserAgentLoginInfo'
       responses:
         '204':
-          description: The operation was performed succesfully
+          description: The operation was performed successfully
         '400':
           description: The user does not own the line; or the token has no user; or wrong tenant; or the user has no agent
           schema:
