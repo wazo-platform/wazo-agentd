@@ -23,7 +23,7 @@ class PauseManager:
         self._check_agent_is_logged(agent_status)
         self._pause_action.unpause_agent(agent_status)
 
-    def resume_user_agent(self, user_uuid, agent_status, tenant_uuids=None):
+    def unpause_user_agent(self, user_uuid, agent_status, tenant_uuids=None):
         self._check_user_has_agent(user_uuid, tenant_uuids)
         self._check_agent_is_logged(agent_status)
         self._pause_action.unpause_agent(agent_status)

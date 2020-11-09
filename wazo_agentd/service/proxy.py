@@ -90,9 +90,9 @@ class ServiceProxy:
                 agent_number, tenant_uuids=tenant_uuids
             )
 
-    def resume_user_agent(self, user_uuid, tenant_uuids=None):
+    def unpause_user_agent(self, user_uuid, tenant_uuids=None):
         with self._lock:
-            self.pause_handler.handle_resume_user_agent(
+            self.pause_handler.handle_unpause_user_agent(
                 user_uuid, tenant_uuids=tenant_uuids
             )
 

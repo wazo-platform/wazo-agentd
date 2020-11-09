@@ -44,12 +44,12 @@ class PauseHandler:
         )
 
     @debug.trace_duration
-    def handle_resume_user_agent(self, user_uuid, tenant_uuids=None):
-        logger.info('Executing resume command (agent of user %s)', user_uuid)
+    def handle_unpause_user_agent(self, user_uuid, tenant_uuids=None):
+        logger.info('Executing unpause command (agent of user %s)', user_uuid)
         with db_utils.session_scope():
             agent_status = self._agent_status_dao.get_status_by_user(
                 user_uuid, tenant_uuids=tenant_uuids
             )
-        self._pause_manager.resume_user_agent(
+        self._pause_manager.unpause_user_agent(
             user_uuid, agent_status, tenant_uuids=tenant_uuids
         )

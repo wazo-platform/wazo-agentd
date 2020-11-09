@@ -345,11 +345,11 @@ paths:
           description: Agent is not logged
           schema:
             $ref: '#/definitions/Error'
-  /users/me/agents/resume:
+  /users/me/agents/unpause:
     post:
       summary: Logoff the agent of the user holding the authentication token
-      description: '**Required ACL:** `agentd.users.me.agents.resume.create`'
-      operationId: resume_user_agent
+      description: '**Required ACL:** `agentd.users.me.agents.unpause.create`'
+      operationId: unpause_user_agent
       tags:
       - agent
       - user

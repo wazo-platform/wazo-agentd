@@ -99,7 +99,7 @@ class TestAgents(BaseIntegrationTest):
 
     @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
     @fixtures.agent(number='1234')
-    def test_login_pause_resume_logoff_user_agent_on_specific_line(self, user_line_extension, agent):
+    def test_login_pause_unpause_logoff_user_agent_on_specific_line(self, user_line_extension, agent):
         self.create_user_token(user_line_extension['user_uuid'])
 
         with associations.user_agent(
@@ -133,8 +133,8 @@ class TestAgents(BaseIntegrationTest):
                 assert_that(status, has_properties(paused=True))
             until.assert_(test_on_msg_received, tries=10)
 
-            # resume
-            self.agentd.agents.resume_user_agent()
+            # unpause
+            self.agentd.agents.unpause_user_agent()
             self.bus.send_queue_member_pause('1234', paused=False)
 
             def test_on_msg_received():
@@ -193,7 +193,7 @@ class TestAgents(BaseIntegrationTest):
             )
 
     @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
-    def test_login_pause_resume_logoff_user_agent_without_agent(self, user_line_extension):
+    def test_login_pause_unpause_logoff_user_agent_without_agent(self, user_line_extension):
         self.create_user_token(user_line_extension['user_uuid'])
 
         # login
@@ -210,9 +210,9 @@ class TestAgents(BaseIntegrationTest):
             raises(AgentdClientError, has_properties(error=NO_SUCH_AGENT)),
         )
 
-        # resume
+        # unpause
         assert_that(
-            calling(self.agentd.agents.resume_user_agent),
+            calling(self.agentd.agents.unpause_user_agent),
             raises(AgentdClientError, has_properties(error=NO_SUCH_AGENT)),
         )
 
@@ -223,7 +223,7 @@ class TestAgents(BaseIntegrationTest):
         )
 
     @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
-    def test_login_pause_resume_logoff_user_agent_without_user(self, user_line_extension):
+    def test_login_pause_unpause_logoff_user_agent_without_user(self, user_line_extension):
         self.create_user_token(UNKNOWN_UUID)
 
         # login
@@ -240,9 +240,9 @@ class TestAgents(BaseIntegrationTest):
             raises(AgentdClientError, has_properties(error=NO_SUCH_AGENT)),
         )
 
-        # resume
+        # unpause
         assert_that(
-            calling(self.agentd.agents.resume_user_agent),
+            calling(self.agentd.agents.unpause_user_agent),
             raises(AgentdClientError, has_properties(error=NO_SUCH_AGENT)),
         )
 
@@ -255,7 +255,7 @@ class TestAgents(BaseIntegrationTest):
 
     @fixtures.agent(id=42, number='1234')
     @fixtures.user_line_extension(agentid=42, exten='1001', context='default', name_line='ab')
-    def test_pause_resume_logoff_user_agent_not_logged(self, agent, user_line_extension):
+    def test_pause_unpause_logoff_user_agent_not_logged(self, agent, user_line_extension):
         self.create_user_token(user_line_extension['user_uuid'])
 
         # pause
@@ -268,13 +268,13 @@ class TestAgents(BaseIntegrationTest):
             raises(AgentdClientError, has_properties(error=NOT_LOGGED)),
         )
 
-        # resume
+        # unpause
         assert_that(
             calling(self.agentd.agents.unpause_agent_by_number).with_args('1234'),
             raises(AgentdClientError, has_properties(error=NOT_LOGGED)),
         )
         assert_that(
-            calling(self.agentd.agents.resume_user_agent),
+            calling(self.agentd.agents.unpause_user_agent),
             raises(AgentdClientError, has_properties(error=NOT_LOGGED)),
         )
 

@@ -2,10 +2,10 @@
 
 ## 20.16
 
-* Added endpoints for user agents pause/resume:
+* Added endpoints for user agents pause/unpause:
 
   * POST `/users/me/agents/pause`
-  * POST `/users/me/agents/resume`
+  * POST `/users/me/agents/unpause`
 
 ## 20.11
 
