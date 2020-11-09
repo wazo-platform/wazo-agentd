@@ -1,5 +1,12 @@
 # Changelog
 
+## 20.16
+
+* Added endpoints for user agents pause/resume:
+
+  * POST `/users/me/agents/pause`
+  * POST `/users/me/agents/resume`
+
 ## 20.11
 
 * Added endpoints for user agents login/logoff:
