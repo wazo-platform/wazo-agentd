@@ -99,7 +99,9 @@ class TestAgents(BaseIntegrationTest):
 
     @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
     @fixtures.agent(number='1234')
-    def test_login_pause_unpause_logoff_user_agent_on_specific_line(self, user_line_extension, agent):
+    def test_login_pause_unpause_logoff_user_agent_on_specific_line(
+        self, user_line_extension, agent
+    ):
         self.create_user_token(user_line_extension['user_uuid'])
 
         with associations.user_agent(
@@ -131,6 +133,7 @@ class TestAgents(BaseIntegrationTest):
             def test_on_msg_received():
                 status = self.agentd.agents.get_user_agent_status()
                 assert_that(status, has_properties(paused=True))
+
             until.assert_(test_on_msg_received, tries=10)
 
             # unpause
@@ -140,6 +143,7 @@ class TestAgents(BaseIntegrationTest):
             def test_on_msg_received():
                 status = self.agentd.agents.get_user_agent_status()
                 assert_that(status, has_properties(paused=False))
+
             until.assert_(test_on_msg_received, tries=10)
 
             # logoff
@@ -193,7 +197,9 @@ class TestAgents(BaseIntegrationTest):
             )
 
     @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
-    def test_get_login_pause_unpause_logoff_user_agent_without_agent(self, user_line_extension):
+    def test_get_login_pause_unpause_logoff_user_agent_without_agent(
+        self, user_line_extension
+    ):
         self.create_user_token(user_line_extension['user_uuid'])
 
         # get
@@ -229,7 +235,9 @@ class TestAgents(BaseIntegrationTest):
         )
 
     @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
-    def test_login_pause_unpause_logoff_user_agent_without_user(self, user_line_extension):
+    def test_login_pause_unpause_logoff_user_agent_without_user(
+        self, user_line_extension
+    ):
         self.create_user_token(UNKNOWN_UUID)
 
         # get
@@ -262,12 +270,15 @@ class TestAgents(BaseIntegrationTest):
         assert_that(
             calling(self.agentd.agents.logoff_user_agent),
             raises(AgentdClientError, has_properties(error=NO_SUCH_AGENT)),
-
         )
 
     @fixtures.agent(id=42, number='1234')
-    @fixtures.user_line_extension(agentid=42, exten='1001', context='default', name_line='ab')
-    def test_pause_unpause_logoff_user_agent_not_logged(self, agent, user_line_extension):
+    @fixtures.user_line_extension(
+        agentid=42, exten='1001', context='default', name_line='ab'
+    )
+    def test_pause_unpause_logoff_user_agent_not_logged(
+        self, agent, user_line_extension
+    ):
         self.create_user_token(user_line_extension['user_uuid'])
 
         # pause
@@ -298,5 +309,4 @@ class TestAgents(BaseIntegrationTest):
         assert_that(
             calling(self.agentd.agents.logoff_user_agent),
             raises(AgentdClientError, has_properties(error=NOT_LOGGED)),
-
         )

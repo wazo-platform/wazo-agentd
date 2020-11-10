@@ -18,6 +18,8 @@ class BusClient(bus_helper.BusClient):
                     'MemberName': f'local/{agent_number}',
                     'PausedReason': 'Eating potatoes',
                     'Queue': queue_name,
-                }, 'name': 'QueueMemberPause'
-            }, 'ami.QueueMemberPause'
+                },
+                'name': 'QueueMemberPause',
+            },
+            'ami.QueueMemberPause',
         )
