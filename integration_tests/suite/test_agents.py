@@ -1,6 +1,8 @@
 # Copyright 2019-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import time
+
 from hamcrest import (
     all_of,
     assert_that,
@@ -128,6 +130,9 @@ class TestAgents(BaseIntegrationTest):
 
             # pause
             self.agentd.agents.pause_user_agent()
+            # NOTE(fblackburn): agentd may be still not connected to the bus to receive messages
+            # A best solution should be to create a /status and wait on it
+            time.sleep(8)
             self.bus.send_queue_member_pause('1234', paused=True)
 
             def test_on_msg_received():
