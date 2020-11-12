@@ -154,7 +154,7 @@ class _AgentByNumber(_BaseResource):
 
 
 class _UserAgent(_BaseResource):
-    @required_acl('agentd.users.me.agents.login.create')
+    @required_acl('agentd.users.me.agents.read')
     def get(self):
         tenant_uuids = self._build_tenant_list({'recurse': True})
         user_uuid = token.user_uuid
