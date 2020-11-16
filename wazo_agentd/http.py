@@ -10,7 +10,6 @@ from flask import request
 from flask_cors import CORS
 from flask_restful import Api, Resource
 from marshmallow import ValidationError
-from requests import HTTPError
 
 from werkzeug.contrib.fixers import ProxyFix
 from wazo_agentd.exception import (
@@ -111,20 +110,7 @@ class _BaseResource(Resource):
         recurse = params.get('recurse', False)
         if not recurse:
             return [tenant_uuid]
-
-        tenants = []
-        auth_client = auth_verifier.client()
-
-        try:
-            tenants = auth_client.tenants.list(tenant_uuid=tenant_uuid)['items']
-        except HTTPError as e:
-            response = getattr(e, 'response', None)
-            status_code = getattr(response, 'status_code', None)
-            if status_code == 401:
-                return [tenant_uuid]
-            raise
-
-        return [t['uuid'] for t in tenants]
+        return [tenant.uuid for tenant in token.visible_tenants(tenant_uuid)]
 
 
 class _Agents(_BaseResource):
