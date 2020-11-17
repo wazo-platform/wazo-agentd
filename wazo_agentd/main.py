@@ -144,7 +144,7 @@ def _run(config):
     on_queue_agent_paused_manager = OnQueueAgentPausedManager(
         agent_status_dao, user_dao, bus_publisher
     )
-    pause_manager = PauseManager(pause_action)
+    pause_manager = PauseManager(pause_action, agent_dao)
     relog_manager = RelogManager(
         login_action, logoff_action, agent_dao, agent_status_dao
     )

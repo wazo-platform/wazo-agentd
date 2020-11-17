@@ -1,4 +1,4 @@
-# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -31,3 +31,25 @@ class PauseHandler:
                 agent_number, tenant_uuids=tenant_uuids
             )
         self._pause_manager.unpause_agent(agent_status)
+
+    @debug.trace_duration
+    def handle_pause_user_agent(self, user_uuid, reason, tenant_uuids=None):
+        logger.info('Executing pause command (agent of user %s)', user_uuid)
+        with db_utils.session_scope():
+            agent_status = self._agent_status_dao.get_status_by_user(
+                user_uuid, tenant_uuids=tenant_uuids
+            )
+        self._pause_manager.pause_user_agent(
+            user_uuid, agent_status, reason, tenant_uuids=tenant_uuids
+        )
+
+    @debug.trace_duration
+    def handle_unpause_user_agent(self, user_uuid, tenant_uuids=None):
+        logger.info('Executing unpause command (agent of user %s)', user_uuid)
+        with db_utils.session_scope():
+            agent_status = self._agent_status_dao.get_status_by_user(
+                user_uuid, tenant_uuids=tenant_uuids
+            )
+        self._pause_manager.unpause_user_agent(
+            user_uuid, agent_status, tenant_uuids=tenant_uuids
+        )

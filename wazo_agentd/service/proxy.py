@@ -1,4 +1,4 @@
-# Copyright 2015-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import threading
@@ -78,10 +78,22 @@ class ServiceProxy:
                 agent_number, reason, tenant_uuids=tenant_uuids
             )
 
+    def pause_user_agent(self, user_uuid, reason, tenant_uuids=None):
+        with self._lock:
+            self.pause_handler.handle_pause_user_agent(
+                user_uuid, reason, tenant_uuids=tenant_uuids
+            )
+
     def unpause_agent_by_number(self, agent_number, tenant_uuids=None):
         with self._lock:
             self.pause_handler.handle_unpause_by_number(
                 agent_number, tenant_uuids=tenant_uuids
+            )
+
+    def unpause_user_agent(self, user_uuid, tenant_uuids=None):
+        with self._lock:
+            self.pause_handler.handle_unpause_user_agent(
+                user_uuid, tenant_uuids=tenant_uuids
             )
 
     def get_agent_status_by_id(self, agent_id, tenant_uuids=None):
@@ -94,6 +106,12 @@ class ServiceProxy:
         with self._lock:
             return self.status_handler.handle_status_by_number(
                 agent_number, tenant_uuids=tenant_uuids
+            )
+
+    def get_user_agent_status(self, user_uuid, tenant_uuids=None):
+        with self._lock:
+            return self.status_handler.handle_status_by_user(
+                user_uuid, tenant_uuids=tenant_uuids
             )
 
     def get_agent_statuses(self, tenant_uuids=None):

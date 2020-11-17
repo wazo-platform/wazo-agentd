@@ -153,6 +153,16 @@ class _AgentByNumber(_BaseResource):
         )
 
 
+class _UserAgent(_BaseResource):
+    @required_acl('agentd.users.me.agents.read')
+    def get(self):
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        user_uuid = token.user_uuid
+        return self.service_proxy.get_user_agent_status(
+            user_uuid, tenant_uuids=tenant_uuids
+        )
+
+
 class _LoginAgentById(_BaseResource):
     @required_acl('agentd.agents.by-id.{agent_id}.login.create')
     def post(self, agent_id):
@@ -267,6 +277,18 @@ class _PauseAgentByNumber(_BaseResource):
         return '', 204
 
 
+class _PauseUserAgent(_BaseResource):
+    @required_acl('agentd.users.me.agents.pause.create')
+    def post(self):
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        body = pause_schema.load(request.get_json())
+        user_uuid = token.user_uuid
+        self.service_proxy.pause_user_agent(
+            user_uuid, body['reason'], tenant_uuids=tenant_uuids
+        )
+        return '', 204
+
+
 class _UnpauseAgentByNumber(_BaseResource):
     @required_acl('agentd.agents.by-number.{agent_number}.unpause.create')
     def post(self, agent_number):
@@ -274,6 +296,15 @@ class _UnpauseAgentByNumber(_BaseResource):
         self.service_proxy.unpause_agent_by_number(
             agent_number, tenant_uuids=tenant_uuids
         )
+        return '', 204
+
+
+class _UnpauseUserAgent(_BaseResource):
+    @required_acl('agentd.users.me.agents.unpause.create')
+    def post(self):
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        user_uuid = token.user_uuid
+        self.service_proxy.unpause_user_agent(user_uuid, tenant_uuids=tenant_uuids)
         return '', 204
 
 
@@ -285,12 +316,15 @@ class HTTPInterface:
         (_Agents, '/agents'),
         (_AgentById, '/agents/by-id/<int:agent_id>'),
         (_AgentByNumber, '/agents/by-number/<agent_number>'),
+        (_UserAgent, '/users/me/agents'),
         (_LoginAgentById, '/agents/by-id/<int:agent_id>/login'),
         (_LoginAgentByNumber, '/agents/by-number/<agent_number>/login'),
         (_LoginUserAgent, '/users/me/agents/login'),
         (_LogoffAgentById, '/agents/by-id/<int:agent_id>/logoff'),
         (_LogoffAgentByNumber, '/agents/by-number/<agent_number>/logoff'),
         (_LogoffUserAgent, '/users/me/agents/logoff'),
+        (_PauseUserAgent, '/users/me/agents/pause'),
+        (_UnpauseUserAgent, '/users/me/agents/unpause'),
         (_AddAgentToQueue, '/agents/by-id/<int:agent_id>/add'),
         (_RemoveAgentFromQueue, '/agents/by-id/<int:agent_id>/remove'),
         (_PauseAgentByNumber, '/agents/by-number/<agent_number>/pause'),
