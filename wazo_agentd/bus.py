@@ -10,7 +10,7 @@ import kombu
 
 from kombu.mixins import ConsumerMixin
 from xivo.pubsub import Pubsub
-from xivo_bus import Marshaler, Publisher as _Publisher
+from xivo_bus import Marshaler, FailFastPublisher
 from xivo_bus.resources.agent.event import EditAgentEvent, DeleteAgentEvent
 from xivo_bus.resources.queue.event import EditQueueEvent, DeleteQueueEvent
 from xivo_bus.resources.ami.event import AMIEvent
@@ -107,4 +107,4 @@ class Publisher:
             bus_connection, exchange=bus_exchange, auto_declare=True
         )
         bus_marshaler = Marshaler(self._uuid)
-        _Publisher(bus_producer, bus_marshaler).publish(event, headers=headers)
+        FailFastPublisher(bus_producer, bus_marshaler).publish(event, headers=headers)
