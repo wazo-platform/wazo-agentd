@@ -10,7 +10,7 @@ import kombu
 
 from kombu.mixins import ConsumerMixin
 from xivo.pubsub import Pubsub
-from xivo_bus import Marshaler, FailFastPublisher
+from xivo_bus import FailFastPublisher, LongLivedPublisher, Marshaler, PublishingQueue
 from xivo_bus.resources.agent.event import EditAgentEvent, DeleteAgentEvent
 from xivo_bus.resources.queue.event import EditQueueEvent, DeleteQueueEvent
 from xivo_bus.resources.ami.event import AMIEvent
@@ -90,15 +90,16 @@ class Consumer(ConsumerMixin):
         self.should_stop = True
 
 
-class Publisher:
+class AgentdLongLivedPublisher:
     def __init__(self, config):
         self._config = config['bus']
         self._uuid = config['uuid']
         self._url = 'amqp://{username}:{password}@{host}:{port}//'.format(
             **self._config
         )
+        self._publishing_queue = PublishingQueue(self._make_publisher)
 
-    def publish(self, event, headers=None):
+    def _make_publisher(self):
         bus_connection = kombu.Connection(self._url)
         bus_exchange = kombu.Exchange(
             self._config['exchange_name'], type=self._config['exchange_type']
@@ -107,4 +108,38 @@ class Publisher:
             bus_connection, exchange=bus_exchange, auto_declare=True
         )
         bus_marshaler = Marshaler(self._uuid)
-        FailFastPublisher(bus_producer, bus_marshaler).publish(event, headers=headers)
+        return LongLivedPublisher(bus_producer, bus_marshaler)
+
+    def run(self):
+        logger.info("Running AMQP publisher")
+        self._publishing_queue.run()
+
+    def publish(self, event, headers=None):
+        logger.debug('Publishing event "%s": %s', event.name, event.marshal())
+        self._publishing_queue.publish(event, headers)
+
+    def stop(self):
+        logger.info("Stopping AMQP publisher...")
+        self._publishing_queue.stop()
+        logger.info("Stopped AMQP publisher.")
+
+
+class AgentdFailFastPublisher:
+    def __init__(self, config):
+        self._config = config['bus']
+        self._uuid = config['uuid']
+        self._url = 'amqp://{username}:{password}@{host}:{port}//'.format(
+            **self._config
+        )
+
+    def publish(self, event, headers=None):
+        logger.debug('Publishing event "%s": %s', event.name, event.marshal())
+        bus_connection = kombu.Connection(self._url)
+        bus_exchange = kombu.Exchange(
+            self._config['exchange_name'], type=self._config['exchange_type']
+        )
+        bus_producer = kombu.Producer(
+            bus_connection, exchange=bus_exchange, auto_declare=True
+        )
+        bus_marshaler = Marshaler(self._uuid)
+        FailFastPublisher(bus_producer, bus_marshaler).publish(event, headers)
