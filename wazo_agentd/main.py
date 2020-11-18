@@ -6,6 +6,7 @@ import signal
 import sys
 
 from functools import partial
+from threading import Thread
 
 import xivo_dao
 
@@ -104,7 +105,12 @@ def _run(config):
     token_renewer.subscribe_to_token_change(auth_client.set_token)
 
     bus_consumer = bus.Consumer(config)
-    bus_publisher = bus.Publisher(config)
+    bus_publisher_fail_fast = bus.AgentdFailFastPublisher(config)
+    bus_publisher_long_lived = bus.AgentdLongLivedPublisher(config)
+    bus_publisher_long_lived_thread = Thread(
+        target=bus_publisher_long_lived.run, name='bus_publisher_long_lived_thread'
+    )
+    bus_publisher_long_lived_thread.start()
 
     queue_log_manager = QueueLogManager(queue_log_dao)
 
@@ -115,10 +121,14 @@ def _run(config):
         agent_status_dao,
         line_dao,
         user_dao,
-        bus_publisher,
+        bus_publisher_fail_fast,
     )
     logoff_action = LogoffAction(
-        amid_client, queue_log_manager, agent_status_dao, user_dao, bus_publisher
+        amid_client,
+        queue_log_manager,
+        agent_status_dao,
+        user_dao,
+        bus_publisher_fail_fast,
     )
     pause_action = PauseAction(amid_client)
     remove_from_queue_action = RemoveFromQueueAction(amid_client, agent_status_dao)
@@ -142,7 +152,7 @@ def _run(config):
         add_to_queue_action, remove_from_queue_action, agent_status_dao
     )
     on_queue_agent_paused_manager = OnQueueAgentPausedManager(
-        agent_status_dao, user_dao, bus_publisher
+        agent_status_dao, user_dao, bus_publisher_long_lived
     )
     pause_manager = PauseManager(pause_action, agent_dao)
     relog_manager = RelogManager(
@@ -189,10 +199,17 @@ def _run(config):
         config['bus'],
         partial(self_check, config['rest_api']),
     ]
-    with token_renewer:
-        with bus.consumer_thread(bus_consumer):
-            with ServiceCatalogRegistration(*service_discovery_args):
-                http_iface.run()
+    try:
+        with token_renewer:
+            with bus.consumer_thread(bus_consumer):
+                with ServiceCatalogRegistration(*service_discovery_args):
+                    http_iface.run()
+    finally:
+        logger.info('wazo-agentd stopping...')
+        logger.debug('joining bus producer thread')
+        bus_publisher_long_lived.stop()
+        bus_publisher_long_lived_thread.join()
+        logger.debug('done joining')
 
 
 def _init_signal():
