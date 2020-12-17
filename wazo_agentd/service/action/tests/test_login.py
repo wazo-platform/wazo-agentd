@@ -79,6 +79,33 @@ class TestLoginAction(unittest.TestCase):
             headers={'user_uuid:42': True, 'user_uuid:43': True, 'agent_id:10': True},
         )
 
+    def test_login_agent_sccp(self):
+        agent_id = 10
+        agent_number = '10'
+        queue = Mock()
+        agent = Mock()
+        agent.id = agent_id
+        agent.number = agent_number
+        agent.queues = [queue]
+        extension = '1001'
+        context = 'default'
+        state_interface_sccp = 'SCCP/abcd'
+
+        self.line_dao.get_interface_from_exten_and_context.return_value = (
+            state_interface_sccp
+        )
+        self.user_dao.find_all_by_agent_id.return_value = [
+            Mock(uuid='42'),
+            Mock(uuid='43'),
+        ]
+        self.amid_client.action.return_value = [{'Response': 'Ok'}]
+
+        self.login_action.login_agent(agent, extension, context)
+
+        self.agent_status_dao.log_in_agent.assert_called_once_with(
+            agent_id, agent_number, extension, context, ANY, state_interface_sccp
+        )
+
     def test_login_agent_on_line(self):
         agent_id = 10
         line_id = 12

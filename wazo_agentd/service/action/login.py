@@ -56,6 +56,7 @@ class LoginAction:
             return 'PJ{}'.format(state_interface)
         if state_interface.startswith('sip/'):
             return 'pj{}'.format(state_interface)
+        return state_interface
 
     def _do_login(self, agent, extension, context, interface, state_interface):
         self._update_agent_status(agent, extension, context, interface, state_interface)
