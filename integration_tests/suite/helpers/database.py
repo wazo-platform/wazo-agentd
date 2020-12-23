@@ -37,6 +37,7 @@ class DbHelper(object):
     def __init__(self, uri, db):
         self.uri = uri
         self.db = db
+        self._engine = self.create_engine()
 
     def is_up(self):
         try:
@@ -53,9 +54,8 @@ class DbHelper(object):
             return sa.create_engine(uri, isolation_level='AUTOCOMMIT')
         return sa.create_engine(uri)
 
-    def connect(self, db=None):
-        db = db or self.db
-        return self.create_engine(db).connect()
+    def connect(self):
+        return self._engine.connect()
 
     def recreate(self):
         engine = self.create_engine("postgres", isolate=True)
