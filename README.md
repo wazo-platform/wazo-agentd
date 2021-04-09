@@ -46,3 +46,4 @@ Processing is split among the following steps, in order:
 * Service Handler (adapts query to manager operations, calls manager): `service/handler/*.py`
 * Service manager (validation, triggers action): `service/manager/*.py`
 * Service action (updates DB, sends messages and events): `service/action/*.py`
+
