@@ -1,0 +1,17 @@
+---
+- hosts: all
+  tasks:
+    - name: check if rules file exists
+      stat:
+        path: /tmp/docker-logs
+      register: docker_logs
+
+    - name: Fetch integration logs
+      synchronize:
+        src: '/tmp/docker-logs/'
+        dest: '{{ zuul.executor.log_root }}/docker/'
+        mode: pull
+        copy_links: true
+        verify_host: true
+        rsync_opts: []
+      when: docker_logs.stat.exists == True

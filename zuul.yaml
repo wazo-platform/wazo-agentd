@@ -1,6 +1,19 @@
+- job:
+    name: wazo-tox-py37-custom
+    description: attempt to run wazo-tox with setup scripts on python3
+    run: zuul.d/run.yaml
+    post-run: zuul.d/post.yaml
+    vars:
+      tox_envlist: py37
+
 - project:
     templates:
       - wazo-tox-linters
-      - wazo-tox-py37
       - wazo-tox-integration
       - debian-packaging-template
+    check:
+      jobs:
+        - wazo-tox-py37-custom:
+            nodeset: pod-debian-10
+        # - wazo-tox-integration-custom:
+        #     nodeset: debian10-vm-m2
