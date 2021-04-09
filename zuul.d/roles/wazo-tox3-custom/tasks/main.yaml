@@ -5,6 +5,7 @@
 
 - name: Upgrade tox --- DO NOT MERGE! change tox version on provisioning instead (or remove it, it will be reinstalled by role "ensure-tox"
   pip:
+    executable: pip3
     name: tox
     state: latest
 
