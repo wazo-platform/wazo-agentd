@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
-# Copyright 2017-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright (c) 2017 Red Hat
 #
 # This module is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
