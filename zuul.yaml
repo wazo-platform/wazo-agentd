@@ -1,4 +1,5 @@
 - job:
+    parent: tox
     name: wazo-tox-py37-custom
     description: attempt to run wazo-tox with setup scripts on python3
     run: zuul.d/run.yaml
@@ -7,10 +8,6 @@
       tox_envlist: py37
 
 - project:
-    templates:
-      - wazo-tox-linters
-      - wazo-tox-integration
-      - debian-packaging-template
     check:
       jobs:
         - wazo-tox-py37-custom:
