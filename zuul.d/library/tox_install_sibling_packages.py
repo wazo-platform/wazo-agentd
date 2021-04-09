@@ -30,6 +30,9 @@ import traceback
 from ansible.module_utils.basic import AnsibleModule
 
 __metaclass__ = type
+import sys
+
+print(sys.version)
 
 DOCUMENTATION = '''
 ---
