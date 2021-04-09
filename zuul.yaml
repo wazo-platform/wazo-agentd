@@ -10,7 +10,7 @@
 - project:
     check:
       jobs:
-        - wazo-tox-py37-custom:
-            nodeset: pod-debian-10
-        # - wazo-tox-integration-custom:
-        #     nodeset: debian10-vm-m2
+        # - wazo-tox-py37-custom:
+        #     nodeset: pod-debian-10
+        - wazo-tox-integration-custom:
+            nodeset: debian10-vm-m2
