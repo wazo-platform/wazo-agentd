@@ -8,7 +8,7 @@
       tox_envlist: py37
 
 - job:
-    name: wazo-tox-integration
+    name: wazo-tox-integration-custom
     parent: wazo-tox-py37-custom
     vars:
       docker_install_siblings: true
