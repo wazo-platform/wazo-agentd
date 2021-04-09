@@ -3,6 +3,11 @@
     msg: tox_envlist is required for this role
   when: tox_envlist is not defined
 
+- name: Upgrade tox --- DO NOT MERGE! change tox version on provisioning instead (or remove it, it will be reinstalled by role "ensure-tox"
+  pip:
+    name: tox
+    state: latest
+
 - name: Run tox without tests
   command: "{{ tox_executable }} --notest -e{{ tox_envlist }}"
   args:
