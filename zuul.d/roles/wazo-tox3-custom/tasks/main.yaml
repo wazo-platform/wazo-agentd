@@ -3,12 +3,6 @@
     msg: tox_envlist is required for this role
   when: tox_envlist is not defined
 
-# - name: sleep
-#   shell: sleep 3600
-
-- name: Upgrade tox --- DO NOT MERGE! change tox version on provisioning instead (or remove it, it will be reinstalled by role "ensure-tox"
-  command: pip3 install tox>=3.8
-
 - name: Run tox without tests
   command: "{{ tox_executable }} --notest -e{{ tox_envlist }}"
   args:
@@ -16,7 +10,7 @@
   environment: "{{ tox_environment|combine(tox_constraints_env|default({})) }}"
 
 - name: Extract tox config
-  shell: "{{ tox_executable }} --showconfig -e{{ tox_envlist }} > .tox.config"
+  shell: "{{ tox_executable }} --showconfig -e{{ tox_envlist }} | tail -n +10 > .tox.config"
   args:
     chdir: "{{ zuul_work_dir }}"
   environment: "{{ tox_environment|combine(tox_constraints_env|default({})) }}"
