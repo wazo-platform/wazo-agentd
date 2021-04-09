@@ -10,7 +10,7 @@
   environment: "{{ tox_environment|combine(tox_constraints_env|default({})) }}"
 
 - name: Extract tox config
-  shell: "{{ tox_executable }} --showconfig > .tox.config"
+  shell: "{{ tox_executable }} --showconfig -e{{ tox_envlist }} > .tox.config"
   args:
     chdir: "{{ zuul_work_dir }}"
   environment: "{{ tox_environment|combine(tox_constraints_env|default({})) }}"

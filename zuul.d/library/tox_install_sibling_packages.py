@@ -278,7 +278,6 @@ def main():
             tox_show_config=dict(required=True, type='path'),
             tox_constraints_file=dict(type='str'),
             tox_package_name=dict(type='str'),
-            tox_envlist=dict(type='list'),
             project_dir=dict(required=True, type='str'),
             projects=dict(required=True, type='list'),
         )
@@ -288,12 +287,11 @@ def main():
     project_dir = module.params['project_dir']
     projects = module.params['projects']
     tox_show_config = module.params.get('tox_show_config')
-    tox_envlist = module.params.get('tox_envlist')
 
     tox_config = configparser.RawConfigParser()
     tox_config.read(tox_show_config)
 
-    envlist = tox_envlist or get_envlist(tox_config)
+    envlist = get_envlist(tox_config)
 
     if not envlist:
         module.exit_json(changed=False, msg='No envlist to run, no action needed.')
