@@ -7,6 +7,14 @@
     vars:
       tox_envlist: py37
 
+- job:
+    name: wazo-tox-integration
+    parent: wazo-tox-py37-custom
+    vars:
+      docker_install_siblings: true
+      tox_envlist: integration
+    run: zuul.d/playbooks/wazo-tox-integration/run.yaml
+
 - project:
     check:
       jobs:
