@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -90,7 +90,7 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
             logger.debug(e)
             return
         return AgentdClient(
-            'localhost',
+            '127.0.0.1',
             port=port,
             prefix=False,
             https=False,
@@ -104,7 +104,7 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
         except NoSuchService as e:
             logger.debug(e)
             return
-        return AuthClient('localhost', port=port)
+        return AuthClient('127.0.0.1', port=port)
 
     @classmethod
     def make_amid(cls):
@@ -113,7 +113,7 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
         except NoSuchService as e:
             logger.debug(e)
             return
-        return AmidClient('localhost', port=port)
+        return AmidClient('127.0.0.1', port=port)
 
     @classmethod
     def make_bus(cls):
@@ -122,7 +122,7 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
         except NoSuchService as e:
             logger.debug(e)
             return
-        return BusClient.from_connection_fields(host='localhost', port=port)
+        return BusClient.from_connection_fields(host='127.0.0.1', port=port)
 
     @classmethod
     def make_database(cls):
@@ -132,5 +132,5 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
             logger.debug(e)
             return
         return DbHelper.build(
-            'asterisk', 'proformatique', 'localhost', port, 'asterisk'
+            'asterisk', 'proformatique', '127.0.0.1', port, 'asterisk'
         )
