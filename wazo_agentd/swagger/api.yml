@@ -97,11 +97,7 @@ paths:
       - agent
       parameters:
       - $ref: '#/parameters/tenantuuid'
-      - name: agent_number
-        in: path
-        description: Agent's number
-        required: true
-        type: string
+      - $ref: '#/parameters/AgentNumber'
       responses:
         '200':
           description: The agent status
@@ -152,11 +148,7 @@ paths:
       - agent
       parameters:
       - $ref: '#/parameters/tenantuuid'
-      - name: agent_number
-        in: path
-        description: Agent's number
-        required: true
-        type: integer
+      - $ref: '#/parameters/AgentNumber'
       - name: body
         in: body
         description: The extension and context on which to log the agent
@@ -252,11 +244,7 @@ paths:
       - agent
       parameters:
       - $ref: '#/parameters/tenantuuid'
-      - name: agent_number
-        in: path
-        description: Agent's number
-        required: true
-        type: integer
+      - $ref: '#/parameters/AgentNumber'
       responses:
         '204':
           description: The operation was performed succesfully
@@ -295,11 +283,7 @@ paths:
       - agent
       parameters:
       - $ref: '#/parameters/tenantuuid'
-      - name: agent_number
-        in: path
-        description: Agent's number
-        required: true
-        type: integer
+      - $ref: '#/parameters/AgentNumber'
       - name: body
         in: body
         description: The reason when pause the agent
@@ -348,11 +332,7 @@ paths:
       - agent
       parameters:
       - $ref: '#/parameters/tenantuuid'
-      - name: agent_number
-        in: path
-        description: Agent's number
-        required: true
-        type: integer
+      - $ref: '#/parameters/AgentNumber'
       responses:
         '204':
           description: The operation was performed succesfully
@@ -464,6 +444,12 @@ parameters:
     in: header
     description: "The tenant's UUID, defining the ownership of a given resource."
     required: false
+  AgentNumber:
+    name: agent_number
+    in: path
+    description: Agent's number
+    required: true
+    type: string
 definitions:
   AgentStatus:
     title: Agent status
