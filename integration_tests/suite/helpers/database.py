@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -139,7 +139,7 @@ class DatabaseQueries(object):
             agent = inserter.session.query(Agent).get(agent_id)
             return inserter.add_queue_member(
                 queue_name=queue.name,
-                interface='SIP/{}'.format(agent.users[0].lines[0].endpoint_sip.name),
+                interface='PJSIP/{}'.format(agent.users[0].lines[0].endpoint_sip.name),
                 usertype='agent',
                 category='queue',
                 channel='Agent',

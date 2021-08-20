@@ -1,4 +1,4 @@
-# Copyright 2013-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -39,8 +39,7 @@ class TestLoginAction(unittest.TestCase):
         agent.queues = [queue]
         extension = '1001'
         context = 'default'
-        state_interface_sip = 'SIP/abcd'
-        state_interface_pjsip = 'PJSIP/abcd'
+        state_interface_sip = 'PJSIP/abcd'
         skills = format_agent_skills(agent_id)
 
         self.line_dao.get_interface_from_exten_and_context.return_value = (
@@ -55,7 +54,7 @@ class TestLoginAction(unittest.TestCase):
         self.login_action.login_agent(agent, extension, context)
 
         self.agent_status_dao.log_in_agent.assert_called_once_with(
-            agent_id, agent_number, extension, context, ANY, state_interface_pjsip
+            agent_id, agent_number, extension, context, ANY, state_interface_sip
         )
         self.agent_status_dao.add_agent_to_queues.assert_called_once_with(
             agent_id, agent.queues
@@ -69,7 +68,7 @@ class TestLoginAction(unittest.TestCase):
                 'Queue': queue.name,
                 'Interface': ANY,
                 'MemberName': ANY,
-                'StateInterface': state_interface_pjsip,
+                'StateInterface': state_interface_sip,
                 'Penalty': queue.penalty,
                 'Skills': skills,
             },
@@ -117,8 +116,7 @@ class TestLoginAction(unittest.TestCase):
         agent.queues = [queue]
         extension = '1001'
         context = 'default'
-        state_interface_sip = 'SIP/abcd'
-        state_interface_pjsip = 'PJSIP/abcd'
+        state_interface_sip = 'PJSIP/abcd'
         skills = format_agent_skills(agent_id)
 
         self.line_dao.get_interface_from_line_id.return_value = state_interface_sip
@@ -135,7 +133,7 @@ class TestLoginAction(unittest.TestCase):
         self.login_action.login_agent_on_line(agent, line_id)
 
         self.agent_status_dao.log_in_agent.assert_called_once_with(
-            agent_id, agent_number, extension, context, ANY, state_interface_pjsip
+            agent_id, agent_number, extension, context, ANY, state_interface_sip
         )
         self.agent_status_dao.add_agent_to_queues.assert_called_once_with(
             agent_id, agent.queues
@@ -149,7 +147,7 @@ class TestLoginAction(unittest.TestCase):
                 'Queue': queue.name,
                 'Interface': ANY,
                 'MemberName': ANY,
-                'StateInterface': state_interface_pjsip,
+                'StateInterface': state_interface_sip,
                 'Penalty': queue.penalty,
                 'Skills': skills,
             },

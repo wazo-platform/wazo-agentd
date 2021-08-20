@@ -1,4 +1,4 @@
-# Copyright 2013-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -34,7 +34,6 @@ class LoginAction:
         # * extension@context is not used
         interface = self._get_interface(agent)
         state_interface = self._get_state_interface(extension, context)
-        state_interface = self._pjsip_fixup(state_interface)
 
         self._do_login(agent, extension, context, interface, state_interface)
 
@@ -44,19 +43,10 @@ class LoginAction:
         # * line has an extension
         interface = self._get_interface(agent)
         state_interface = self._get_state_interface_from_line_id(line_id)
-        state_interface = self._pjsip_fixup(state_interface)
         extension, context = self._line_dao.get_main_extension_context_from_line_id(
             line_id
         )
         self._do_login(agent, extension, context, interface, state_interface)
-
-    def _pjsip_fixup(self, state_interface):
-        # TODO PJSIP: clean after migration
-        if state_interface.startswith('SIP/'):
-            return 'PJ{}'.format(state_interface)
-        if state_interface.startswith('sip/'):
-            return 'pj{}'.format(state_interface)
-        return state_interface
 
     def _do_login(self, agent, extension, context, interface, state_interface):
         self._update_agent_status(agent, extension, context, interface, state_interface)
