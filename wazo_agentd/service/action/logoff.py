@@ -1,4 +1,4 @@
-# Copyright 2013-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
@@ -6,6 +6,7 @@ import logging
 
 from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
 from xivo_dao.helpers import db_utils
+from wazo_amid_client.exceptions import AmidProtocolError
 
 logger = logging.getLogger(__name__)
 
@@ -30,10 +31,20 @@ class LogoffAction:
 
     def _update_asterisk(self, agent_status):
         for queue in agent_status.queues:
-            self._amid_client.action(
-                'QueueRemove',
-                {'Queue': queue.name, 'Interface': agent_status.interface},
-            )
+            try:
+                self._amid_client.action(
+                    'QueueRemove',
+                    {'Queue': queue.name, 'Interface': agent_status.interface},
+                )
+            except AmidProtocolError as e:
+                if str(e) == 'Unable to remove interface: Not there':
+                    logger.info(
+                        '%s was already logged off of %s',
+                        agent_status.interface,
+                        queue.name,
+                    )
+                    continue
+                raise
 
     def _update_queue_log(self, agent_status):
         login_time = self._compute_login_time(agent_status.login_at)
