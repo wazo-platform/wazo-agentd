@@ -3,8 +3,7 @@
 
 import logging
 
-from xivo.xivo_helpers import fkey_extension
-from wazo_agentd.exception import NoSuchExtenFeatrureError, NoSuchExtensionError, NoSuchLineError
+from wazo_agentd.exception import NoSuchExtensionError, NoSuchLineError
 from wazo_agentd.service.helper import format_agent_member_name, format_agent_skills
 from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
 from xivo_dao.helpers import db_utils
@@ -17,18 +16,18 @@ class LoginAction:
         self,
         amid_client,
         queue_log_manager,
+        blf_manager,
         agent_status_dao,
         line_dao,
         user_dao,
-        exten_features_dao,
         bus_publisher,
     ):
         self._amid_client = amid_client
+        self._blf_manager = blf_manager
         self._queue_log_manager = queue_log_manager
         self._agent_status_dao = agent_status_dao
         self._line_dao = line_dao
         self._user_dao = user_dao
-        self._exten_features_dao = exten_features_dao
         self._bus_publisher = bus_publisher
 
     def login_agent(self, agent, extension, context):
@@ -111,29 +110,12 @@ class LoginAction:
 
     def _update_blf(self, agent):
         for user_id in agent.user_ids:
-            self._set_device_state(user_id, 'agentstaticlogin', 'INUSE', '*{}'.format(agent.id))
-            self._set_device_state(user_id, 'agentstaticlogin', 'INUSE', agent.number)
-            self._set_device_state(user_id, 'agentstaticlogoff', 'NOT_INUSE', '*{}'.format(agent.id))
-            self._set_device_state(user_id, 'agentstaticlogoff', 'NOT_INUSE', agent.number)
-            self._set_device_state(user_id, 'agentstaticlogtoggle', 'INUSE', '*{}'.format(agent.id))
-            self._set_device_state(user_id, 'agentstaticlogtoggle', 'INUSE', agent.number)
-
-    def _set_device_state(self ,user_id, feature_name, state, target):
-        with db_utils.session_scope():
-            try:
-                exten_prefix = self._exten_features_dao.get_extension('phoneprogfunckey')
-                feature_exten = self._exten_features_dao.get_extension(feature_name)
-            except NoSuchExtenFeatrureError:
-                logger.info(
-                    'cannot set BLF %s %s missing extension configuration',
-                    feature_name,
-                    state,
-                )
-                return
-        hint = fkey_extension(exten_prefix, (user_id, feature_exten, target))
-        cli_command = f'devstate change Custom:{hint} {state}'
-        result = self._amid_client.command(cli_command)
-        logger.debug('devstate change result: %s', result['response'][0])
+            self._blf_manager.set_user_blf(user_id, 'agentstaticlogin', 'INUSE', '*{}'.format(agent.id))
+            self._blf_manager.set_user_blf(user_id, 'agentstaticlogin', 'INUSE', agent.number)
+            self._blf_manager.set_user_blf(user_id, 'agentstaticlogoff', 'NOT_INUSE', '*{}'.format(agent.id))
+            self._blf_manager.set_user_blf(user_id, 'agentstaticlogoff', 'NOT_INUSE', agent.number)
+            self._blf_manager.set_user_blf(user_id, 'agentstaticlogtoggle', 'INUSE', '*{}'.format(agent.id))
+            self._blf_manager.set_user_blf(user_id, 'agentstaticlogtoggle', 'INUSE', agent.number)
 
     def _send_bus_status_update(self, agent):
         status = AgentStatusUpdateEvent.STATUS_LOGGED_IN

@@ -76,5 +76,5 @@ class QueueDifferentTenantError(AgentServerError):
     error = QUEUE_DIFFERENT_TENANT
 
 
-class NoSuchExtenFeatrureError(Exception):
+class NoSuchExtenFeatureError(Exception):
     pass

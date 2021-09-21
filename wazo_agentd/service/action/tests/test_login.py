@@ -3,11 +3,13 @@
 
 import unittest
 
-from mock import Mock, ANY
+from mock import call, Mock, ANY
+from hamcrest import assert_that, contains_inanyorder
 
 from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
 
 from wazo_agentd.queuelog import QueueLogManager
+from wazo_agentd.service.manager.blf import BLFManager
 from wazo_agentd.service.action.login import LoginAction
 from wazo_agentd.service.helper import format_agent_skills
 
@@ -16,6 +18,7 @@ class TestLoginAction(unittest.TestCase):
     def setUp(self):
         self.amid_client = Mock()
         self.queue_log_manager = Mock(QueueLogManager)
+        self.blf_manager = Mock(BLFManager)
         self.agent_status_dao = Mock()
         self.line_dao = Mock()
         self.user_dao = Mock()
@@ -23,6 +26,7 @@ class TestLoginAction(unittest.TestCase):
         self.login_action = LoginAction(
             self.amid_client,
             self.queue_log_manager,
+            self.blf_manager,
             self.agent_status_dao,
             self.line_dao,
             self.user_dao,
@@ -30,10 +34,11 @@ class TestLoginAction(unittest.TestCase):
         )
 
     def test_login_agent(self):
+        user_id = 42
         agent_id = 10
         agent_number = '10'
         queue = Mock()
-        agent = Mock()
+        agent = Mock(user_ids=[user_id])
         agent.id = agent_id
         agent.number = agent_number
         agent.queues = [queue]
@@ -73,6 +78,17 @@ class TestLoginAction(unittest.TestCase):
                 'Skills': skills,
             },
         )
+        assert_that(
+            self.blf_manager.set_user_blf.call_args_list,
+            contains_inanyorder(
+                call(user_id, 'agentstaticlogin', 'INUSE', '*{}'.format(agent_id)),
+                call(user_id, 'agentstaticlogin', 'INUSE', agent_number),
+                call(user_id, 'agentstaticlogoff', 'NOT_INUSE', '*{}'.format(agent_id)),
+                call(user_id, 'agentstaticlogoff', 'NOT_INUSE', agent_number),
+                call(user_id, 'agentstaticlogtoggle', 'INUSE', '*{}'.format(agent_id)),
+                call(user_id, 'agentstaticlogtoggle', 'INUSE', agent_number),
+            )
+        )
         self.bus_publisher.publish.assert_called_once_with(
             AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_IN),
             headers={'user_uuid:42': True, 'user_uuid:43': True, 'agent_id:10': True},
@@ -82,7 +98,7 @@ class TestLoginAction(unittest.TestCase):
         agent_id = 10
         agent_number = '10'
         queue = Mock()
-        agent = Mock()
+        agent = Mock(user_ids=[])
         agent.id = agent_id
         agent.number = agent_number
         agent.queues = [queue]
@@ -110,7 +126,7 @@ class TestLoginAction(unittest.TestCase):
         line_id = 12
         agent_number = '10'
         queue = Mock()
-        agent = Mock()
+        agent = Mock(user_ids=[])
         agent.id = agent_id
         agent.number = agent_number
         agent.queues = [queue]

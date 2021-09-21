@@ -52,6 +52,7 @@ from wazo_agentd.service.handler.pause import PauseHandler
 from wazo_agentd.service.handler.relog import RelogHandler
 from wazo_agentd.service.handler.status import StatusHandler
 from wazo_agentd.service.manager.add_member import AddMemberManager
+from wazo_agentd.service.manager.blf import BLFManager
 from wazo_agentd.service.manager.login import LoginManager
 from wazo_agentd.service.manager.logoff import LogoffManager
 from wazo_agentd.service.manager.on_agent_deleted import OnAgentDeletedManager
@@ -114,16 +115,17 @@ def _run(config):
     )
     bus_publisher_long_lived_thread.start()
 
+    blf_manager = BLFManager(amid_client, exten_features_dao)
     queue_log_manager = QueueLogManager(queue_log_dao)
 
     add_to_queue_action = AddToQueueAction(amid_client, agent_status_dao)
     login_action = LoginAction(
         amid_client,
         queue_log_manager,
+        blf_manager,
         agent_status_dao,
         line_dao,
         user_dao,
-        exten_features_dao,
         bus_publisher_fail_fast,
     )
     logoff_action = LogoffAction(

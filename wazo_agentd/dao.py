@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from collections import namedtuple
-from wazo_agentd.exception import NoSuchAgentError, NoSuchExtenFeatrureError, NoSuchQueueError
+from wazo_agentd.exception import NoSuchAgentError, NoSuchExtenFeatureError, NoSuchQueueError
 
 _Queue = namedtuple('_Queue', ['id', 'tenant_uuid', 'name', 'penalty'])
 
@@ -40,7 +40,7 @@ class ExtenFeaturesDAOAdapter(_AbstractDAOAdapter):
         for extension in self._dao.find_extenfeatures_settings([feature_name]):
             return extension.exten
 
-        raise NoSuchExtenFeatrureError()
+        raise NoSuchExtenFeatureError()
 
 
 class QueueDAOAdapter(_AbstractDAOAdapter):
