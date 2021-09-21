@@ -1,4 +1,4 @@
-# Copyright 2012-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -23,6 +23,7 @@ from xivo_bus.resources.agent.event import EditAgentEvent, DeleteAgentEvent
 from xivo_bus.resources.queue.event import EditQueueEvent, DeleteQueueEvent
 from xivo_dao import agent_dao as orig_agent_dao
 from xivo_dao import agent_status_dao
+from xivo_dao import asterisk_conf_dao
 from xivo_dao import context_dao
 from xivo_dao import line_dao
 from xivo_dao import queue_dao as orig_queue_dao
@@ -34,7 +35,7 @@ from wazo_agentd import bus
 from wazo_agentd import http
 from wazo_agentd.bus import AgentPauseEvent
 from wazo_agentd.config import load as load_config
-from wazo_agentd.dao import QueueDAOAdapter, AgentDAOAdapter
+from wazo_agentd.dao import QueueDAOAdapter, AgentDAOAdapter, ExtenFeaturesDAOAdapter
 from wazo_agentd.queuelog import QueueLogManager
 from wazo_agentd.service.action.add import AddToQueueAction
 from wazo_agentd.service.action.login import LoginAction
@@ -98,6 +99,7 @@ def _run(config):
     xivo_uuid = config['uuid']
     agent_dao = AgentDAOAdapter(orig_agent_dao)
     queue_dao = QueueDAOAdapter(orig_queue_dao)
+    exten_features_dao = ExtenFeaturesDAOAdapter(asterisk_conf_dao)
     amid_client = AmidClient(**config['amid'])
     auth_client = AuthClient(**config['auth'])
     token_renewer = TokenRenewer(auth_client)
@@ -121,6 +123,7 @@ def _run(config):
         agent_status_dao,
         line_dao,
         user_dao,
+        exten_features_dao,
         bus_publisher_fail_fast,
     )
     logoff_action = LogoffAction(

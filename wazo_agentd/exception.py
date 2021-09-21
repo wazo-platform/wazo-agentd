@@ -1,4 +1,4 @@
-# Copyright 2012-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # The following strings are part of the exposed HTTP API; don't rename them
@@ -74,3 +74,7 @@ class ContextDifferentTenantError(AgentServerError):
 class QueueDifferentTenantError(AgentServerError):
 
     error = QUEUE_DIFFERENT_TENANT
+
+
+class NoSuchExtenFeatrureError(Exception):
+    pass
