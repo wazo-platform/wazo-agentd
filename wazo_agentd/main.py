@@ -131,6 +131,7 @@ def _run(config):
     logoff_action = LogoffAction(
         amid_client,
         queue_log_manager,
+        blf_manager,
         agent_status_dao,
         user_dao,
         bus_publisher_fail_fast,

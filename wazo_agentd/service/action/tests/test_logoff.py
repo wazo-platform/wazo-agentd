@@ -4,7 +4,8 @@
 import datetime
 import unittest
 
-from mock import ANY, Mock
+from mock import ANY, call, Mock
+from hamcrest import assert_that, contains_inanyorder
 
 from wazo_agentd.service.action.logoff import LogoffAction
 from wazo_amid_client.exceptions import AmidProtocolError
@@ -15,12 +16,14 @@ class TestLogoffAction(unittest.TestCase):
     def setUp(self):
         self.amid_client = Mock()
         self.queue_log_manager = Mock()
+        self.blf_manager = Mock()
         self.agent_status_dao = Mock()
         self.user_dao = Mock()
         self.bus_publisher = Mock()
         self.logoff_action = LogoffAction(
             self.amid_client,
             self.queue_log_manager,
+            self.blf_manager,
             self.agent_status_dao,
             self.user_dao,
             self.bus_publisher,
@@ -28,11 +31,12 @@ class TestLogoffAction(unittest.TestCase):
 
     def test_logoff_agent(self):
         agent_id = 10
+        user_id = 42
         agent_number = '10'
         queue_name = 'q1'
         queue = Mock()
         queue.name = queue_name
-        agent_status = Mock()
+        agent_status = Mock(user_ids=[user_id])
         agent_status.agent_id = agent_id
         agent_status.agent_number = agent_number
         agent_status.login_at = datetime.datetime.utcnow()
@@ -46,6 +50,17 @@ class TestLogoffAction(unittest.TestCase):
 
         self.amid_client.action.assert_called_once_with(
             'QueueRemove', {'Queue': queue.name, 'Interface': agent_status.interface}
+        )
+        assert_that(
+            self.blf_manager.set_user_blf.call_args_list,
+            contains_inanyorder(
+                call(user_id, 'agentstaticlogin', 'NOT_INUSE', '*{}'.format(agent_id)),
+                call(user_id, 'agentstaticlogin', 'NOT_INUSE', agent_number),
+                call(user_id, 'agentstaticlogoff', 'INUSE', '*{}'.format(agent_id)),
+                call(user_id, 'agentstaticlogoff', 'INUSE', agent_number),
+                call(user_id, 'agentstaticlogtoggle', 'NOT_INUSE', '*{}'.format(agent_id)),
+                call(user_id, 'agentstaticlogtoggle', 'NOT_INUSE', agent_number),
+            )
         )
         self.queue_log_manager.on_agent_logged_off.assert_called_once_with(
             agent_number, agent_status.extension, agent_status.context, ANY
@@ -65,7 +80,7 @@ class TestLogoffAction(unittest.TestCase):
         queue_name = 'q1'
         queue = Mock()
         queue.name = queue_name
-        agent_status = Mock()
+        agent_status = Mock(user_ids=[])
         agent_status.agent_id = agent_id
         agent_status.agent_number = agent_number
         agent_status.login_at = datetime.datetime.utcnow()
