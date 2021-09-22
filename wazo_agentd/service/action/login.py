@@ -16,12 +16,14 @@ class LoginAction:
         self,
         amid_client,
         queue_log_manager,
+        blf_manager,
         agent_status_dao,
         line_dao,
         user_dao,
         bus_publisher,
     ):
         self._amid_client = amid_client
+        self._blf_manager = blf_manager
         self._queue_log_manager = queue_log_manager
         self._agent_status_dao = agent_status_dao
         self._line_dao = line_dao
@@ -52,6 +54,7 @@ class LoginAction:
         self._update_agent_status(agent, extension, context, interface, state_interface)
         self._update_queue_log(agent, extension, context)
         self._update_asterisk(agent, interface, state_interface)
+        self._update_blf(agent)
         self._send_bus_status_update(agent)
 
     def _get_interface(self, agent):
@@ -104,6 +107,27 @@ class LoginAction:
                 logger.warning(
                     'Failure to add interface %r to queue %r', interface, queue.name
                 )
+
+    def _update_blf(self, agent):
+        for user_id in agent.user_ids:
+            self._blf_manager.set_user_blf(
+                user_id, 'agentstaticlogin', 'INUSE', '*{}'.format(agent.id)
+            )
+            self._blf_manager.set_user_blf(
+                user_id, 'agentstaticlogin', 'INUSE', agent.number
+            )
+            self._blf_manager.set_user_blf(
+                user_id, 'agentstaticlogoff', 'NOT_INUSE', '*{}'.format(agent.id)
+            )
+            self._blf_manager.set_user_blf(
+                user_id, 'agentstaticlogoff', 'NOT_INUSE', agent.number
+            )
+            self._blf_manager.set_user_blf(
+                user_id, 'agentstaticlogtoggle', 'INUSE', '*{}'.format(agent.id)
+            )
+            self._blf_manager.set_user_blf(
+                user_id, 'agentstaticlogtoggle', 'INUSE', agent.number
+            )
 
     def _send_bus_status_update(self, agent):
         status = AgentStatusUpdateEvent.STATUS_LOGGED_IN

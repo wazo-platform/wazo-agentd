@@ -1,8 +1,12 @@
-# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from collections import namedtuple
-from wazo_agentd.exception import NoSuchAgentError, NoSuchQueueError
+from wazo_agentd.exception import (
+    NoSuchAgentError,
+    NoSuchExtenFeatureError,
+    NoSuchQueueError,
+)
 
 _Queue = namedtuple('_Queue', ['id', 'tenant_uuid', 'name', 'penalty'])
 
@@ -33,6 +37,14 @@ class AgentDAOAdapter(_AbstractDAOAdapter):
             return self._dao.agent_with_user_uuid(user_uuid, tenant_uuids=tenant_uuids)
         except LookupError:
             raise NoSuchAgentError()
+
+
+class ExtenFeaturesDAOAdapter(_AbstractDAOAdapter):
+    def get_extension(self, feature_name):
+        for extension in self._dao.find_extenfeatures_settings([feature_name]):
+            return extension.exten
+
+        raise NoSuchExtenFeatureError()
 
 
 class QueueDAOAdapter(_AbstractDAOAdapter):

@@ -1,4 +1,4 @@
-# Copyright 2012-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -23,6 +23,7 @@ from xivo_bus.resources.agent.event import EditAgentEvent, DeleteAgentEvent
 from xivo_bus.resources.queue.event import EditQueueEvent, DeleteQueueEvent
 from xivo_dao import agent_dao as orig_agent_dao
 from xivo_dao import agent_status_dao
+from xivo_dao import asterisk_conf_dao
 from xivo_dao import context_dao
 from xivo_dao import line_dao
 from xivo_dao import queue_dao as orig_queue_dao
@@ -34,7 +35,7 @@ from wazo_agentd import bus
 from wazo_agentd import http
 from wazo_agentd.bus import AgentPauseEvent
 from wazo_agentd.config import load as load_config
-from wazo_agentd.dao import QueueDAOAdapter, AgentDAOAdapter
+from wazo_agentd.dao import QueueDAOAdapter, AgentDAOAdapter, ExtenFeaturesDAOAdapter
 from wazo_agentd.queuelog import QueueLogManager
 from wazo_agentd.service.action.add import AddToQueueAction
 from wazo_agentd.service.action.login import LoginAction
@@ -51,6 +52,7 @@ from wazo_agentd.service.handler.pause import PauseHandler
 from wazo_agentd.service.handler.relog import RelogHandler
 from wazo_agentd.service.handler.status import StatusHandler
 from wazo_agentd.service.manager.add_member import AddMemberManager
+from wazo_agentd.service.manager.blf import BLFManager
 from wazo_agentd.service.manager.login import LoginManager
 from wazo_agentd.service.manager.logoff import LogoffManager
 from wazo_agentd.service.manager.on_agent_deleted import OnAgentDeletedManager
@@ -98,6 +100,7 @@ def _run(config):
     xivo_uuid = config['uuid']
     agent_dao = AgentDAOAdapter(orig_agent_dao)
     queue_dao = QueueDAOAdapter(orig_queue_dao)
+    exten_features_dao = ExtenFeaturesDAOAdapter(asterisk_conf_dao)
     amid_client = AmidClient(**config['amid'])
     auth_client = AuthClient(**config['auth'])
     token_renewer = TokenRenewer(auth_client)
@@ -112,12 +115,14 @@ def _run(config):
     )
     bus_publisher_long_lived_thread.start()
 
+    blf_manager = BLFManager(amid_client, exten_features_dao)
     queue_log_manager = QueueLogManager(queue_log_dao)
 
     add_to_queue_action = AddToQueueAction(amid_client, agent_status_dao)
     login_action = LoginAction(
         amid_client,
         queue_log_manager,
+        blf_manager,
         agent_status_dao,
         line_dao,
         user_dao,
@@ -126,6 +131,7 @@ def _run(config):
     logoff_action = LogoffAction(
         amid_client,
         queue_log_manager,
+        blf_manager,
         agent_status_dao,
         user_dao,
         bus_publisher_fail_fast,
