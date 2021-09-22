@@ -18,7 +18,8 @@ class LogoffAction:
         queue_log_manager,
         blf_manager,
         agent_status_dao,
-        user_dao, bus_publisher,
+        user_dao,
+        bus_publisher,
     ):
         self._amid_client = amid_client
         self._queue_log_manager = queue_log_manager
@@ -57,12 +58,24 @@ class LogoffAction:
         agent_id = '*{}'.format(agent_status.agent_id)
         number = agent_status.agent_number
         for user_id in agent_status.user_ids:
-            self._blf_manager.set_user_blf(user_id, 'agentstaticlogin', 'NOT_INUSE', agent_id)
-            self._blf_manager.set_user_blf(user_id, 'agentstaticlogin', 'NOT_INUSE', number)
-            self._blf_manager.set_user_blf(user_id, 'agentstaticlogoff', 'INUSE', agent_id)
-            self._blf_manager.set_user_blf(user_id, 'agentstaticlogoff', 'INUSE', number)
-            self._blf_manager.set_user_blf(user_id, 'agentstaticlogtoggle', 'NOT_INUSE', agent_id)
-            self._blf_manager.set_user_blf(user_id, 'agentstaticlogtoggle', 'NOT_INUSE', number)
+            self._blf_manager.set_user_blf(
+                user_id, 'agentstaticlogin', 'NOT_INUSE', agent_id
+            )
+            self._blf_manager.set_user_blf(
+                user_id, 'agentstaticlogin', 'NOT_INUSE', number
+            )
+            self._blf_manager.set_user_blf(
+                user_id, 'agentstaticlogoff', 'INUSE', agent_id
+            )
+            self._blf_manager.set_user_blf(
+                user_id, 'agentstaticlogoff', 'INUSE', number
+            )
+            self._blf_manager.set_user_blf(
+                user_id, 'agentstaticlogtoggle', 'NOT_INUSE', agent_id
+            )
+            self._blf_manager.set_user_blf(
+                user_id, 'agentstaticlogtoggle', 'NOT_INUSE', number
+            )
 
     def _update_queue_log(self, agent_status):
         login_time = self._compute_login_time(agent_status.login_at)

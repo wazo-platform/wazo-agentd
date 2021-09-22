@@ -110,12 +110,24 @@ class LoginAction:
 
     def _update_blf(self, agent):
         for user_id in agent.user_ids:
-            self._blf_manager.set_user_blf(user_id, 'agentstaticlogin', 'INUSE', '*{}'.format(agent.id))
-            self._blf_manager.set_user_blf(user_id, 'agentstaticlogin', 'INUSE', agent.number)
-            self._blf_manager.set_user_blf(user_id, 'agentstaticlogoff', 'NOT_INUSE', '*{}'.format(agent.id))
-            self._blf_manager.set_user_blf(user_id, 'agentstaticlogoff', 'NOT_INUSE', agent.number)
-            self._blf_manager.set_user_blf(user_id, 'agentstaticlogtoggle', 'INUSE', '*{}'.format(agent.id))
-            self._blf_manager.set_user_blf(user_id, 'agentstaticlogtoggle', 'INUSE', agent.number)
+            self._blf_manager.set_user_blf(
+                user_id, 'agentstaticlogin', 'INUSE', '*{}'.format(agent.id)
+            )
+            self._blf_manager.set_user_blf(
+                user_id, 'agentstaticlogin', 'INUSE', agent.number
+            )
+            self._blf_manager.set_user_blf(
+                user_id, 'agentstaticlogoff', 'NOT_INUSE', '*{}'.format(agent.id)
+            )
+            self._blf_manager.set_user_blf(
+                user_id, 'agentstaticlogoff', 'NOT_INUSE', agent.number
+            )
+            self._blf_manager.set_user_blf(
+                user_id, 'agentstaticlogtoggle', 'INUSE', '*{}'.format(agent.id)
+            )
+            self._blf_manager.set_user_blf(
+                user_id, 'agentstaticlogtoggle', 'INUSE', agent.number
+            )
 
     def _send_bus_status_update(self, agent):
         status = AgentStatusUpdateEvent.STATUS_LOGGED_IN

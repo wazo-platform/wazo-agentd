@@ -58,9 +58,11 @@ class TestLogoffAction(unittest.TestCase):
                 call(user_id, 'agentstaticlogin', 'NOT_INUSE', agent_number),
                 call(user_id, 'agentstaticlogoff', 'INUSE', '*{}'.format(agent_id)),
                 call(user_id, 'agentstaticlogoff', 'INUSE', agent_number),
-                call(user_id, 'agentstaticlogtoggle', 'NOT_INUSE', '*{}'.format(agent_id)),
+                call(
+                    user_id, 'agentstaticlogtoggle', 'NOT_INUSE', '*{}'.format(agent_id)
+                ),
                 call(user_id, 'agentstaticlogtoggle', 'NOT_INUSE', agent_number),
-            )
+            ),
         )
         self.queue_log_manager.on_agent_logged_off.assert_called_once_with(
             agent_number, agent_status.extension, agent_status.context, ANY

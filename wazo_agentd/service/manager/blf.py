@@ -19,7 +19,9 @@ class BLFManager:
     def set_user_blf(self, user_id, feature_name, state, target):
         with db_utils.session_scope():
             try:
-                exten_prefix = self._exten_features_dao.get_extension('phoneprogfunckey')
+                exten_prefix = self._exten_features_dao.get_extension(
+                    'phoneprogfunckey'
+                )
                 feature_exten = self._exten_features_dao.get_extension(feature_name)
             except NoSuchExtenFeatureError:
                 logger.info(

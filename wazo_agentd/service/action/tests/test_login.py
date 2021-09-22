@@ -87,7 +87,7 @@ class TestLoginAction(unittest.TestCase):
                 call(user_id, 'agentstaticlogoff', 'NOT_INUSE', agent_number),
                 call(user_id, 'agentstaticlogtoggle', 'INUSE', '*{}'.format(agent_id)),
                 call(user_id, 'agentstaticlogtoggle', 'INUSE', agent_number),
-            )
+            ),
         )
         self.bus_publisher.publish.assert_called_once_with(
             AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_IN),
