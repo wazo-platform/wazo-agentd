@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import time
@@ -19,8 +19,8 @@ from wazo_agentd_client.error import (
     NO_SUCH_LINE,
     UNAUTHORIZED,
 )
-from xivo_test_helpers import until
-from xivo_test_helpers.hamcrest.raises import raises
+from wazo_test_helpers import until
+from wazo_test_helpers.hamcrest.raises import raises
 
 from .helpers.base import BaseIntegrationTest, UNKNOWN_UUID, UNKNOWN_ID
 from .helpers import associations, fixtures
