@@ -1,10 +1,10 @@
-# Copyright 2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import time
 
 from hamcrest import assert_that, is_
-from xivo_test_helpers import until
+from wazo_test_helpers import until
 
 from .helpers.base import BaseIntegrationTest
 from .helpers import fixtures

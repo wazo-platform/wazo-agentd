@@ -7,8 +7,8 @@ import uuid
 
 from wazo_agentd_client import Client as AgentdClient
 
-from xivo_test_helpers.auth import AuthClient, MockUserToken
-from xivo_test_helpers.asset_launching_test_case import (
+from wazo_test_helpers.auth import AuthClient, MockUserToken
+from wazo_test_helpers.asset_launching_test_case import (
     AssetLaunchingTestCase,
     NoSuchService,
 )
