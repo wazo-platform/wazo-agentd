@@ -1,4 +1,4 @@
-# Copyright 2017-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2017-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -10,9 +10,10 @@ logger = logging.getLogger(__name__)
 
 
 class OnQueueAgentPausedManager:
-    def __init__(self, agent_status_dao, user_dao, bus_publisher):
+    def __init__(self, agent_status_dao, user_dao, agent_dao, bus_publisher):
         self._agent_status_dao = agent_status_dao
         self._user_dao = user_dao
+        self._agent_dao = agent_dao
         self._bus_publisher = bus_publisher
 
     def on_queue_agent_paused(self, agent_id, agent_number, reason, queue):
@@ -38,4 +39,6 @@ class OnQueueAgentPausedManager:
                 'user_uuid:{uuid}'.format(uuid=user.uuid): True for user in users
             }
             headers['agent_id:{id}'.format(id=str(agent_id))] = True
+            tenant_uuid = self._agent_dao.agent_with_id(agent_id).tenant_uuid
+            headers['tenant_uuid'] = tenant_uuid
             self._bus_publisher.publish_soon(event, headers=headers)

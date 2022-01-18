@@ -1,4 +1,4 @@
-# Copyright 2013-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -22,6 +22,7 @@ class TestLoginAction(unittest.TestCase):
         self.agent_status_dao = Mock()
         self.line_dao = Mock()
         self.user_dao = Mock()
+        self.agent_dao = Mock()
         self.bus_publisher = Mock()
         self.login_action = LoginAction(
             self.amid_client,
@@ -30,6 +31,7 @@ class TestLoginAction(unittest.TestCase):
             self.agent_status_dao,
             self.line_dao,
             self.user_dao,
+            self.agent_dao,
             self.bus_publisher,
         )
 
@@ -46,6 +48,7 @@ class TestLoginAction(unittest.TestCase):
         context = 'default'
         state_interface_sip = 'PJSIP/abcd'
         skills = format_agent_skills(agent_id)
+        tenant_uuid = '00000000-0000-0000-0000-000000001234'
 
         self.line_dao.get_interface_from_exten_and_context.return_value = (
             state_interface_sip
@@ -55,6 +58,7 @@ class TestLoginAction(unittest.TestCase):
             Mock(uuid='43'),
         ]
         self.amid_client.action.return_value = [{'Response': 'Ok'}]
+        self.agent_dao.agent_with_id.return_value = Mock(tenant_uuid=tenant_uuid)
 
         self.login_action.login_agent(agent, extension, context)
 
@@ -91,7 +95,12 @@ class TestLoginAction(unittest.TestCase):
         )
         self.bus_publisher.publish.assert_called_once_with(
             AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_IN),
-            headers={'user_uuid:42': True, 'user_uuid:43': True, 'agent_id:10': True},
+            headers={
+                'user_uuid:42': True,
+                'user_uuid:43': True,
+                'agent_id:10': True,
+                'tenant_uuid': tenant_uuid,
+            },
         )
 
     def test_login_agent_sccp(self):
@@ -134,6 +143,7 @@ class TestLoginAction(unittest.TestCase):
         context = 'default'
         state_interface_sip = 'PJSIP/abcd'
         skills = format_agent_skills(agent_id)
+        tenant_uuid = '00000000-0000-0000-0000-000000001234'
 
         self.line_dao.get_interface_from_line_id.return_value = state_interface_sip
         self.line_dao.get_main_extension_context_from_line_id.return_value = (
@@ -145,6 +155,7 @@ class TestLoginAction(unittest.TestCase):
             Mock(uuid='43'),
         ]
         self.amid_client.action.return_value = [{'Response': 'Ok'}]
+        self.agent_dao.agent_with_id.return_value = Mock(tenant_uuid=tenant_uuid)
 
         self.login_action.login_agent_on_line(agent, line_id)
 
@@ -170,5 +181,10 @@ class TestLoginAction(unittest.TestCase):
         )
         self.bus_publisher.publish.assert_called_once_with(
             AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_IN),
-            headers={'user_uuid:42': True, 'user_uuid:43': True, 'agent_id:10': True},
+            headers={
+                'user_uuid:42': True,
+                'user_uuid:43': True,
+                'agent_id:10': True,
+                'tenant_uuid': tenant_uuid,
+            },
         )

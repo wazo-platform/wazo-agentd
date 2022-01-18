@@ -1,4 +1,4 @@
-# Copyright 2013-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
@@ -19,6 +19,7 @@ class TestLogoffAction(unittest.TestCase):
         self.blf_manager = Mock()
         self.agent_status_dao = Mock()
         self.user_dao = Mock()
+        self.agent_dao = Mock()
         self.bus_publisher = Mock()
         self.logoff_action = LogoffAction(
             self.amid_client,
@@ -26,6 +27,7 @@ class TestLogoffAction(unittest.TestCase):
             self.blf_manager,
             self.agent_status_dao,
             self.user_dao,
+            self.agent_dao,
             self.bus_publisher,
         )
 
@@ -41,10 +43,12 @@ class TestLogoffAction(unittest.TestCase):
         agent_status.agent_number = agent_number
         agent_status.login_at = datetime.datetime.utcnow()
         agent_status.queues = [queue]
+        tenant_uuid = '00000000-0000-0000-0000-000000001ebc'
         self.user_dao.find_all_by_agent_id.return_value = [
             Mock(uuid='42'),
             Mock(uuid='43'),
         ]
+        self.agent_dao.agent_with_id.return_value = Mock(tenant_uuid=tenant_uuid)
 
         self.logoff_action.logoff_agent(agent_status)
 
@@ -73,7 +77,12 @@ class TestLogoffAction(unittest.TestCase):
         self.agent_status_dao.log_off_agent.assert_called_once_with(agent_id)
         self.bus_publisher.publish.assert_called_once_with(
             AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_OUT),
-            headers={'user_uuid:42': True, 'user_uuid:43': True, 'agent_id:10': True},
+            headers={
+                'user_uuid:42': True,
+                'user_uuid:43': True,
+                'agent_id:10': True,
+                'tenant_uuid': tenant_uuid,
+            },
         )
 
     def test_logoff_agent_already_off_on_asterisk(self):
@@ -91,6 +100,8 @@ class TestLogoffAction(unittest.TestCase):
             Mock(uuid='42'),
             Mock(uuid='43'),
         ]
+        tenant_uuid = '00000000-0000-0000-0000-000000001ebc'
+        self.agent_dao.agent_with_id.return_value = Mock(tenant_uuid=tenant_uuid)
 
         response = Mock()
         response.json.return_value = [
@@ -112,5 +123,10 @@ class TestLogoffAction(unittest.TestCase):
         self.agent_status_dao.log_off_agent.assert_called_once_with(agent_id)
         self.bus_publisher.publish.assert_called_once_with(
             AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_OUT),
-            headers={'user_uuid:42': True, 'user_uuid:43': True, 'agent_id:10': True},
+            headers={
+                'user_uuid:42': True,
+                'user_uuid:43': True,
+                'agent_id:10': True,
+                'tenant_uuid': tenant_uuid,
+            },
         )
