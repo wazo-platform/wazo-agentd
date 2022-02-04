@@ -1,4 +1,4 @@
-# Copyright 2012-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import argparse
@@ -31,6 +31,10 @@ _DEFAULT_CONFIG = {
         'port': 5672,
         'exchange_name': 'xivo',
         'exchange_type': 'topic',
+        'subscribe': {
+            'exchange_name': 'wazo-headers',
+            'exchange_type': 'headers',
+        },
     },
     'consul': {'scheme': 'http', 'host': 'localhost', 'port': 8500},
     'rest_api': {

@@ -122,7 +122,9 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
         except NoSuchService as e:
             logger.debug(e)
             return
-        return BusClient.from_connection_fields(host='127.0.0.1', port=port)
+        bus = BusClient.from_connection_fields(host='127.0.0.1', port=port)
+        bus.downstream_exchange_declare('wazo-headers', 'headers')
+        return bus
 
     @classmethod
     def make_database(cls):
