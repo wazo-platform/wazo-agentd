@@ -21,7 +21,7 @@ class TestOnQueueAgentPausedManager(unittest.TestCase):
         )
 
     def test_on_queue_agent_paused(self):
-        tenant_uuid = '00000000-0000-0000-0000-0000000055ff'
+        tenant_uuid = '00000000-0000-4000-8000-0000000055ff'
         self.agent_dao.agent_with_id.return_value = Mock(tenant_uuid=tenant_uuid)
         self.user_dao.find_all_by_agent_id.return_value = [
             Mock(uuid='42'),
@@ -45,7 +45,7 @@ class TestOnQueueAgentPausedManager(unittest.TestCase):
         )
 
     def test_on_queue_agent_unpaused(self):
-        tenant_uuid = '00000000-0000-0000-0000-000000c0fefe'
+        tenant_uuid = '00000000-0000-4000-8000-000000c0fefe'
         self.agent_dao.agent_with_id.return_value = Mock(tenant_uuid=tenant_uuid)
         self.user_dao.find_all_by_agent_id.return_value = [
             Mock(uuid='42'),

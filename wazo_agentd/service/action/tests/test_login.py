@@ -48,7 +48,7 @@ class TestLoginAction(unittest.TestCase):
         context = 'default'
         state_interface_sip = 'PJSIP/abcd'
         skills = format_agent_skills(agent_id)
-        tenant_uuid = '00000000-0000-0000-0000-000000001234'
+        tenant_uuid = '00000000-0000-4000-8000-000000001234'
 
         self.line_dao.get_interface_from_exten_and_context.return_value = (
             state_interface_sip
@@ -143,7 +143,7 @@ class TestLoginAction(unittest.TestCase):
         context = 'default'
         state_interface_sip = 'PJSIP/abcd'
         skills = format_agent_skills(agent_id)
-        tenant_uuid = '00000000-0000-0000-0000-000000001234'
+        tenant_uuid = '00000000-0000-4000-8000-000000001234'
 
         self.line_dao.get_interface_from_line_id.return_value = state_interface_sip
         self.line_dao.get_main_extension_context_from_line_id.return_value = (

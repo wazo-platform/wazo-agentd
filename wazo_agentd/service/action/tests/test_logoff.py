@@ -43,7 +43,7 @@ class TestLogoffAction(unittest.TestCase):
         agent_status.agent_number = agent_number
         agent_status.login_at = datetime.datetime.utcnow()
         agent_status.queues = [queue]
-        tenant_uuid = '00000000-0000-0000-0000-000000001ebc'
+        tenant_uuid = '00000000-0000-4000-8000-000000001ebc'
         self.user_dao.find_all_by_agent_id.return_value = [
             Mock(uuid='42'),
             Mock(uuid='43'),
@@ -100,7 +100,7 @@ class TestLogoffAction(unittest.TestCase):
             Mock(uuid='42'),
             Mock(uuid='43'),
         ]
-        tenant_uuid = '00000000-0000-0000-0000-000000001ebc'
+        tenant_uuid = '00000000-0000-4000-8000-000000001ebc'
         self.agent_dao.agent_with_id.return_value = Mock(tenant_uuid=tenant_uuid)
 
         response = Mock()
