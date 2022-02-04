@@ -1,4 +1,4 @@
-# Copyright 2013-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -20,6 +20,7 @@ class LoginAction:
         agent_status_dao,
         line_dao,
         user_dao,
+        agent_dao,
         bus_publisher,
     ):
         self._amid_client = amid_client
@@ -28,6 +29,7 @@ class LoginAction:
         self._agent_status_dao = agent_status_dao
         self._line_dao = line_dao
         self._user_dao = user_dao
+        self._agent_dao = agent_dao
         self._bus_publisher = bus_publisher
 
     def login_agent(self, agent, extension, context):
@@ -134,10 +136,12 @@ class LoginAction:
         event = AgentStatusUpdateEvent(agent.id, status)
         logger.debug('Looking for users with agent id %s...', agent.id)
         with db_utils.session_scope():
+            tenant_uuid = self._agent_dao.agent_with_id(agent.id).tenant_uuid
             users = self._user_dao.find_all_by_agent_id(agent.id)
             logger.debug('Found %s users.', len(users))
             headers = {
                 'user_uuid:{uuid}'.format(uuid=user.uuid): True for user in users
             }
             headers['agent_id:{id}'.format(id=str(agent.id))] = True
+            headers['tenant_uuid'] = tenant_uuid
             self._bus_publisher.publish(event, headers=headers)

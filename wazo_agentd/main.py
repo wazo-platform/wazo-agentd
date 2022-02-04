@@ -1,4 +1,4 @@
-# Copyright 2012-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -126,6 +126,7 @@ def _run(config):
         agent_status_dao,
         line_dao,
         user_dao,
+        agent_dao,
         bus_publisher_fail_fast,
     )
     logoff_action = LogoffAction(
@@ -134,6 +135,7 @@ def _run(config):
         blf_manager,
         agent_status_dao,
         user_dao,
+        agent_dao,
         bus_publisher_fail_fast,
     )
     pause_action = PauseAction(amid_client)
@@ -158,7 +160,7 @@ def _run(config):
         add_to_queue_action, remove_from_queue_action, agent_status_dao
     )
     on_queue_agent_paused_manager = OnQueueAgentPausedManager(
-        agent_status_dao, user_dao, bus_publisher_long_lived
+        agent_status_dao, user_dao, agent_dao, bus_publisher_long_lived
     )
     pause_manager = PauseManager(pause_action, agent_dao)
     relog_manager = RelogManager(
