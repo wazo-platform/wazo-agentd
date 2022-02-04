@@ -6,7 +6,6 @@ import signal
 import sys
 
 from functools import partial
-from threading import Thread
 
 import xivo_dao
 
@@ -19,6 +18,8 @@ from xivo.token_renewer import TokenRenewer
 from xivo.user_rights import change_user
 from xivo.xivo_logging import setup_logging, silence_loggers
 
+from xivo_bus.publisher import BusPublisherWithQueue
+from xivo_bus.consumer import BusConsumer
 from xivo_bus.resources.agent.event import EditAgentEvent, DeleteAgentEvent
 from xivo_bus.resources.queue.event import EditQueueEvent, DeleteQueueEvent
 from xivo_dao import agent_dao as orig_agent_dao
@@ -31,7 +32,6 @@ from xivo_dao import queue_log_dao
 from xivo_dao import queue_member_dao
 from xivo_dao.resources.user import dao as user_dao
 
-from wazo_agentd import bus
 from wazo_agentd import http
 from wazo_agentd.bus import AgentPauseEvent
 from wazo_agentd.config import load as load_config
@@ -107,13 +107,8 @@ def _run(config):
     token_renewer.subscribe_to_token_change(amid_client.set_token)
     token_renewer.subscribe_to_token_change(auth_client.set_token)
 
-    bus_consumer = bus.Consumer(config)
-    bus_publisher_fail_fast = bus.AgentdFailFastPublisher(config)
-    bus_publisher_long_lived = bus.AgentdLongLivedPublisher(config)
-    bus_publisher_long_lived_thread = Thread(
-        target=bus_publisher_long_lived.run, name='bus_publisher_long_lived_thread'
-    )
-    bus_publisher_long_lived_thread.start()
+    bus_consumer = BusConsumer(**config['bus'])
+    bus_publisher = BusPublisherWithQueue(**config['bus'], service_uuid=xivo_uuid)
 
     blf_manager = BLFManager(amid_client, exten_features_dao)
     queue_log_manager = QueueLogManager(queue_log_dao)
@@ -127,7 +122,7 @@ def _run(config):
         line_dao,
         user_dao,
         agent_dao,
-        bus_publisher_fail_fast,
+        bus_publisher,
     )
     logoff_action = LogoffAction(
         amid_client,
@@ -136,7 +131,7 @@ def _run(config):
         agent_status_dao,
         user_dao,
         agent_dao,
-        bus_publisher_fail_fast,
+        bus_publisher,
     )
     pause_action = PauseAction(amid_client)
     remove_from_queue_action = RemoveFromQueueAction(amid_client, agent_status_dao)
@@ -160,7 +155,7 @@ def _run(config):
         add_to_queue_action, remove_from_queue_action, agent_status_dao
     )
     on_queue_agent_paused_manager = OnQueueAgentPausedManager(
-        agent_status_dao, user_dao, agent_dao, bus_publisher_long_lived
+        agent_status_dao, user_dao, agent_dao, bus_publisher
     )
     pause_manager = PauseManager(pause_action, agent_dao)
     relog_manager = RelogManager(
@@ -191,11 +186,7 @@ def _run(config):
     service_proxy.relog_handler = RelogHandler(relog_manager)
     service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, xivo_uuid)
 
-    bus_consumer.on_event(EditAgentEvent.name, service_proxy.on_agent_updated)
-    bus_consumer.on_event(DeleteAgentEvent.name, service_proxy.on_agent_deleted)
-    bus_consumer.on_event(EditQueueEvent.name, service_proxy.on_queue_updated)
-    bus_consumer.on_event(DeleteQueueEvent.name, service_proxy.on_queue_deleted)
-    bus_consumer.on_event(AgentPauseEvent.name, service_proxy.on_agent_paused)
+    _init_bus_consume(bus_consumer, service_proxy)
 
     http_iface = http.HTTPInterface(config, service_proxy, auth_client)
 
@@ -209,15 +200,23 @@ def _run(config):
     ]
     try:
         with token_renewer:
-            with bus.consumer_thread(bus_consumer):
+            with bus_consumer, bus_publisher:
                 with ServiceCatalogRegistration(*service_discovery_args):
                     http_iface.run()
     finally:
         logger.info('wazo-agentd stopping...')
-        logger.debug('joining bus producer thread')
-        bus_publisher_long_lived.stop()
-        bus_publisher_long_lived_thread.join()
-        logger.debug('done joining')
+
+
+def _init_bus_consume(bus_consumer, service_proxy):
+    events = (
+        (EditAgentEvent.name, service_proxy.on_agent_updated),
+        (DeleteAgentEvent.name, service_proxy.on_agent_deleted),
+        (EditQueueEvent.name, service_proxy.on_queue_updated),
+        (DeleteQueueEvent.name, service_proxy.on_queue_deleted),
+        (AgentPauseEvent.name, service_proxy.on_agent_paused),
+    )
+    for event, action in events:
+        bus_consumer.subscribe(event, action)
 
 
 def _init_signal():
