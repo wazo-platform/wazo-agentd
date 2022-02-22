@@ -11,7 +11,7 @@ class BaseSchema(Schema):
         unknown = EXCLUDE
 
     @pre_load
-    def ensure_dict(self, data, **kwargs):
+    def ensure_dict(self, data):
         return data or {}
 
 
