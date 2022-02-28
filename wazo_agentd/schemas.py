@@ -1,36 +1,26 @@
-# Copyright 2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2020-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from marshmallow import Schema, pre_load, EXCLUDE
-
 from xivo.mallow import fields, validate
+from xivo.mallow_helpers import Schema
 
 
-class BaseSchema(Schema):
-    class Meta:
-        unknown = EXCLUDE
-
-    @pre_load
-    def ensure_dict(self, data):
-        return data or {}
-
-
-class AgentLoginSchema(BaseSchema):
+class AgentLoginSchema(Schema):
     extension = fields.String(required=True)
     context = fields.String(required=True)
 
 
-class UserAgentLoginSchema(BaseSchema):
+class UserAgentLoginSchema(Schema):
     line_id = fields.Integer(required=True)
 
 
-class PauseSchema(BaseSchema):
+class PauseSchema(Schema):
     reason = fields.String(
         validate=validate.Length(min=1, max=80), missing=None, default=None
     )
 
 
-class QueueSchema(BaseSchema):
+class QueueSchema(Schema):
     queue_id = fields.Integer(required=True)
 
 
