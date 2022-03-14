@@ -1,7 +1,9 @@
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
+
+from wazo_agentd.service.helper import is_valid_agent_number
 
 from xivo import debug
 from xivo_dao.helpers import db_utils
@@ -51,6 +53,12 @@ class OnQueueHandler:
             'Executing on agent paused command (MemberName %s)', msg['MemberName']
         )
         pause_info = self._get_pause_info(msg)
+        if not pause_info:
+            logger.debug(
+                '"%s" is not a valid agent number. Ignoring.',
+                self._extract_agent_number(msg['MemberName']),
+            )
+            return
         self._on_queue_agent_paused_manager.on_queue_agent_paused(*pause_info)
 
     @debug.trace_duration
@@ -59,10 +67,22 @@ class OnQueueHandler:
             'Executing on agent unpaused command (MemberName %s)', msg['MemberName']
         )
         pause_info = self._get_pause_info(msg)
+        if not pause_info:
+            logger.debug(
+                '"%s" is not a valid agent number. Ignoring.',
+                self._extract_agent_number(msg['MemberName']),
+            )
+            return
         self._on_queue_agent_paused_manager.on_queue_agent_unpaused(*pause_info)
 
+    def _extract_agent_number(self, member_name):
+        _, agent_number = member_name.split('/', 1)
+        return agent_number
+
     def _get_pause_info(self, msg):
-        _, agent_number = msg['MemberName'].split('/', 1)
+        agent_number = self._extract_agent_number(msg['MemberName'])
+        if not is_valid_agent_number(agent_number):
+            return
         reason = msg['PausedReason']
         queue = msg['Queue']
         with db_utils.session_scope():
