@@ -54,7 +54,7 @@ class OnQueueHandler:
         )
         pause_info = self._get_pause_info(msg)
         if not pause_info:
-            logger.info(
+            logger.debug(
                 '"%s" is not a valid agent number. Ignoring.',
                 self._extract_agent_number(msg['MemberName']),
             )
@@ -68,7 +68,7 @@ class OnQueueHandler:
         )
         pause_info = self._get_pause_info(msg)
         if not pause_info:
-            logger.info(
+            logger.debug(
                 '"%s" is not a valid agent number. Ignoring.',
                 self._extract_agent_number(msg['MemberName']),
             )
