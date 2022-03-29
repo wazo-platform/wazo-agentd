@@ -1,4 +1,4 @@
-# Copyright 2013-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -66,6 +66,12 @@ class AgentdAuthVerifier(AuthVerifier):
         )
         logger.exception('%s', message)
         return {'error': message}, 503
+
+    def _handle_invalid_token_exception(self, token, required_access=None):
+        return self.handle_unauthorized(token, required_access)
+
+    def _handle_missing_permissions_token_exception(self, token, required_access=None):
+        return self.handle_unauthorized(token, required_access)
 
     def handle_unauthorized(self, token, required_access=None):
         return {'error': 'invalid token or unauthorized'}, 401
