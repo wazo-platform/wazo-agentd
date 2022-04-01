@@ -311,6 +311,12 @@ paths:
       - user
       parameters:
       - $ref: '#/parameters/tenantuuid'
+      - name: body
+        in: body
+        description: The reason when pause the agent
+        required: false
+        schema:
+          $ref: '#/definitions/AgentPauseReason'
       responses:
         '204':
           description: The operation was performed succesfully
