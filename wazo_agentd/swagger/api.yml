@@ -286,7 +286,7 @@ paths:
       - $ref: '#/parameters/AgentNumber'
       - name: body
         in: body
-        description: The reason when pause the agent
+        description: The reason for pausing the agent
         required: false
         schema:
           $ref: '#/definitions/AgentPauseReason'
@@ -313,7 +313,7 @@ paths:
       - $ref: '#/parameters/tenantuuid'
       - name: body
         in: body
-        description: The reason when pause the agent
+        description: The reason for pausing the agent
         required: false
         schema:
           $ref: '#/definitions/AgentPauseReason'
