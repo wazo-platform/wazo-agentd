@@ -17,6 +17,7 @@ class LogoffAction:
         amid_client,
         queue_log_manager,
         blf_manager,
+        pause_manager,
         agent_status_dao,
         user_dao,
         agent_dao,
@@ -25,6 +26,7 @@ class LogoffAction:
         self._amid_client = amid_client
         self._queue_log_manager = queue_log_manager
         self._blf_manager = blf_manager
+        self._pause_manager = pause_manager
         self._agent_status_dao = agent_status_dao
         self._user_dao = user_dao
         self._agent_dao = agent_dao
@@ -33,11 +35,15 @@ class LogoffAction:
     def logoff_agent(self, agent_status):
         # Precondition:
         # * agent is logged
+        self._unpause_agent(agent_status)
         self._update_asterisk(agent_status)
         self._update_blf(agent_status)
         self._update_queue_log(agent_status)
         self._update_agent_status(agent_status)
         self._send_bus_status_update(agent_status)
+
+    def _unpause_agent(self, agent_status):
+        self._pause_manager.unpause_agent(agent_status)
 
     def _update_asterisk(self, agent_status):
         for queue in agent_status.queues:

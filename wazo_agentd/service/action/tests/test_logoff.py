@@ -17,6 +17,7 @@ class TestLogoffAction(unittest.TestCase):
         self.amid_client = Mock()
         self.queue_log_manager = Mock()
         self.blf_manager = Mock()
+        self.pause_manager = Mock()
         self.agent_status_dao = Mock()
         self.user_dao = Mock()
         self.agent_dao = Mock()
@@ -25,6 +26,7 @@ class TestLogoffAction(unittest.TestCase):
             self.amid_client,
             self.queue_log_manager,
             self.blf_manager,
+            self.pause_manager,
             self.agent_status_dao,
             self.user_dao,
             self.agent_dao,
@@ -68,6 +70,7 @@ class TestLogoffAction(unittest.TestCase):
                 call(user_id, 'agentstaticlogtoggle', 'NOT_INUSE', agent_number),
             ),
         )
+        self.pause_manager.unpause_agent.assert_called_once_with(agent_status)
         self.queue_log_manager.on_agent_logged_off.assert_called_once_with(
             agent_number, agent_status.extension, agent_status.context, ANY
         )

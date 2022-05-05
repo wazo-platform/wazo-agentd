@@ -124,16 +124,18 @@ def _run(config):
         agent_dao,
         bus_publisher,
     )
+    pause_action = PauseAction(amid_client)
+    pause_manager = PauseManager(pause_action, agent_dao)
     logoff_action = LogoffAction(
         amid_client,
         queue_log_manager,
         blf_manager,
+        pause_manager,
         agent_status_dao,
         user_dao,
         agent_dao,
         bus_publisher,
     )
-    pause_action = PauseAction(amid_client)
     remove_from_queue_action = RemoveFromQueueAction(amid_client, agent_status_dao)
     update_penalty_action = UpdatePenaltyAction(amid_client, agent_status_dao)
 
@@ -157,7 +159,6 @@ def _run(config):
     on_queue_agent_paused_manager = OnQueueAgentPausedManager(
         agent_status_dao, user_dao, agent_dao, bus_publisher
     )
-    pause_manager = PauseManager(pause_action, agent_dao)
     relog_manager = RelogManager(
         login_action, logoff_action, agent_dao, agent_status_dao
     )
