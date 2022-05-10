@@ -35,7 +35,11 @@ class LogoffAction:
     def logoff_agent(self, agent_status):
         # Precondition:
         # * agent is logged
-        self._unpause_agent(agent_status)
+        try:
+            self._unpause_agent(agent_status)
+        except AmidProtocolError as e:
+            if str(e) != 'Interface not found':
+                raise
         self._update_asterisk(agent_status)
         self._update_blf(agent_status)
         self._update_queue_log(agent_status)
