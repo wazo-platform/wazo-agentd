@@ -1,8 +1,8 @@
-# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
-from mock import Mock
+from unittest.mock import Mock
 from wazo_agentd.service.action.login import LoginAction
 from wazo_agentd.service.action.logoff import LogoffAction
 from wazo_agentd.service.manager.relog import RelogManager

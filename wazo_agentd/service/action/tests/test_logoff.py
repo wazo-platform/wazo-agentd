@@ -4,7 +4,7 @@
 import datetime
 import unittest
 
-from mock import ANY, call, Mock
+from unittest.mock import ANY, call, Mock
 from hamcrest import assert_that, contains_inanyorder
 
 from wazo_agentd.service.action.logoff import LogoffAction

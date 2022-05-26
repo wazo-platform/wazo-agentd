@@ -3,7 +3,7 @@
 
 import unittest
 
-from mock import call, Mock, ANY
+from unittest.mock import call, Mock, ANY
 from hamcrest import assert_that, contains_inanyorder
 
 from xivo_bus.resources.cti.event import AgentStatusUpdateEvent

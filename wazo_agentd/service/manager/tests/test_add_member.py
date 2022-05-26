@@ -1,9 +1,9 @@
-# Copyright 2019-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
 
-from mock import Mock
+from unittest.mock import Mock
 
 from wazo_agentd.service.manager.add_member import AddMemberManager
 from wazo_agentd.exception import AgentAlreadyInQueueError, QueueDifferentTenantError
