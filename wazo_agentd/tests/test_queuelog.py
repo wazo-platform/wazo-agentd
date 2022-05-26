@@ -1,10 +1,10 @@
-# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
 import unittest
 from functools import wraps
-from mock import ANY, Mock, patch, sentinel
+from unittest.mock import ANY, Mock, patch, sentinel
 from wazo_agentd.queuelog import QueueLogManager
 
 mock_date = datetime.datetime(2011, 11, 12, 13, 14, 15, 1617)

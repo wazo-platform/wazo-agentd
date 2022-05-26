@@ -3,7 +3,7 @@
 
 import unittest
 
-from mock import Mock
+from unittest.mock import Mock
 from wazo_agentd.service.manager.pause import PauseManager
 from wazo_agentd.service.manager.on_queue_agent_paused import OnQueueAgentPausedManager
 from wazo_agentd.service.handler.pause import PauseHandler

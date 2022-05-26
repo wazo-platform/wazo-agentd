@@ -3,7 +3,7 @@
 
 import unittest
 
-from mock import Mock, sentinel as s
+from unittest.mock import Mock, sentinel as s
 
 from ..on_queue_agent_paused import OnQueueAgentPausedManager
 from ..on_queue_agent_paused import PauseAgentEvent, UnpauseAgentEvent
