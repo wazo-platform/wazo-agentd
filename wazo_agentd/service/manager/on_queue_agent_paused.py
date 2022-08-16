@@ -24,9 +24,7 @@ class OnQueueAgentPausedManager:
 
     def on_queue_agent_unpaused(self, agent_id, agent_number, reason, queue):
         self._db_update_agent_status(agent_id, False, reason)
-        event = partial(
-            AgentUnpausedEvent, agent_id, agent_number, queue, reason
-        )
+        event = partial(AgentUnpausedEvent, agent_id, agent_number, queue, reason)
         self._send_bus_status_update(event, agent_id)
 
     def _db_update_agent_status(self, agent_id, is_paused, reason):
@@ -37,11 +35,9 @@ class OnQueueAgentPausedManager:
         with db_utils.session_scope():
             logger.debug('Looking for users with agent id %s...', agent_id)
             tenant_uuid = self._agent_dao.agent_with_id(agent_id).tenant_uuid
-
-            users = self._user_dao.find_all_by_agent_id(agent_id)
+            users = [
+                user.uuid for user in self._user_dao.find_all_by_agent_id(agent_id)
+            ]
             logger.debug('Found %s users.', len(users))
-            headers = {
-                'user_uuid:{uuid}'.format(uuid=user.uuid): True for user in users
-            }
-            event = partial_event(tenant_uuid=tenant_uuid)
-            self._bus_publisher.publish(event, headers=headers)
+            event = partial_event(tenant_uuid, users)
+            self._bus_publisher.publish(event)
