@@ -4,9 +4,10 @@
 import unittest
 
 from unittest.mock import Mock, sentinel as s
+from hamcrest import assert_that, has_entries
 
 from ..on_queue_agent_paused import OnQueueAgentPausedManager
-from ..on_queue_agent_paused import PauseAgentEvent, UnpauseAgentEvent
+from ..on_queue_agent_paused import AgentPausedEvent, AgentUnpausedEvent
 
 
 class TestOnQueueAgentPausedManager(unittest.TestCase):
@@ -29,20 +30,24 @@ class TestOnQueueAgentPausedManager(unittest.TestCase):
         ]
         self.manager.on_queue_agent_paused(10, s.number, s.reason, s.queue)
 
-        expected_event = PauseAgentEvent(10, s.number, s.queue, s.reason)
-        expected_headers = {
-            'user_uuid:42': True,
-            'user_uuid:43': True,
-            'agent_id:10': True,
-            'tenant_uuid': tenant_uuid,
-        }
+        expected_event = AgentPausedEvent(
+            10, s.number, s.queue, s.reason, tenant_uuid, ['42', '43']
+        )
+        assert_that(
+            expected_event.headers,
+            has_entries(
+                {
+                    'user_uuid:42': True,
+                    'user_uuid:43': True,
+                    'tenant_uuid': tenant_uuid,
+                }
+            ),
+        )
 
         self.agent_status_dao.update_pause_status.assert_called_once_with(
             10, True, s.reason
         )
-        self.bus_publisher.publish_soon.assert_called_once_with(
-            expected_event, headers=expected_headers
-        )
+        self.bus_publisher.publish.assert_called_once_with(expected_event)
 
     def test_on_queue_agent_unpaused(self):
         tenant_uuid = '00000000-0000-4000-8000-000000c0fefe'
@@ -54,18 +59,21 @@ class TestOnQueueAgentPausedManager(unittest.TestCase):
 
         self.manager.on_queue_agent_unpaused(10, s.number, s.reason, s.queue)
 
-        expected_event = UnpauseAgentEvent(10, s.number, s.queue, s.reason)
-        expected_event.routing_key = 'status.agent.unpause'
-        expected_headers = {
-            'user_uuid:42': True,
-            'user_uuid:43': True,
-            'agent_id:10': True,
-            'tenant_uuid': tenant_uuid,
-        }
+        expected_event = AgentUnpausedEvent(
+            10, s.number, s.queue, s.reason, tenant_uuid, ['42', '43']
+        )
+        assert_that(
+            expected_event.headers,
+            has_entries(
+                {
+                    'user_uuid:42': True,
+                    'user_uuid:43': True,
+                    'tenant_uuid': tenant_uuid,
+                }
+            ),
+        )
 
         self.agent_status_dao.update_pause_status.assert_called_once_with(
             10, False, s.reason
         )
-        self.bus_publisher.publish_soon.assert_called_once_with(
-            expected_event, headers=expected_headers
-        )
+        self.bus_publisher.publish.assert_called_once_with(expected_event)

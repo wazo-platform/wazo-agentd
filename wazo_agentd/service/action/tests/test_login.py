@@ -4,9 +4,9 @@
 import unittest
 
 from unittest.mock import call, Mock, ANY
-from hamcrest import assert_that, contains_inanyorder
+from hamcrest import assert_that, contains_inanyorder, has_entries
 
-from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
+from xivo_bus.resources.agent.event import AgentStatusUpdatedEvent
 
 from wazo_agentd.queuelog import QueueLogManager
 from wazo_agentd.service.manager.blf import BLFManager
@@ -93,15 +93,18 @@ class TestLoginAction(unittest.TestCase):
                 call(user_id, 'agentstaticlogtoggle', 'INUSE', agent_number),
             ),
         )
-        self.bus_publisher.publish.assert_called_once_with(
-            AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_IN),
-            headers={
-                'user_uuid:42': True,
-                'user_uuid:43': True,
-                'agent_id:10': True,
-                'tenant_uuid': tenant_uuid,
-            },
+        event = AgentStatusUpdatedEvent(10, 'logged_in', tenant_uuid, ['42', '43'])
+        assert_that(
+            event.headers,
+            has_entries(
+                {
+                    'tenant_uuid': tenant_uuid,
+                    'user_uuid:42': True,
+                    'user_uuid:43': True,
+                }
+            ),
         )
+        self.bus_publisher.publish.assert_called_once_with(event)
 
     def test_login_agent_sccp(self):
         agent_id = 10
@@ -179,12 +182,16 @@ class TestLoginAction(unittest.TestCase):
                 'Skills': skills,
             },
         )
-        self.bus_publisher.publish.assert_called_once_with(
-            AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_IN),
-            headers={
-                'user_uuid:42': True,
-                'user_uuid:43': True,
-                'agent_id:10': True,
-                'tenant_uuid': tenant_uuid,
-            },
+
+        event = AgentStatusUpdatedEvent(10, 'logged_in', tenant_uuid, ['42', '43'])
+        assert_that(
+            event.headers,
+            has_entries(
+                {
+                    'tenant_uuid': tenant_uuid,
+                    'user_uuid:42': True,
+                    'user_uuid:43': True,
+                }
+            ),
         )
+        self.bus_publisher.publish.assert_called_once_with(event)

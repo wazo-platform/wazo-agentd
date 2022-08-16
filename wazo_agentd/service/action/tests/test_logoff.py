@@ -5,11 +5,11 @@ import datetime
 import unittest
 
 from unittest.mock import ANY, call, Mock
-from hamcrest import assert_that, contains_inanyorder
+from hamcrest import assert_that, contains_inanyorder, has_entries
 
 from wazo_agentd.service.action.logoff import LogoffAction
 from wazo_amid_client.exceptions import AmidProtocolError
-from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
+from xivo_bus.resources.agent.event import AgentStatusUpdatedEvent
 
 
 class TestLogoffAction(unittest.TestCase):
@@ -51,6 +51,7 @@ class TestLogoffAction(unittest.TestCase):
             Mock(uuid='43'),
         ]
         self.agent_dao.agent_with_id.return_value = Mock(tenant_uuid=tenant_uuid)
+        event = AgentStatusUpdatedEvent(10, 'logged_out', tenant_uuid, ['42', '43'])
         self.pause_manager.unpause_agent.side_effect = AmidProtocolError(
             Mock(json=Mock(return_value=[{'Message': 'Interface not found'}]))
         )
@@ -81,15 +82,18 @@ class TestLogoffAction(unittest.TestCase):
             agent_id
         )
         self.agent_status_dao.log_off_agent.assert_called_once_with(agent_id)
-        self.bus_publisher.publish.assert_called_once_with(
-            AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_OUT),
-            headers={
-                'user_uuid:42': True,
-                'user_uuid:43': True,
-                'agent_id:10': True,
-                'tenant_uuid': tenant_uuid,
-            },
+
+        assert_that(
+            event.headers,
+            has_entries(
+                {
+                    'tenant_uuid': tenant_uuid,
+                    'user_uuid:42': True,
+                    'user_uuid:43': True,
+                }
+            ),
         )
+        self.bus_publisher.publish.assert_called_once_with(event)
 
     def test_logoff_agent_agent_not_paused(self):
         agent_id = 10
@@ -109,6 +113,7 @@ class TestLogoffAction(unittest.TestCase):
             Mock(uuid='43'),
         ]
         self.agent_dao.agent_with_id.return_value = Mock(tenant_uuid=tenant_uuid)
+        event = AgentStatusUpdatedEvent(10, 'logged_out', tenant_uuid, ['42', '43'])
 
         self.logoff_action.logoff_agent(agent_status)
 
@@ -136,15 +141,18 @@ class TestLogoffAction(unittest.TestCase):
             agent_id
         )
         self.agent_status_dao.log_off_agent.assert_called_once_with(agent_id)
-        self.bus_publisher.publish.assert_called_once_with(
-            AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_OUT),
-            headers={
-                'user_uuid:42': True,
-                'user_uuid:43': True,
-                'agent_id:10': True,
-                'tenant_uuid': tenant_uuid,
-            },
+
+        assert_that(
+            event.headers,
+            has_entries(
+                {
+                    'tenant_uuid': tenant_uuid,
+                    'user_uuid:42': True,
+                    'user_uuid:43': True,
+                }
+            ),
         )
+        self.bus_publisher.publish.assert_called_once_with(event)
 
     def test_logoff_agent_already_off_on_asterisk(self):
         agent_id = 10
@@ -163,6 +171,7 @@ class TestLogoffAction(unittest.TestCase):
         ]
         tenant_uuid = '00000000-0000-4000-8000-000000001ebc'
         self.agent_dao.agent_with_id.return_value = Mock(tenant_uuid=tenant_uuid)
+        event = AgentStatusUpdatedEvent(10, 'logged_out', tenant_uuid, ['42', '43'])
 
         response = Mock()
         response.json.return_value = [
@@ -182,12 +191,15 @@ class TestLogoffAction(unittest.TestCase):
             agent_id
         )
         self.agent_status_dao.log_off_agent.assert_called_once_with(agent_id)
-        self.bus_publisher.publish.assert_called_once_with(
-            AgentStatusUpdateEvent(10, AgentStatusUpdateEvent.STATUS_LOGGED_OUT),
-            headers={
-                'user_uuid:42': True,
-                'user_uuid:43': True,
-                'agent_id:10': True,
-                'tenant_uuid': tenant_uuid,
-            },
+
+        assert_that(
+            event.headers,
+            has_entries(
+                {
+                    'tenant_uuid': tenant_uuid,
+                    'user_uuid:42': True,
+                    'user_uuid:43': True,
+                }
+            ),
         )
+        self.bus_publisher.publish.assert_called_once_with(event)
