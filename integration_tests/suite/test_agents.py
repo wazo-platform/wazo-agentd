@@ -33,7 +33,7 @@ class TestAgents(BaseIntegrationTest):
     def test_authentication(self):
         agentd_client = self.make_agentd(token=UNKNOWN_UUID)
         assert_that(
-            calling(agentd_client.agents.get_agent_statuses),
+            calling(agentd_client.status.get_agent_statuses),
             raises(AgentdClientError, has_properties(error=UNAUTHORIZED)),
         )
 
@@ -66,12 +66,12 @@ class TestAgents(BaseIntegrationTest):
             user_line_extension['context'],
         )
 
-        status = self.agentd.agents.get_agent_status(agent['id'])
+        status = self.agentd.status.get_agent_status(agent['id'])
         assert_that(status.logged, is_(True))
 
         self.agentd.agents.logoff_agent(agent['id'])
 
-        status = self.agentd.agents.get_agent_status(agent['id'])
+        status = self.agentd.status.get_agent_status(agent['id'])
         assert_that(status.logged, is_(False))
 
     @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
@@ -84,7 +84,7 @@ class TestAgents(BaseIntegrationTest):
             user_line_extension['context'],
         )
 
-        status = self.agentd.agents.get_agent_status(agent['id'])
+        status = self.agentd.status.get_agent_status(agent['id'])
         assert_that(
             status,
             has_properties(
@@ -112,7 +112,7 @@ class TestAgents(BaseIntegrationTest):
             # login
             self.agentd.agents.login_user_agent(user_line_extension['line_id'])
 
-            status = self.agentd.agents.get_user_agent_status()
+            status = self.agentd.status.get_user_agent_status()
             assert_that(
                 status,
                 has_properties(
@@ -136,7 +136,7 @@ class TestAgents(BaseIntegrationTest):
             self.bus.send_queue_member_pause('1234', paused=True)
 
             def test_on_msg_received():
-                status = self.agentd.agents.get_user_agent_status()
+                status = self.agentd.status.get_user_agent_status()
                 assert_that(status, has_properties(paused=True))
 
             until.assert_(test_on_msg_received, tries=10)
@@ -146,7 +146,7 @@ class TestAgents(BaseIntegrationTest):
             self.bus.send_queue_member_pause('1234', paused=False)
 
             def test_on_msg_received():
-                status = self.agentd.agents.get_user_agent_status()
+                status = self.agentd.status.get_user_agent_status()
                 assert_that(status, has_properties(paused=False))
 
             until.assert_(test_on_msg_received, tries=10)
@@ -154,7 +154,7 @@ class TestAgents(BaseIntegrationTest):
             # logoff
             self.agentd.agents.logoff_user_agent()
 
-            status = self.agentd.agents.get_user_agent_status()
+            status = self.agentd.status.get_user_agent_status()
             assert_that(
                 status,
                 has_properties(
@@ -209,7 +209,7 @@ class TestAgents(BaseIntegrationTest):
 
         # get
         assert_that(
-            calling(self.agentd.agents.get_user_agent_status),
+            calling(self.agentd.status.get_user_agent_status),
             raises(AgentdClientError, has_properties(error=NO_SUCH_AGENT)),
         )
 
@@ -247,7 +247,7 @@ class TestAgents(BaseIntegrationTest):
 
         # get
         assert_that(
-            calling(self.agentd.agents.get_user_agent_status),
+            calling(self.agentd.status.get_user_agent_status),
             raises(AgentdClientError, has_properties(error=NO_SUCH_AGENT)),
         )
 

@@ -120,7 +120,7 @@ class _BaseResource(Resource):
 
 
 class _Agents(_BaseResource):
-    @required_acl('agentd.agents.read')
+    @required_acl('agentd.status.read')
     def get(self):
         params = self.parse_params()
         tenant_uuids = self._build_tenant_list(params)
@@ -128,7 +128,7 @@ class _Agents(_BaseResource):
 
 
 class _AgentById(_BaseResource):
-    @required_acl('agentd.agents.by-id.{agent_id}.read')
+    @required_acl('agentd.status.by-id.{agent_id}.read')
     def get(self, agent_id):
         tenant_uuids = self._build_tenant_list({'recurse': True})
         return self.service_proxy.get_agent_status_by_id(
@@ -137,7 +137,7 @@ class _AgentById(_BaseResource):
 
 
 class _AgentByNumber(_BaseResource):
-    @required_acl('agentd.agents.by-number.{agent_number}.read')
+    @required_acl('agentd.status.by-number.{agent_number}.read')
     def get(self, agent_number):
         tenant_uuids = self._build_tenant_list({'recurse': True})
         return self.service_proxy.get_agent_status_by_number(
@@ -305,9 +305,9 @@ class HTTPInterface:
     VERSION = '1.0'
 
     _resources = [
-        (_Agents, '/agents'),
-        (_AgentById, '/agents/by-id/<int:agent_id>'),
-        (_AgentByNumber, '/agents/by-number/<agent_number>'),
+        (_Agents, '/status'),
+        (_AgentById, '/status/by-id/<int:agent_id>'),
+        (_AgentByNumber, '/status/by-number/<agent_number>'),
         (_UserAgent, '/users/me/agents'),
         (_LoginAgentById, '/agents/by-id/<int:agent_id>/login'),
         (_LoginAgentByNumber, '/agents/by-number/<agent_number>/login'),
