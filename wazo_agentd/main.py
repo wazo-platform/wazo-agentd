@@ -14,12 +14,13 @@ from wazo_auth_client import Client as AuthClient
 
 from xivo.config_helper import set_xivo_uuid
 from xivo.consul_helpers import ServiceCatalogRegistration
+from xivo.status import StatusAggregator, TokenStatus
 from xivo.token_renewer import TokenRenewer
 from xivo.user_rights import change_user
 from xivo.xivo_logging import setup_logging, silence_loggers
 
-from xivo_bus.publisher import BusPublisherWithQueue
-from xivo_bus.consumer import BusConsumer
+from .bus import BusConsumer
+from .bus import BusPublisherWithQueue
 from xivo_bus.resources.agent.event import EditAgentEvent, DeleteAgentEvent
 from xivo_bus.resources.queue.event import EditQueueEvent, DeleteQueueEvent
 from xivo_dao import agent_dao as orig_agent_dao
@@ -104,6 +105,8 @@ def _run(config):
     amid_client = AmidClient(**config['amid'])
     auth_client = AuthClient(**config['auth'])
     token_renewer = TokenRenewer(auth_client)
+    status_aggregator = StatusAggregator()
+    token_status = TokenStatus()
     token_renewer.subscribe_to_token_change(amid_client.set_token)
     token_renewer.subscribe_to_token_change(auth_client.set_token)
 
@@ -188,6 +191,9 @@ def _run(config):
     service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, xivo_uuid)
 
     _init_bus_consume(bus_consumer, service_proxy)
+    status_aggregator.add_provider(bus_consumer.provide_status)
+    status_aggregator.add_provider(bus_publisher.provide_status)
+    status_aggregator.add_provider(token_status.provide_status)
 
     http_iface = http.HTTPInterface(config, service_proxy, auth_client)
 
