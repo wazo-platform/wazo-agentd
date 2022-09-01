@@ -191,11 +191,14 @@ def _run(config):
     service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, xivo_uuid)
 
     _init_bus_consume(bus_consumer, service_proxy)
+    token_renewer.subscribe_to_token_change(token_status.token_change_callback)
     status_aggregator.add_provider(bus_consumer.provide_status)
     status_aggregator.add_provider(bus_publisher.provide_status)
     status_aggregator.add_provider(token_status.provide_status)
 
-    http_iface = http.HTTPInterface(config, service_proxy, auth_client)
+    http_iface = http.HTTPInterface(
+        config, service_proxy, auth_client, status_aggregator
+    )
 
     service_discovery_args = [
         'wazo-agentd',
