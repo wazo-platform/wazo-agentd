@@ -27,6 +27,13 @@ consumes:
 produces:
 - application/json
 paths:
+  /status:
+    get:
+      summary: Get the status of wazo-agentd.
+      description: '**Required ACL:** `agentd.status.read`'
+      responses:
+        '200':
+          description: wazo-agentd is Ok
   /agents:
     get:
       summary: Get the status of all agents.

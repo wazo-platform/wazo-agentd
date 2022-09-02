@@ -58,6 +58,9 @@ _AGENT_400_ERRORS = (
 )
 
 
+_status_aggregator = None
+
+
 class AgentdAuthVerifier(AuthVerifier):
     def handle_unreachable(self, error):
         auth_client = self.client()
@@ -143,6 +146,13 @@ class _AgentByNumber(_BaseResource):
         return self.service_proxy.get_agent_status_by_number(
             agent_number, tenant_uuids=tenant_uuids
         )
+
+
+class _StatusChecker(_BaseResource):
+    @required_acl('agentd.status.read')
+    def get(self):
+        global _status_aggregator
+        return _status_aggregator.status(), 200
 
 
 class _UserAgent(_BaseResource):
@@ -323,10 +333,13 @@ class HTTPInterface:
         (_UnpauseAgentByNumber, '/agents/by-number/<agent_number>/unpause'),
         (_LogoffAgents, '/agents/logoff'),
         (_RelogAgents, '/agents/relog'),
+        (_StatusChecker, '/status'),
         (SwaggerResource, SwaggerResource.api_path),
     ]
 
-    def __init__(self, config, service_proxy, auth_client):
+    def __init__(self, config, service_proxy, auth_client, status_aggregator):
+        global _status_aggregator
+        _status_aggregator = status_aggregator
         self._config = config['rest_api']
         self._app = Flask('wazo_agent')
         self._app.config.update(config)
