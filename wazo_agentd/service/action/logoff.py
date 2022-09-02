@@ -4,7 +4,7 @@
 import datetime
 import logging
 
-from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
+from xivo_bus.resources.agent.event import AgentStatusUpdatedEvent
 from xivo_dao.helpers import db_utils
 from wazo_amid_client.exceptions import AmidProtocolError
 
@@ -108,16 +108,12 @@ class LogoffAction:
             self._agent_status_dao.log_off_agent(agent_status.agent_id)
 
     def _send_bus_status_update(self, agent_status):
-        status = AgentStatusUpdateEvent.STATUS_LOGGED_OUT
         agent_id = agent_status.agent_id
-        event = AgentStatusUpdateEvent(agent_id, status)
         with db_utils.session_scope():
-            users = self._user_dao.find_all_by_agent_id(agent_id)
             tenant_uuid = self._agent_dao.agent_with_id(agent_id).tenant_uuid
+            users = [
+                user.uuid for user in self._user_dao.find_all_by_agent_id(agent_id)
+            ]
             logger.debug('Found %s users.', len(users))
-            headers = {
-                'user_uuid:{uuid}'.format(uuid=user.uuid): True for user in users
-            }
-            headers['agent_id:{id}'.format(id=str(agent_id))] = True
-            headers['tenant_uuid'] = tenant_uuid
-            self._bus_publisher.publish(event, headers=headers)
+            event = AgentStatusUpdatedEvent(agent_id, 'logged_out', tenant_uuid, users)
+            self._bus_publisher.publish(event)

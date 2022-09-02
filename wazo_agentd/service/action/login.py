@@ -5,7 +5,7 @@ import logging
 
 from wazo_agentd.exception import NoSuchExtensionError, NoSuchLineError
 from wazo_agentd.service.helper import format_agent_member_name, format_agent_skills
-from xivo_bus.resources.cti.event import AgentStatusUpdateEvent
+from xivo_bus.resources.agent.event import AgentStatusUpdatedEvent
 from xivo_dao.helpers import db_utils
 
 logger = logging.getLogger(__name__)
@@ -132,16 +132,12 @@ class LoginAction:
             )
 
     def _send_bus_status_update(self, agent):
-        status = AgentStatusUpdateEvent.STATUS_LOGGED_IN
-        event = AgentStatusUpdateEvent(agent.id, status)
         logger.debug('Looking for users with agent id %s...', agent.id)
         with db_utils.session_scope():
             tenant_uuid = self._agent_dao.agent_with_id(agent.id).tenant_uuid
-            users = self._user_dao.find_all_by_agent_id(agent.id)
+            users = [
+                user.uuid for user in self._user_dao.find_all_by_agent_id(agent.id)
+            ]
             logger.debug('Found %s users.', len(users))
-            headers = {
-                'user_uuid:{uuid}'.format(uuid=user.uuid): True for user in users
-            }
-            headers['agent_id:{id}'.format(id=str(agent.id))] = True
-            headers['tenant_uuid'] = tenant_uuid
-            self._bus_publisher.publish(event, headers=headers)
+            event = AgentStatusUpdatedEvent(agent.id, 'logged_in', tenant_uuid, users)
+            self._bus_publisher.publish(event)

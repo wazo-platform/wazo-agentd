@@ -19,10 +19,8 @@ from xivo.token_renewer import TokenRenewer
 from xivo.user_rights import change_user
 from xivo.xivo_logging import setup_logging, silence_loggers
 
-from .bus import BusConsumer
-from .bus import BusPublisherWithQueue
-from xivo_bus.resources.agent.event import EditAgentEvent, DeleteAgentEvent
-from xivo_bus.resources.queue.event import EditQueueEvent, DeleteQueueEvent
+from xivo_bus.resources.agent.event import AgentEditedEvent, AgentDeletedEvent
+from xivo_bus.resources.queue.event import QueueEditedEvent, QueueDeletedEvent
 from xivo_dao import agent_dao as orig_agent_dao
 from xivo_dao import agent_status_dao
 from xivo_dao import asterisk_conf_dao
@@ -34,7 +32,7 @@ from xivo_dao import queue_member_dao
 from xivo_dao.resources.user import dao as user_dao
 
 from wazo_agentd import http
-from wazo_agentd.bus import AgentPauseEvent
+from wazo_agentd.bus import BusConsumer, BusPublisher, QueueMemberPausedEvent
 from wazo_agentd.config import load as load_config
 from wazo_agentd.dao import QueueDAOAdapter, AgentDAOAdapter, ExtenFeaturesDAOAdapter
 from wazo_agentd.queuelog import QueueLogManager
@@ -110,8 +108,8 @@ def _run(config):
     token_renewer.subscribe_to_token_change(amid_client.set_token)
     token_renewer.subscribe_to_token_change(auth_client.set_token)
 
-    bus_consumer = BusConsumer(**config['bus'])
-    bus_publisher = BusPublisherWithQueue(**config['bus'], service_uuid=xivo_uuid)
+    bus_consumer = BusConsumer.from_config(config['bus'])
+    bus_publisher = BusPublisher.from_config(xivo_uuid, config['bus'])
 
     blf_manager = BLFManager(amid_client, exten_features_dao)
     queue_log_manager = QueueLogManager(queue_log_dao)
@@ -210,7 +208,7 @@ def _run(config):
     ]
     try:
         with token_renewer:
-            with bus_consumer, bus_publisher:
+            with bus_consumer:
                 with ServiceCatalogRegistration(*service_discovery_args):
                     http_iface.run()
     finally:
@@ -219,14 +217,14 @@ def _run(config):
 
 def _init_bus_consume(bus_consumer, service_proxy):
     events = (
-        (EditAgentEvent.name, service_proxy.on_agent_updated),
-        (DeleteAgentEvent.name, service_proxy.on_agent_deleted),
-        (EditQueueEvent.name, service_proxy.on_queue_updated),
-        (DeleteQueueEvent.name, service_proxy.on_queue_deleted),
-        (AgentPauseEvent.name, service_proxy.on_agent_paused),
+        (AgentEditedEvent, service_proxy.on_agent_updated),
+        (AgentDeletedEvent, service_proxy.on_agent_deleted),
+        (QueueEditedEvent, service_proxy.on_queue_updated),
+        (QueueDeletedEvent, service_proxy.on_queue_deleted),
+        (QueueMemberPausedEvent, service_proxy.on_agent_paused),
     )
     for event, action in events:
-        bus_consumer.subscribe(event, action)
+        bus_consumer.subscribe(event.name, action)
 
 
 def _init_signal():

@@ -5,16 +5,16 @@ import logging
 import os
 import uuid
 
+from kombu import Exchange
 from wazo_agentd_client import Client as AgentdClient
-
 from wazo_test_helpers.auth import AuthClient, MockUserToken
 from wazo_test_helpers.asset_launching_test_case import (
     AssetLaunchingTestCase,
     NoSuchService,
 )
+
 from .amid import AmidClient
 from .bus import BusClient
-
 from .database import DbHelper, TENANT_UUID as TOKEN_TENANT_UUID
 
 
@@ -122,8 +122,14 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
         except NoSuchService as e:
             logger.debug(e)
             return
-        bus = BusClient.from_connection_fields(host='127.0.0.1', port=port)
-        bus.downstream_exchange_declare('wazo-headers', 'headers')
+        upstream = Exchange('xivo', 'topic')
+        bus = BusClient.from_connection_fields(
+            host='127.0.0.1',
+            port=port,
+            exchange_name='wazo-headers',
+            exchange_type='headers',
+        )
+        bus.downstream_exchange_declare('wazo-headers', 'headers', upstream)
         return bus
 
     @classmethod

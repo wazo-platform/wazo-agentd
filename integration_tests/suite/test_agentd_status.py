@@ -13,6 +13,7 @@ from hamcrest import (
 from wazo_agentd_client.error import AgentdClientError
 from wazo_test_helpers.hamcrest.raises import raises
 
+from .helpers import fixtures
 from .helpers.base import BaseIntegrationTest
 
 
@@ -32,12 +33,29 @@ class TestAgentdStatus(BaseIntegrationTest):
                 result,
                 has_entries(
                     bus_consumer=has_entry('status', 'ok'),
-                    bus_publisher=has_entry('status', 'ok'),
                     service_token=has_entry('status', 'ok'),
                 ),
             )
 
         until.assert_(check_all_ok, tries=10)
+
+    @fixtures.user_line_extension(exten='1001', context='default')
+    @fixtures.agent(number='1234')
+    def test_agentd_lazy_publisher_status(self, user_line_extension, agent):
+        def assert_status_value(status):
+            assert_that(
+                self.agentd.status(),
+                has_entries(bus_publisher=has_entry('status', status)),
+            )
+
+        until.assert_(assert_status_value, 'fail', tries=10)
+
+        # Make sure to publish an event message to connect publisher
+        self.agentd.agents.login_agent(
+            agent['id'], user_line_extension['exten'], user_line_extension['context']
+        )
+
+        until.assert_(assert_status_value, 'ok', tries=10)
 
 
 class TestAgentdRabbitMQStops(BaseIntegrationTest):
