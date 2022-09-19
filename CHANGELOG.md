@@ -1,5 +1,12 @@
 # Changelog
 
+## 22.13
+
+* `/status` route has now been included into `wazo-agentd`, and it returns the current status (`ok` or `fail`) of the following:
+  * `bus_consumer`
+  * `bus_publisher`
+  * `service_token`
+
 ## 20.16
 
 * Added endpoints for user agents pause/unpause:
