@@ -1,17 +1,14 @@
 # Copyright 2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from wazo_test_helpers import until
+import requests
+
 from hamcrest import (
     assert_that,
-    calling,
     has_entries,
     has_entry,
-    has_properties,
-    starts_with,
 )
-from wazo_agentd_client.error import AgentdClientError
-from wazo_test_helpers.hamcrest.raises import raises
+from wazo_test_helpers import until
 
 from .helpers import fixtures
 from .helpers.base import BaseIntegrationTest
@@ -77,6 +74,7 @@ class TestAgentdRabbitMQStops(BaseIntegrationTest):
                 result,
                 has_entries(
                     bus_consumer=has_entry('status', 'fail'),
+                    bus_publisher=has_entry('status', 'fail'),
                 ),
             )
 
@@ -87,27 +85,31 @@ class TestAgentdAuthClientStops(BaseIntegrationTest):
 
     asset = 'base'
 
-    def setUp(self):
-        super().setUp()
-        self.bus = self.make_bus()
-        until.true(self.bus.is_up, timeout=10)
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        until.true(cls.bus.is_up, timeout=10)
 
     def test_given_wazo_auth_client_stops_when_status_then_status_fail(self):
-        self.stop_service('agentd')
-        self.stop_service('auth')
-        self.start_service('agentd')
-        agentd = self.make_agentd()
+        self.restart_service('auth')
+        self.restart_service('agentd')
+        self.reset_clients()
+        until.true(self.auth.is_up, tries=10)
+        self.create_token()
 
-        def _raises_503():
+        def _service_token_fail():
+            try:
+                result = self.agentd.status()
+            except requests.RequestException:
+                result = {}
             assert_that(
-                calling(agentd.status),
-                raises(AgentdClientError).matching(
-                    has_properties(
-                        error=starts_with(
-                            'Could not connect to authentication server on auth'
-                        ),
-                    )
+                result,
+                has_entries(
+                    service_token=has_entry('status', 'fail'),
                 ),
             )
 
-        until.assert_(_raises_503, tries=10)
+        until.assert_(_service_token_fail, tries=10)
+
+        self.create_service_token()
+        self.wait_strategy.wait(self)
