@@ -6,8 +6,8 @@ amid:
   host: amid
 auth:
   host: auth
-  username: not-important
-  password: not-important
+  username: agentd-service
+  password: agentd-password
 bus:
   host: rabbitmq
 service_discovery:
