@@ -10,18 +10,12 @@ from hamcrest import (
 )
 from wazo_test_helpers import until
 
-from .helpers import fixtures
 from .helpers.base import BaseIntegrationTest
 
 
-class TestAgentdStatus(BaseIntegrationTest):
+class TestStatus(BaseIntegrationTest):
 
     asset = 'base'
-
-    def setUp(self):
-        super().setUp()
-        self.bus = self.make_bus()
-        until.true(self.bus.is_up, timeout=10)
 
     def test_agentd_status_is_ok(self):
         def check_all_ok():
@@ -35,16 +29,6 @@ class TestAgentdStatus(BaseIntegrationTest):
             )
 
         until.assert_(check_all_ok, tries=10)
-
-
-class TestAgentdRabbitMQStops(BaseIntegrationTest):
-
-    asset = 'base'
-
-    def setUp(self):
-        super().setUp()
-        self.bus = self.make_bus()
-        until.true(self.bus.is_up, timeout=10)
 
     def test_given_rabbitmq_stops_when_status_then_bus_status_fail(self):
         self.stop_service('rabbitmq')
@@ -61,15 +45,8 @@ class TestAgentdRabbitMQStops(BaseIntegrationTest):
 
         until.assert_(rabbitmq_is_shut_down, timeout=5)
 
-
-class TestAgentdAuthClientStops(BaseIntegrationTest):
-
-    asset = 'base'
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        until.true(cls.bus.is_up, timeout=10)
+        self.start_service('rabbitmq')
+        self.wait_strategy.wait(self)
 
     def test_given_wazo_auth_client_stops_when_status_then_status_fail(self):
         self.restart_service('auth')
