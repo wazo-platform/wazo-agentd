@@ -6,7 +6,8 @@ amid:
   host: amid
 auth:
   host: auth
-  key_file: /tmp/key-file.yml
+  username: not-important
+  password: not-important
 bus:
   host: rabbitmq
 service_discovery:
