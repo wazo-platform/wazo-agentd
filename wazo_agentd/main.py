@@ -191,7 +191,6 @@ def _run(config):
     _init_bus_consume(bus_consumer, service_proxy)
     token_renewer.subscribe_to_token_change(token_status.token_change_callback)
     status_aggregator.add_provider(bus_consumer.provide_status)
-    status_aggregator.add_provider(bus_publisher.provide_status)
     status_aggregator.add_provider(token_status.provide_status)
 
     http_iface = http.HTTPInterface(

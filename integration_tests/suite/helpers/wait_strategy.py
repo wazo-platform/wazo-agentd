@@ -21,7 +21,6 @@ class EverythingOkWaitStrategy(WaitStrategy):
                 has_entries(
                     {
                         'bus_consumer': has_entries(status='ok'),
-                        # 'bus_publisher': has_entries(status='ok'),  # FIXME
                         'service_token': has_entries(status='ok'),
                     }
                 ),

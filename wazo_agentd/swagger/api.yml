@@ -547,8 +547,6 @@ definitions:
     properties:
       bus_consumer:
         $ref: '#/definitions/ComponentWithStatus'
-      bus_publisher:
-        $ref: '#/definitions/ComponentWithStatus'
       service_token:
         $ref: '#/definitions/ComponentWithStatus'
   ComponentWithStatus:
