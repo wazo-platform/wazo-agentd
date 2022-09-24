@@ -7,7 +7,7 @@ import uuid
 
 from kombu import Exchange
 from wazo_agentd_client import Client as AgentdClient
-from wazo_test_helpers.auth import AuthClient, MockUserToken
+from wazo_test_helpers.auth import AuthClient, MockUserToken, MockCredentials
 from wazo_test_helpers.asset_launching_test_case import (
     AssetLaunchingTestCase,
     NoSuchService,
@@ -16,6 +16,7 @@ from wazo_test_helpers.asset_launching_test_case import (
 from .amid import AmidClient
 from .bus import BusClient
 from .database import DbHelper, TENANT_UUID as TOKEN_TENANT_UUID
+from .wait_strategy import EverythingOkWaitStrategy
 
 
 TOKEN_UUID = '00000000-0000-0000-0000-000000000101'
@@ -33,12 +34,15 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
         os.path.join(os.path.dirname(__file__), '..', '..', 'assets')
     )
     service = 'agentd'
+    wait_strategy = EverythingOkWaitStrategy()
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.create_token()
+        cls.create_service_token()
         cls.reset_clients()
+        cls.wait_strategy.wait(cls)
 
     @classmethod
     def create_token(cls):
@@ -59,6 +63,15 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
                 'parent_uuid': TOKEN_TENANT_UUID,
             }
         )
+
+    @classmethod
+    def create_service_token(cls):
+        cls.auth = cls.make_auth()
+        if not cls.auth:
+            return
+
+        credential = MockCredentials('agentd-service', 'agentd-password')
+        cls.auth.set_valid_credentials(credential, str(TOKEN_UUID))
 
     @classmethod
     def create_user_token(cls, user_uuid):

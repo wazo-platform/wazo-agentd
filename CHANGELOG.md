@@ -1,5 +1,9 @@
 # Changelog
 
+## 22.14
+
+* Remove unused `bus_publisher` field from `/status` endpoint
+
 ## 22.13
 
 * `/status` route has now been included into `wazo-agentd`, and it returns the current status (`ok` or `fail`) of the following:

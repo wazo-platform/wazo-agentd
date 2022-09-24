@@ -25,11 +25,6 @@ class BusPublisher(Publisher):
         name = 'wazo-agentd'
         return cls(name=name, service_uuid=service_uuid, **bus_config)
 
-    def provide_status(self, status):
-        status['bus_publisher']['status'] = (
-            Status.ok if self.publisher_connected() else Status.fail
-        )
-
 
 class QueueMemberPausedEvent(AMIEvent):
     name = 'QueueMemberPause'
