@@ -1,4 +1,5 @@
 kombu
+importlib_metadata<5.0.0  # from kombu - https://github.com/celery/kombu/issues/1600
 openapi-spec-validator
 psycopg2-binary  # from sqlalchemy
 pyhamcrest
