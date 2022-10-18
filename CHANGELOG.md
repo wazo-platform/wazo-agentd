@@ -1,5 +1,12 @@
 # Changelog
 
+## 23.01
+
+* Changes to the bus configuration keys:
+
+  * key `exchange_name` now defaults to `wazo-headers`
+  * key `exchange_type` was removed
+
 ## 22.14
 
 * Remove unused `bus_publisher` field from `/status` endpoint
