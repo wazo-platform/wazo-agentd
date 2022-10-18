@@ -15,7 +15,9 @@ class TestAgentsByNumber(BaseIntegrationTest):
     @fixtures.user_line_extension(exten='1001', context='default')
     @fixtures.agent(number='1001')
     def test_event_on_login(self, user_line_extension, agent):
-        event_accumulator = self.bus.accumulator('status.agent')
+        event_accumulator = self.bus.accumulator(
+            headers={'name': 'agent_status_update'}
+        )
 
         self.agentd.agents.login_agent_by_number(
             agent['number'],
