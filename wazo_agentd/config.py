@@ -29,12 +29,8 @@ _DEFAULT_CONFIG = {
         'password': 'guest',
         'host': 'localhost',
         'port': 5672,
-        'exchange_name': 'xivo',
-        'exchange_type': 'topic',
-        'subscribe': {
-            'exchange_name': 'wazo-headers',
-            'exchange_type': 'headers',
-        },
+        'exchange_name': 'wazo-headers',
+        'exchange_type': 'headers',
     },
     'rest_api': {
         'listen': '127.0.0.1',
