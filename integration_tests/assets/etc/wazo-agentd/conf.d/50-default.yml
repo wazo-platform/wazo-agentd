@@ -10,5 +10,3 @@ auth:
   password: agentd-password
 bus:
   host: rabbitmq
-service_discovery:
-  enabled: false
