@@ -36,7 +36,6 @@ _DEFAULT_CONFIG = {
             'exchange_type': 'headers',
         },
     },
-    'consul': {'scheme': 'http', 'host': 'localhost', 'port': 8500},
     'rest_api': {
         'listen': '127.0.0.1',
         'port': _DEFAULT_HTTP_PORT,
@@ -47,15 +46,19 @@ _DEFAULT_CONFIG = {
             'allow_headers': ['Content-Type', 'X-Auth-Token', 'Wazo-Tenant'],
         },
     },
+    'consul': {
+        'scheme': 'http',
+        'port': 8500,
+    },
     'service_discovery': {
-        'enabled': True,
-        'advertise_address': 'localhost',
-        'advertise_port': _DEFAULT_HTTP_PORT,
+        'enabled': False,
+        'advertise_address': 'auto',
         'advertise_address_interface': 'eth0',
-        'refresh_interval': 25,
+        'advertise_port': _DEFAULT_HTTP_PORT,
+        'extra_tags': [],
+        'refresh_interval': 27,
         'retry_interval': 2,
         'ttl_interval': 30,
-        'extra_tags': [],
     },
 }
 
