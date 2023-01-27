@@ -11,7 +11,7 @@ from flask_cors import CORS
 from flask_restful import Api, Resource
 from marshmallow import ValidationError
 
-from werkzeug.contrib.fixers import ProxyFix
+from werkzeug.middleware.proxy_fix import ProxyFix
 from wazo_agentd.exception import (
     AgentServerError,
     NoSuchAgentError,

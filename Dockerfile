@@ -1,4 +1,4 @@
-FROM python:3.7-slim-buster AS compile-image
+FROM python:3.9-slim-bullseye AS compile-image
 LABEL maintainer="Wazo Maintainers <dev@wazo.community>"
 
 RUN python -m venv /opt/venv
@@ -10,7 +10,7 @@ WORKDIR /usr/src/agentd
 RUN apt-get update && apt-get install -y gcc && pip install -r requirements.txt
 RUN python setup.py install
 
-FROM python:3.7-slim-buster AS build-image
+FROM python:3.9-slim-bullseye AS build-image
 COPY --from=compile-image /opt/venv /opt/venv
 
 COPY ./etc/wazo-agentd /etc/wazo-agentd
