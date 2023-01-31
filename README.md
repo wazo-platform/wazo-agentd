@@ -7,7 +7,7 @@
 ```sh
 apt-get install libpq-dev python3-dev libffi-dev libyaml-dev
 pip install tox
-tox --recreate -e py3
+tox --recreate -e py39
 ```
 
 ## Docker
