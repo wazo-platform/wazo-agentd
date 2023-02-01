@@ -1,4 +1,4 @@
-# Copyright 2013-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from collections import namedtuple
@@ -48,7 +48,6 @@ class ExtenFeaturesDAOAdapter(_AbstractDAOAdapter):
 
 
 class QueueDAOAdapter(_AbstractDAOAdapter):
-
     _PENALTY = 0
 
     def get_queue(self, queue_id, tenant_uuids=None):
