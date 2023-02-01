@@ -1,4 +1,4 @@
-# Copyright 2013-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -104,7 +104,6 @@ def _common_error_handler(fun):
 
 
 class _BaseResource(Resource):
-
     method_decorators = [auth_verifier.verify_token, _common_error_handler]
 
     def parse_params(self):
@@ -311,7 +310,6 @@ class _UnpauseUserAgent(_BaseResource):
 
 
 class HTTPInterface:
-
     VERSION = '1.0'
 
     _resources = [

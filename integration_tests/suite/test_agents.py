@@ -1,4 +1,4 @@
-# Copyright 2019-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import time
@@ -27,7 +27,6 @@ from .helpers import associations, fixtures
 
 
 class TestAgents(BaseIntegrationTest):
-
     asset = 'base'
 
     def test_authentication(self):
@@ -59,7 +58,6 @@ class TestAgents(BaseIntegrationTest):
     @fixtures.user_line_extension(exten='1001', context='default')
     @fixtures.agent()
     def test_login_logoff(self, user_line_extension, agent):
-
         self.agentd.agents.login_agent(
             agent['id'],
             user_line_extension['exten'],
@@ -77,7 +75,6 @@ class TestAgents(BaseIntegrationTest):
     @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
     @fixtures.agent(number='1234')
     def test_agent_status(self, user_line_extension, agent):
-
         self.agentd.agents.login_agent(
             agent['id'],
             user_line_extension['exten'],
