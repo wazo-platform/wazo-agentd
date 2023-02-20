@@ -86,11 +86,7 @@ def main(argv=None):
     silence_loggers(['Flask-Cors', 'amqp'], logging.WARNING)
     set_xivo_uuid(config, logger)
 
-    logger.info('Starting wazo-agentd')
-    try:
-        _run(config)
-    finally:
-        logger.info('Stopping wazo-agentd')
+    _run(config)
 
 
 def _run(config):
@@ -214,6 +210,7 @@ def _run(config):
     signal.signal(signal.SIGTERM, _handle_signal)
     signal.signal(signal.SIGINT, _handle_signal)
 
+    logger.info('wazo-agentd starting...')
     try:
         with token_renewer:
             with bus_consumer:
