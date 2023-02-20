@@ -1,9 +1,10 @@
-# Copyright 2012-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
 import signal
 import sys
+import threading
 
 from functools import partial
 
@@ -68,6 +69,8 @@ from wazo_agentd.service_discovery import self_check
 
 logger = logging.getLogger(__name__)
 
+_stopping_thread = None
+
 
 def main(argv=None):
     argv = argv or sys.argv[1:]
@@ -86,16 +89,11 @@ def main(argv=None):
     logger.info('Starting wazo-agentd')
     try:
         _run(config)
-    except Exception:
-        logger.exception('Unexpected error:')
-    except KeyboardInterrupt:
-        pass
     finally:
         logger.info('Stopping wazo-agentd')
 
 
 def _run(config):
-    _init_signal()
     xivo_uuid = config['uuid']
     agent_dao = AgentDAOAdapter(orig_agent_dao)
     queue_dao = QueueDAOAdapter(orig_queue_dao)
@@ -205,13 +203,24 @@ def _run(config):
         config['bus'],
         partial(self_check, config['rest_api']),
     ]
+
+    def _handle_signal(signum, frame):
+        global _stopping_thread
+        reason = signal.Signals(signum).name
+        logger.warning('Stopping wazo-agentd: %s', reason)
+        _stopping_thread = threading.Thread(target=http_iface.stop, name=reason)
+        _stopping_thread.start()
+
+    signal.signal(signal.SIGTERM, _handle_signal)
+    signal.signal(signal.SIGINT, _handle_signal)
+
     try:
         with token_renewer:
             with bus_consumer:
                 with ServiceCatalogRegistration(*service_discovery_args):
                     http_iface.run()
     finally:
-        logger.info('wazo-agentd stopping...')
+        _stopping_thread.join()
 
 
 def _init_bus_consume(bus_consumer, service_proxy):
@@ -224,11 +233,3 @@ def _init_bus_consume(bus_consumer, service_proxy):
     )
     for event, action in events:
         bus_consumer.subscribe(event.name, action)
-
-
-def _init_signal():
-    signal.signal(signal.SIGTERM, _handle_sigterm)
-
-
-def _handle_sigterm(signum, frame):
-    raise SystemExit()
