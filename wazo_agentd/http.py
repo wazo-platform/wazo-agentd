@@ -347,6 +347,7 @@ class HTTPInterface:
         auth_verifier.set_client(auth_client)
         self._app.secret_key = os.urandom(24)
         self._load_cors()
+        self.server = None
 
         api = Api(self._app, prefix='/{}'.format(self.VERSION))
         self._add_resources(api, service_proxy)
@@ -366,15 +367,16 @@ class HTTPInterface:
         bind_addr = (self._config['listen'], self._config['port'])
 
         wsgi_app = ReverseProxied(ProxyFix(self._app))
-        server = wsgi.WSGIServer(bind_addr, wsgi_app)
+        self.server = wsgi.WSGIServer(bind_addr, wsgi_app)
         if self._config['certificate'] and self._config['private_key']:
             logger.warning(
                 'Using service SSL configuration is deprecated. Please use NGINX instead.'
             )
-            server.ssl_adapter = http_helpers.ssl_adapter(
+            self.server.ssl_adapter = http_helpers.ssl_adapter(
                 self._config['certificate'], self._config['private_key']
             )
-        try:
-            server.start()
-        finally:
-            server.stop()
+        self.server.start()
+
+    def stop(self):
+        if self.server:
+            self.server.stop()
