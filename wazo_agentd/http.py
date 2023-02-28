@@ -343,6 +343,7 @@ class HTTPInterface:
         self._app.config.update(config)
 
         http_helpers.add_logger(self._app, logger)
+        self._app.before_request(http_helpers.log_before_request)
         self._app.after_request(http_helpers.log_request)
         auth_verifier.set_client(auth_client)
         self._app.secret_key = os.urandom(24)
