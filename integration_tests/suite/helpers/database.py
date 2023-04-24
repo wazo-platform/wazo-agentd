@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 TENANT_UUID = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeee1'
 
 
-class DbHelper(object):
+class DbHelper:
     TEMPLATE = "xivotemplate"
 
     @classmethod
@@ -48,7 +48,7 @@ class DbHelper(object):
 
     def create_engine(self, db=None, isolate=False):
         db = db or self.db
-        uri = "{}/{}".format(self.uri, db)
+        uri = f"{self.uri}/{db}"
         if isolate:
             return sa.create_engine(uri, isolation_level='AUTOCOMMIT')
         return sa.create_engine(uri)
@@ -69,7 +69,7 @@ class DbHelper(object):
                 db=self.db
             )
         )
-        connection.execute("DROP DATABASE IF EXISTS {db}".format(db=self.db))
+        connection.execute(f"DROP DATABASE IF EXISTS {self.db}")
         connection.execute(
             "CREATE DATABASE {db} TEMPLATE {template}".format(
                 db=self.db, template=self.TEMPLATE
@@ -87,7 +87,7 @@ class DbHelper(object):
             yield DatabaseQueries(connection)
 
 
-class DatabaseQueries(object):
+class DatabaseQueries:
     def __init__(self, connection):
         self.connection = connection
         self.Session = sessionmaker(bind=connection)
@@ -138,7 +138,7 @@ class DatabaseQueries(object):
             agent = inserter.session.query(Agent).get(agent_id)
             return inserter.add_queue_member(
                 queue_name=queue.name,
-                interface='PJSIP/{}'.format(agent.users[0].lines[0].endpoint_sip.name),
+                interface=f'PJSIP/{agent.users[0].lines[0].endpoint_sip.name}',
                 usertype='agent',
                 category='queue',
                 channel='Agent',

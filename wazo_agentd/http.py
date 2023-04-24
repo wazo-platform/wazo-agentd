@@ -350,7 +350,7 @@ class HTTPInterface:
         self._load_cors()
         self.server = None
 
-        api = Api(self._app, prefix='/{}'.format(self.VERSION))
+        api = Api(self._app, prefix=f'/{self.VERSION}')
         self._add_resources(api, service_proxy)
 
     def _load_cors(self):

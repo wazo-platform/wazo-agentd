@@ -1,4 +1,4 @@
-# Copyright 2013-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
@@ -67,7 +67,7 @@ class LogoffAction:
                 raise
 
     def _update_blf(self, agent_status):
-        agent_id = '*{}'.format(agent_status.agent_id)
+        agent_id = f'*{agent_status.agent_id}'
         number = agent_status.agent_number
         for user_id in agent_status.user_ids:
             self._blf_manager.set_user_blf(

@@ -1,4 +1,4 @@
-# Copyright 2012-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
@@ -41,7 +41,7 @@ class QueueLogManager:
         return 'Agent/%s' % agent_number
 
     def _format_data1(self, extension, context):
-        return '%s@%s' % (extension, context)
+        return f'{extension}@{context}'
 
     def _format_logged_time(self, logged_time):
         return str(int(logged_time))
