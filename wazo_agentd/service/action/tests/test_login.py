@@ -1,4 +1,4 @@
-# Copyright 2013-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -85,11 +85,11 @@ class TestLoginAction(unittest.TestCase):
         assert_that(
             self.blf_manager.set_user_blf.call_args_list,
             contains_inanyorder(
-                call(user_id, 'agentstaticlogin', 'INUSE', '*{}'.format(agent_id)),
+                call(user_id, 'agentstaticlogin', 'INUSE', f'*{agent_id}'),
                 call(user_id, 'agentstaticlogin', 'INUSE', agent_number),
-                call(user_id, 'agentstaticlogoff', 'NOT_INUSE', '*{}'.format(agent_id)),
+                call(user_id, 'agentstaticlogoff', 'NOT_INUSE', f'*{agent_id}'),
                 call(user_id, 'agentstaticlogoff', 'NOT_INUSE', agent_number),
-                call(user_id, 'agentstaticlogtoggle', 'INUSE', '*{}'.format(agent_id)),
+                call(user_id, 'agentstaticlogtoggle', 'INUSE', f'*{agent_id}'),
                 call(user_id, 'agentstaticlogtoggle', 'INUSE', agent_number),
             ),
         )

@@ -1,4 +1,4 @@
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 
@@ -50,8 +50,8 @@ class QueueDelta:
 
     @classmethod
     def calculate(cls, old_queues, new_queues):
-        old_queues_by_id = dict((q.id, q) for q in old_queues)
-        new_queues_by_id = dict((q.id, q) for q in new_queues)
+        old_queues_by_id = {q.id: q for q in old_queues}
+        new_queues_by_id = {q.id: q for q in new_queues}
         updated_ids = set(new_queues_by_id).intersection(old_queues_by_id)
 
         added_ids = set(new_queues_by_id).difference(old_queues_by_id)

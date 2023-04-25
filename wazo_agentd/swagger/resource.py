@@ -21,7 +21,7 @@ class SwaggerResource(Resource):
     def get(self):
         try:
             api_spec = yaml.load(resource_string(self.api_package, self.api_filename))
-        except IOError:
+        except OSError:
             return {'error': "API spec does not exist"}, 404
         reverse_proxy_fix_api_spec(api_spec)
         response = yaml.dump(dict(api_spec))

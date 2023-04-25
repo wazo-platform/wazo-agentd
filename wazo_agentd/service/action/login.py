@@ -1,4 +1,4 @@
-# Copyright 2013-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -60,7 +60,7 @@ class LoginAction:
         self._send_bus_status_update(agent)
 
     def _get_interface(self, agent):
-        return 'Local/id-{0}@agentcallback'.format(agent.id)
+        return f'Local/id-{agent.id}@agentcallback'
 
     def _get_state_interface(self, extension, context):
         try:
@@ -113,19 +113,19 @@ class LoginAction:
     def _update_blf(self, agent):
         for user_id in agent.user_ids:
             self._blf_manager.set_user_blf(
-                user_id, 'agentstaticlogin', 'INUSE', '*{}'.format(agent.id)
+                user_id, 'agentstaticlogin', 'INUSE', f'*{agent.id}'
             )
             self._blf_manager.set_user_blf(
                 user_id, 'agentstaticlogin', 'INUSE', agent.number
             )
             self._blf_manager.set_user_blf(
-                user_id, 'agentstaticlogoff', 'NOT_INUSE', '*{}'.format(agent.id)
+                user_id, 'agentstaticlogoff', 'NOT_INUSE', f'*{agent.id}'
             )
             self._blf_manager.set_user_blf(
                 user_id, 'agentstaticlogoff', 'NOT_INUSE', agent.number
             )
             self._blf_manager.set_user_blf(
-                user_id, 'agentstaticlogtoggle', 'INUSE', '*{}'.format(agent.id)
+                user_id, 'agentstaticlogtoggle', 'INUSE', f'*{agent.id}'
             )
             self._blf_manager.set_user_blf(
                 user_id, 'agentstaticlogtoggle', 'INUSE', agent.number
