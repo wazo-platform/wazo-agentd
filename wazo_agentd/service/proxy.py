@@ -1,4 +1,4 @@
-# Copyright 2015-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import threading
@@ -15,6 +15,7 @@ class ServiceProxy:
         self.pause_handler = None
         self.relog_handler = None
         self.status_handler = None
+        self.extension_status_handler = None
 
     def add_agent_to_queue(self, agent_id, queue_id, tenant_uuids=None):
         with self._lock:
@@ -141,3 +142,9 @@ class ServiceProxy:
                 return self.on_queue_handler.handle_on_agent_paused(agent)
             else:
                 return self.on_queue_handler.handle_on_agent_unpaused(agent)
+
+    def on_extension_status_updated(self, extension_status):
+        with self._lock:
+            return self.extension_status_handler.handle_on_extension_status_updated(
+                extension_status
+            )
