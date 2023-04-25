@@ -38,7 +38,7 @@ class QueueLogManager:
             )
 
     def _format_agent(self, agent_number):
-        return 'Agent/%s' % agent_number
+        return f'Agent/{agent_number}'
 
     def _format_data1(self, extension, context):
         return f'{extension}@{context}'

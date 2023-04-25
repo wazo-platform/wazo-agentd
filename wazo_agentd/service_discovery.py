@@ -1,4 +1,4 @@
-# Copyright 2016-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2016-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import requests
@@ -11,7 +11,7 @@ def self_check(config):
     if config["certificate"] and config["private_key"]:
         scheme = "https"
 
-    url = "{}://{}:{}/1.0/agents".format(scheme, "localhost", port)
+    url = f"{scheme}://{'localhost'}:{port}/1.0/agents"
     headers = {'accept': 'application/json'}
     try:
         response = requests.get(url, headers=headers, verify=False)
