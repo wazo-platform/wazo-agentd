@@ -29,8 +29,7 @@ class DbHelper:
 
     @classmethod
     def build(cls, user, password, host, port, db):
-        tpl = "postgresql://{user}:{password}@{host}:{port}"
-        uri = tpl.format(user=user, password=password, host=host, port=port)
+        uri = f"postgresql://{user}:{password}@{host}:{port}"
         return cls(uri, db)
 
     def __init__(self, uri, db):
@@ -60,21 +59,15 @@ class DbHelper:
         engine = self.create_engine("postgres", isolate=True)
         connection = engine.connect()
         connection.execute(
-            """
+            f"""
             SELECT pg_terminate_backend(pg_stat_activity.pid)
             FROM pg_stat_activity
-            WHERE pg_stat_activity.datname = '{db}'
+            WHERE pg_stat_activity.datname = '{self.db}'
             AND pid <> pg_backend_pid()
-            """.format(
-                db=self.db
-            )
+            """
         )
         connection.execute(f"DROP DATABASE IF EXISTS {self.db}")
-        connection.execute(
-            "CREATE DATABASE {db} TEMPLATE {template}".format(
-                db=self.db, template=self.TEMPLATE
-            )
-        )
+        connection.execute(f"CREATE DATABASE {self.db} TEMPLATE {self.TEMPLATE}")
         connection.close()
 
     def execute(self, query, **kwargs):

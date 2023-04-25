@@ -64,8 +64,9 @@ _status_aggregator = None
 class AgentdAuthVerifier(AuthVerifier):
     def handle_unreachable(self, error):
         auth_client = self.client()
-        message = 'Could not connect to authentication server on {client.host}:{client.port}: {error}'.format(
-            client=auth_client, error=error
+        message = (
+            f'Could not connect to authentication server '
+            f'on {auth_client.host}:{auth_client.port}: {error}'
         )
         logger.exception('%s', message)
         return {'error': message}, 503
