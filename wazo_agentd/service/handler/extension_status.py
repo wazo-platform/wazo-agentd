@@ -19,7 +19,7 @@ class ExtensionStatusHandler:
 
     @debug.trace_duration
     def handle_on_extension_status_updated(self, msg):
-        if msg['StatusText'] == 'Unavailable':
+        if msg['StatusText'] == 'Unavailable' and msg['Context'] != 'usersharedlines':
             with db_utils.session_scope():
                 try:
                     user = self._user_dao.get_user_by_number_context(
@@ -33,11 +33,10 @@ class ExtensionStatusHandler:
 
     @debug.trace_duration
     def handle_logoff_user_agent(self, user_uuid, tenant_uuids=None):
-        logger.info('Executing logoff command (agent of user %s)', user_uuid)
         with db_utils.session_scope():
             agent_status = self._agent_status_dao.get_status_by_user(
                 user_uuid, tenant_uuids=tenant_uuids
             )
-        self._logoff_manager.logoff_user_agent(
-            user_uuid, agent_status, tenant_uuids=tenant_uuids
-        )
+            if agent_status:
+                logger.info('Executing logoff command (agent of user %s)', user_uuid)
+                self._logoff_manager.logoff_agent(agent_status)
