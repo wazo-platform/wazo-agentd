@@ -29,8 +29,10 @@ class ExtensionStatusHandler:
                         user.uuid, tenant_uuids=[user.tenant_uuid]
                     )
                 except (LookupError, AgentNotLoggedError) as e:
-                    logger.debug(f'Cannot logout agent for user {user.uuid}, '
-                                 f'{msg["Exten"]}@{msg["Context"]} ({e})')
+                    logger.debug(
+                        f'Cannot logout agent for user {user.uuid}, '
+                        f'{msg["Exten"]}@{msg["Context"]} ({e})'
+                    )
 
     @debug.trace_duration
     def handle_logoff_user_agent(self, user_uuid, tenant_uuids=None):
