@@ -30,7 +30,6 @@ from xivo_dao import line_dao
 from xivo_dao import queue_dao as orig_queue_dao
 from xivo_dao import queue_log_dao
 from xivo_dao import queue_member_dao
-from xivo_dao import user_dao as orig_user_dao
 from xivo_dao.resources.user import dao as user_dao
 
 from wazo_agentd import http
@@ -38,7 +37,7 @@ from wazo_agentd.bus import (
     BusConsumer,
     BusPublisher,
     QueueMemberPausedEvent,
-    ExtensionStatusEvent,
+    DeviceStateChangeEvent,
 )
 from wazo_agentd.config import load as load_config
 from wazo_agentd.dao import QueueDAOAdapter, AgentDAOAdapter, ExtenFeaturesDAOAdapter
@@ -49,7 +48,7 @@ from wazo_agentd.service.action.logoff import LogoffAction
 from wazo_agentd.service.action.pause import PauseAction
 from wazo_agentd.service.action.remove import RemoveFromQueueAction
 from wazo_agentd.service.action.update import UpdatePenaltyAction
-from wazo_agentd.service.handler.extension_status import ExtensionStatusHandler
+from wazo_agentd.service.handler.device_state import DeviceStateHandler
 from wazo_agentd.service.handler.login import LoginHandler
 from wazo_agentd.service.handler.logoff import LogoffHandler
 from wazo_agentd.service.handler.membership import MembershipHandler
@@ -188,8 +187,8 @@ def _run(config):
     service_proxy.pause_handler = PauseHandler(pause_manager, agent_status_dao)
     service_proxy.relog_handler = RelogHandler(relog_manager)
     service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, xivo_uuid)
-    service_proxy.extension_status_handler = ExtensionStatusHandler(
-        agent_status_dao, orig_user_dao, logoff_manager
+    service_proxy.device_status_handler = DeviceStateHandler(
+        agent_status_dao, logoff_manager
     )
 
     _init_bus_consume(bus_consumer, service_proxy)
@@ -237,7 +236,7 @@ def _init_bus_consume(bus_consumer, service_proxy):
         (QueueEditedEvent, service_proxy.on_queue_updated),
         (QueueDeletedEvent, service_proxy.on_queue_deleted),
         (QueueMemberPausedEvent, service_proxy.on_agent_paused),
-        (ExtensionStatusEvent, service_proxy.on_extension_status_updated),
+        (DeviceStateChangeEvent, service_proxy.on_device_state_updated),
     )
     for event, action in events:
         bus_consumer.subscribe(event.name, action)

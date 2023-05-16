@@ -15,7 +15,7 @@ class ServiceProxy:
         self.pause_handler = None
         self.relog_handler = None
         self.status_handler = None
-        self.extension_status_handler = None
+        self.device_status_handler = None
 
     def add_agent_to_queue(self, agent_id, queue_id, tenant_uuids=None):
         with self._lock:
@@ -143,8 +143,8 @@ class ServiceProxy:
             else:
                 return self.on_queue_handler.handle_on_agent_unpaused(agent)
 
-    def on_extension_status_updated(self, extension_status):
+    def on_device_state_updated(self, device_state):
         with self._lock:
-            return self.extension_status_handler.handle_on_extension_status_updated(
-                extension_status
+            return self.device_status_handler.handle_on_device_state_updated(
+                device_state
             )

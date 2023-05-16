@@ -32,3 +32,7 @@ class QueueMemberPausedEvent(AMIEvent):
 
 class ExtensionStatusEvent(AMIEvent):
     name = 'ExtensionStatus'
+
+
+class DeviceStateChangeEvent(AMIEvent):
+    name = 'DeviceStateChange'
