@@ -13,7 +13,7 @@ class TestLogoutAgentHandler(BaseIntegrationTest):
 
     @fixtures.user_line_extension(exten='1001', context='default')
     @fixtures.agent(number='1001')
-    def test_delete_queue_event(self, user_line_extension, agent):
+    def test_logout_agent(self, user_line_extension, agent):
         with self.database.queries() as queries:
             queries.associate_user_agent(user_line_extension['user_id'], agent['id'])
 
@@ -29,13 +29,12 @@ class TestLogoutAgentHandler(BaseIntegrationTest):
         self.bus.publish(
             {
                 'data': {
-                    'Exten': user_line_extension['exten'],
-                    'Context': user_line_extension['context'],
-                    'StatusText': 'Unavailable',
+                    'Device': f'PJSIP/{user_line_extension["device_name"]}',
+                    'State': 'UNAVAILABLE'
                 },
-                'name': 'ExtensionStatus',
+                'name': 'DeviceStateChange',
             },
-            headers={'name': 'ExtensionStatus'},
+            headers={'name': 'DeviceStateChange'},
         )
 
         def test_on_agent_logged_out():
