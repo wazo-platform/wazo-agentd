@@ -30,7 +30,7 @@ class TestLogoutAgentHandler(BaseIntegrationTest):
             {
                 'data': {
                     'Device': f'PJSIP/{user_line_extension["device_name"]}',
-                    'State': 'UNAVAILABLE'
+                    'State': 'UNAVAILABLE',
                 },
                 'name': 'DeviceStateChange',
             },
