@@ -19,7 +19,9 @@ class DeviceStateHandler:
         if msg['State'] == 'UNAVAILABLE':
             with db_utils.session_scope():
                 device = msg['Device']
-                agent_status = self._agent_status_dao.get_status_by_state_interface(device)
+                agent_status = self._agent_status_dao.get_status_by_state_interface(
+                    device
+                )
                 if agent_status:
                     logger.info(
                         'Executing logoff command (agent %s)', agent_status.agent_number
