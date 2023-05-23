@@ -30,9 +30,5 @@ class QueueMemberPausedEvent(AMIEvent):
     name = 'QueueMemberPause'
 
 
-class ExtensionStatusEvent(AMIEvent):
-    name = 'ExtensionStatus'
-
-
 class DeviceStateChangeEvent(AMIEvent):
     name = 'DeviceStateChange'
