@@ -1,4 +1,4 @@
-# Copyright 2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from functools import wraps
@@ -45,17 +45,17 @@ def user_line_extension(**ule):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             with self.database.queries() as queries:
-                resource_ids = queries.insert_user_line_extension(**ule)
-                ule.update(resource_ids)
+                resources = queries.insert_user_line_extension(**ule)
+                ule.update(resources)
             args = list(args) + [ule]
             try:
                 return func(self, *args, **kwargs)
             finally:
                 with self.database.queries() as queries:
                     queries.delete_user_line_extension(
-                        resource_ids['user_id'],
-                        resource_ids['line_id'],
-                        resource_ids['extension_id'],
+                        resources['user_id'],
+                        resources['line_id'],
+                        resources['extension_id'],
                     )
 
         return wrapper

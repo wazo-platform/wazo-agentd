@@ -168,6 +168,7 @@ class DatabaseQueries:
                 'user_uuid': user_line.user.uuid,
                 'line_id': user_line.line.id,
                 'extension_id': user_line.line.extensions[0].id,
+                'device_name': user_line.line.name,
             }
 
     def delete_user_line_extension(self, user_id, line_id, extension_id):
