@@ -28,7 +28,3 @@ class BusPublisher(Publisher):
 
 class QueueMemberPausedEvent(AMIEvent):
     name = 'QueueMemberPause'
-
-
-class DeviceStateChangeEvent(AMIEvent):
-    name = 'DeviceStateChange'
