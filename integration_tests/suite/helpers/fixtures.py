@@ -45,17 +45,17 @@ def user_line_extension(**ule):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             with self.database.queries() as queries:
-                resources = queries.insert_user_line_extension(**ule)
-                ule.update(resources)
+                resource_ids = queries.insert_user_line_extension(**ule)
+                ule.update(resource_ids)
             args = list(args) + [ule]
             try:
                 return func(self, *args, **kwargs)
             finally:
                 with self.database.queries() as queries:
                     queries.delete_user_line_extension(
-                        resources['user_id'],
-                        resources['line_id'],
-                        resources['extension_id'],
+                        resource_ids['user_id'],
+                        resource_ids['line_id'],
+                        resource_ids['extension_id'],
                     )
 
         return wrapper
