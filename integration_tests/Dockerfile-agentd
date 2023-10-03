@@ -5,4 +5,4 @@ ENV PYTHONDONTWRITEBYTECODE='true'
 COPY . /usr/src/wazo-agentd
 
 WORKDIR /usr/src/wazo-agentd
-RUN python setup.py develop
+RUN python3 -m pip install -e .
