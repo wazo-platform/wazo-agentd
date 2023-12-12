@@ -44,16 +44,21 @@ class TestPauseHandler(unittest.TestCase):
                 'MemberName': 'aa/invalid-number-42',
                 'PausedReason': 'a',
                 'Queue': 'queue-1',
+                'Interface': 'Local/id-2@agentcallback',
             }
         )
         self.on_queue_pause_manager.on_queue_agent_paused.assert_not_called()
         self.agent_dao.agent_with_number.assert_not_called()
 
         self.on_queue_handler.handle_on_agent_paused(
-            {'MemberName': 'aa/42', 'PausedReason': 'a', 'Queue': 'queue-1'}
+            {
+                'MemberName': 'aa/42',
+                'PausedReason': 'a',
+                'Queue': 'queue-1',
+                'Interface': 'Local/id-2@agentcallback',
+            }
         )
         self.on_queue_pause_manager.on_queue_agent_paused.assert_called_once()
-        self.agent_dao.agent_with_number.assert_called_once_with('42')
 
     def test_unpause_queue_agent(self):
         self.on_queue_handler.handle_on_agent_unpaused(
@@ -61,16 +66,21 @@ class TestPauseHandler(unittest.TestCase):
                 'MemberName': 'aa/invalid-number-42',
                 'PausedReason': 'a',
                 'Queue': 'queue-1',
+                'Interface': 'Local/id-2@agentcallback',
             }
         )
         self.on_queue_pause_manager.on_queue_agent_unpaused.assert_not_called()
         self.agent_dao.agent_with_number.assert_not_called()
 
         self.on_queue_handler.handle_on_agent_unpaused(
-            {'MemberName': 'aa/42', 'PausedReason': 'a', 'Queue': 'queue-1'}
+            {
+                'MemberName': 'aa/42',
+                'PausedReason': 'a',
+                'Queue': 'queue-1',
+                'Interface': 'Local/id-2@agentcallback',
+            }
         )
         self.on_queue_pause_manager.on_queue_agent_unpaused.assert_called_once()
-        self.agent_dao.agent_with_number.assert_called_once_with('42')
 
     def test_unpause_by_number(self):
         agent_number = '42'
