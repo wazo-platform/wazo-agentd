@@ -130,7 +130,7 @@ class TestAgents(BaseIntegrationTest):
             # NOTE(fblackburn): agentd may be still not connected to the bus to receive messages
             # A best solution should be to create a /status and wait on it
             time.sleep(8)
-            self.bus.send_queue_member_pause('1234', paused=True)
+            self.bus.send_queue_member_pause('1234', agent['id'], paused=True)
 
             def test_on_msg_received():
                 status = self.agentd.agents.get_user_agent_status()
@@ -140,7 +140,7 @@ class TestAgents(BaseIntegrationTest):
 
             # unpause
             self.agentd.agents.unpause_user_agent()
-            self.bus.send_queue_member_pause('1234', paused=False)
+            self.bus.send_queue_member_pause('1234', agent['id'], paused=False)
 
             def test_on_msg_received():
                 status = self.agentd.agents.get_user_agent_status()
