@@ -1,4 +1,4 @@
-# Copyright 2013-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -89,5 +89,5 @@ class OnQueueHandler:
         reason = msg['PausedReason']
         queue = msg['Queue']
         if matches := AGENT_ID_FROM_IFACE.match(msg['Interface']):
-            agent_id = matches.group(1)
+            agent_id = int(matches.group(1))
             return agent_id, agent_number, reason, queue
