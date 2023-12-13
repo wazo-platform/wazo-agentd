@@ -1,7 +1,8 @@
-# Copyright 2013-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
+import re
 
 from wazo_agentd.service.helper import is_valid_agent_number
 
@@ -9,6 +10,8 @@ from xivo import debug
 from xivo_dao.helpers import db_utils
 
 logger = logging.getLogger(__name__)
+
+AGENT_ID_FROM_IFACE = re.compile(r'^Local/id-(\d+)@agentcallback$')
 
 
 class OnQueueHandler:
@@ -85,6 +88,6 @@ class OnQueueHandler:
             return
         reason = msg['PausedReason']
         queue = msg['Queue']
-        with db_utils.session_scope():
-            agent = self._agent_dao.agent_with_number(agent_number)
-        return agent.id, agent_number, reason, queue
+        if matches := AGENT_ID_FROM_IFACE.match(msg['Interface']):
+            agent_id = int(matches.group(1))
+            return agent_id, agent_number, reason, queue

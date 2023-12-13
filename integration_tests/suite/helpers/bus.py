@@ -11,7 +11,9 @@ class BusClient(bus_helper.BusClient):
             headers={'name': 'queue_deleted'},
         )
 
-    def send_queue_member_pause(self, agent_number, paused=True, queue_name=''):
+    def send_queue_member_pause(
+        self, agent_number, agent_id, paused=True, queue_name=''
+    ):
         self.publish(
             {
                 'data': {
@@ -19,6 +21,7 @@ class BusClient(bus_helper.BusClient):
                     'MemberName': f'local/{agent_number}',
                     'PausedReason': 'Eating potatoes',
                     'Queue': queue_name,
+                    'Interface': f'Local/id-{agent_id}@agentcallback',
                 },
                 'name': 'QueueMemberPause',
             },
