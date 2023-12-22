@@ -4,9 +4,9 @@
 import datetime
 import logging
 
+from wazo_amid_client.exceptions import AmidProtocolError
 from xivo_bus.resources.agent.event import AgentStatusUpdatedEvent
 from xivo_dao.helpers import db_utils
-from wazo_amid_client.exceptions import AmidProtocolError
 
 logger = logging.getLogger(__name__)
 

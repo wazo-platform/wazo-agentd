@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
+
 from xivo_dao.helpers import db_utils
 
 

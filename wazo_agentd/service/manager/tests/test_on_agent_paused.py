@@ -1,13 +1,17 @@
-# Copyright 2017-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2017-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
+from unittest.mock import Mock
+from unittest.mock import sentinel as s
 
-from unittest.mock import Mock, sentinel as s
 from hamcrest import assert_that, has_entries
 
-from ..on_queue_agent_paused import OnQueueAgentPausedManager
-from ..on_queue_agent_paused import AgentPausedEvent, AgentUnpausedEvent
+from ..on_queue_agent_paused import (
+    AgentPausedEvent,
+    AgentUnpausedEvent,
+    OnQueueAgentPausedManager,
+)
 
 
 class TestOnQueueAgentPausedManager(unittest.TestCase):

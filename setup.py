@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
-# Copyright 2012-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2023 The Wazo Authors  (see the AUTHORS file)
 
-from setuptools import setup
-from setuptools import find_packages
-
+from setuptools import find_packages, setup
 
 setup(
     name='wazo-agentd',

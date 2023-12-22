@@ -2,16 +2,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
+from unittest.mock import ANY, Mock, call
 
-from unittest.mock import call, Mock, ANY
 from hamcrest import assert_that, contains_inanyorder, has_entries
-
 from xivo_bus.resources.agent.event import AgentStatusUpdatedEvent
 
 from wazo_agentd.queuelog import QueueLogManager
-from wazo_agentd.service.manager.blf import BLFManager
 from wazo_agentd.service.action.login import LoginAction
 from wazo_agentd.service.helper import format_agent_skills
+from wazo_agentd.service.manager.blf import BLFManager
 
 
 class TestLoginAction(unittest.TestCase):

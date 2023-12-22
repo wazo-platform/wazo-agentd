@@ -6,8 +6,8 @@ import time
 from hamcrest import assert_that, is_
 from wazo_test_helpers import until
 
-from .helpers.base import BaseIntegrationTest
 from .helpers import fixtures
+from .helpers.base import BaseIntegrationTest
 
 
 class TestEventHandler(BaseIntegrationTest):

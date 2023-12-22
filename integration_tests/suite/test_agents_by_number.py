@@ -1,11 +1,11 @@
 # Copyright 2019-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from hamcrest import assert_that, contains, has_entries, has_key, all_of
+from hamcrest import all_of, assert_that, contains, has_entries, has_key
 from wazo_test_helpers import until
 
-from .helpers.base import BaseIntegrationTest
 from .helpers import fixtures
+from .helpers.base import BaseIntegrationTest
 
 
 class TestAgentsByNumber(BaseIntegrationTest):
