@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import yaml
-
 from flask import make_response
 from flask_restful import Resource
 from pkg_resources import resource_string

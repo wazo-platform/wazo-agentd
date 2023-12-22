@@ -6,17 +6,17 @@ import os
 import uuid
 
 from wazo_agentd_client import Client as AgentdClient
-from wazo_test_helpers.auth import AuthClient, MockUserToken, MockCredentials
 from wazo_test_helpers.asset_launching_test_case import (
     AssetLaunchingTestCase,
     NoSuchService,
 )
+from wazo_test_helpers.auth import AuthClient, MockCredentials, MockUserToken
 
 from .amid import AmidClient
 from .bus import BusClient
-from .database import DbHelper, TENANT_UUID as TOKEN_TENANT_UUID
+from .database import TENANT_UUID as TOKEN_TENANT_UUID
+from .database import DbHelper
 from .wait_strategy import EverythingOkWaitStrategy
-
 
 TOKEN_UUID = '00000000-0000-0000-0000-000000000101'
 TOKEN_USER_UUID = '00000000-0000-0000-0000-000000000301'

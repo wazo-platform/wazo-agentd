@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from collections import namedtuple
+
 from wazo_agentd.exception import (
     NoSuchAgentError,
     NoSuchExtenFeatureError,

@@ -2,12 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import requests
-
-from hamcrest import (
-    assert_that,
-    has_entries,
-    has_entry,
-)
+from hamcrest import assert_that, has_entries, has_entry
 from wazo_test_helpers import until
 
 from .helpers.base import BaseIntegrationTest

@@ -24,7 +24,7 @@ xivo-agent (13.22~20130725.205306.40160f0-2) squeeze-xivo-skaro-dev; urgency=low
 
 xivo-agent (13.04~20130219.175944.7cd0f86-3) squeeze-xivo-skaro-dev; urgency=low
 
-  * revert init script 
+  * revert init script
 
  -- Nicolas HICHER <nhicher@avencall.com>  Sat, 23 Feb 2013 08:51:32 -0500
 

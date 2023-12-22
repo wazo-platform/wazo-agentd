@@ -3,10 +3,11 @@
 
 import logging
 
-from wazo_agentd.exception import NoSuchExtensionError, NoSuchLineError
-from wazo_agentd.service.helper import format_agent_member_name, format_agent_skills
 from xivo_bus.resources.agent.event import AgentStatusUpdatedEvent
 from xivo_dao.helpers import db_utils
+
+from wazo_agentd.exception import NoSuchExtensionError, NoSuchLineError
+from wazo_agentd.service.helper import format_agent_member_name, format_agent_skills
 
 logger = logging.getLogger(__name__)
 

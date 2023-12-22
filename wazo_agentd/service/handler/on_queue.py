@@ -4,10 +4,10 @@
 import logging
 import re
 
-from wazo_agentd.service.helper import is_valid_agent_number
-
 from xivo import debug
 from xivo_dao.helpers import db_utils
+
+from wazo_agentd.service.helper import is_valid_agent_number
 
 logger = logging.getLogger(__name__)
 

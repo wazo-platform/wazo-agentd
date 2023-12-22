@@ -5,37 +5,29 @@ import logging
 import signal
 import sys
 import threading
-
 from functools import partial
 
 import xivo_dao
-
 from wazo_amid_client import Client as AmidClient
 from wazo_auth_client import Client as AuthClient
-
 from xivo.config_helper import set_xivo_uuid
 from xivo.consul_helpers import ServiceCatalogRegistration
 from xivo.status import StatusAggregator, TokenStatus
 from xivo.token_renewer import TokenRenewer
 from xivo.user_rights import change_user
 from xivo.xivo_logging import setup_logging, silence_loggers
-
-from xivo_bus.resources.agent.event import AgentEditedEvent, AgentDeletedEvent
-from xivo_bus.resources.queue.event import QueueEditedEvent, QueueDeletedEvent
+from xivo_bus.resources.agent.event import AgentDeletedEvent, AgentEditedEvent
+from xivo_bus.resources.queue.event import QueueDeletedEvent, QueueEditedEvent
 from xivo_dao import agent_dao as orig_agent_dao
-from xivo_dao import agent_status_dao
-from xivo_dao import asterisk_conf_dao
-from xivo_dao import context_dao
-from xivo_dao import line_dao
+from xivo_dao import agent_status_dao, asterisk_conf_dao, context_dao, line_dao
 from xivo_dao import queue_dao as orig_queue_dao
-from xivo_dao import queue_log_dao
-from xivo_dao import queue_member_dao
+from xivo_dao import queue_log_dao, queue_member_dao
 from xivo_dao.resources.user import dao as user_dao
 
 from wazo_agentd import http
 from wazo_agentd.bus import BusConsumer, BusPublisher, QueueMemberPausedEvent
 from wazo_agentd.config import load as load_config
-from wazo_agentd.dao import QueueDAOAdapter, AgentDAOAdapter, ExtenFeaturesDAOAdapter
+from wazo_agentd.dao import AgentDAOAdapter, ExtenFeaturesDAOAdapter, QueueDAOAdapter
 from wazo_agentd.queuelog import QueueLogManager
 from wazo_agentd.service.action.add import AddToQueueAction
 from wazo_agentd.service.action.login import LoginAction
@@ -58,9 +50,9 @@ from wazo_agentd.service.manager.logoff import LogoffManager
 from wazo_agentd.service.manager.on_agent_deleted import OnAgentDeletedManager
 from wazo_agentd.service.manager.on_agent_updated import OnAgentUpdatedManager
 from wazo_agentd.service.manager.on_queue_added import OnQueueAddedManager
+from wazo_agentd.service.manager.on_queue_agent_paused import OnQueueAgentPausedManager
 from wazo_agentd.service.manager.on_queue_deleted import OnQueueDeletedManager
 from wazo_agentd.service.manager.on_queue_updated import OnQueueUpdatedManager
-from wazo_agentd.service.manager.on_queue_agent_paused import OnQueueAgentPausedManager
 from wazo_agentd.service.manager.pause import PauseManager
 from wazo_agentd.service.manager.relog import RelogManager
 from wazo_agentd.service.manager.remove_member import RemoveMemberManager

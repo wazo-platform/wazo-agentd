@@ -1,44 +1,42 @@
 # Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import os
 import logging
+import os
 
 from cheroot import wsgi
-from flask import Flask
-from flask import request
+from flask import Flask, request
 from flask_cors import CORS
 from flask_restful import Api, Resource
 from marshmallow import ValidationError
-
 from werkzeug.middleware.proxy_fix import ProxyFix
-from wazo_agentd.exception import (
-    AgentServerError,
-    NoSuchAgentError,
-    NoSuchExtensionError,
-    AgentAlreadyLoggedError,
-    ExtensionAlreadyInUseError,
-    AgentNotLoggedError,
-    NoSuchQueueError,
-    NoSuchLineError,
-    AgentAlreadyInQueueError,
-    AgentNotInQueueError,
-    ContextDifferentTenantError,
-    QueueDifferentTenantError,
-)
 from xivo import http_helpers
 from xivo.auth_verifier import AuthVerifier, required_acl
 from xivo.http_helpers import ReverseProxied
-from xivo.tenant_helpers import UnauthorizedTenant
 from xivo.tenant_flask_helpers import Tenant, token
+from xivo.tenant_helpers import UnauthorizedTenant
 
-from wazo_agentd.swagger.resource import SwaggerResource
+from wazo_agentd.exception import (
+    AgentAlreadyInQueueError,
+    AgentAlreadyLoggedError,
+    AgentNotInQueueError,
+    AgentNotLoggedError,
+    AgentServerError,
+    ContextDifferentTenantError,
+    ExtensionAlreadyInUseError,
+    NoSuchAgentError,
+    NoSuchExtensionError,
+    NoSuchLineError,
+    NoSuchQueueError,
+    QueueDifferentTenantError,
+)
 from wazo_agentd.schemas import (
     agent_login_schema,
     pause_schema,
     queue_schema,
     user_agent_login_schema,
 )
+from wazo_agentd.swagger.resource import SwaggerResource
 
 logger = logging.getLogger(__name__)
 

@@ -1,13 +1,13 @@
-# Copyright 2013-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
-
 from unittest.mock import Mock
-from wazo_agentd.service.manager.pause import PauseManager
-from wazo_agentd.service.manager.on_queue_agent_paused import OnQueueAgentPausedManager
-from wazo_agentd.service.handler.pause import PauseHandler
+
 from wazo_agentd.service.handler.on_queue import OnQueueHandler
+from wazo_agentd.service.handler.pause import PauseHandler
+from wazo_agentd.service.manager.on_queue_agent_paused import OnQueueAgentPausedManager
+from wazo_agentd.service.manager.pause import PauseManager
 
 
 class TestPauseHandler(unittest.TestCase):

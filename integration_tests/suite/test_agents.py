@@ -3,27 +3,19 @@
 
 import time
 
-from hamcrest import (
-    all_of,
-    assert_that,
-    calling,
-    has_properties,
-    is_,
-    matches_regexp,
-)
-
+from hamcrest import all_of, assert_that, calling, has_properties, is_, matches_regexp
 from wazo_agentd_client.error import (
-    AgentdClientError,
-    NOT_LOGGED,
     NO_SUCH_AGENT,
     NO_SUCH_LINE,
+    NOT_LOGGED,
     UNAUTHORIZED,
+    AgentdClientError,
 )
 from wazo_test_helpers import until
 from wazo_test_helpers.hamcrest.raises import raises
 
-from .helpers.base import BaseIntegrationTest, UNKNOWN_UUID, UNKNOWN_ID
 from .helpers import associations, fixtures
+from .helpers.base import UNKNOWN_ID, UNKNOWN_UUID, BaseIntegrationTest
 
 
 class TestAgents(BaseIntegrationTest):

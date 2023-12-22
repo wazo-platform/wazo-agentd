@@ -3,13 +3,13 @@
 
 import datetime
 import unittest
+from unittest.mock import ANY, Mock, call
 
-from unittest.mock import ANY, call, Mock
 from hamcrest import assert_that, contains_inanyorder, has_entries
-
-from wazo_agentd.service.action.logoff import LogoffAction
 from wazo_amid_client.exceptions import AmidProtocolError
 from xivo_bus.resources.agent.event import AgentStatusUpdatedEvent
+
+from wazo_agentd.service.action.logoff import LogoffAction
 
 
 class TestLogoffAction(unittest.TestCase):
