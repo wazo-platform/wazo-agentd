@@ -1,4 +1,4 @@
-# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
@@ -7,7 +7,7 @@ from unittest.mock import ANY, Mock, call
 
 from hamcrest import assert_that, contains_inanyorder, has_entries
 from wazo_amid_client.exceptions import AmidProtocolError
-from xivo_bus.resources.agent.event import AgentStatusUpdatedEvent
+from wazo_bus.resources.agent.event import AgentStatusUpdatedEvent
 
 from wazo_agentd.service.action.logoff import LogoffAction
 
