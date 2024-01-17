@@ -1,4 +1,4 @@
-# Copyright 2012-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -10,14 +10,14 @@ from functools import partial
 import xivo_dao
 from wazo_amid_client import Client as AmidClient
 from wazo_auth_client import Client as AuthClient
+from wazo_bus.resources.agent.event import AgentDeletedEvent, AgentEditedEvent
+from wazo_bus.resources.queue.event import QueueDeletedEvent, QueueEditedEvent
 from xivo.config_helper import set_xivo_uuid
 from xivo.consul_helpers import ServiceCatalogRegistration
 from xivo.status import StatusAggregator, TokenStatus
 from xivo.token_renewer import TokenRenewer
 from xivo.user_rights import change_user
 from xivo.xivo_logging import setup_logging, silence_loggers
-from xivo_bus.resources.agent.event import AgentDeletedEvent, AgentEditedEvent
-from xivo_bus.resources.queue.event import QueueDeletedEvent, QueueEditedEvent
 from xivo_dao import agent_dao as orig_agent_dao
 from xivo_dao import agent_status_dao, asterisk_conf_dao, context_dao, line_dao
 from xivo_dao import queue_dao as orig_queue_dao

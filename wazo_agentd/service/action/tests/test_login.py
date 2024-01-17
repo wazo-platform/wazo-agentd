@@ -1,11 +1,11 @@
-# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
 from unittest.mock import ANY, Mock, call
 
 from hamcrest import assert_that, contains_inanyorder, has_entries
-from xivo_bus.resources.agent.event import AgentStatusUpdatedEvent
+from wazo_bus.resources.agent.event import AgentStatusUpdatedEvent
 
 from wazo_agentd.queuelog import QueueLogManager
 from wazo_agentd.service.action.login import LoginAction
