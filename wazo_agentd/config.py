@@ -1,4 +1,4 @@
-# Copyright 2012-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import argparse
@@ -43,6 +43,12 @@ _DEFAULT_CONFIG = {
     'consul': {
         'scheme': 'http',
         'port': 8500,
+    },
+    'enabled_plugins': {
+        'agent': True,
+        'agents': True,
+        'api': True,
+        'status': True,
     },
     'service_discovery': {
         'enabled': False,

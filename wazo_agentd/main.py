@@ -12,6 +12,7 @@ from wazo_amid_client import Client as AmidClient
 from wazo_auth_client import Client as AuthClient
 from wazo_bus.resources.agent.event import AgentDeletedEvent, AgentEditedEvent
 from wazo_bus.resources.queue.event import QueueDeletedEvent, QueueEditedEvent
+from xivo import plugin_helpers
 from xivo.config_helper import set_xivo_uuid
 from xivo.consul_helpers import ServiceCatalogRegistration
 from xivo.status import StatusAggregator, TokenStatus
@@ -191,6 +192,23 @@ def _run(config):
         config['bus'],
         partial(self_check, config['rest_api']),
     ]
+
+    plugin_helpers.load(
+        namespace='wazo_agentd.plugins',
+        names=config['enabled_plugins'],
+        dependencies={
+            'api': http_iface.api,
+            'ami': amid_client,
+            'auth': auth_client,
+            'bus_consumer': bus_consumer,
+            'bus_publisher': bus_publisher,
+            'config': config,
+            'token_changed_subscribe': token_renewer.subscribe_to_token_change,
+            'next_token_changed_subscribe': token_renewer.subscribe_to_next_token_change,
+            'status_aggregator': status_aggregator,
+            'service_proxy': service_proxy,
+        },
+    )
 
     def _handle_signal(signum, frame):
         global _stopping_thread

@@ -1,0 +1,21 @@
+paths:
+  /status:
+    get:
+      summary: Get the status of wazo-agentd.
+      description: '**Required ACL:** `agentd.status.read`'
+      operationId: get_status
+      tags:
+      - status
+      responses:
+        '200':
+          description: The internal status of wazo-agentd
+          schema:
+            $ref: '#/definitions/StatusSummary'
+definitions:
+  StatusSummary:
+    type: object
+    properties:
+      bus_consumer:
+        $ref: '#/definitions/ComponentWithStatus'
+      service_token:
+        $ref: '#/definitions/ComponentWithStatus'
