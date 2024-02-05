@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # Copyright 2012-2024 The Wazo Authors  (see the AUTHORS file)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 from setuptools import find_packages, setup
 
@@ -12,7 +13,7 @@ setup(
     url='http://wazo.community',
     license='GPLv3',
     packages=find_packages(),
-    package_data={'wazo_agentd.swagger': ['*.yml']},
+    package_data={'wazo_agentd.plugins': ['*/api.yml']},
     entry_points={
         'console_scripts': [
             'wazo-agentd=wazo_agentd.main:main',
