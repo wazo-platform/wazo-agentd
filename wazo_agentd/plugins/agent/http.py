@@ -15,10 +15,12 @@ from .schemas import (
 )
 
 
-class _AgentById(AuthResource):
+class _BaseAgentResource(AuthResource):
     def __init__(self, service_proxy):
         self.service_proxy = service_proxy
 
+
+class AgentById(_BaseAgentResource):
     @required_acl('agentd.agents.by-id.{agent_id}.read')
     def get(self, agent_id):
         tenant_uuids = self._build_tenant_list({'recurse': True})
@@ -27,10 +29,7 @@ class _AgentById(AuthResource):
         )
 
 
-class _AgentByNumber(AuthResource):
-    def __init__(self, service_proxy):
-        self.service_proxy = service_proxy
-
+class AgentByNumber(_BaseAgentResource):
     @required_acl('agentd.agents.by-number.{agent_number}.read')
     def get(self, agent_number):
         tenant_uuids = self._build_tenant_list({'recurse': True})
@@ -39,10 +38,7 @@ class _AgentByNumber(AuthResource):
         )
 
 
-class _UserAgent(AuthResource):
-    def __init__(self, service_proxy):
-        self.service_proxy = service_proxy
-
+class UserAgent(_BaseAgentResource):
     @required_acl('agentd.users.me.agents.read')
     def get(self):
         tenant_uuids = self._build_tenant_list({'recurse': True})
@@ -52,10 +48,7 @@ class _UserAgent(AuthResource):
         )
 
 
-class _LoginAgentById(AuthResource):
-    def __init__(self, service_proxy):
-        self.service_proxy = service_proxy
-
+class LoginAgentById(_BaseAgentResource):
     @required_acl('agentd.agents.by-id.{agent_id}.login.create')
     def post(self, agent_id):
         body = agent_login_schema.load(request.get_json())
@@ -66,10 +59,7 @@ class _LoginAgentById(AuthResource):
         return '', 204
 
 
-class _LoginAgentByNumber(AuthResource):
-    def __init__(self, service_proxy):
-        self.service_proxy = service_proxy
-
+class LoginAgentByNumber(_BaseAgentResource):
     @required_acl('agentd.agents.by-number.{agent_number}.login.create')
     def post(self, agent_number):
         body = agent_login_schema.load(request.get_json())
@@ -80,10 +70,7 @@ class _LoginAgentByNumber(AuthResource):
         return '', 204
 
 
-class _LoginUserAgent(AuthResource):
-    def __init__(self, service_proxy):
-        self.service_proxy = service_proxy
-
+class LoginUserAgent(_BaseAgentResource):
     @required_acl('agentd.users.me.agents.login.create')
     def post(self):
         tenant_uuids = self._build_tenant_list({'recurse': True})
@@ -95,10 +82,7 @@ class _LoginUserAgent(AuthResource):
         return '', 204
 
 
-class _LogoffAgentById(AuthResource):
-    def __init__(self, service_proxy):
-        self.service_proxy = service_proxy
-
+class LogoffAgentById(_BaseAgentResource):
     @required_acl('agentd.agents.by-id.{agent_id}.logoff.create')
     def post(self, agent_id):
         # XXX logoff_agent_by_id raise a AgentNotLoggedError even if the agent doesn't exist;
@@ -108,10 +92,7 @@ class _LogoffAgentById(AuthResource):
         return '', 204
 
 
-class _LogoffAgentByNumber(AuthResource):
-    def __init__(self, service_proxy):
-        self.service_proxy = service_proxy
-
+class LogoffAgentByNumber(_BaseAgentResource):
     @required_acl('agentd.agents.by-number.{agent_number}.logoff.create')
     def post(self, agent_number):
         tenant_uuids = self._build_tenant_list({'recurse': True})
@@ -121,10 +102,7 @@ class _LogoffAgentByNumber(AuthResource):
         return '', 204
 
 
-class _LogoffUserAgent(AuthResource):
-    def __init__(self, service_proxy):
-        self.service_proxy = service_proxy
-
+class LogoffUserAgent(_BaseAgentResource):
     @required_acl('agentd.users.me.agents.logoff.create')
     def post(self):
         tenant_uuids = self._build_tenant_list({'recurse': True})
@@ -133,10 +111,7 @@ class _LogoffUserAgent(AuthResource):
         return '', 204
 
 
-class _AddAgentToQueue(AuthResource):
-    def __init__(self, service_proxy):
-        self.service_proxy = service_proxy
-
+class AddAgentToQueue(_BaseAgentResource):
     @required_acl('agentd.agents.by-id.{agent_id}.add.create')
     def post(self, agent_id):
         body = queue_schema.load(request.get_json())
@@ -147,10 +122,7 @@ class _AddAgentToQueue(AuthResource):
         return '', 204
 
 
-class _RemoveAgentFromQueue(AuthResource):
-    def __init__(self, service_proxy):
-        self.service_proxy = service_proxy
-
+class RemoveAgentFromQueue(_BaseAgentResource):
     @required_acl('agentd.agents.by-id.{agent_id}.delete.create')
     def post(self, agent_id):
         body = queue_schema.load(request.get_json())
@@ -161,10 +133,7 @@ class _RemoveAgentFromQueue(AuthResource):
         return '', 204
 
 
-class _PauseAgentByNumber(AuthResource):
-    def __init__(self, service_proxy):
-        self.service_proxy = service_proxy
-
+class PauseAgentByNumber(_BaseAgentResource):
     @required_acl('agentd.agents.by-number.{agent_number}.pause.create')
     def post(self, agent_number):
         body = pause_schema.load(request.get_json())
@@ -175,10 +144,7 @@ class _PauseAgentByNumber(AuthResource):
         return '', 204
 
 
-class _PauseUserAgent(AuthResource):
-    def __init__(self, service_proxy):
-        self.service_proxy = service_proxy
-
+class PauseUserAgent(_BaseAgentResource):
     @required_acl('agentd.users.me.agents.pause.create')
     def post(self):
         tenant_uuids = self._build_tenant_list({'recurse': True})
@@ -190,10 +156,7 @@ class _PauseUserAgent(AuthResource):
         return '', 204
 
 
-class _UnpauseAgentByNumber(AuthResource):
-    def __init__(self, service_proxy):
-        self.service_proxy = service_proxy
-
+class UnpauseAgentByNumber(_BaseAgentResource):
     @required_acl('agentd.agents.by-number.{agent_number}.unpause.create')
     def post(self, agent_number):
         tenant_uuids = self._build_tenant_list({'recurse': True})
@@ -203,10 +166,7 @@ class _UnpauseAgentByNumber(AuthResource):
         return '', 204
 
 
-class _UnpauseUserAgent(AuthResource):
-    def __init__(self, service_proxy):
-        self.service_proxy = service_proxy
-
+class UnpauseUserAgent(_BaseAgentResource):
     @required_acl('agentd.users.me.agents.unpause.create')
     def post(self):
         tenant_uuids = self._build_tenant_list({'recurse': True})

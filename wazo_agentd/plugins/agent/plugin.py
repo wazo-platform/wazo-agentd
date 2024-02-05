@@ -2,21 +2,21 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from .http import (
-    _AddAgentToQueue,
-    _AgentById,
-    _AgentByNumber,
-    _LoginAgentById,
-    _LoginAgentByNumber,
-    _LoginUserAgent,
-    _LogoffAgentById,
-    _LogoffAgentByNumber,
-    _LogoffUserAgent,
-    _PauseAgentByNumber,
-    _PauseUserAgent,
-    _RemoveAgentFromQueue,
-    _UnpauseAgentByNumber,
-    _UnpauseUserAgent,
-    _UserAgent,
+    AddAgentToQueue,
+    AgentById,
+    AgentByNumber,
+    LoginAgentById,
+    LoginAgentByNumber,
+    LoginUserAgent,
+    LogoffAgentById,
+    LogoffAgentByNumber,
+    LogoffUserAgent,
+    PauseAgentByNumber,
+    PauseUserAgent,
+    RemoveAgentFromQueue,
+    UnpauseAgentByNumber,
+    UnpauseUserAgent,
+    UserAgent,
 )
 
 
@@ -26,91 +26,91 @@ class Plugin:
         service_proxy = dependencies['service_proxy']
 
         api.add_resource(
-            _AgentById,
+            AgentById,
             '/agents/by-id/<int:agent_id>',
             resource_class_args=[service_proxy],
         )
 
         api.add_resource(
-            _AgentByNumber,
+            AgentByNumber,
             '/agents/by-number/<agent_number>',
             resource_class_args=[service_proxy],
         )
 
         api.add_resource(
-            _UserAgent,
+            UserAgent,
             '/users/me/agents',
             resource_class_args=[service_proxy],
         )
 
         api.add_resource(
-            _LoginAgentById,
+            LoginAgentById,
             '/agents/by-id/<int:agent_id>/login',
             resource_class_args=[service_proxy],
         )
 
         api.add_resource(
-            _LoginAgentByNumber,
+            LoginAgentByNumber,
             '/agents/by-number/<agent_number>/login',
             resource_class_args=[service_proxy],
         )
 
         api.add_resource(
-            _LoginUserAgent,
+            LoginUserAgent,
             '/users/me/agents/login',
             resource_class_args=[service_proxy],
         )
 
         api.add_resource(
-            _LogoffAgentById,
+            LogoffAgentById,
             '/agents/by-id/<int:agent_id>/logoff',
             resource_class_args=[service_proxy],
         )
 
         api.add_resource(
-            _LogoffAgentByNumber,
+            LogoffAgentByNumber,
             '/agents/by-number/<agent_number>/logoff',
             resource_class_args=[service_proxy],
         )
 
         api.add_resource(
-            _LogoffUserAgent,
+            LogoffUserAgent,
             '/users/me/agents/logoff',
             resource_class_args=[service_proxy],
         )
 
         api.add_resource(
-            _PauseUserAgent,
+            PauseUserAgent,
             '/users/me/agents/pause',
             resource_class_args=[service_proxy],
         )
 
         api.add_resource(
-            _UnpauseUserAgent,
+            UnpauseUserAgent,
             '/users/me/agents/unpause',
             resource_class_args=[service_proxy],
         )
 
         api.add_resource(
-            _AddAgentToQueue,
+            AddAgentToQueue,
             '/agents/by-id/<int:agent_id>/add',
             resource_class_args=[service_proxy],
         )
 
         api.add_resource(
-            _RemoveAgentFromQueue,
+            RemoveAgentFromQueue,
             '/agents/by-id/<int:agent_id>/remove',
             resource_class_args=[service_proxy],
         )
 
         api.add_resource(
-            _PauseAgentByNumber,
+            PauseAgentByNumber,
             '/agents/by-number/<agent_number>/pause',
             resource_class_args=[service_proxy],
         )
 
         api.add_resource(
-            _UnpauseAgentByNumber,
+            UnpauseAgentByNumber,
             '/agents/by-number/<agent_number>/unpause',
             resource_class_args=[service_proxy],
         )

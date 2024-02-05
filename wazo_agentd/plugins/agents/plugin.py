@@ -1,8 +1,7 @@
 # Copyright 2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-
-from .http import _Agents, _LogoffAgents, _RelogAgents
+from .http import Agents, LogoffAgents, RelogAgents
 
 
 class Plugin:
@@ -11,19 +10,19 @@ class Plugin:
         service_proxy = dependencies['service_proxy']
 
         api.add_resource(
-            _Agents,
+            Agents,
             '/agents',
             resource_class_args=[service_proxy],
         )
 
         api.add_resource(
-            _LogoffAgents,
+            LogoffAgents,
             '/agents/logoff',
             resource_class_args=[service_proxy],
         )
 
         api.add_resource(
-            _RelogAgents,
+            RelogAgents,
             '/agents/relog',
             resource_class_args=[service_proxy],
         )
