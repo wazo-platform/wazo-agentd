@@ -1,0 +1,56 @@
+swagger: '2.0'
+info:
+  title: wazo-agentd
+  description: Agent service
+  version: '1.0'
+  license:
+    name: GPL v3
+    url: http://www.gnu.org/licenses/gpl.txt
+  contact:
+    name: Wazo Dev Team
+    url: https://wazo-platform.org/
+    email: dev@wazo.community
+  x-logo:
+    url: "https://wazo-platform.org/images/logo-black.svg"
+    backgroundColor: "#FAFAFA"
+    altText: "Wazo Logo"
+x-xivo-name: agentd
+x-xivo-port: 9493
+schemes:
+- http
+securityDefinitions:
+  wazo_auth_token:
+    type: apiKey
+    name: X-Auth-Token
+    in: header
+security:
+- wazo_auth_token: []
+basePath: /1.0
+consumes:
+- application/json
+produces:
+- application/json
+definitions:
+  Error:
+    title: Error
+    properties:
+      error:
+        type: string
+        description: Error identifier
+  StatusSummary:
+    type: object
+    properties:
+      bus_consumer:
+        $ref: '#/definitions/ComponentWithStatus'
+      service_token:
+        $ref: '#/definitions/ComponentWithStatus'
+  ComponentWithStatus:
+    type: object
+    properties:
+      status:
+        $ref: '#/definitions/StatusValue'
+  StatusValue:
+    type: string
+    enum:
+      - fail
+      - ok
