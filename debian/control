@@ -24,9 +24,10 @@ Depends:
  python3-kombu,
  python3-marshmallow,
  python3-werkzeug,
- wazo-auth-client-python3,
  wazo-amid-client-python3,
+ wazo-auth-client-python3,
  wazo-bus-python3,
+ wazo-uuid,
  xivo-libdao-python3,
  xivo-lib-python-python3
 Description: Wazo agent server
