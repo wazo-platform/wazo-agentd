@@ -11,7 +11,12 @@ from flask_restful import Api, Resource
 from marshmallow import ValidationError
 from werkzeug.middleware.proxy_fix import ProxyFix
 from xivo import http_helpers
-from xivo.auth_verifier import AuthVerifier
+from xivo.auth_verifier import (
+    AuthServerUnreachable,
+    AuthVerifier,
+    InvalidTokenAPIException,
+    MissingPermissionsTokenAPIException,
+)
 from xivo.http_helpers import ReverseProxied
 from xivo.tenant_flask_helpers import Tenant, token
 from xivo.tenant_helpers import UnauthorizedTenant
@@ -51,28 +56,7 @@ _AGENT_400_ERRORS = (
 
 _status_aggregator = None
 
-
-class AgentdAuthVerifier(AuthVerifier):
-    def handle_unreachable(self, error):
-        auth_client = self.client()
-        message = (
-            'Could not connect to authentication server '
-            f'on {auth_client.host}:{auth_client.port}: {error}'
-        )
-        logger.exception('%s', message)
-        return {'error': message}, 503
-
-    def _handle_invalid_token_exception(self, token, required_access=None):
-        return self.handle_unauthorized(token, required_access)
-
-    def _handle_missing_permissions_token_exception(self, token, required_access=None):
-        return self.handle_unauthorized(token, required_access)
-
-    def handle_unauthorized(self, token, required_access=None):
-        return {'error': 'invalid token or unauthorized'}, 401
-
-
-auth_verifier = AgentdAuthVerifier()
+auth_verifier = AuthVerifier()
 
 
 def _common_error_handler(fun):
@@ -83,6 +67,8 @@ def _common_error_handler(fun):
             return {'error': 'invalid fields: ' + ', '.join(e.messages.keys())}, 400
         except _AGENT_400_ERRORS as e:
             return {'error': e.error}, 400
+        except (InvalidTokenAPIException, MissingPermissionsTokenAPIException):
+            return {'error': 'invalid token or unauthorized'}, 401
         except UnauthorizedTenant as e:
             return {'error': e.message}, 401
         except _AGENT_404_ERRORS as e:
@@ -91,6 +77,15 @@ def _common_error_handler(fun):
             return {'error': e.error}, 409
         except AgentServerError as e:
             return {'error': e.error}, 500
+        except AuthServerUnreachable as e:
+            error = e.details['original_error']
+            logger.exception(
+                'Could not connect to authentication server on %s:%s: %s',
+                e.details['auth_server_host'],
+                e.details['auth_server_port'],
+                error,
+            )
+            return {'error': error}, 503
 
     return aux
 
@@ -126,7 +121,6 @@ class HTTPInterface:
         http_helpers.add_logger(self._app, logger)
         self._app.before_request(http_helpers.log_before_request)
         self._app.after_request(http_helpers.log_request)
-        auth_verifier.set_client(auth_client)
         self._app.secret_key = os.urandom(24)
         self._load_cors()
         self.server = None
