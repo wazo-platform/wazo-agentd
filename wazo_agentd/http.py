@@ -13,10 +13,10 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from xivo import http_helpers
 from xivo.auth_verifier import (
     AuthServerUnreachable,
-    AuthVerifier,
     InvalidTokenAPIException,
     MissingPermissionsTokenAPIException,
 )
+from xivo.flask.auth_verifier import AuthVerifierFlask
 from xivo.http_helpers import ReverseProxied
 from xivo.tenant_flask_helpers import Tenant, token
 from xivo.tenant_helpers import UnauthorizedTenant
@@ -56,7 +56,7 @@ _AGENT_400_ERRORS = (
 
 _status_aggregator = None
 
-auth_verifier = AuthVerifier()
+auth_verifier = AuthVerifierFlask()
 
 
 def _common_error_handler(fun):
