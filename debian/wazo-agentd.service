@@ -10,6 +10,7 @@ ExecStart=/usr/bin/wazo-agentd
 ExecStartPost=/usr/bin/wazo-agentd-wait
 Restart=on-failure
 RestartSec=5
+SyslogIdentifier=wazo-agentd
 
 [Install]
 WantedBy=multi-user.target
