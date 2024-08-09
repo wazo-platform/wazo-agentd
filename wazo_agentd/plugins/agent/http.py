@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from flask import request
-from xivo.auth_verifier import required_acl
-from xivo.tenant_flask_helpers import token
+from wazo.auth_verifier import required_acl
+from wazo.tenant_flask_helpers import token
 
 from wazo_agentd.http import AuthResource
 

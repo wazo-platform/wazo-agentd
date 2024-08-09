@@ -3,8 +3,8 @@
 
 import argparse
 
-from xivo.chain_map import ChainMap
-from xivo.config_helper import parse_config_file, read_config_file_hierarchy
+from wazo.chain_map import ChainMap
+from wazo.config_helper import parse_config_file, read_config_file_hierarchy
 
 _DEFAULT_HTTP_PORT = 9493
 _DEFAULT_CONFIG = {
