@@ -1,9 +1,9 @@
-# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
 
-from xivo import debug
+from wazo import debug
 
 logger = logging.getLogger(__name__)
 

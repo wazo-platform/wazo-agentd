@@ -9,17 +9,17 @@ from flask import Flask, request
 from flask_cors import CORS
 from flask_restful import Api, Resource
 from marshmallow import ValidationError
-from werkzeug.middleware.proxy_fix import ProxyFix
-from xivo import http_helpers
-from xivo.auth_verifier import (
+from wazo import http_helpers
+from wazo.auth_verifier import (
     AuthServerUnreachable,
     InvalidTokenAPIException,
     MissingPermissionsTokenAPIException,
 )
-from xivo.flask.auth_verifier import AuthVerifierFlask
-from xivo.http_helpers import ReverseProxied
-from xivo.tenant_flask_helpers import Tenant, token
-from xivo.tenant_helpers import UnauthorizedTenant
+from wazo.flask.auth_verifier import AuthVerifierFlask
+from wazo.http_helpers import ReverseProxied
+from wazo.tenant_flask_helpers import Tenant, token
+from wazo.tenant_helpers import UnauthorizedTenant
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from wazo_agentd.exception import (
     AgentAlreadyInQueueError,

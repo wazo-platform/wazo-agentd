@@ -1,9 +1,9 @@
-# Copyright 2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2021-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
 
-from xivo.xivo_helpers import fkey_extension
+from wazo.xivo_helpers import fkey_extension
 from xivo_dao.helpers import db_utils
 
 from wazo_agentd.exception import NoSuchExtenFeatureError
