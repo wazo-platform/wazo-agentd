@@ -4,13 +4,12 @@
 import logging
 import os
 
-from cheroot import wsgi
 from flask import Flask, request
 from flask_cors import CORS
 from flask_restful import Api, Resource
 from marshmallow import ValidationError
 from werkzeug.middleware.proxy_fix import ProxyFix
-from xivo import http_helpers
+from xivo import http_helpers, wsgi
 from xivo.auth_verifier import (
     AuthServerUnreachable,
     InvalidTokenAPIException,
