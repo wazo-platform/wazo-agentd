@@ -1,4 +1,4 @@
-# Copyright 2020-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2020-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from xivo.mallow import fields, validate
@@ -16,7 +16,7 @@ class UserAgentLoginSchema(Schema):
 
 class PauseSchema(Schema):
     reason = fields.String(
-        validate=validate.Length(min=1, max=80), missing=None, default=None
+        validate=validate.Length(min=1, max=80), load_default=None, default=None
     )
 
 
