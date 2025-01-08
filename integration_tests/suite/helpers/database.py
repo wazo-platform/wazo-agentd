@@ -1,4 +1,4 @@
-# Copyright 2019-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -25,7 +25,7 @@ TENANT_UUID = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeee1'
 
 
 class DbHelper:
-    TEMPLATE = "xivotemplate"
+    TEMPLATE = "wazotemplate"
 
     @classmethod
     def build(cls, user, password, host, port, db):
