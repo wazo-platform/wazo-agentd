@@ -408,15 +408,12 @@ definitions:
       logged:
         type: boolean
         description: True if the agent is logged, else false
-        deprecated: true
       paused:
         type: boolean
         description: True if the agent is paused, else false
-        deprecated: true
       paused_reason:
         type: string
         description: The reason of the agent pause
-        deprecated: true
       extension:
         type: string
         description: The extension on which the agent is logged, or null if the agent
