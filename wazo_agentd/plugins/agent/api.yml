@@ -426,6 +426,31 @@ definitions:
         type: string
         description: The interface (e.g. SIP/alice) to determine if the agent is in
           use or not
+      queues:
+        type: array
+        description: The agent status for each queue
+        items:
+          $ref: '#/definitions/AgentQueueStatus'
+  AgentQueueStatus:
+    properties:
+      id:
+        type: integer
+        description: Queue's ID
+      name:
+        type: string
+        description: Queue's name
+      display_name:
+        type: string
+        description: Queue's display name
+      logged:
+        type: boolean
+        description: True if the agent is logged on this queue, else false
+      paused:
+        type: boolean
+        description: True if the agent is paused on this queue, else false
+      paused_reason:
+        type: string
+        description: The reason of the agent pause
   LoginInfo:
     title: Login information
     properties:

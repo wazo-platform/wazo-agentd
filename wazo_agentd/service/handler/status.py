@@ -1,4 +1,4 @@
-# Copyright 2013-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -59,6 +59,17 @@ class StatusHandler:
                     'extension': status.extension,
                     'context': status.context,
                     'state_interface': status.state_interface,
+                    'queues': [
+                        {
+                            'id': queue.id,
+                            'name': queue.name,
+                            'display_name': queue.display_name,
+                            'logged': queue.logged,
+                            'paused': queue.paused,
+                            'paused_reason': queue.paused_reason,
+                        }
+                        for queue in status.queues
+                    ],
                 }
                 for status in agent_statuses
             ]
@@ -73,6 +84,7 @@ class StatusHandler:
                 extension = None
                 context = None
                 state_interface = None
+                queues = []
             else:
                 logged = True
                 paused = agent_status.paused
@@ -80,6 +92,7 @@ class StatusHandler:
                 extension = agent_status.extension
                 context = agent_status.context
                 state_interface = agent_status.state_interface
+                queues = agent_status.queues
             return {
                 'id': agent.id,
                 'tenant_uuid': agent.tenant_uuid,
@@ -91,4 +104,15 @@ class StatusHandler:
                 'extension': extension,
                 'context': context,
                 'state_interface': state_interface,
+                'queues': [
+                    {
+                        'id': queue.id,
+                        'name': queue.name,
+                        'display_name': queue.display_name,
+                        'logged': queue.logged,
+                        'paused': queue.paused,
+                        'paused_reason': queue.paused_reason,
+                    }
+                    for queue in queues
+                ],
             }

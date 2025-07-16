@@ -1,4 +1,4 @@
-# Copyright 2019-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import time
@@ -84,6 +84,7 @@ class TestAgents(BaseIntegrationTest):
                     'extension': '1001',
                     'number': '1234',
                     'state_interface': 'PJSIP/abcdef',
+                    'queues': [],
                 }
             ),
         )
@@ -113,6 +114,7 @@ class TestAgents(BaseIntegrationTest):
                         'extension': '1001',
                         'number': '1234',
                         'state_interface': 'PJSIP/abcdef',
+                        'queues': [],
                     }
                 ),
             )
@@ -155,6 +157,7 @@ class TestAgents(BaseIntegrationTest):
                         'extension': None,
                         'number': '1234',
                         'state_interface': None,
+                        'queues': [],
                     }
                 ),
             )

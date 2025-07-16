@@ -1,5 +1,21 @@
 # Changelog
 
+## 25.10
+
+* The following resources now expose the `queues` field containing per queue status for agents
+
+  * GET `/agents`
+  * GET `/users/me/agents`
+  * GET `/agents/by-id/{agent_id}`
+  * GET `/agents/by-number/{agent_number}`
+
+* The `logged`, `paused`, `paused_reason` fields are now deprecated in the payload of the following resources:
+
+  * GET `/agents`
+  * GET `/users/me/agents`
+  * GET `/agents/by-id/{agent_id}`
+  * GET `/agents/by-number/{agent_number}`
+
 ## 23.01
 
 * Changes to the bus configuration keys:
