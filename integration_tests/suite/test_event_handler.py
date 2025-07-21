@@ -47,5 +47,4 @@ class TestEventHandler(BaseIntegrationTest):
             assert_that(status.logged, is_(False))
 
         self.bus.send_agent_deleted_event(agent['id'])
-        time.sleep(0.5)
         until.assert_(check_agent_status, tries=10)
