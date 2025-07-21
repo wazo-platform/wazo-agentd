@@ -14,13 +14,12 @@ class OnAgentDeletedManager:
         self._agent_status_dao = agent_status_dao
 
     def on_agent_deleted(self, agent_id):
-        logger.debug('on_agent_deleted: %d', agent_id)
         with db_utils.session_scope():
             agent_status = (
                 self._agent_status_dao.get_agent_login_status_by_id_for_logoff(agent_id)
             )
-            logger.debug('agent_status: %s', str(agent_status))
         if agent_status is None:
+            logger.debug('agent %d has no active status requiring logoff', agent_id)
             return
 
         self._logoff_action.logoff_agent(agent_status)
