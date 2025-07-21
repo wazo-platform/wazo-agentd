@@ -103,6 +103,19 @@ class DatabaseQueries:
         ).delete()
         session.commit()
 
+    def delete_only_agent(self, agent_id):
+        session = self.Session()
+        session.query(Agent).filter(Agent.id == agent_id).delete()
+        session.commit()
+
+    def get_agent_login_status_by_id(self, agent_id):
+        session = self.Session()
+        return (
+            session.query(AgentLoginStatus)
+            .filter(AgentLoginStatus.agent_id == agent_id)
+            .first()
+        )
+
     def insert_queue(self, **kwargs):
         with self.inserter() as inserter:
             return inserter.add_queuefeatures(**kwargs).id

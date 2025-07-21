@@ -3,7 +3,8 @@
 
 import time
 
-from hamcrest import assert_that, is_
+import wazo_agentd_client.error
+from hamcrest import assert_that, calling, is_, raises
 from wazo_test_helpers import until
 
 from .helpers import fixtures
@@ -43,8 +44,15 @@ class TestEventHandler(BaseIntegrationTest):
                 )
 
         def check_agent_status():
-            status = self.agentd.agents.get_agent_status(agent['id'])
-            assert_that(status.logged, is_(False))
+            assert_that(
+                calling(self.agentd.agents.get_agent_status).with_args(agent['id']),
+                raises(wazo_agentd_client.error.AgentdClientError),
+            )
+            with self.database.queries() as queries:
+                status = queries.get_agent_login_status_by_id(agent['id'])
+                assert_that(status, is_(None))
 
+        with self.database.queries() as queries:
+            queries.delete_only_agent(agent['id'])
         self.bus.send_agent_deleted_event(agent['id'])
         until.assert_(check_agent_status, tries=10)
