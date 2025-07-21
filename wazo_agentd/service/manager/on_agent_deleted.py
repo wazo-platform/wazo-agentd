@@ -1,7 +1,11 @@
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import logging
+
 from xivo_dao.helpers import db_utils
+
+logger = logging.getLogger(__name__)
 
 
 class OnAgentDeletedManager:
@@ -10,8 +14,12 @@ class OnAgentDeletedManager:
         self._agent_status_dao = agent_status_dao
 
     def on_agent_deleted(self, agent_id):
+        logger.debug('on_agent_deleted: %d', agent_id)
         with db_utils.session_scope():
-            agent_status = self._agent_status_dao.get_status(agent_id)
+            agent_status = (
+                self._agent_status_dao.get_agent_login_status_by_id_for_logoff(agent_id)
+            )
+            logger.debug('agent_status: %s', str(agent_status))
         if agent_status is None:
             return
 

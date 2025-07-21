@@ -1,4 +1,4 @@
-# Copyright 2019-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import time
@@ -33,3 +33,19 @@ class TestEventHandler(BaseIntegrationTest):
                 assert_that(membership, is_(None))
 
         until.assert_(test_on_msg_received, tries=10)
+
+    @fixtures.agent(number='1001')
+    def test_on_agent_deleted(self, agent):
+        with self.database.queries() as queries:
+            with queries.inserter() as inserter:
+                inserter.add_agent_login_status(
+                    agent_id=agent['id'], agent_number=agent['number']
+                )
+
+        def check_agent_status():
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert_that(status.logged, is_(False))
+
+        self.bus.send_agent_deleted_event(agent['id'])
+        time.sleep(0.5)
+        until.assert_(check_agent_status, tries=10)
