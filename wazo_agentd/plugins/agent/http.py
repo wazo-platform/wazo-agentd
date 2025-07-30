@@ -1,4 +1,4 @@
-# Copyright 2024 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2024-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from flask import request
@@ -46,6 +46,14 @@ class UserAgent(_BaseAgentResource):
         return self.service_proxy.get_user_agent_status(
             user_uuid, tenant_uuids=tenant_uuids
         )
+
+
+class UserQueues(_BaseAgentResource):
+    @required_acl('agentd.users.me.queues.read')
+    def get(self):
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        user_uuid = token.user_uuid
+        return self.service_proxy.list_user_queues(user_uuid, tenant_uuids=tenant_uuids)
 
 
 class LoginAgentById(_BaseAgentResource):

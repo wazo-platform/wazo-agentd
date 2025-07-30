@@ -204,6 +204,21 @@ paths:
             on this line
           schema:
             $ref: '#/definitions/Error'
+  /users/me/agents/queues:
+    get:
+      summary: Get the queues of the agent of the user holding the authentication token
+      description: '**Required ACL:** `agentd.users.me.agents.queues.read`'
+      operationId: list_user_queues
+      tags:
+      - agent
+      - user
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      responses:
+        '200':
+          description: The queues of the agent
+          schema:
+            $ref: '#/definitions/AgentQueues'
   /agents/by-number/{agent_number}/pause:
     post:
       summary: Pause an agent.
