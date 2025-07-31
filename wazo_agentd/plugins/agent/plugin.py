@@ -6,6 +6,7 @@ from .http import (
     AgentById,
     AgentByNumber,
     AgentQueuesById,
+    AgentQueuesByNumber,
     LoginAgentById,
     LoginAgentByNumber,
     LoginUserAgent,
@@ -54,6 +55,12 @@ class Plugin:
         api.add_resource(
             AgentQueuesById,
             '/agents/by-id/<int:agent_id>/queues',
+            resource_class_args=[service_proxy],
+        )
+
+        api.add_resource(
+            AgentQueuesByNumber,
+            '/agents/by-number/<agent_number>/queues',
             resource_class_args=[service_proxy],
         )
 

@@ -60,7 +60,16 @@ class AgentQueuesById(_BaseAgentResource):
     @required_acl('agentd.agents.by-id.{agent_id}.queues.read')
     def get(self, agent_id):
         tenant_uuids = self._build_tenant_list({'recurse': True})
-        return self.service_proxy.list_queues_by_id(agent_id, tenant_uuids=tenant_uuids)
+        return self.service_proxy.list_queues(agent_id, tenant_uuids=tenant_uuids)
+
+
+class AgentQueuesByNumber(_BaseAgentResource):
+    @required_acl('agentd.agents.by-number.{agent_number}.queues.read')
+    def get(self, agent_number):
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        return self.service_proxy.list_queues_by_number(
+            agent_number, tenant_uuids=tenant_uuids
+        )
 
 
 class LoginAgentById(_BaseAgentResource):

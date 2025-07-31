@@ -6,6 +6,7 @@
 
   * GET `/users/me/agents/queues`
   * GET `/agents/by-id/{agent_id}/queues`
+  * GET `/agents/by-number/{agent_number}/queues`
 
 ## 25.10
 

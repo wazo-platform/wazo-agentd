@@ -29,6 +29,15 @@ class AgentQueuesHandler:
             agent = self._agent_dao.get_agent(agent_id, tenant_uuids=tenant_uuids)
         return self._handle_list_user_queues(agent)
 
+    @debug.trace_duration
+    def handle_list_queues_by_number(self, agent_number, tenant_uuids=None):
+        logger.info('Executing list_queues_by_number command (agent %s)', agent_number)
+        with db_utils.session_scope():
+            agent = self._agent_dao.get_agent_by_number(
+                agent_number, tenant_uuids=tenant_uuids
+            )
+        return self._handle_list_user_queues(agent)
+
     def _handle_list_user_queues(self, agent):
         return [
             {

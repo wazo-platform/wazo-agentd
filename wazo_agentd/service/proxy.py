@@ -35,10 +35,16 @@ class ServiceProxy:
                 user_uuid, tenant_uuids=tenant_uuids
             )
 
-    def list_queues_by_id(self, agent_id, tenant_uuids=None):
+    def list_queues(self, agent_id, tenant_uuids=None):
         with self._lock:
             return self.agent_queues_handler.handle_list_queues_by_id(
                 agent_id, tenant_uuids=tenant_uuids
+            )
+
+    def list_queues_by_number(self, agent_number, tenant_uuids=None):
+        with self._lock:
+            return self.agent_queues_handler.handle_list_queues_by_number(
+                agent_number, tenant_uuids=tenant_uuids
             )
 
     def login_agent_by_id(self, agent_id, extension, context, tenant_uuids=None):

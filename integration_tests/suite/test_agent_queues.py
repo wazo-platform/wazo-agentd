@@ -89,3 +89,43 @@ class TestAgentQueues(BaseIntegrationTest):
                 ),
             ),
         )
+
+    @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
+    @fixtures.agent(number='9999')
+    @fixtures.queue(name='queue7', displayname='Q7')
+    @fixtures.queue(name='queue8', displayname='Q8')
+    @fixtures.queue(name='queue9', displayname='Not a member')
+    def test_list_agent_queues_by_number(
+        self, user_line_extension, agent, queue7, queue8, queue9
+    ):
+        with self.database.queries() as queries:
+            queries.associate_user_agent(user_line_extension['user_id'], agent['id'])
+
+        queues = self.agentd.agents.list_queues_by_number(agent['number'])
+        assert_that(queues, has_length(0))
+
+        with self.database.queries() as queries:
+            queries.associate_queue_agent(queue7['id'], agent['id'])
+            queries.associate_queue_agent(queue8['id'], agent['id'])
+
+        queues = self.agentd.agents.list_queues_by_number(agent['number'])
+
+        assert_that(
+            queues,
+            contains_inanyorder(
+                has_entries(
+                    {
+                        'id': queue7['id'],
+                        'name': queue7['name'],
+                        'display_name': queue7['displayname'],
+                    }
+                ),
+                has_entries(
+                    {
+                        'id': queue8['id'],
+                        'name': queue8['name'],
+                        'display_name': queue8['displayname'],
+                    }
+                ),
+            ),
+        )
