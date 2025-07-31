@@ -56,6 +56,13 @@ class UserQueues(_BaseAgentResource):
         return self.service_proxy.list_user_queues(user_uuid, tenant_uuids=tenant_uuids)
 
 
+class AgentQueuesById(_BaseAgentResource):
+    @required_acl('agentd.agents.by-id.{agent_id}.queues.read')
+    def get(self, agent_id):
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        return self.service_proxy.list_queues_by_id(agent_id, tenant_uuids=tenant_uuids)
+
+
 class LoginAgentById(_BaseAgentResource):
     @required_acl('agentd.agents.by-id.{agent_id}.login.create')
     def post(self, agent_id):

@@ -5,6 +5,7 @@
 * The following resources have been added
 
   * GET `/users/me/agents/queues`
+  * GET `/agents/by-id/{agent_id}/queues`
 
 ## 25.10
 
