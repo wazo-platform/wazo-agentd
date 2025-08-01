@@ -55,8 +55,15 @@ class UserQueues(_BaseAgentResource):
         user_uuid = token.user_uuid
         order = request.args.get('order')
         direction = request.args.get('direction')
+        limit = request.args.get('limit', type=int)
+        offset = request.args.get('offset', type=int)
         return self.service_proxy.list_user_queues(
-            user_uuid, tenant_uuids=tenant_uuids, order=order, direction=direction
+            user_uuid,
+            tenant_uuids=tenant_uuids,
+            order=order,
+            direction=direction,
+            limit=limit,
+            offset=offset,
         )
 
 
@@ -66,8 +73,15 @@ class AgentQueuesById(_BaseAgentResource):
         tenant_uuids = self._build_tenant_list({'recurse': True})
         order = request.args.get('order')
         direction = request.args.get('direction')
+        limit = request.args.get('limit', type=int)
+        offset = request.args.get('offset', type=int)
         return self.service_proxy.list_queues(
-            agent_id, tenant_uuids=tenant_uuids, order=order, direction=direction
+            agent_id,
+            tenant_uuids=tenant_uuids,
+            order=order,
+            direction=direction,
+            limit=limit,
+            offset=offset,
         )
 
 
@@ -77,8 +91,15 @@ class AgentQueuesByNumber(_BaseAgentResource):
         tenant_uuids = self._build_tenant_list({'recurse': True})
         order = request.args.get('order')
         direction = request.args.get('direction')
+        limit = request.args.get('limit', type=int)
+        offset = request.args.get('offset', type=int)
         return self.service_proxy.list_queues_by_number(
-            agent_number, tenant_uuids=tenant_uuids, order=order, direction=direction
+            agent_number,
+            tenant_uuids=tenant_uuids,
+            order=order,
+            direction=direction,
+            limit=limit,
+            offset=offset,
         )
 
 

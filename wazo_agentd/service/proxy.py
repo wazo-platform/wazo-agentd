@@ -30,21 +30,51 @@ class ServiceProxy:
             )
 
     def list_user_queues(
-        self, user_uuid, tenant_uuids=None, order=None, direction=None
+        self,
+        user_uuid,
+        tenant_uuids=None,
+        order=None,
+        direction=None,
+        limit=None,
+        offset=None,
     ):
         with self._lock:
             return self.agent_queues_handler.handle_list_user_queues(
-                user_uuid, tenant_uuids=tenant_uuids, order=order, direction=direction
+                user_uuid,
+                tenant_uuids=tenant_uuids,
+                order=order,
+                direction=direction,
+                limit=limit,
+                offset=offset,
             )
 
-    def list_queues(self, agent_id, tenant_uuids=None, order=None, direction=None):
+    def list_queues(
+        self,
+        agent_id,
+        tenant_uuids=None,
+        order=None,
+        direction=None,
+        limit=None,
+        offset=None,
+    ):
         with self._lock:
             return self.agent_queues_handler.handle_list_queues_by_id(
-                agent_id, tenant_uuids=tenant_uuids, order=order, direction=direction
+                agent_id,
+                tenant_uuids=tenant_uuids,
+                order=order,
+                direction=direction,
+                limit=limit,
+                offset=offset,
             )
 
     def list_queues_by_number(
-        self, agent_number, tenant_uuids=None, order=None, direction=None
+        self,
+        agent_number,
+        tenant_uuids=None,
+        order=None,
+        direction=None,
+        limit=None,
+        offset=None,
     ):
         with self._lock:
             return self.agent_queues_handler.handle_list_queues_by_number(
@@ -52,6 +82,8 @@ class ServiceProxy:
                 tenant_uuids=tenant_uuids,
                 order=order,
                 direction=direction,
+                limit=limit,
+                offset=offset,
             )
 
     def login_agent_by_id(self, agent_id, extension, context, tenant_uuids=None):

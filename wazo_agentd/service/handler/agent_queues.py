@@ -15,36 +15,56 @@ class AgentQueuesHandler:
 
     @debug.trace_duration
     def handle_list_user_queues(
-        self, user_uuid, tenant_uuids=None, order=None, direction=None
+        self,
+        user_uuid,
+        tenant_uuids=None,
+        order=None,
+        direction=None,
+        limit=None,
+        offset=None,
     ):
         logger.info('Executing list_user_queues command (user %s)', user_uuid)
         with db_utils.session_scope():
             agent = self._agent_dao.get_agent_by_user_uuid(
                 user_uuid, tenant_uuids=tenant_uuids
             )
-        return self._handle_list_queues(agent, order, direction)
+        return self._handle_list_queues(agent, order, direction, limit, offset)
 
     @debug.trace_duration
     def handle_list_queues_by_number(
-        self, agent_number, tenant_uuids=None, order=None, direction=None
+        self,
+        agent_number,
+        tenant_uuids=None,
+        order=None,
+        direction=None,
+        limit=None,
+        offset=None,
     ):
         logger.info('Executing list_queues_by_number command (agent %s)', agent_number)
         with db_utils.session_scope():
             agent = self._agent_dao.get_agent_by_number(
                 agent_number, tenant_uuids=tenant_uuids
             )
-        return self._handle_list_queues(agent, order, direction)
+        return self._handle_list_queues(agent, order, direction, limit, offset)
 
     @debug.trace_duration
     def handle_list_queues_by_id(
-        self, agent_id, tenant_uuids=None, order=None, direction=None
+        self,
+        agent_id,
+        tenant_uuids=None,
+        order=None,
+        direction=None,
+        limit=None,
+        offset=None,
     ):
         logger.info('Executing list_queues command (agent %s)', agent_id)
         with db_utils.session_scope():
             agent = self._agent_dao.get_agent(agent_id, tenant_uuids=tenant_uuids)
-        return self._handle_list_queues(agent, order, direction)
+        return self._handle_list_queues(agent, order, direction, limit, offset)
 
-    def _handle_list_queues(self, agent, order=None, direction=None):
+    def _handle_list_queues(
+        self, agent, order=None, direction=None, limit=None, offset=None
+    ):
         # Validate order parameter
         valid_orders = ['id', 'name', 'display_name']
         if order is not None and order not in valid_orders:
@@ -59,9 +79,19 @@ class AgentQueuesHandler:
                 f"Invalid direction parameter: {direction}. Valid values are: {valid_directions}"
             )
 
+        # Validate limit parameter
+        if limit is not None and (not isinstance(limit, int) or limit < 0):
+            raise ValueError("Invalid limit parameter: must be a non-negative integer")
+
+        # Validate offset parameter
+        if offset is not None and (not isinstance(offset, int) or offset < 0):
+            raise ValueError("Invalid offset parameter: must be a non-negative integer")
+
         # Default values
         order = order or 'id'
         direction = direction or 'asc'
+        limit = limit or 100
+        offset = offset or 0
 
         queues = [
             {
@@ -81,9 +111,14 @@ class AgentQueuesHandler:
         elif order == 'display_name':
             queues.sort(key=lambda x: x['display_name'], reverse=reverse)
 
-        queue_count = len(queues)
+        # Apply pagination
+        total_count = len(queues)
+        start_index = min(offset, total_count)
+        end_index = min(start_index + limit, total_count)
+        paginated_queues = queues[start_index:end_index]
+
         return {
-            'items': queues,
-            'total': queue_count,
-            'filtered': queue_count,
+            'items': paginated_queues,
+            'total': total_count,
+            'filtered': len(paginated_queues),
         }

@@ -266,3 +266,126 @@ class TestAgentQueues(BaseIntegrationTest):
         assert_that(queues['items'][0]['display_name'], is_('Third Queue'))
         assert_that(queues['items'][1]['display_name'], is_('Second Queue'))
         assert_that(queues['items'][2]['display_name'], is_('First Queue'))
+
+    @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
+    @fixtures.agent(number='4444')
+    @fixtures.queue(name='queue19', displayname='Queue A')
+    @fixtures.queue(name='queue20', displayname='Queue B')
+    @fixtures.queue(name='queue21', displayname='Queue C')
+    @fixtures.queue(name='queue22', displayname='Queue D')
+    @fixtures.queue(name='queue23', displayname='Queue E')
+    def test_list_user_queues_pagination(
+        self, user_line_extension, agent, queue19, queue20, queue21, queue22, queue23
+    ):
+        self.create_user_token(user_line_extension['user_uuid'])
+
+        with self.database.queries() as queries:
+            queries.associate_user_agent(user_line_extension['user_id'], agent['id'])
+            queries.associate_queue_agent(queue19['id'], agent['id'])
+            queries.associate_queue_agent(queue20['id'], agent['id'])
+            queries.associate_queue_agent(queue21['id'], agent['id'])
+            queries.associate_queue_agent(queue22['id'], agent['id'])
+            queries.associate_queue_agent(queue23['id'], agent['id'])
+
+        # Test default pagination (limit=100, offset=0)
+        queues = self.agentd.agents.list_user_queues()
+        assert_that(queues['total'], is_(5))
+        assert_that(queues['filtered'], is_(5))
+        assert_that(queues['items'], has_length(5))
+
+        # Test limit=2, offset=0
+        queues = self.agentd.agents.list_user_queues(limit=2, offset=0)
+        assert_that(queues['total'], is_(5))
+        assert_that(queues['filtered'], is_(2))
+        assert_that(queues['items'], has_length(2))
+        assert_that(queues['items'][0]['id'], is_(queue19['id']))
+        assert_that(queues['items'][1]['id'], is_(queue20['id']))
+
+        # Test limit=2, offset=2
+        queues = self.agentd.agents.list_user_queues(limit=2, offset=2)
+        assert_that(queues['total'], is_(5))
+        assert_that(queues['filtered'], is_(2))
+        assert_that(queues['items'], has_length(2))
+        assert_that(queues['items'][0]['id'], is_(queue21['id']))
+        assert_that(queues['items'][1]['id'], is_(queue22['id']))
+
+        # Test limit=2, offset=4 (last page)
+        queues = self.agentd.agents.list_user_queues(limit=2, offset=4)
+        assert_that(queues['total'], is_(5))
+        assert_that(queues['filtered'], is_(1))
+        assert_that(queues['items'], has_length(1))
+        assert_that(queues['items'][0]['id'], is_(queue23['id']))
+
+        # Test offset beyond total count
+        queues = self.agentd.agents.list_user_queues(limit=2, offset=10)
+        assert_that(queues['total'], is_(5))
+        assert_that(queues['filtered'], is_(0))
+        assert_that(queues['items'], has_length(0))
+
+    @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
+    @fixtures.agent(number='5555')
+    @fixtures.queue(name='queue24', displayname='Queue X')
+    @fixtures.queue(name='queue25', displayname='Queue Y')
+    @fixtures.queue(name='queue26', displayname='Queue Z')
+    def test_list_agent_queues_by_id_pagination(
+        self, user_line_extension, agent, queue24, queue25, queue26
+    ):
+        with self.database.queries() as queries:
+            queries.associate_user_agent(user_line_extension['user_id'], agent['id'])
+            queries.associate_queue_agent(queue24['id'], agent['id'])
+            queries.associate_queue_agent(queue25['id'], agent['id'])
+            queries.associate_queue_agent(queue26['id'], agent['id'])
+
+        # Test limit=1, offset=1
+        queues = self.agentd.agents.list_queues(agent['id'], limit=1, offset=1)
+        assert_that(queues['total'], is_(3))
+        assert_that(queues['filtered'], is_(1))
+        assert_that(queues['items'], has_length(1))
+        assert_that(queues['items'][0]['id'], is_(queue25['id']))
+
+        # Test with ordering and pagination
+        queues = self.agentd.agents.list_queues(
+            agent['id'], order='name', direction='desc', limit=2, offset=0
+        )
+        assert_that(queues['total'], is_(3))
+        assert_that(queues['filtered'], is_(2))
+        assert_that(queues['items'], has_length(2))
+        assert_that(queues['items'][0]['name'], is_('queue26'))
+        assert_that(queues['items'][1]['name'], is_('queue25'))
+
+    @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
+    @fixtures.agent(number='6666')
+    @fixtures.queue(name='queue27', displayname='First')
+    @fixtures.queue(name='queue28', displayname='Second')
+    @fixtures.queue(name='queue29', displayname='Third')
+    @fixtures.queue(name='queue30', displayname='Fourth')
+    def test_list_agent_queues_by_number_pagination(
+        self, user_line_extension, agent, queue27, queue28, queue29, queue30
+    ):
+        with self.database.queries() as queries:
+            queries.associate_user_agent(user_line_extension['user_id'], agent['id'])
+            queries.associate_queue_agent(queue27['id'], agent['id'])
+            queries.associate_queue_agent(queue28['id'], agent['id'])
+            queries.associate_queue_agent(queue29['id'], agent['id'])
+            queries.associate_queue_agent(queue30['id'], agent['id'])
+
+        # Test limit=3, offset=1
+        queues = self.agentd.agents.list_queues_by_number(
+            agent['number'], limit=3, offset=1
+        )
+        assert_that(queues['total'], is_(4))
+        assert_that(queues['filtered'], is_(3))
+        assert_that(queues['items'], has_length(3))
+        assert_that(queues['items'][0]['id'], is_(queue28['id']))
+        assert_that(queues['items'][1]['id'], is_(queue29['id']))
+        assert_that(queues['items'][2]['id'], is_(queue30['id']))
+
+        # Test with ordering and pagination
+        queues = self.agentd.agents.list_queues_by_number(
+            agent['number'], order='display_name', direction='asc', limit=2, offset=2
+        )
+        assert_that(queues['total'], is_(4))
+        assert_that(queues['filtered'], is_(2))
+        assert_that(queues['items'], has_length(2))
+        assert_that(queues['items'][0]['display_name'], is_('Second'))
+        assert_that(queues['items'][1]['display_name'], is_('Third'))
