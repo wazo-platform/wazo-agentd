@@ -58,7 +58,7 @@ class UserQueues(_BaseAgentResource):
         try:
             query_params = queue_list_schema.load(request.args)
         except ValidationError as e:
-            return '', 400, e.messages
+            return {'error': str(e.messages)}, 400
 
         order = query_params['order']
         direction = query_params['direction']
@@ -81,7 +81,7 @@ class AgentQueuesById(_BaseAgentResource):
         try:
             query_params = queue_list_schema.load(request.args)
         except ValidationError as e:
-            return '', 400, e.messages
+            return {'error': str(e.messages)}, 400
 
         order = query_params['order']
         direction = query_params['direction']
@@ -104,7 +104,7 @@ class AgentQueuesByNumber(_BaseAgentResource):
         try:
             query_params = queue_list_schema.load(request.args)
         except ValidationError as e:
-            return '', 400, e.messages
+            return {'error': str(e.messages)}, 400
 
         order = query_params['order']
         direction = query_params['direction']

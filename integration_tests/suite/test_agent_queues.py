@@ -8,8 +8,10 @@ from hamcrest import (
     contains_inanyorder,
     has_entries,
     has_length,
-    raises,
+    has_properties,
 )
+from wazo_agentd_client.error import AgentdClientError
+from wazo_test_helpers.hamcrest.raises import raises
 
 from .helpers import fixtures
 from .helpers.base import BaseIntegrationTest
@@ -518,7 +520,12 @@ class TestAgentQueues(BaseIntegrationTest):
             calling(self.agentd.agents.list_queues).with_args(
                 agent['id'], order='invalid'
             ),
-            raises(Exception),
+            raises(
+                AgentdClientError,
+                has_properties(
+                    error="{'order': [{'constraint_id': 'enum', 'constraint': {'choices': ['id', 'name', 'display_name']}, 'message': 'Must be one of: id, name, display_name.'}]}"
+                ),
+            ),
         )
 
         # Test invalid direction parameter
@@ -526,19 +533,34 @@ class TestAgentQueues(BaseIntegrationTest):
             calling(self.agentd.agents.list_queues).with_args(
                 agent['id'], direction='invalid'
             ),
-            raises(Exception),
+            raises(
+                AgentdClientError,
+                has_properties(
+                    error="{'direction': [{'constraint_id': 'enum', 'constraint': {'choices': ['asc', 'desc']}, 'message': 'Must be one of: asc, desc.'}]}"
+                ),
+            ),
         )
 
         # Test negative limit
         assert_that(
             calling(self.agentd.agents.list_queues).with_args(agent['id'], limit=-1),
-            raises(Exception),
+            raises(
+                AgentdClientError,
+                has_properties(
+                    error="{'limit': [{'constraint_id': 'range', 'constraint': {'min': 0}, 'message': 'Must be greater than or equal to 0.'}]}"
+                ),
+            ),
         )
 
         # Test negative offset
         assert_that(
             calling(self.agentd.agents.list_queues).with_args(agent['id'], offset=-1),
-            raises(Exception),
+            raises(
+                AgentdClientError,
+                has_properties(
+                    error="{'offset': [{'constraint_id': 'range', 'constraint': {'min': 0}, 'message': 'Must be greater than or equal to 0.'}]}"
+                ),
+            ),
         )
 
     @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
@@ -556,7 +578,12 @@ class TestAgentQueues(BaseIntegrationTest):
             calling(self.agentd.agents.list_queues_by_number).with_args(
                 agent['number'], order='invalid'
             ),
-            raises(Exception),
+            raises(
+                AgentdClientError,
+                has_properties(
+                    error="{'order': [{'constraint_id': 'enum', 'constraint': {'choices': ['id', 'name', 'display_name']}, 'message': 'Must be one of: id, name, display_name.'}]}"
+                ),
+            ),
         )
 
         # Test invalid direction parameter
@@ -564,7 +591,12 @@ class TestAgentQueues(BaseIntegrationTest):
             calling(self.agentd.agents.list_queues_by_number).with_args(
                 agent['number'], direction='invalid'
             ),
-            raises(Exception),
+            raises(
+                AgentdClientError,
+                has_properties(
+                    error="{'direction': [{'constraint_id': 'enum', 'constraint': {'choices': ['asc', 'desc']}, 'message': 'Must be one of: asc, desc.'}]}"
+                ),
+            ),
         )
 
         # Test negative limit
@@ -572,7 +604,12 @@ class TestAgentQueues(BaseIntegrationTest):
             calling(self.agentd.agents.list_queues_by_number).with_args(
                 agent['number'], limit=-1
             ),
-            raises(Exception),
+            raises(
+                AgentdClientError,
+                has_properties(
+                    error="{'limit': [{'constraint_id': 'range', 'constraint': {'min': 0}, 'message': 'Must be greater than or equal to 0.'}]}"
+                ),
+            ),
         )
 
         # Test negative offset
@@ -580,7 +617,12 @@ class TestAgentQueues(BaseIntegrationTest):
             calling(self.agentd.agents.list_queues_by_number).with_args(
                 agent['number'], offset=-1
             ),
-            raises(Exception),
+            raises(
+                AgentdClientError,
+                has_properties(
+                    error="{'offset': [{'constraint_id': 'range', 'constraint': {'min': 0}, 'message': 'Must be greater than or equal to 0.'}]}"
+                ),
+            ),
         )
 
     @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
@@ -594,23 +636,43 @@ class TestAgentQueues(BaseIntegrationTest):
         # Test invalid order parameter
         assert_that(
             calling(self.agentd.agents.list_user_queues).with_args(order='invalid'),
-            raises(Exception),
+            raises(
+                AgentdClientError,
+                has_properties(
+                    error="{'order': [{'constraint_id': 'enum', 'constraint': {'choices': ['id', 'name', 'display_name']}, 'message': 'Must be one of: id, name, display_name.'}]}"
+                ),
+            ),
         )
 
         # Test invalid direction parameter
         assert_that(
             calling(self.agentd.agents.list_user_queues).with_args(direction='invalid'),
-            raises(Exception),
+            raises(
+                AgentdClientError,
+                has_properties(
+                    error="{'direction': [{'constraint_id': 'enum', 'constraint': {'choices': ['asc', 'desc']}, 'message': 'Must be one of: asc, desc.'}]}"
+                ),
+            ),
         )
 
         # Test negative limit
         assert_that(
             calling(self.agentd.agents.list_user_queues).with_args(limit=-1),
-            raises(Exception),
+            raises(
+                AgentdClientError,
+                has_properties(
+                    error="{'limit': [{'constraint_id': 'range', 'constraint': {'min': 0}, 'message': 'Must be greater than or equal to 0.'}]}"
+                ),
+            ),
         )
 
         # Test negative offset
         assert_that(
             calling(self.agentd.agents.list_user_queues).with_args(offset=-1),
-            raises(Exception),
+            raises(
+                AgentdClientError,
+                has_properties(
+                    error="{'offset': [{'constraint_id': 'range', 'constraint': {'min': 0}, 'message': 'Must be greater than or equal to 0.'}]}"
+                ),
+            ),
         )
