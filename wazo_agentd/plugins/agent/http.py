@@ -53,22 +53,32 @@ class UserQueues(_BaseAgentResource):
     def get(self):
         tenant_uuids = self._build_tenant_list({'recurse': True})
         user_uuid = token.user_uuid
-        return self.service_proxy.list_user_queues(user_uuid, tenant_uuids=tenant_uuids)
+        order = request.args.get('order')
+        direction = request.args.get('direction')
+        return self.service_proxy.list_user_queues(
+            user_uuid, tenant_uuids=tenant_uuids, order=order, direction=direction
+        )
 
 
 class AgentQueuesById(_BaseAgentResource):
     @required_acl('agentd.agents.by-id.{agent_id}.queues.read')
     def get(self, agent_id):
         tenant_uuids = self._build_tenant_list({'recurse': True})
-        return self.service_proxy.list_queues(agent_id, tenant_uuids=tenant_uuids)
+        order = request.args.get('order')
+        direction = request.args.get('direction')
+        return self.service_proxy.list_queues(
+            agent_id, tenant_uuids=tenant_uuids, order=order, direction=direction
+        )
 
 
 class AgentQueuesByNumber(_BaseAgentResource):
     @required_acl('agentd.agents.by-number.{agent_number}.queues.read')
     def get(self, agent_number):
         tenant_uuids = self._build_tenant_list({'recurse': True})
+        order = request.args.get('order')
+        direction = request.args.get('direction')
         return self.service_proxy.list_queues_by_number(
-            agent_number, tenant_uuids=tenant_uuids
+            agent_number, tenant_uuids=tenant_uuids, order=order, direction=direction
         )
 
 

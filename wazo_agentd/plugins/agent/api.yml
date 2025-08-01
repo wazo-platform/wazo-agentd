@@ -214,6 +214,8 @@ paths:
       - user
       parameters:
       - $ref: '#/parameters/tenantuuid'
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/direction'
       responses:
         '200':
           description: The queues of the agent
@@ -233,6 +235,8 @@ paths:
       parameters:
       - $ref: '#/parameters/tenantuuid'
       - $ref: '#/parameters/AgentID'
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/direction'
       responses:
         '200':
           description: The queues of the agent
@@ -252,6 +256,8 @@ paths:
       parameters:
       - $ref: '#/parameters/tenantuuid'
       - $ref: '#/parameters/AgentNumber'
+      - $ref: '#/parameters/order'
+      - $ref: '#/parameters/direction'
       responses:
         '200':
           description: The queues of the agent
@@ -443,6 +449,20 @@ parameters:
     description: Agent's number
     required: true
     type: string
+  order:
+    name: order
+    in: query
+    type: string
+    description: Sort order
+    default: id
+    required: false
+  direction:
+    name: direction
+    in: query
+    type: string
+    description: Sort direction
+    default: asc
+    required: false
 definitions:
   AgentStatus:
     title: Agent status
@@ -537,17 +557,27 @@ definitions:
         description: Pause Reason
   AgentQueues:
     title: Agent queues
-    type: array
+    type: object
     description: The queues of an agent
-    items:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: Queue's ID
-        name:
-          type: string
-          description: Queue's name
-        display_name:
-          type: string
-          description: Queue's display name
+    properties:
+      items:
+        type: array
+        description: The list of queues
+        items:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: Queue's ID
+            name:
+              type: string
+              description: Queue's name
+            display_name:
+              type: string
+              description: Queue's display name
+      total:
+        type: integer
+        description: Total number of queues
+      filtered:
+        type: integer
+        description: Number of queues after filtering
