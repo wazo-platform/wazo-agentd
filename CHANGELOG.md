@@ -1,5 +1,13 @@
 # Changelog
 
+## 25.11
+
+* The following resources have been added
+
+  * GET `/users/me/agents/queues`
+  * GET `/agents/by-id/{agent_id}/queues`
+  * GET `/agents/by-number/{agent_number}/queues`
+
 ## 25.10
 
 * The following resources now expose the `queues` field containing per queue status for agents
