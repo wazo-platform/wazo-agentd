@@ -65,28 +65,6 @@ class AgentQueuesHandler:
     def _handle_list_queues(
         self, agent, order=None, direction=None, limit=None, offset=None
     ):
-        # Validate order parameter
-        valid_orders = ['id', 'name', 'display_name']
-        if order is not None and order not in valid_orders:
-            raise ValueError(
-                f"Invalid order parameter: {order}. Valid values are: {valid_orders}"
-            )
-
-        # Validate direction parameter
-        valid_directions = ['asc', 'desc']
-        if direction is not None and direction not in valid_directions:
-            raise ValueError(
-                f"Invalid direction parameter: {direction}. Valid values are: {valid_directions}"
-            )
-
-        # Validate limit parameter
-        if limit is not None and (not isinstance(limit, int) or limit < 0):
-            raise ValueError("Invalid limit parameter: must be a non-negative integer")
-
-        # Validate offset parameter
-        if offset is not None and (not isinstance(offset, int) or offset < 0):
-            raise ValueError("Invalid offset parameter: must be a non-negative integer")
-
         # Default values
         order = order or 'id'
         direction = direction or 'asc'

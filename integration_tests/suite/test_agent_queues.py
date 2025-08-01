@@ -1,7 +1,15 @@
 # Copyright 2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from hamcrest import assert_that, contains_inanyorder, has_entries, has_length, is_
+from hamcrest import (
+    assert_that,
+    calling,
+    contains_exactly,
+    contains_inanyorder,
+    has_entries,
+    has_length,
+    raises,
+)
 
 from .helpers import fixtures
 from .helpers.base import BaseIntegrationTest
@@ -160,38 +168,72 @@ class TestAgentQueues(BaseIntegrationTest):
 
         # Test default ordering (id asc)
         queues = self.agentd.agents.list_user_queues()
-        assert_that(queues['items'], has_length(3))
-        assert_that(queues['items'][0]['id'], is_(queue10['id']))
-        assert_that(queues['items'][1]['id'], is_(queue11['id']))
-        assert_that(queues['items'][2]['id'], is_(queue12['id']))
+        assert_that(
+            queues,
+            has_entries(
+                items=contains_exactly(
+                    has_entries(id=queue10['id']),
+                    has_entries(id=queue11['id']),
+                    has_entries(id=queue12['id']),
+                )
+            ),
+        )
 
         # Test name ascending
         queues = self.agentd.agents.list_user_queues(order='name', direction='asc')
-        assert_that(queues['items'][0]['name'], is_('queue10'))
-        assert_that(queues['items'][1]['name'], is_('queue11'))
-        assert_that(queues['items'][2]['name'], is_('queue12'))
+        assert_that(
+            queues,
+            has_entries(
+                items=contains_exactly(
+                    has_entries(name='queue10'),
+                    has_entries(name='queue11'),
+                    has_entries(name='queue12'),
+                )
+            ),
+        )
 
         # Test name descending
         queues = self.agentd.agents.list_user_queues(order='name', direction='desc')
-        assert_that(queues['items'][0]['name'], is_('queue12'))
-        assert_that(queues['items'][1]['name'], is_('queue11'))
-        assert_that(queues['items'][2]['name'], is_('queue10'))
+        assert_that(
+            queues,
+            has_entries(
+                items=contains_exactly(
+                    has_entries(name='queue12'),
+                    has_entries(name='queue11'),
+                    has_entries(name='queue10'),
+                )
+            ),
+        )
 
         # Test display_name ascending
         queues = self.agentd.agents.list_user_queues(
             order='display_name', direction='asc'
         )
-        assert_that(queues['items'][0]['display_name'], is_('A Queue'))
-        assert_that(queues['items'][1]['display_name'], is_('B Queue'))
-        assert_that(queues['items'][2]['display_name'], is_('C Queue'))
+        assert_that(
+            queues,
+            has_entries(
+                items=contains_exactly(
+                    has_entries(display_name='A Queue'),
+                    has_entries(display_name='B Queue'),
+                    has_entries(display_name='C Queue'),
+                )
+            ),
+        )
 
         # Test display_name descending
         queues = self.agentd.agents.list_user_queues(
             order='display_name', direction='desc'
         )
-        assert_that(queues['items'][0]['display_name'], is_('C Queue'))
-        assert_that(queues['items'][1]['display_name'], is_('B Queue'))
-        assert_that(queues['items'][2]['display_name'], is_('A Queue'))
+        assert_that(
+            queues,
+            has_entries(
+                items=contains_exactly(
+                    has_entries(display_name='C Queue'),
+                    has_entries(display_name='B Queue'),
+                    has_entries(display_name='A Queue'),
+                )
+            ),
+        )
 
     @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
     @fixtures.agent(number='2222')
@@ -209,26 +251,46 @@ class TestAgentQueues(BaseIntegrationTest):
 
         # Test default ordering (id asc)
         queues = self.agentd.agents.list_queues(agent['id'])
-        assert_that(queues['items'], has_length(3))
-        assert_that(queues['items'][0]['id'], is_(queue13['id']))
-        assert_that(queues['items'][1]['id'], is_(queue14['id']))
-        assert_that(queues['items'][2]['id'], is_(queue15['id']))
+        assert_that(
+            queues,
+            has_entries(
+                items=contains_exactly(
+                    has_entries(id=queue13['id']),
+                    has_entries(id=queue14['id']),
+                    has_entries(id=queue15['id']),
+                )
+            ),
+        )
 
         # Test name descending
         queues = self.agentd.agents.list_queues(
             agent['id'], order='name', direction='desc'
         )
-        assert_that(queues['items'][0]['name'], is_('queue15'))
-        assert_that(queues['items'][1]['name'], is_('queue14'))
-        assert_that(queues['items'][2]['name'], is_('queue13'))
+        assert_that(
+            queues,
+            has_entries(
+                items=contains_exactly(
+                    has_entries(name='queue15'),
+                    has_entries(name='queue14'),
+                    has_entries(name='queue13'),
+                )
+            ),
+        )
 
         # Test display_name ascending
         queues = self.agentd.agents.list_queues(
             agent['id'], order='display_name', direction='asc'
         )
-        assert_that(queues['items'][0]['display_name'], is_('X Queue'))
-        assert_that(queues['items'][1]['display_name'], is_('Y Queue'))
-        assert_that(queues['items'][2]['display_name'], is_('Z Queue'))
+        assert_that(
+            queues,
+            has_entries(
+                items=contains_exactly(
+                    has_entries(display_name='X Queue'),
+                    has_entries(display_name='Y Queue'),
+                    has_entries(display_name='Z Queue'),
+                )
+            ),
+        )
 
     @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
     @fixtures.agent(number='3333')
@@ -246,26 +308,46 @@ class TestAgentQueues(BaseIntegrationTest):
 
         # Test default ordering (id asc)
         queues = self.agentd.agents.list_queues_by_number(agent['number'])
-        assert_that(queues['items'], has_length(3))
-        assert_that(queues['items'][0]['id'], is_(queue16['id']))
-        assert_that(queues['items'][1]['id'], is_(queue17['id']))
-        assert_that(queues['items'][2]['id'], is_(queue18['id']))
+        assert_that(
+            queues,
+            has_entries(
+                items=contains_exactly(
+                    has_entries(id=queue16['id']),
+                    has_entries(id=queue17['id']),
+                    has_entries(id=queue18['id']),
+                )
+            ),
+        )
 
         # Test name ascending
         queues = self.agentd.agents.list_queues_by_number(
             agent['number'], order='name', direction='asc'
         )
-        assert_that(queues['items'][0]['name'], is_('queue16'))
-        assert_that(queues['items'][1]['name'], is_('queue17'))
-        assert_that(queues['items'][2]['name'], is_('queue18'))
+        assert_that(
+            queues,
+            has_entries(
+                items=contains_exactly(
+                    has_entries(name='queue16'),
+                    has_entries(name='queue17'),
+                    has_entries(name='queue18'),
+                )
+            ),
+        )
 
         # Test display_name descending
         queues = self.agentd.agents.list_queues_by_number(
             agent['number'], order='display_name', direction='desc'
         )
-        assert_that(queues['items'][0]['display_name'], is_('Third Queue'))
-        assert_that(queues['items'][1]['display_name'], is_('Second Queue'))
-        assert_that(queues['items'][2]['display_name'], is_('First Queue'))
+        assert_that(
+            queues,
+            has_entries(
+                items=contains_exactly(
+                    has_entries(display_name='Third Queue'),
+                    has_entries(display_name='Second Queue'),
+                    has_entries(display_name='First Queue'),
+                )
+            ),
+        )
 
     @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
     @fixtures.agent(number='4444')
@@ -289,38 +371,48 @@ class TestAgentQueues(BaseIntegrationTest):
 
         # Test default pagination (limit=100, offset=0)
         queues = self.agentd.agents.list_user_queues()
-        assert_that(queues['total'], is_(5))
-        assert_that(queues['filtered'], is_(5))
-        assert_that(queues['items'], has_length(5))
+        assert_that(queues, has_entries(total=5, filtered=5, items=has_length(5)))
 
         # Test limit=2, offset=0
         queues = self.agentd.agents.list_user_queues(limit=2, offset=0)
-        assert_that(queues['total'], is_(5))
-        assert_that(queues['filtered'], is_(2))
-        assert_that(queues['items'], has_length(2))
-        assert_that(queues['items'][0]['id'], is_(queue19['id']))
-        assert_that(queues['items'][1]['id'], is_(queue20['id']))
+        assert_that(
+            queues,
+            has_entries(
+                total=5,
+                filtered=2,
+                items=contains_exactly(
+                    has_entries(id=queue19['id']), has_entries(id=queue20['id'])
+                ),
+            ),
+        )
 
         # Test limit=2, offset=2
         queues = self.agentd.agents.list_user_queues(limit=2, offset=2)
-        assert_that(queues['total'], is_(5))
-        assert_that(queues['filtered'], is_(2))
-        assert_that(queues['items'], has_length(2))
-        assert_that(queues['items'][0]['id'], is_(queue21['id']))
-        assert_that(queues['items'][1]['id'], is_(queue22['id']))
+        assert_that(
+            queues,
+            has_entries(
+                total=5,
+                filtered=2,
+                items=contains_exactly(
+                    has_entries(id=queue21['id']), has_entries(id=queue22['id'])
+                ),
+            ),
+        )
 
         # Test limit=2, offset=4 (last page)
         queues = self.agentd.agents.list_user_queues(limit=2, offset=4)
-        assert_that(queues['total'], is_(5))
-        assert_that(queues['filtered'], is_(1))
-        assert_that(queues['items'], has_length(1))
-        assert_that(queues['items'][0]['id'], is_(queue23['id']))
+        assert_that(
+            queues,
+            has_entries(
+                total=5,
+                filtered=1,
+                items=contains_exactly(has_entries(id=queue23['id'])),
+            ),
+        )
 
         # Test offset beyond total count
         queues = self.agentd.agents.list_user_queues(limit=2, offset=10)
-        assert_that(queues['total'], is_(5))
-        assert_that(queues['filtered'], is_(0))
-        assert_that(queues['items'], has_length(0))
+        assert_that(queues, has_entries(total=5, filtered=0, items=has_length(0)))
 
     @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
     @fixtures.agent(number='5555')
@@ -338,20 +430,29 @@ class TestAgentQueues(BaseIntegrationTest):
 
         # Test limit=1, offset=1
         queues = self.agentd.agents.list_queues(agent['id'], limit=1, offset=1)
-        assert_that(queues['total'], is_(3))
-        assert_that(queues['filtered'], is_(1))
-        assert_that(queues['items'], has_length(1))
-        assert_that(queues['items'][0]['id'], is_(queue25['id']))
+        assert_that(
+            queues,
+            has_entries(
+                total=3,
+                filtered=1,
+                items=contains_exactly(has_entries(id=queue25['id'])),
+            ),
+        )
 
         # Test with ordering and pagination
         queues = self.agentd.agents.list_queues(
             agent['id'], order='name', direction='desc', limit=2, offset=0
         )
-        assert_that(queues['total'], is_(3))
-        assert_that(queues['filtered'], is_(2))
-        assert_that(queues['items'], has_length(2))
-        assert_that(queues['items'][0]['name'], is_('queue26'))
-        assert_that(queues['items'][1]['name'], is_('queue25'))
+        assert_that(
+            queues,
+            has_entries(
+                total=3,
+                filtered=2,
+                items=contains_exactly(
+                    has_entries(name='queue26'), has_entries(name='queue25')
+                ),
+            ),
+        )
 
     @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
     @fixtures.agent(number='6666')
@@ -373,19 +474,143 @@ class TestAgentQueues(BaseIntegrationTest):
         queues = self.agentd.agents.list_queues_by_number(
             agent['number'], limit=3, offset=1
         )
-        assert_that(queues['total'], is_(4))
-        assert_that(queues['filtered'], is_(3))
-        assert_that(queues['items'], has_length(3))
-        assert_that(queues['items'][0]['id'], is_(queue28['id']))
-        assert_that(queues['items'][1]['id'], is_(queue29['id']))
-        assert_that(queues['items'][2]['id'], is_(queue30['id']))
+        assert_that(
+            queues,
+            has_entries(
+                total=4,
+                filtered=3,
+                items=contains_exactly(
+                    has_entries(id=queue28['id']),
+                    has_entries(id=queue29['id']),
+                    has_entries(id=queue30['id']),
+                ),
+            ),
+        )
 
         # Test with ordering and pagination
         queues = self.agentd.agents.list_queues_by_number(
             agent['number'], order='display_name', direction='asc', limit=2, offset=2
         )
-        assert_that(queues['total'], is_(4))
-        assert_that(queues['filtered'], is_(2))
-        assert_that(queues['items'], has_length(2))
-        assert_that(queues['items'][0]['display_name'], is_('Second'))
-        assert_that(queues['items'][1]['display_name'], is_('Third'))
+        assert_that(
+            queues,
+            has_entries(
+                total=4,
+                filtered=2,
+                items=contains_exactly(
+                    has_entries(display_name='Second'),
+                    has_entries(display_name='Third'),
+                ),
+            ),
+        )
+
+    @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
+    @fixtures.agent(number='7777')
+    @fixtures.queue(name='queue31', displayname='Test Queue')
+    def test_list_agent_queues_by_id_invalid_params(
+        self, user_line_extension, agent, queue31
+    ):
+        with self.database.queries() as queries:
+            queries.associate_user_agent(user_line_extension['user_id'], agent['id'])
+            queries.associate_queue_agent(queue31['id'], agent['id'])
+
+        # Test invalid order parameter
+        assert_that(
+            calling(self.agentd.agents.list_queues).with_args(
+                agent['id'], order='invalid'
+            ),
+            raises(Exception),
+        )
+
+        # Test invalid direction parameter
+        assert_that(
+            calling(self.agentd.agents.list_queues).with_args(
+                agent['id'], direction='invalid'
+            ),
+            raises(Exception),
+        )
+
+        # Test negative limit
+        assert_that(
+            calling(self.agentd.agents.list_queues).with_args(agent['id'], limit=-1),
+            raises(Exception),
+        )
+
+        # Test negative offset
+        assert_that(
+            calling(self.agentd.agents.list_queues).with_args(agent['id'], offset=-1),
+            raises(Exception),
+        )
+
+    @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
+    @fixtures.agent(number='8888')
+    @fixtures.queue(name='queue32', displayname='Test Queue')
+    def test_list_agent_queues_by_number_invalid_params(
+        self, user_line_extension, agent, queue32
+    ):
+        with self.database.queries() as queries:
+            queries.associate_user_agent(user_line_extension['user_id'], agent['id'])
+            queries.associate_queue_agent(queue32['id'], agent['id'])
+
+        # Test invalid order parameter
+        assert_that(
+            calling(self.agentd.agents.list_queues_by_number).with_args(
+                agent['number'], order='invalid'
+            ),
+            raises(Exception),
+        )
+
+        # Test invalid direction parameter
+        assert_that(
+            calling(self.agentd.agents.list_queues_by_number).with_args(
+                agent['number'], direction='invalid'
+            ),
+            raises(Exception),
+        )
+
+        # Test negative limit
+        assert_that(
+            calling(self.agentd.agents.list_queues_by_number).with_args(
+                agent['number'], limit=-1
+            ),
+            raises(Exception),
+        )
+
+        # Test negative offset
+        assert_that(
+            calling(self.agentd.agents.list_queues_by_number).with_args(
+                agent['number'], offset=-1
+            ),
+            raises(Exception),
+        )
+
+    @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
+    @fixtures.agent(number='9999')
+    @fixtures.queue(name='queue33', displayname='Test Queue')
+    def test_list_user_queues_invalid_params(self, user_line_extension, agent, queue33):
+        with self.database.queries() as queries:
+            queries.associate_user_agent(user_line_extension['user_id'], agent['id'])
+            queries.associate_queue_agent(queue33['id'], agent['id'])
+
+        # Test invalid order parameter
+        assert_that(
+            calling(self.agentd.agents.list_user_queues).with_args(order='invalid'),
+            raises(Exception),
+        )
+
+        # Test invalid direction parameter
+        assert_that(
+            calling(self.agentd.agents.list_user_queues).with_args(direction='invalid'),
+            raises(Exception),
+        )
+
+        # Test negative limit
+        assert_that(
+            calling(self.agentd.agents.list_user_queues).with_args(limit=-1),
+            raises(Exception),
+        )
+
+        # Test negative offset
+        assert_that(
+            calling(self.agentd.agents.list_user_queues).with_args(offset=-1),
+            raises(Exception),
+        )
