@@ -4,8 +4,8 @@ psycopg2-binary  # from sqlalchemy
 pyhamcrest
 pytest
 requests
-sqlalchemy==1.3.22  # from xivo-dao
-sqlalchemy-utils==0.36.8  # from xivo-dao
+sqlalchemy==1.4.46  # from xivo-dao
+sqlalchemy-utils==0.38.2  # from xivo-dao
 https://github.com/wazo-platform/wazo-lib-rest-client/archive/master.zip
 https://github.com/wazo-platform/wazo-agentd-client/archive/master.zip
 https://github.com/wazo-platform/xivo-dao/archive/master.zip
