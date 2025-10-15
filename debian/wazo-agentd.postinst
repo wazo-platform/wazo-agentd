@@ -28,8 +28,8 @@ case "$1" in
         chown $USER:$GROUP "$LOG_FILENAME" /var/lib/wazo-agentd
 
         if [[ -z "${previous_version}" ]]; then
-            ln -sf  /etc/nginx/locations/https-available/$DAEMONNAME \
-                    /etc/nginx/locations/https-enabled/$DAEMONNAME
+            ln -sf /etc/nginx/locations/https-available/$DAEMONNAME \
+                   /etc/nginx/locations/https-enabled/$DAEMONNAME
         fi
     ;;
     abort-upgrade|abort-remove|abort-deconfigure)

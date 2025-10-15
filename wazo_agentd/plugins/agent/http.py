@@ -1,4 +1,4 @@
-# Copyright 2024 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2024-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from flask import request
@@ -51,7 +51,7 @@ class UserAgent(_BaseAgentResource):
 class LoginAgentById(_BaseAgentResource):
     @required_acl('agentd.agents.by-id.{agent_id}.login.create')
     def post(self, agent_id):
-        body = agent_login_schema.load(request.get_json())
+        body = agent_login_schema.load(request.get_json(force=True))
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.login_agent_by_id(
             agent_id, body['extension'], body['context'], tenant_uuids=tenant_uuids
@@ -62,7 +62,7 @@ class LoginAgentById(_BaseAgentResource):
 class LoginAgentByNumber(_BaseAgentResource):
     @required_acl('agentd.agents.by-number.{agent_number}.login.create')
     def post(self, agent_number):
-        body = agent_login_schema.load(request.get_json())
+        body = agent_login_schema.load(request.get_json(force=True))
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.login_agent_by_number(
             agent_number, body['extension'], body['context'], tenant_uuids=tenant_uuids
@@ -75,7 +75,7 @@ class LoginUserAgent(_BaseAgentResource):
     def post(self):
         tenant_uuids = self._build_tenant_list({'recurse': True})
         user_uuid = token.user_uuid
-        body = user_agent_login_schema.load(request.get_json())
+        body = user_agent_login_schema.load(request.get_json(force=True))
         self.service_proxy.login_user_agent(
             user_uuid, body['line_id'], tenant_uuids=tenant_uuids
         )
@@ -114,7 +114,7 @@ class LogoffUserAgent(_BaseAgentResource):
 class AddAgentToQueue(_BaseAgentResource):
     @required_acl('agentd.agents.by-id.{agent_id}.add.create')
     def post(self, agent_id):
-        body = queue_schema.load(request.get_json())
+        body = queue_schema.load(request.get_json(force=True))
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.add_agent_to_queue(
             agent_id, body['queue_id'], tenant_uuids=tenant_uuids
@@ -125,7 +125,7 @@ class AddAgentToQueue(_BaseAgentResource):
 class RemoveAgentFromQueue(_BaseAgentResource):
     @required_acl('agentd.agents.by-id.{agent_id}.delete.create')
     def post(self, agent_id):
-        body = queue_schema.load(request.get_json())
+        body = queue_schema.load(request.get_json(force=True))
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.remove_agent_from_queue(
             agent_id, body['queue_id'], tenant_uuids=tenant_uuids
@@ -136,7 +136,7 @@ class RemoveAgentFromQueue(_BaseAgentResource):
 class PauseAgentByNumber(_BaseAgentResource):
     @required_acl('agentd.agents.by-number.{agent_number}.pause.create')
     def post(self, agent_number):
-        body = pause_schema.load(request.get_json())
+        body = pause_schema.load(request.get_json(force=True))
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.pause_agent_by_number(
             agent_number, body['reason'], tenant_uuids=tenant_uuids
@@ -148,7 +148,7 @@ class PauseUserAgent(_BaseAgentResource):
     @required_acl('agentd.users.me.agents.pause.create')
     def post(self):
         tenant_uuids = self._build_tenant_list({'recurse': True})
-        body = pause_schema.load(request.get_json())
+        body = pause_schema.load(request.get_json(force=True))
         user_uuid = token.user_uuid
         self.service_proxy.pause_user_agent(
             user_uuid, body['reason'], tenant_uuids=tenant_uuids
