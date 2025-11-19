@@ -92,6 +92,7 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
         cls.database = cls.make_database()
 
         cls.amid.set_queuepause()
+        cls.amid.set_queueremove()
 
     @classmethod
     def make_agentd(cls, token=TOKEN_UUID):

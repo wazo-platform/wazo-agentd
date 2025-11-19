@@ -26,7 +26,12 @@ from xivo_dao import queue_log_dao, queue_member_dao
 from xivo_dao.resources.user import dao as user_dao
 
 from wazo_agentd import http
-from wazo_agentd.bus import BusConsumer, BusPublisher, QueueMemberPausedEvent
+from wazo_agentd.bus import (
+    BusConsumer,
+    BusPublisher,
+    QueueMemberPausedEvent,
+    QueueMemberStatusEvent,
+)
 from wazo_agentd.config import load as load_config
 from wazo_agentd.dao import AgentDAOAdapter, ExtenFeaturesDAOAdapter, QueueDAOAdapter
 from wazo_agentd.queuelog import QueueLogManager
@@ -237,6 +242,7 @@ def _init_bus_consume(bus_consumer, service_proxy):
         (QueueEditedEvent, service_proxy.on_queue_updated),
         (QueueDeletedEvent, service_proxy.on_queue_deleted),
         (QueueMemberPausedEvent, service_proxy.on_agent_paused),
+        (QueueMemberStatusEvent, service_proxy.on_agent_status_changed),
     )
     for event, action in events:
         bus_consumer.subscribe(event.name, action)

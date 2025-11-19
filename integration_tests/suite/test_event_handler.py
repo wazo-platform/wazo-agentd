@@ -56,3 +56,28 @@ class TestEventHandler(BaseIntegrationTest):
             queries.delete_only_agent(agent['id'])
         self.bus.send_agent_deleted_event(agent['id'])
         until.assert_(check_agent_status, tries=10)
+
+    @fixtures.user_line_extension(exten='1001', context='default')
+    @fixtures.agent(number='1001')
+    @fixtures.queue()
+    def test_logoff_on_agent_unavailable(self, user_line_extension, agent, queue):
+        with self.database.queries() as queries:
+            queries.associate_user_agent(user_line_extension['user_id'], agent['id'])
+            queries.associate_queue_agent(queue['id'], agent['id'])
+            queries.insert_agent_membership_status(queue['id'], agent['id'])
+            with queries.inserter() as inserter:
+                inserter.add_agent_login_status(
+                    agent_id=agent['id'], agent_number=agent['number']
+                )
+
+        def check_agent_status():
+            with self.database.queries() as queries:
+                membership = queries.get_agent_membership_status(
+                    queue['id'], agent['id']
+                )
+                assert_that(membership, is_(None))
+
+        self.bus.send_queue_member_status_event(
+            agent['id'], agent['number'], queue_name=queue['id']
+        )
+        until.assert_(check_agent_status, tries=10)

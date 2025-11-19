@@ -34,3 +34,22 @@ class BusClient(bus_helper.BusClient):
             headers={'name': 'agent_deleted'},
             routing_key='config.agent.deleted',
         )
+
+    def send_queue_member_status_event(
+        self, agent_id, agent_number, queue_name='', status='5'
+    ):
+        self.publish(
+            {
+                'data': {
+                    'Event': 'QueueMemberStatus',
+                    'Queue': queue_name,
+                    'Status': status,
+                    'MemberName': f'Agent/{agent_number}',
+                    'Interface': f'Local/id-{agent_id}@agentcallback',
+                    'Paused': '0',
+                    'PausedReason': '',
+                },
+                'name': 'QueueMemberStatus',
+            },
+            headers={'name': 'QueueMemberStatus'},
+        )

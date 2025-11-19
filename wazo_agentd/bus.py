@@ -28,3 +28,7 @@ class BusPublisher(Publisher):
 
 class QueueMemberPausedEvent(AMIEvent):
     name = 'QueueMemberPause'
+
+
+class QueueMemberStatusEvent(AMIEvent):
+    name = 'QueueMemberStatus'

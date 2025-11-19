@@ -141,3 +141,10 @@ class ServiceProxy:
                 return self.on_queue_handler.handle_on_agent_paused(agent)
             else:
                 return self.on_queue_handler.handle_on_agent_unpaused(agent)
+
+    def on_agent_status_changed(self, agent):
+        if agent['Status'] == '5':
+            # agent member name follows the format "Agent/{agent_number}"
+            agent_number = agent['MemberName'].split('/')[-1]
+            with self._lock:
+                return self.logoff_handler.handle_logoff_by_number(agent_number)
