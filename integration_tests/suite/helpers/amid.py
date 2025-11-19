@@ -16,3 +16,8 @@ class AmidClient:
         url = self.url('_set_response_action')
         body = {'response': 'QueuePause', 'content': []}
         requests.post(url, json=body)
+
+    def set_queueremove(self):
+        url = self.url('_set_response_action')
+        body = {'response': 'QueueRemove', 'content': []}
+        requests.post(url, json=body)
