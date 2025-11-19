@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from flask import request
+from marshmallow import ValidationError
 from xivo.auth_verifier import required_acl
 from xivo.tenant_flask_helpers import token
 
@@ -10,6 +11,7 @@ from wazo_agentd.http import AuthResource
 from .schemas import (
     agent_login_schema,
     pause_schema,
+    queue_list_schema,
     queue_schema,
     user_agent_login_schema,
 )
@@ -45,6 +47,76 @@ class UserAgent(_BaseAgentResource):
         user_uuid = token.user_uuid
         return self.service_proxy.get_user_agent_status(
             user_uuid, tenant_uuids=tenant_uuids
+        )
+
+
+class UserQueues(_BaseAgentResource):
+    @required_acl('agentd.users.me.queues.read')
+    def get(self):
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        user_uuid = token.user_uuid
+        try:
+            query_params = queue_list_schema.load(request.args)
+        except ValidationError as e:
+            return {'error': str(e.messages)}, 400
+
+        order = query_params['order']
+        direction = query_params['direction']
+        limit = query_params['limit']
+        offset = query_params['offset']
+        return self.service_proxy.list_user_queues(
+            user_uuid,
+            tenant_uuids=tenant_uuids,
+            order=order,
+            direction=direction,
+            limit=limit,
+            offset=offset,
+        )
+
+
+class AgentQueuesById(_BaseAgentResource):
+    @required_acl('agentd.agents.by-id.{agent_id}.queues.read')
+    def get(self, agent_id):
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        try:
+            query_params = queue_list_schema.load(request.args)
+        except ValidationError as e:
+            return {'error': str(e.messages)}, 400
+
+        order = query_params['order']
+        direction = query_params['direction']
+        limit = query_params['limit']
+        offset = query_params['offset']
+        return self.service_proxy.list_queues(
+            agent_id,
+            tenant_uuids=tenant_uuids,
+            order=order,
+            direction=direction,
+            limit=limit,
+            offset=offset,
+        )
+
+
+class AgentQueuesByNumber(_BaseAgentResource):
+    @required_acl('agentd.agents.by-number.{agent_number}.queues.read')
+    def get(self, agent_number):
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        try:
+            query_params = queue_list_schema.load(request.args)
+        except ValidationError as e:
+            return {'error': str(e.messages)}, 400
+
+        order = query_params['order']
+        direction = query_params['direction']
+        limit = query_params['limit']
+        offset = query_params['offset']
+        return self.service_proxy.list_queues_by_number(
+            agent_number,
+            tenant_uuids=tenant_uuids,
+            order=order,
+            direction=direction,
+            limit=limit,
+            offset=offset,
         )
 
 

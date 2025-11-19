@@ -1,4 +1,4 @@
-# Copyright 2012-2024 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -36,6 +36,7 @@ from wazo_agentd.service.action.logoff import LogoffAction
 from wazo_agentd.service.action.pause import PauseAction
 from wazo_agentd.service.action.remove import RemoveFromQueueAction
 from wazo_agentd.service.action.update import UpdatePenaltyAction
+from wazo_agentd.service.handler.agent_queues import AgentQueuesHandler
 from wazo_agentd.service.handler.login import LoginHandler
 from wazo_agentd.service.handler.logoff import LogoffHandler
 from wazo_agentd.service.handler.membership import MembershipHandler
@@ -174,6 +175,7 @@ def _run(config):
     service_proxy.pause_handler = PauseHandler(pause_manager, agent_status_dao)
     service_proxy.relog_handler = RelogHandler(relog_manager)
     service_proxy.status_handler = StatusHandler(agent_dao, agent_status_dao, xivo_uuid)
+    service_proxy.agent_queues_handler = AgentQueuesHandler(agent_dao)
 
     _init_bus_consume(bus_consumer, service_proxy)
     token_renewer.subscribe_to_token_change(token_status.token_change_callback)
