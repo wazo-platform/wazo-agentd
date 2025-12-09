@@ -30,7 +30,7 @@ class TestLoginHandler(unittest.TestCase):
             agent_id, tenant_uuids=self.tenants
         )
         self.login_manager.login_agent.assert_called_once_with(
-            agent, extension, context
+            agent, extension, context, None
         )
 
     def test_handle_login_by_number(self):
@@ -48,7 +48,7 @@ class TestLoginHandler(unittest.TestCase):
             agent_number, tenant_uuids=self.tenants
         )
         self.login_manager.login_agent.assert_called_once_with(
-            agent, extension, context
+            agent, extension, context, None
         )
 
     def test_handle_login_user_agent(self):

@@ -63,7 +63,11 @@ class LoginAgentById(_BaseAgentResource):
         body = agent_login_schema.load(request.get_json(force=True))
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.login_agent_by_id(
-            agent_id, body['extension'], body['context'], tenant_uuids=tenant_uuids
+            agent_id,
+            body['extension'],
+            body['context'],
+            body['endpoint'],
+            tenant_uuids=tenant_uuids,
         )
         return '', 204
 
@@ -74,7 +78,11 @@ class LoginAgentByNumber(_BaseAgentResource):
         body = agent_login_schema.load(request.get_json(force=True))
         tenant_uuids = self._build_tenant_list({'recurse': True})
         self.service_proxy.login_agent_by_number(
-            agent_number, body['extension'], body['context'], tenant_uuids=tenant_uuids
+            agent_number,
+            body['extension'],
+            body['context'],
+            body['endpoint'],
+            tenant_uuids=tenant_uuids,
         )
         return '', 204
 

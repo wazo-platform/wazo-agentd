@@ -1,4 +1,4 @@
-# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -23,11 +23,15 @@ class LoginManager:
         self._line_dao = line_dao
         self._context_dao = context_dao
 
-    def login_agent(self, agent, extension, context):
+    def login_agent(self, agent, extension, context, endpoint=None):
         self._check_context_is_in_same_tenant(agent, context)
         self._check_agent_is_not_logged(agent)
         self._check_extension_is_not_in_use(extension, context)
-        self._login_action.login_agent(agent, extension, context)
+        if endpoint:
+            self._check_endpoint_valid_for_exten_and_context(
+                endpoint, extension, context
+            )
+        self._login_action.login_agent(agent, extension, context, endpoint)
 
     def login_user_agent(self, agent, user_uuid, line_id):
         self._check_agent_is_not_logged(agent)
@@ -59,3 +63,15 @@ class LoginManager:
         with db_utils.session_scope():
             if not self._line_dao.is_line_owned_by_user(user_uuid, line_id):
                 raise NoSuchLineError()
+
+    def _check_endpoint_valid_for_exten_and_context(self, endpoint, extension, context):
+        with db_utils.session_scope():
+            try:
+                interfaces = self._line_dao.get_interfaces_from_exten_and_context(
+                    extension, context
+                )
+            except LookupError:
+                raise NoSuchExtensionError(extension, context)
+
+            if endpoint not in interfaces:
+                raise NoSuchExtensionError(extension, context)

@@ -15,6 +15,7 @@ from hamcrest import (
 )
 from wazo_agentd_client.error import (
     NO_SUCH_AGENT,
+    NO_SUCH_EXTEN,
     NO_SUCH_LINE,
     NOT_LOGGED,
     UNAUTHORIZED,
@@ -72,6 +73,50 @@ class TestAgents(BaseIntegrationTest):
 
         status = self.agentd.agents.get_agent_status(agent['id'])
         assert_that(status.logged, is_(False))
+
+    @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
+    @fixtures.user_line_extension(exten='1002', context='default', name_line='ghijkl')
+    @fixtures.agent(number='1001')
+    def test_login_on_specific_endpoint(
+        self, user_line_extension, another_user_line_extension, agent
+    ):
+        self.agentd.agents.login_agent(
+            agent['id'],
+            user_line_extension['exten'],
+            user_line_extension['context'],
+            endpoint='PJSIP/abcdef',
+        )
+
+        status = self.agentd.agents.get_agent_status(agent['id'])
+        assert_that(
+            status,
+            has_properties(
+                {
+                    'id': agent['id'],
+                    'logged': True,
+                    'context': 'default',
+                    'extension': '1001',
+                    'number': '1001',
+                    'state_interface': 'PJSIP/abcdef',
+                    'queues': [],
+                }
+            ),
+        )
+
+        self.agentd.agents.logoff_agent(agent['id'])
+
+        status = self.agentd.agents.get_agent_status(agent['id'])
+        assert_that(status.logged, is_(False))
+
+        assert_that(
+            calling(self.agentd.agents.login_agent).with_args(
+                agent['id'],
+                user_line_extension['exten'],
+                user_line_extension['context'],
+                endpoint='PJSIP/ghijkl',
+            ),
+            raises(AgentdClientError, has_properties(error=NO_SUCH_EXTEN)),
+        )
 
     @fixtures.user_line_extension(exten='1001', context='default', name_line='abcdef')
     @fixtures.agent(number='1234')
