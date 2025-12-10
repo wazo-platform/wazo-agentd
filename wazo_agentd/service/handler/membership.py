@@ -11,6 +11,7 @@ from xivo import debug
 from xivo_dao.helpers import db_utils
 
 if TYPE_CHECKING:
+    from wazo_agentd.dao import AgentDAOAdapter
     from wazo_agentd.service.manager.agent_queues_manager import AgentQueuesManager
 
 logger = logging.getLogger(__name__)
@@ -18,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 class MembershipHandler:
     _agent_queues_manager: AgentQueuesManager
+    _agent_dao: AgentDAOAdapter
 
     def __init__(
         self,
@@ -62,9 +64,7 @@ class MembershipHandler:
         self, user_uuid, queue_id, tenant_uuids=None
     ):
         with db_utils.session_scope():
-            agent = self._agent_dao.agent_with_user_uuid(
-                user_uuid, tenant_uuids=tenant_uuids
-            )
+            agent = self._agent_dao.get_agent_by_user_uuid(user_uuid, tenant_uuids)
             queue = self._queue_dao.get_queue(queue_id, tenant_uuids=tenant_uuids)
         self._agent_queues_manager.queue_subscribe(agent, queue)
 
@@ -73,8 +73,6 @@ class MembershipHandler:
         self, user_uuid, queue_id, tenant_uuids=None
     ):
         with db_utils.session_scope():
-            agent = self._agent_dao.agent_with_user_uuid(
-                user_uuid, tenant_uuids=tenant_uuids
-            )
+            agent = self._agent_dao.get_agent_by_user_uuid(user_uuid, tenant_uuids)
             queue = self._queue_dao.get_queue(queue_id, tenant_uuids=tenant_uuids)
         self._agent_queues_manager.queue_unsubscribe(agent, queue)
