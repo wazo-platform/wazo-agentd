@@ -1,4 +1,4 @@
-# Copyright 2015-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import threading
@@ -26,6 +26,18 @@ class ServiceProxy:
         with self._lock:
             self.membership_handler.handle_remove_from_queue(
                 agent_id, queue_id, tenant_uuids=tenant_uuids
+            )
+
+    def subscribe_user_agent_to_queue(self, user_uuid, queue_id, tenant_uuids=None):
+        with self._lock:
+            self.membership_handler.handle_subscribe_user_agent_to_queue(
+                user_uuid, queue_id, tenant_uuids=tenant_uuids
+            )
+
+    def unsubscribe_user_agent_from_queue(self, user_uuid, queue_id, tenant_uuids=None):
+        with self._lock:
+            self.membership_handler.handle_unsubscribe_user_agent_from_queue(
+                user_uuid, queue_id, tenant_uuids=tenant_uuids
             )
 
     def login_agent_by_id(self, agent_id, extension, context, tenant_uuids=None):
