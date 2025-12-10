@@ -360,6 +360,50 @@ paths:
           description: Agent is not a member of the queue
           schema:
             $ref: '#/definitions/Error'
+  /users/me/agents/queues/{queue_id}/subscribe:
+    put:
+      summary: Connect user agent to queue
+      description: '**Required ACL:** `agentd.users.me.agents.queues.{queue_id}.login`'
+      operationId: connect_user_agent
+      tags:
+      - agent
+      - user
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - name: queue_id
+        type: integer
+        in: path
+        required: true
+        description: Queue's ID
+      responses:
+        '204':
+          description: The operation was performed succesfully
+        '400':
+          description: The token has no user; or wrong tenant; or the user has no agent
+          schema:
+            $ref: '#/definitions/Error'
+  /users/me/agents/queues/{queue_id}/unsubscribe:
+    put:
+      summary: Disconnect user agent from queue
+      description: '**Required ACL:** `agentd.users.me.agents.queues.{queue_id}.login`'
+      operationId: disconnect_user_agent
+      tags:
+      - agent
+      - user
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - name: queue_id
+        type: integer
+        in: path
+        required: true
+        description: Queue's ID
+      responses:
+        '204':
+          description: The operation was performed succesfully
+        '400':
+          description: The token has no user; or wrong tenant; or the user has no agent
+          schema:
+            $ref: '#/definitions/Error'
 parameters:
   AgentID:
     name: agent_id
