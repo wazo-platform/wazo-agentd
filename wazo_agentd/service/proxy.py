@@ -1,10 +1,34 @@
 # Copyright 2015-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from __future__ import annotations
+
 import threading
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from wazo_agentd.service.handler import (
+        login,
+        logoff,
+        membership,
+        on_agent,
+        on_queue,
+        pause,
+        relog,
+        status,
+    )
 
 
 class ServiceProxy:
+    login_handler: login.LoginHandler
+    logoff_handler: logoff.LogoffHandler
+    membership_handler: membership.MembershipHandler
+    on_agent_handler: on_agent.OnAgentHandler
+    on_queue_handler: on_queue.OnQueueHandler
+    pause_handler: pause.PauseHandler
+    relog_handler: relog.RelogHandler
+    status_handler: status.StatusHandler
+
     def __init__(self):
         self._lock = threading.Lock()
         self.login_handler = None
