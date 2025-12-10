@@ -362,9 +362,9 @@ paths:
             $ref: '#/definitions/Error'
   /users/me/agents/queues/{queue_id}/subscribe:
     put:
-      summary: Connect user agent to queue
-      description: '**Required ACL:** `agentd.users.me.agents.queues.{queue_id}.login`'
-      operationId: connect_user_agent
+      summary: Subscribe user agent to queue
+      description: '**Required ACL:** `agentd.users.me.agents.queues.{queue_id}.subscribe.update`'
+      operationId: subscribe_user_agent
       tags:
       - agent
       - user
@@ -382,11 +382,15 @@ paths:
           description: The token has no user; or wrong tenant; or the user has no agent
           schema:
             $ref: '#/definitions/Error'
+        '404':
+          description: Agent or queue does not exist
+          schema:
+            $ref: '#/definitions/Error'
   /users/me/agents/queues/{queue_id}/unsubscribe:
     put:
-      summary: Disconnect user agent from queue
-      description: '**Required ACL:** `agentd.users.me.agents.queues.{queue_id}.login`'
-      operationId: disconnect_user_agent
+      summary: Unsubscribe user agent from queue
+      description: '**Required ACL:** `agentd.users.me.agents.queues.{queue_id}.unsubscribe.update`'
+      operationId: unsubscribe_user_agent
       tags:
       - agent
       - user
@@ -402,6 +406,10 @@ paths:
           description: The operation was performed succesfully
         '400':
           description: The token has no user; or wrong tenant; or the user has no agent
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Agent or queue does not exist
           schema:
             $ref: '#/definitions/Error'
 parameters:
