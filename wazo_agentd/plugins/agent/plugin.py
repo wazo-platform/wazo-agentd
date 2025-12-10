@@ -14,11 +14,11 @@ from .http import (
     PauseAgentByNumber,
     PauseUserAgent,
     RemoveAgentFromQueue,
+    SubscribeUserAgentToQueue,
     UnpauseAgentByNumber,
     UnpauseUserAgent,
-    UserAgent,
-    SubscribeUserAgentToQueue,
     UnsubscribeUserAgentFromQueue,
+    UserAgent,
 )
 
 

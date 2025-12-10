@@ -2,21 +2,23 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import annotations
-from typing import TYPE_CHECKING
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
 from xivo_dao.helpers import db_utils
 
 from wazo_agentd.exception import (
     AgentNotLoggedError,
-    QueueDifferentTenantError,
     NoSuchQueueError,
+    QueueDifferentTenantError,
 )
 
 if TYPE_CHECKING:
+    from xivo_dao import agent_status_dao as AgentStatusDAO
+
     from wazo_agentd.service.action.add import AddToQueueAction
     from wazo_agentd.service.action.remove import RemoveFromQueueAction
-    from xivo_dao import agent_status_dao as AgentStatusDAO
 
 
 @dataclass
