@@ -185,7 +185,7 @@ class UnpauseUserAgent(_BaseAgentResource):
 
 
 class SubscribeUserAgentToQueue(_BaseAgentResource):
-    # @required_acl('agents.users.me.agents.queues.{queue_id}.logon')
+    @required_acl('agentd.users.me.agents.queues.{queue_id}.subscribe.update')
     def put(self, queue_id: int):
         tenant_uuids = self._build_tenant_list({'recurse': True})
         user_uuid = token.user_uuid
@@ -196,7 +196,7 @@ class SubscribeUserAgentToQueue(_BaseAgentResource):
 
 
 class UnsubscribeUserAgentFromQueue(_BaseAgentResource):
-    # @required_acl('agents.users.me.agents.queues.{queue_id}.logoff')
+    @required_acl('agentd.users.me.agents.queues.{queue_id}.unsubscribe.update')
     def put(self, queue_id: int):
         tenant_uuids = self._build_tenant_list({'recurse': True})
         user_uuid = token.user_uuid
