@@ -45,7 +45,6 @@ from wazo_agentd.service.handler.pause import PauseHandler
 from wazo_agentd.service.handler.relog import RelogHandler
 from wazo_agentd.service.handler.status import StatusHandler
 from wazo_agentd.service.manager.add_member import AddMemberManager
-from wazo_agentd.service.manager.agent_queues_manager import AgentQueuesManager
 from wazo_agentd.service.manager.blf import BLFManager
 from wazo_agentd.service.manager.login import LoginManager
 from wazo_agentd.service.manager.logoff import LogoffManager
@@ -56,6 +55,7 @@ from wazo_agentd.service.manager.on_queue_agent_paused import OnQueueAgentPaused
 from wazo_agentd.service.manager.on_queue_deleted import OnQueueDeletedManager
 from wazo_agentd.service.manager.on_queue_updated import OnQueueUpdatedManager
 from wazo_agentd.service.manager.pause import PauseManager
+from wazo_agentd.service.manager.queue_subscription import QueueSubscriptionManager
 from wazo_agentd.service.manager.relog import RelogManager
 from wazo_agentd.service.manager.remove_member import RemoveMemberManager
 from wazo_agentd.service.proxy import ServiceProxy
@@ -154,8 +154,12 @@ def _run(config):
     remove_member_manager = RemoveMemberManager(
         remove_from_queue_action, amid_client, agent_status_dao, queue_member_dao
     )
-    agent_queues_manager = AgentQueuesManager(
-        add_to_queue_action, remove_from_queue_action, agent_status_dao
+    agent_queues_manager = QueueSubscriptionManager(
+        add_to_queue_action,
+        remove_from_queue_action,
+        agent_status_dao,
+        user_dao,
+        bus_publisher,
     )
 
     service_proxy = ServiceProxy()

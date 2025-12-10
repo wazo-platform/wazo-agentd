@@ -11,7 +11,7 @@ from xivo_dao.helpers import db_utils
 
 if TYPE_CHECKING:
     from wazo_agentd.dao import AgentDAOAdapter
-    from wazo_agentd.service.manager.agent_queues_manager import AgentQueuesManager
+    from wazo_agentd.service.manager.queue_subscription import AgentQueuesManager
 
 logger = logging.getLogger(__name__)
 
