@@ -307,3 +307,57 @@ class TestAgents(BaseIntegrationTest):
             calling(self.agentd.agents.logoff_user_agent),
             raises(AgentdClientError, has_properties(error=NOT_LOGGED)),
         )
+
+    @fixtures.user_line_extension(exten='1001', context='default')
+    @fixtures.agent()
+    @fixtures.queue()
+    def test_user_agent_subscribe(self, user_line_extension, agent, queue):
+        self.agentd.agents.login_agent(
+            agent['id'],
+            user_line_extension['exten'],
+            user_line_extension['context'],
+        )
+
+        self.create_user_token(user_line_extension['user_uuid'])
+
+        with associations.user_agent(
+            self.database, user_line_extension['user_id'], agent['id']
+        ):
+            with self.database.queries() as db:
+                db.associate_queue_agent(queue['id'], agent['id'])
+
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert status.logged is True
+            assert status.queues[0]['logged'] is False
+
+            self.agentd.agents.subscribe_user_agent_to_queue(queue['id'])
+
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert status.logged is True
+            assert status.queues[0]['logged'] is True
+
+    @fixtures.user_line_extension(exten='1001', context='default')
+    @fixtures.agent()
+    @fixtures.queue()
+    def test_user_agent_unsubscribe_from_queue(self, user_line_extension, agent, queue):
+        self.agentd.agents.login_agent(
+            agent['id'],
+            user_line_extension['exten'],
+            user_line_extension['context'],
+        )
+
+        self.agentd.agents.add_agent_to_queue(agent['id'], queue['id'])
+        self.create_user_token(user_line_extension['user_uuid'])
+
+        with associations.user_agent(
+            self.database, user_line_extension['user_id'], agent['id']
+        ):
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert status.logged is True
+            assert status.queues[0]['logged'] is True
+
+            self.agentd.agents.unsubscribe_user_agent_from_queue(queue['id'])
+
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert status.logged is True
+            assert status.queues[0]['logged'] is False

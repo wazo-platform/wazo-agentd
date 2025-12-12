@@ -1,4 +1,4 @@
-# Copyright 2019-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -92,6 +92,9 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
         cls.database = cls.make_database()
 
         cls.amid.set_queuepause()
+        cls.amid.set_queueadd()
+        cls.amid.set_queueremove()
+        cls.amid.set_userevent()
 
     @classmethod
     def make_agentd(cls, token=TOKEN_UUID):
