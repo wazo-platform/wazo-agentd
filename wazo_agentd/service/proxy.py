@@ -52,16 +52,16 @@ class ServiceProxy:
                 agent_id, queue_id, tenant_uuids=tenant_uuids
             )
 
-    def subscribe_user_agent_to_queue(self, user_uuid, queue_id, tenant_uuids=None):
+    def login_user_agent_to_queue(self, user_uuid, queue_id, tenant_uuids=None):
         with self._lock:
-            self.membership_handler.handle_subscribe_user_agent_to_queue(
-                user_uuid, queue_id, tenant_uuids=tenant_uuids
+            self.membership_handler.handle_user_agent_queue_login(
+                user_uuid, queue_id, tenant_uuids
             )
 
-    def unsubscribe_user_agent_from_queue(self, user_uuid, queue_id, tenant_uuids=None):
+    def logoff_user_agent_from_queue(self, user_uuid, queue_id, tenant_uuids=None):
         with self._lock:
-            self.membership_handler.handle_unsubscribe_user_agent_from_queue(
-                user_uuid, queue_id, tenant_uuids=tenant_uuids
+            self.membership_handler.handle_user_agent_queue_logoff(
+                user_uuid, queue_id, tenant_uuids
             )
 
     def login_agent_by_id(self, agent_id, extension, context, tenant_uuids=None):

@@ -184,23 +184,21 @@ class UnpauseUserAgent(_BaseAgentResource):
         return '', 204
 
 
-class SubscribeUserAgentToQueue(_BaseAgentResource):
-    @required_acl('agentd.users.me.agents.queues.{queue_id}.subscribe.update')
+class QueueLoginUserAgent(_BaseAgentResource):
+    @required_acl('agentd.users.me.agents.queues.{queue_id}.login.update')
     def put(self, queue_id: int):
         tenant_uuids = self._build_tenant_list({'recurse': True})
         user_uuid = token.user_uuid
-        self.service_proxy.subscribe_user_agent_to_queue(
-            user_uuid, queue_id, tenant_uuids=tenant_uuids
-        )
+        self.service_proxy.login_user_agent_to_queue(user_uuid, queue_id, tenant_uuids)
         return '', 204
 
 
-class UnsubscribeUserAgentFromQueue(_BaseAgentResource):
-    @required_acl('agentd.users.me.agents.queues.{queue_id}.unsubscribe.update')
+class QueueLogoffUserAgent(_BaseAgentResource):
+    @required_acl('agentd.users.me.agents.queues.{queue_id}.logoff.update')
     def put(self, queue_id: int):
         tenant_uuids = self._build_tenant_list({'recurse': True})
         user_uuid = token.user_uuid
-        self.service_proxy.unsubscribe_user_agent_from_queue(
-            user_uuid, queue_id, tenant_uuids=tenant_uuids
+        self.service_proxy.logoff_user_agent_from_queue(
+            user_uuid, queue_id, tenant_uuids
         )
         return '', 204

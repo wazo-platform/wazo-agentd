@@ -13,11 +13,11 @@ from .http import (
     LogoffUserAgent,
     PauseAgentByNumber,
     PauseUserAgent,
+    QueueLoginUserAgent,
+    QueueLogoffUserAgent,
     RemoveAgentFromQueue,
-    SubscribeUserAgentToQueue,
     UnpauseAgentByNumber,
     UnpauseUserAgent,
-    UnsubscribeUserAgentFromQueue,
     UserAgent,
 )
 
@@ -117,12 +117,12 @@ class Plugin:
             resource_class_args=[service_proxy],
         )
         api.add_resource(
-            SubscribeUserAgentToQueue,
-            '/users/me/agents/queues/<int:queue_id>/subscribe',
+            QueueLoginUserAgent,
+            '/users/me/agents/queues/<int:queue_id>/login',
             resource_class_args=[service_proxy],
         )
         api.add_resource(
-            UnsubscribeUserAgentFromQueue,
-            '/users/me/agents/queues/<int:queue_id>/unsubscribe',
+            QueueLogoffUserAgent,
+            '/users/me/agents/queues/<int:queue_id>/logoff',
             resource_class_args=[service_proxy],
         )
