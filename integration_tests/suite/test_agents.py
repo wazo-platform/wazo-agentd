@@ -3,7 +3,16 @@
 
 import time
 
-from hamcrest import all_of, assert_that, calling, has_properties, is_, matches_regexp
+from hamcrest import (
+    all_of,
+    assert_that,
+    calling,
+    has_entries,
+    has_items,
+    has_properties,
+    is_,
+    matches_regexp,
+)
 from wazo_agentd_client.error import (
     NO_SUCH_AGENT,
     NO_SUCH_LINE,
@@ -311,7 +320,7 @@ class TestAgents(BaseIntegrationTest):
     @fixtures.user_line_extension(exten='1001', context='default')
     @fixtures.agent()
     @fixtures.queue()
-    def test_user_agent_subscribe(self, user_line_extension, agent, queue):
+    def test_user_agent_login_to_queue(self, user_line_extension, agent, queue):
         self.agentd.agents.login_agent(
             agent['id'],
             user_line_extension['exten'],
@@ -330,7 +339,22 @@ class TestAgents(BaseIntegrationTest):
             assert status.logged is True
             assert status.queues[0]['logged'] is False
 
-            self.agentd.agents.subscribe_user_agent_to_queue(queue['id'])
+            accumulator = self.bus.accumulator(
+                headers={'name': 'user_agent_queue_logged_in'}
+            )
+            self.agentd.agents.user_agent_login_to_queue(queue['id'])
+
+            accumulator.until_assert_that_accumulate(
+                has_items(
+                    has_entries(
+                        {f'user_uuid:{user_line_extension["user_uuid"]}': True},
+                        data=has_entries(
+                            agent_id=agent['id'],
+                            queue_id=queue['id'],
+                        ),
+                    ),
+                )
+            )
 
             status = self.agentd.agents.get_agent_status(agent['id'])
             assert status.logged is True
@@ -339,7 +363,7 @@ class TestAgents(BaseIntegrationTest):
     @fixtures.user_line_extension(exten='1001', context='default')
     @fixtures.agent()
     @fixtures.queue()
-    def test_user_agent_unsubscribe_from_queue(self, user_line_extension, agent, queue):
+    def test_user_agent_logoff_from_queue(self, user_line_extension, agent, queue):
         self.agentd.agents.login_agent(
             agent['id'],
             user_line_extension['exten'],
@@ -356,7 +380,22 @@ class TestAgents(BaseIntegrationTest):
             assert status.logged is True
             assert status.queues[0]['logged'] is True
 
-            self.agentd.agents.unsubscribe_user_agent_from_queue(queue['id'])
+            accumulator = self.bus.accumulator(
+                headers={'name': 'user_agent_queue_logged_off'}
+            )
+            self.agentd.agents.user_agent_logoff_from_queue(queue['id'])
+
+            accumulator.until_assert_that_accumulate(
+                has_items(
+                    has_entries(
+                        {f'user_uuid:{user_line_extension["user_uuid"]}': True},
+                        data=has_entries(
+                            agent_id=agent['id'],
+                            queue_id=queue['id'],
+                        ),
+                    ),
+                )
+            )
 
             status = self.agentd.agents.get_agent_status(agent['id'])
             assert status.logged is True
