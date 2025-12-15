@@ -13,7 +13,7 @@ class PauseAction:
         self._amid_client = amid_client
 
     def pause_agent(self, agent_status, reason):
-        if not any([queue.logged for queue in agent_status.queues]):
+        if not any(queue.logged for queue in agent_status.queues):
             return
 
         try:
@@ -30,7 +30,7 @@ class PauseAction:
             logger.warning('Failed to pause agent %s: %s', agent_status.agent_id, e)
 
     def unpause_agent(self, agent_status):
-        if not any([queue.logged for queue in agent_status.queues]):
+        if not any(queue.logged for queue in agent_status.queues):
             return
 
         try:

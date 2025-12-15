@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypeAlias
 
 from wazo_bus.resources.user_agent.event import UserAgentQueueLoggedOffEvent
+from xivo_dao.helpers import db_utils
 
 from wazo_agentd.exception import (
     AgentNotLoggedError,
@@ -48,6 +49,11 @@ class QueueLogoffManager:
         self._user_dao = user_dao
         self._bus_publisher = bus_publisher
 
+    def _get_agent_users_uuids(self, agent_status: AgentStatus) -> list[str]:
+        agent_id = agent_status.agent_id
+        with db_utils.session_scope():
+            return [u.uuid for u in self._user_dao.find_all_by_agent_id(agent_id)]
+
     def _is_already_logged_in_queue(
         self, agent_status: AgentStatus, queue: Queue
     ) -> bool:
@@ -58,9 +64,7 @@ class QueueLogoffManager:
 
     def _send_bus_event(self, agent_status: AgentStatus, queue: Queue) -> None:
         tenant_uuid = agent_status.tenant_uuid
-        user_uuids = [
-            u.uuid for u in self._user_dao.find_all_by_agent_id(agent_status.agent_id)
-        ]
+        user_uuids = self._get_agent_users_uuids(agent_status)
 
         event = UserAgentQueueLoggedOffEvent(
             agent_status.agent_id, queue.id, tenant_uuid, user_uuids
