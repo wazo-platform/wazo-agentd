@@ -14,6 +14,9 @@ class PauseAction:
 
     def pause_agent(self, agent_status, reason):
         if not any(queue.logged for queue in agent_status.queues):
+            logger.debug(
+                'agent %s has no active queues to pause', agent_status.agent_id
+            )
             return
 
         try:
@@ -31,6 +34,9 @@ class PauseAction:
 
     def unpause_agent(self, agent_status):
         if not any(queue.logged for queue in agent_status.queues):
+            logger.debug(
+                'agent %s has no active queues to unpause', agent_status.agent_id
+            )
             return
 
         try:
