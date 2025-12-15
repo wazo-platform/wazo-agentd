@@ -54,7 +54,6 @@ class TestPauseAction(unittest.TestCase):
     def test_unpause_agent_with_no_queues_dont_send_ami_action(self):
         agent_status = Mock(queues=[])
 
-        reason = 'Want my pause'
-        self.pause_action.pause_agent(agent_status, reason)
+        self.pause_action.unpause_agent(agent_status)
 
         self.amid_client.action.assert_not_called()
