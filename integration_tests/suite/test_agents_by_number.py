@@ -1,7 +1,7 @@
-# Copyright 2019-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from hamcrest import all_of, assert_that, contains, has_entries, has_key
+from hamcrest import all_of, assert_that, contains_exactly, has_entries, has_key
 from wazo_test_helpers import until
 
 from .helpers import fixtures
@@ -28,7 +28,7 @@ class TestAgentsByNumber(BaseIntegrationTest):
             events = event_accumulator.accumulate(with_headers=True)
             assert_that(
                 events,
-                contains(
+                contains_exactly(
                     has_entries(
                         message=has_entries(
                             data=has_entries(agent_id=agent['id'], status='logged_in')
