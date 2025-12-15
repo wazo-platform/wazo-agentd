@@ -127,21 +127,21 @@ class DatabaseQueries:
 
     def associate_user_agent(self, user_id, agent_id):
         session = self.Session()
-        user = session.query(User).get(user_id)
+        user = session.get(User, user_id)
         user.agent_id = agent_id
         session.commit()
 
     def dissociate_user_agent(self, user_id, agent_id):
         del agent_id
         session = self.Session()
-        user = session.query(User).get(user_id)
+        user = session.get(User, user_id)
         user.agent_id = None
         session.commit()
 
     def associate_queue_agent(self, queue_id, agent_id):
         with self.inserter() as inserter:
-            queue = inserter.session.query(Queue).get(queue_id)
-            agent = inserter.session.query(Agent).get(agent_id)
+            queue = inserter.session.get(Queue, queue_id)
+            agent = inserter.session.get(Agent, agent_id)
             return inserter.add_queue_member(
                 queue_name=queue.name,
                 interface=f'PJSIP/{agent.users[0].lines[0].endpoint_sip.name}',
@@ -153,7 +153,7 @@ class DatabaseQueries:
 
     def insert_agent_membership_status(self, queue_id, agent_id):
         session = self.Session()
-        queue = session.query(Queue).get(queue_id)
+        queue = session.get(Queue, queue_id)
         agent_membership_status = AgentMembershipStatus(
             queue_id=queue_id, agent_id=agent_id, queue_name=queue.name
         )
