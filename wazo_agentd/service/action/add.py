@@ -50,6 +50,6 @@ class AddToQueueAction:
 
     def _format_pause_status(self, agent_status):
         value = {'Paused': '1' if agent_status.paused else '0'}
-        if reason := agent_status.paused_reason and agent_status.paused:
+        if (reason := agent_status.paused_reason) and agent_status.paused:
             value['Reason'] = reason
         return value
