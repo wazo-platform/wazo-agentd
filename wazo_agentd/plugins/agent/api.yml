@@ -514,7 +514,7 @@ definitions:
         description: Context
       endpoint:
         type: string
-        description: Name of the endpoint. Must be a valid endpoint for the extension and context.
+        description: Name of the endpoint, in the format `interface/name` e.g `PJSIP/alice`. Must be a valid endpoint for the extension and context.
   UserAgentLoginInfo:
     title: Login information
     properties:
