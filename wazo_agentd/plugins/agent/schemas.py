@@ -8,6 +8,7 @@ from xivo.mallow_helpers import Schema
 class AgentLoginSchema(Schema):
     extension = fields.String(required=True)
     context = fields.String(required=True)
+    endpoint = fields.String(load_default=None)
 
 
 class UserAgentLoginSchema(Schema):

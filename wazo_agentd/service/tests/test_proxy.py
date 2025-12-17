@@ -1,4 +1,4 @@
-# Copyright 2015-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -56,20 +56,36 @@ class TestServiceProxy(unittest.TestCase):
 
     def test_login_agent_by_id(self):
         self.proxy.login_agent_by_id(
-            s.agent_id, s.extension, s.context, tenant_uuids=self.tenants
+            s.agent_id,
+            s.extension,
+            s.context,
+            endpoint=s.endpoint,
+            tenant_uuids=self.tenants,
         )
 
         self.login_handler.handle_login_by_id.assert_called_once_with(
-            s.agent_id, s.extension, s.context, tenant_uuids=self.tenants
+            s.agent_id,
+            s.extension,
+            s.context,
+            endpoint=s.endpoint,
+            tenant_uuids=self.tenants,
         )
 
     def test_login_agent_by_number(self):
         self.proxy.login_agent_by_number(
-            s.agent_number, s.extension, s.context, tenant_uuids=self.tenants
+            s.agent_number,
+            s.extension,
+            s.context,
+            endpoint=s.endpoint,
+            tenant_uuids=self.tenants,
         )
 
         self.login_handler.handle_login_by_number.assert_called_once_with(
-            s.agent_number, s.extension, s.context, tenant_uuids=self.tenants
+            s.agent_number,
+            s.extension,
+            s.context,
+            endpoint=s.endpoint,
+            tenant_uuids=self.tenants,
         )
 
     def test_login_user_agent(self):

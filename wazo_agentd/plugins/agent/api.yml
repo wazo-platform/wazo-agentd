@@ -61,7 +61,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
         '404':
-          description: Agent or extension or context does not exist
+          description: Agent, extension, context or endpoint does not exist
           schema:
             $ref: '#/definitions/Error'
         '409':
@@ -93,7 +93,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
         '404':
-          description: Agent or extension or context does not exist
+          description: Agent, extension, context or endpoint does not exist
           schema:
             $ref: '#/definitions/Error'
         '409':
@@ -512,6 +512,9 @@ definitions:
       context:
         type: string
         description: Context
+      endpoint:
+        type: string
+        description: Name of the endpoint, in the format `interface/name` e.g `PJSIP/alice`. Must be a valid endpoint for the extension and context.
   UserAgentLoginInfo:
     title: Login information
     properties:
