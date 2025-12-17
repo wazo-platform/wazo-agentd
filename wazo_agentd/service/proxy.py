@@ -1,10 +1,34 @@
-# Copyright 2015-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from __future__ import annotations
+
 import threading
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from wazo_agentd.service.handler import (
+        login,
+        logoff,
+        membership,
+        on_agent,
+        on_queue,
+        pause,
+        relog,
+        status,
+    )
 
 
 class ServiceProxy:
+    login_handler: login.LoginHandler
+    logoff_handler: logoff.LogoffHandler
+    membership_handler: membership.MembershipHandler
+    on_agent_handler: on_agent.OnAgentHandler
+    on_queue_handler: on_queue.OnQueueHandler
+    pause_handler: pause.PauseHandler
+    relog_handler: relog.RelogHandler
+    status_handler: status.StatusHandler
+
     def __init__(self):
         self._lock = threading.Lock()
         self.login_handler = None
@@ -26,6 +50,18 @@ class ServiceProxy:
         with self._lock:
             self.membership_handler.handle_remove_from_queue(
                 agent_id, queue_id, tenant_uuids=tenant_uuids
+            )
+
+    def login_user_agent_to_queue(self, user_uuid, queue_id, tenant_uuids=None):
+        with self._lock:
+            self.membership_handler.handle_user_agent_queue_login(
+                user_uuid, queue_id, tenant_uuids
+            )
+
+    def logoff_user_agent_from_queue(self, user_uuid, queue_id, tenant_uuids=None):
+        with self._lock:
+            self.membership_handler.handle_user_agent_queue_logoff(
+                user_uuid, queue_id, tenant_uuids
             )
 
     def login_agent_by_id(self, agent_id, extension, context, tenant_uuids=None):

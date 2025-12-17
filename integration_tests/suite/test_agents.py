@@ -3,7 +3,16 @@
 
 import time
 
-from hamcrest import all_of, assert_that, calling, has_properties, is_, matches_regexp
+from hamcrest import (
+    all_of,
+    assert_that,
+    calling,
+    has_entries,
+    has_items,
+    has_properties,
+    is_,
+    matches_regexp,
+)
 from wazo_agentd_client.error import (
     NO_SUCH_AGENT,
     NO_SUCH_LINE,
@@ -307,3 +316,87 @@ class TestAgents(BaseIntegrationTest):
             calling(self.agentd.agents.logoff_user_agent),
             raises(AgentdClientError, has_properties(error=NOT_LOGGED)),
         )
+
+    @fixtures.user_line_extension(exten='1001', context='default')
+    @fixtures.agent()
+    @fixtures.queue()
+    def test_user_agent_login_to_queue(self, user_line_extension, agent, queue):
+        self.agentd.agents.login_agent(
+            agent['id'],
+            user_line_extension['exten'],
+            user_line_extension['context'],
+        )
+
+        self.create_user_token(user_line_extension['user_uuid'])
+
+        with associations.user_agent(
+            self.database, user_line_extension['user_id'], agent['id']
+        ):
+            with self.database.queries() as db:
+                db.associate_queue_agent(queue['id'], agent['id'])
+
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert status.logged is True
+            assert status.queues[0]['logged'] is False
+
+            accumulator = self.bus.accumulator(
+                headers={'name': 'user_agent_queue_logged_in'}
+            )
+            self.agentd.agents.user_agent_login_to_queue(queue['id'])
+
+            accumulator.until_assert_that_accumulate(
+                has_items(
+                    has_entries(
+                        {f'user_uuid:{user_line_extension["user_uuid"]}': True},
+                        data=has_entries(
+                            agent_id=agent['id'],
+                            queue_id=queue['id'],
+                        ),
+                    ),
+                )
+            )
+
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert status.logged is True
+            assert status.queues[0]['logged'] is True
+
+    @fixtures.user_line_extension(exten='1001', context='default')
+    @fixtures.agent()
+    @fixtures.queue()
+    def test_user_agent_logoff_from_queue(self, user_line_extension, agent, queue):
+        self.agentd.agents.login_agent(
+            agent['id'],
+            user_line_extension['exten'],
+            user_line_extension['context'],
+        )
+
+        self.agentd.agents.add_agent_to_queue(agent['id'], queue['id'])
+        self.create_user_token(user_line_extension['user_uuid'])
+
+        with associations.user_agent(
+            self.database, user_line_extension['user_id'], agent['id']
+        ):
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert status.logged is True
+            assert status.queues[0]['logged'] is True
+
+            accumulator = self.bus.accumulator(
+                headers={'name': 'user_agent_queue_logged_off'}
+            )
+            self.agentd.agents.user_agent_logoff_from_queue(queue['id'])
+
+            accumulator.until_assert_that_accumulate(
+                has_items(
+                    has_entries(
+                        {f'user_uuid:{user_line_extension["user_uuid"]}': True},
+                        data=has_entries(
+                            agent_id=agent['id'],
+                            queue_id=queue['id'],
+                        ),
+                    ),
+                )
+            )
+
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert status.logged is True
+            assert status.queues[0]['logged'] is False

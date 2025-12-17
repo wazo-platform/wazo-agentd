@@ -1,8 +1,9 @@
-# Copyright 2013-2024 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
 
+from wazo_amid_client.exceptions import AmidProtocolError
 from wazo_bus.resources.agent.event import AgentStatusUpdatedEvent
 from xivo_dao.helpers import db_utils
 
@@ -95,20 +96,24 @@ class LoginAction:
         member_name = format_agent_member_name(agent.number)
         skills = format_agent_skills(agent.id)
         for queue in agent.queues:
-            response = self._amid_client.action(
-                'QueueAdd',
-                {
-                    'Queue': queue.name,
-                    'Interface': interface,
-                    'MemberName': member_name,
-                    'StateInterface': state_interface,
-                    'Penalty': queue.penalty,
-                    'Skills': skills,
-                },
-            )
-            if response[0]['Response'] != 'Success':
+            try:
+                self._amid_client.action(
+                    'QueueAdd',
+                    {
+                        'Queue': queue.name,
+                        'Interface': interface,
+                        'MemberName': member_name,
+                        'StateInterface': state_interface,
+                        'Penalty': queue.penalty,
+                        'Skills': skills,
+                    },
+                )
+            except AmidProtocolError as e:
                 logger.warning(
-                    'Failure to add interface %r to queue %r', interface, queue.name
+                    'Failure to add interface %r to queue %r: %s',
+                    interface,
+                    queue.name,
+                    e,
                 )
 
     def _update_blf(self, agent):

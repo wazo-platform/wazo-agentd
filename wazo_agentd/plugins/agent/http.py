@@ -1,6 +1,10 @@
 # Copyright 2024-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from flask import request
 from xivo.auth_verifier import required_acl
 from xivo.tenant_flask_helpers import token
@@ -14,8 +18,13 @@ from .schemas import (
     user_agent_login_schema,
 )
 
+if TYPE_CHECKING:
+    from wazo_agentd.service.proxy import ServiceProxy
+
 
 class _BaseAgentResource(AuthResource):
+    service_proxy: ServiceProxy
+
     def __init__(self, service_proxy):
         self.service_proxy = service_proxy
 
@@ -172,4 +181,24 @@ class UnpauseUserAgent(_BaseAgentResource):
         tenant_uuids = self._build_tenant_list({'recurse': True})
         user_uuid = token.user_uuid
         self.service_proxy.unpause_user_agent(user_uuid, tenant_uuids=tenant_uuids)
+        return '', 204
+
+
+class QueueLoginUserAgent(_BaseAgentResource):
+    @required_acl('agentd.users.me.agents.queues.{queue_id}.login.update')
+    def put(self, queue_id: int):
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        user_uuid = token.user_uuid
+        self.service_proxy.login_user_agent_to_queue(user_uuid, queue_id, tenant_uuids)
+        return '', 204
+
+
+class QueueLogoffUserAgent(_BaseAgentResource):
+    @required_acl('agentd.users.me.agents.queues.{queue_id}.logoff.update')
+    def put(self, queue_id: int):
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        user_uuid = token.user_uuid
+        self.service_proxy.logoff_user_agent_from_queue(
+            user_uuid, queue_id, tenant_uuids
+        )
         return '', 204

@@ -360,6 +360,58 @@ paths:
           description: Agent is not a member of the queue
           schema:
             $ref: '#/definitions/Error'
+  /users/me/agents/queues/{queue_id}/login:
+    put:
+      summary: Login user agent to queue
+      description: '**Required ACL:** `agentd.users.me.agents.queues.{queue_id}.login.update`'
+      operationId: user_agent_login_to_queue
+      tags:
+      - agent
+      - user
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - name: queue_id
+        type: integer
+        in: path
+        required: true
+        description: Queue's ID
+      responses:
+        '204':
+          description: The operation was performed succesfully
+        '400':
+          description: The token has no user; or wrong tenant; or the user has no agent
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Agent or queue does not exist
+          schema:
+            $ref: '#/definitions/Error'
+  /users/me/agents/queues/{queue_id}/logoff:
+    put:
+      summary: Logoff user agent from queue
+      description: '**Required ACL:** `agentd.users.me.agents.queues.{queue_id}.logoff.update`'
+      operationId: user_agent_logoff_from_queue
+      tags:
+      - agent
+      - user
+      parameters:
+      - $ref: '#/parameters/tenantuuid'
+      - name: queue_id
+        type: integer
+        in: path
+        required: true
+        description: Queue's ID
+      responses:
+        '204':
+          description: The operation was performed succesfully
+        '400':
+          description: The token has no user; or wrong tenant; or the user has no agent
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Agent or queue does not exist
+          schema:
+            $ref: '#/definitions/Error'
 parameters:
   AgentID:
     name: agent_id
