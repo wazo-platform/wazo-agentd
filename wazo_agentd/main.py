@@ -169,10 +169,10 @@ def _run(config):
         add_to_queue_action, remove_from_queue_action, user_dao, bus_publisher
     )
     on_queue_member_associated_manager = OnQueueMemberAssociatedManager(
-        add_to_queue_action
+        add_to_queue_action, agent_status_dao
     )
     on_queue_member_dissociated_manager = OnQueueMemberDissociatedManager(
-        remove_from_queue_action
+        remove_from_queue_action, agent_status_dao
     )
 
     service_proxy = ServiceProxy()
@@ -200,7 +200,7 @@ def _run(config):
     service_proxy.on_queue_member_handler = OnQueueMemberHandler(
         on_queue_member_associated_manager,
         on_queue_member_dissociated_manager,
-        agent_status_dao,
+        agent_dao,
         queue_dao,
     )
     service_proxy.pause_handler = PauseHandler(pause_manager, agent_status_dao)

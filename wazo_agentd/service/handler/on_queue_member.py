@@ -10,8 +10,7 @@ from xivo import debug
 from xivo_dao.helpers import db_utils
 
 if TYPE_CHECKING:
-    from xivo_dao import agent_status_dao as AgentStatusDAO
-
+    from wazo_agentd.dao import AgentDAOAdapter as AgentDAO
     from wazo_agentd.dao import QueueDAOAdapter as QueueDAO
     from wazo_agentd.service.manager.on_queue_member_associated import (
         OnQueueMemberAssociatedManager,
@@ -28,12 +27,12 @@ class OnQueueMemberHandler:
         self,
         association_manager: OnQueueMemberAssociatedManager,
         dissociation_manager: OnQueueMemberDissociatedManager,
-        agent_status_dao: AgentStatusDAO,
+        agent_dao: AgentDAO,
         queue_dao: QueueDAO,
     ):
         self._association_manager = association_manager
         self._dissociation_manager = dissociation_manager
-        self._agent_status_dao = agent_status_dao
+        self._agent_dao = agent_dao
         self._queue_dao = queue_dao
 
     @debug.trace_duration
@@ -46,12 +45,9 @@ class OnQueueMemberHandler:
             queue_id,
         )
         with db_utils.session_scope():
-            agent_status = self._agent_status_dao.get_status(agent_id)
+            agent = self._agent_dao.get_agent(agent_id)
             queue = self._queue_dao.get_queue(queue_id)
-
-        self._association_manager.on_queue_member_associated(
-            agent_status, queue, penalty
-        )
+        self._association_manager.on_queue_member_associated(agent, queue, penalty)
 
     @debug.trace_duration
     def handle_on_queue_member_agent_dissociated(self, agent_id: int, queue_id: int):
@@ -61,7 +57,6 @@ class OnQueueMemberHandler:
             queue_id,
         )
         with db_utils.session_scope():
-            agent_status = self._agent_status_dao.get_status(agent_id)
+            agent = self._agent_dao.get_agent(agent_id)
             queue = self._queue_dao.get_queue(queue_id)
-
-        self._dissociation_manager.on_queue_member_dissociated(agent_status, queue)
+        self._dissociation_manager.on_queue_member_dissociated(agent, queue)
