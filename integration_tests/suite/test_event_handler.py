@@ -1,6 +1,7 @@
 # Copyright 2019-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import json
 import time
 
 import wazo_agentd_client.error
@@ -56,3 +57,64 @@ class TestEventHandler(BaseIntegrationTest):
             queries.delete_only_agent(agent['id'])
         self.bus.send_agent_deleted_event(agent['id'])
         until.assert_(check_agent_status, tries=10)
+
+    @fixtures.agent(number='1234')
+    @fixtures.queue()
+    def test_on_queue_member_agent_associated(self, agent, queue):
+        with self.database.queries() as queries:
+            with queries.inserter() as inserter:
+                inserter.add_agent_login_status(
+                    agent_id=agent['id'], agent_number=agent['number']
+                )
+
+        self.amid.reset()
+        self.bus.send_queue_member_agent_associated(agent['id'], queue['id'], 1)
+
+        def assert_ami_command_received():
+            requests = self.amid.get_requests().get('requests', [])
+            for request in requests:
+                if body := json.loads(request['body']):
+                    if (
+                        body['MemberName'] == f'Agent/{agent["number"]}'
+                        and body['Penalty'] == 1
+                        and request['path'].endswith('QueueAdd')
+                    ):
+                        return
+            raise AssertionError('AMI QueueAdd action not received')
+
+        until.assert_(assert_ami_command_received, tries=10)
+
+        # Check queue is logged in
+        with self.database.queries() as queries:
+            membership = queries.get_agent_membership_status(queue['id'], agent['id'])
+            assert membership.agent_id == agent['id']
+            assert membership.queue_id == queue['id']
+
+    @fixtures.user_line_extension(exten='1001', context='default')
+    @fixtures.agent(number='1234')
+    @fixtures.queue()
+    def test_on_queue_member_agent_dissociated(self, user_line_extension, agent, queue):
+        with self.database.queries() as queries:
+            queries.associate_user_agent(user_line_extension['user_id'], agent['id'])
+            queries.associate_queue_agent(queue['id'], agent['id'])
+            queries.insert_agent_membership_status(queue['id'], agent['id'])
+            with queries.inserter() as inserter:
+                inserter.add_agent_login_status(
+                    agent_id=agent['id'], agent_number=agent['number']
+                )
+
+        self.amid.reset()
+        self.bus.send_queue_member_agent_dissociated(agent['id'], queue['id'])
+
+        def assert_ami_command_received():
+            requests = self.amid.get_requests().get('requests', [])
+            for request in requests:
+                if request['path'].endswith('QueueRemove'):
+                    return
+            raise AssertionError('AMI QueueRemove action not received')
+
+        until.assert_(assert_ami_command_received, tries=10)
+
+        with self.database.queries() as queries:
+            membership = queries.get_agent_membership_status(queue['id'], agent['id'])
+            assert membership is None

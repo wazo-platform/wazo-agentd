@@ -31,3 +31,13 @@ class AmidClient:
         url = self.url('_set_response_action')
         body = {'response': 'UserEvent', 'content': []}
         requests.post(url, json=body)
+
+    def get_requests(self):
+        url = self.url('_requests')
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+
+    def reset(self):
+        url = self.url('_reset')
+        requests.post(url)
