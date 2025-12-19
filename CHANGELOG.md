@@ -1,5 +1,12 @@
 # Changelog
 
+## 25.17
+
+* Added endpoints for user agents to login/logoff of its queues
+
+  * PUT `/users/me/agents/queues/{id}/login`
+  * PUT `/users/me/agents/queues/{id}/logoff`
+
 ## 25.10
 
 * The following resources now expose the `queues` field containing per queue status for agents
