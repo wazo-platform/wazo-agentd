@@ -34,3 +34,32 @@ class BusClient(bus_helper.BusClient):
             headers={'name': 'agent_deleted'},
             routing_key='config.agent.deleted',
         )
+
+    def send_queue_member_agent_associated(self, agent_id, queue_id, penalty):
+        self.publish(
+            {
+                'data': {
+                    'agent_id': agent_id,
+                    'queue_id': queue_id,
+                    'penalty': penalty,
+                },
+                'name': 'queue_member_agent_associated',
+            },
+            headers={
+                'name': 'queue_member_agent_associated',
+            },
+        )
+
+    def send_queue_member_agent_dissociated(self, agent_id, queue_id):
+        self.publish(
+            {
+                'data': {
+                    'agent_id': agent_id,
+                    'queue_id': queue_id,
+                },
+                'name': 'queue_member_agent_dissociated',
+            },
+            headers={
+                'name': 'queue_member_agent_dissociated',
+            },
+        )
