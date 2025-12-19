@@ -13,6 +13,7 @@ if TYPE_CHECKING:
         membership,
         on_agent,
         on_queue,
+        on_queue_member,
         pause,
         relog,
         status,
@@ -25,6 +26,7 @@ class ServiceProxy:
     membership_handler: membership.MembershipHandler
     on_agent_handler: on_agent.OnAgentHandler
     on_queue_handler: on_queue.OnQueueHandler
+    on_queue_member_handler: on_queue_member.OnQueueMemberHandler
     pause_handler: pause.PauseHandler
     relog_handler: relog.RelogHandler
     status_handler: status.StatusHandler
@@ -36,6 +38,7 @@ class ServiceProxy:
         self.membership_handler = None
         self.on_agent_handler = None
         self.on_queue_handler = None
+        self.on_queue_member_handler = None
         self.pause_handler = None
         self.relog_handler = None
         self.status_handler = None
@@ -179,6 +182,25 @@ class ServiceProxy:
     def on_queue_deleted(self, queue):
         with self._lock:
             return self.on_queue_handler.handle_on_queue_deleted(queue['id'])
+
+    def on_queue_agent_associated(self, message):
+        agent_id = message['agent_id']
+        queue_id = message['queue_id']
+        penalty = message['penalty']
+
+        with self._lock:
+            self.on_queue_member_handler.handle_on_queue_member_agent_associated(
+                agent_id, queue_id, penalty
+            )
+
+    def on_queue_agent_dissociated(self, message):
+        queue_id = message['queue_id']
+        agent_id = message['agent_id']
+
+        with self._lock:
+            self.on_queue_member_handler.handle_on_queue_member_agent_dissociated(
+                agent_id, queue_id
+            )
 
     def on_agent_paused(self, agent):
         paused = agent['Paused'] == '1'
