@@ -12,6 +12,10 @@ from wazo_amid_client import Client as AmidClient
 from wazo_auth_client import Client as AuthClient
 from wazo_bus.resources.agent.event import AgentDeletedEvent, AgentEditedEvent
 from wazo_bus.resources.queue.event import QueueDeletedEvent, QueueEditedEvent
+from wazo_bus.resources.queue_member.event import (
+    QueueMemberAgentAssociatedEvent,
+    QueueMemberAgentDissociatedEvent,
+)
 from xivo import plugin_helpers
 from xivo.config_helper import set_xivo_uuid
 from xivo.consul_helpers import ServiceCatalogRegistration
@@ -41,6 +45,7 @@ from wazo_agentd.service.handler.logoff import LogoffHandler
 from wazo_agentd.service.handler.membership import MembershipHandler
 from wazo_agentd.service.handler.on_agent import OnAgentHandler
 from wazo_agentd.service.handler.on_queue import OnQueueHandler
+from wazo_agentd.service.handler.on_queue_member import OnQueueMemberHandler
 from wazo_agentd.service.handler.pause import PauseHandler
 from wazo_agentd.service.handler.relog import RelogHandler
 from wazo_agentd.service.handler.status import StatusHandler
@@ -53,6 +58,12 @@ from wazo_agentd.service.manager.on_agent_updated import OnAgentUpdatedManager
 from wazo_agentd.service.manager.on_queue_added import OnQueueAddedManager
 from wazo_agentd.service.manager.on_queue_agent_paused import OnQueueAgentPausedManager
 from wazo_agentd.service.manager.on_queue_deleted import OnQueueDeletedManager
+from wazo_agentd.service.manager.on_queue_member_associated import (
+    OnQueueMemberAssociatedManager,
+)
+from wazo_agentd.service.manager.on_queue_member_dissociated import (
+    OnQueueMemberDissociatedManager,
+)
 from wazo_agentd.service.manager.on_queue_updated import OnQueueUpdatedManager
 from wazo_agentd.service.manager.pause import PauseManager
 from wazo_agentd.service.manager.queue import QueueManager
@@ -157,6 +168,12 @@ def _run(config):
     queue_manager = QueueManager(
         add_to_queue_action, remove_from_queue_action, user_dao, bus_publisher
     )
+    on_queue_member_associated_manager = OnQueueMemberAssociatedManager(
+        add_to_queue_action
+    )
+    on_queue_member_dissociated_manager = OnQueueMemberDissociatedManager(
+        remove_from_queue_action
+    )
 
     service_proxy = ServiceProxy()
     service_proxy.login_handler = LoginHandler(login_manager, agent_dao)
@@ -179,6 +196,12 @@ def _run(config):
         on_queue_agent_paused_manager,
         queue_dao,
         agent_dao,
+    )
+    service_proxy.on_queue_member_handler = OnQueueMemberHandler(
+        on_queue_member_associated_manager,
+        on_queue_member_dissociated_manager,
+        agent_status_dao,
+        queue_dao,
     )
     service_proxy.pause_handler = PauseHandler(pause_manager, agent_status_dao)
     service_proxy.relog_handler = RelogHandler(relog_manager)
@@ -246,6 +269,8 @@ def _init_bus_consume(bus_consumer, service_proxy):
         (QueueEditedEvent, service_proxy.on_queue_updated),
         (QueueDeletedEvent, service_proxy.on_queue_deleted),
         (QueueMemberPausedEvent, service_proxy.on_agent_paused),
+        (QueueMemberAgentAssociatedEvent, service_proxy.on_queue_agent_associated),
+        (QueueMemberAgentDissociatedEvent, service_proxy.on_queue_agent_dissociated),
     )
     for event, action in events:
         bus_consumer.subscribe(event.name, action)
