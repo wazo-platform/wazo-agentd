@@ -146,10 +146,7 @@ def _run(config):
     logoff_manager = LogoffManager(logoff_action, agent_dao, agent_status_dao)
     on_agent_deleted_manager = OnAgentDeletedManager(logoff_manager, agent_status_dao)
     on_agent_updated_manager = OnAgentUpdatedManager(
-        add_to_queue_action,
-        remove_from_queue_action,
-        update_penalty_action,
-        agent_status_dao,
+        update_penalty_action, agent_status_dao
     )
     on_queue_added_manager = OnQueueAddedManager(add_to_queue_action, agent_status_dao)
     on_queue_deleted_manager = OnQueueDeletedManager(agent_status_dao)
