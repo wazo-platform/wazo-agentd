@@ -1,90 +1,37 @@
-# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
 from unittest.mock import Mock
 
-from wazo_agentd.service.manager.on_agent_updated import (
-    OnAgentUpdatedManager,
-    QueueDelta,
-)
-
-
-class TestQueueDelta(unittest.TestCase):
-    def setUp(self):
-        self.queue1 = Mock()
-        self.queue1.id = 1
-        self.queue1.name = 'q1'
-        self.queue2 = Mock()
-        self.queue2.id = 2
-        self.queue2.name = 'q2'
-        self.old_queue3 = Mock()
-        self.old_queue3.id = 3
-        self.old_queue3.name = 'q3'
-        self.old_queue3.penalty = 0
-        self.new_queue3 = Mock()
-        self.new_queue3.id = 3
-        self.new_queue3.name = 'q3'
-        self.new_queue3.penalty = 1
-        self.queue4 = Mock()
-        self.queue4.id = 4
-        self.queue4.name = 'q4'
-        self.queue4.penalty = 0
-
-    def test_calculate(self):
-        old_queues = [self.queue1, self.old_queue3, self.queue4]
-        new_queues = [self.queue2, self.new_queue3, self.queue4]
-
-        delta = QueueDelta.calculate(old_queues, new_queues)
-
-        self.assertEqual(delta.added, [self.queue2])
-        self.assertEqual(delta.removed, [self.queue1])
-        self.assertEqual(delta.penalty_updated, [self.new_queue3])
+from wazo_agentd.service.manager.on_agent_updated import OnAgentUpdatedManager
 
 
 class TestOnAgentUpdatedManager(unittest.TestCase):
     def setUp(self):
-        self.add_to_queue_action = Mock()
-        self.remove_from_queue_action = Mock()
-        self.update_penalty_action = Mock()
+        self.update_penalty_action = Mock(update=Mock())
         self.agent_status_dao = Mock()
         self.on_agent_updated_manager = OnAgentUpdatedManager(
-            self.add_to_queue_action,
-            self.remove_from_queue_action,
             self.update_penalty_action,
             self.agent_status_dao,
         )
 
     def test_on_agent_updated(self):
-        old_queue = Mock()
-        old_queue.id = 1
-        new_queue = Mock()
-        new_queue.id = 2
-        updated_queue_before = Mock()
-        updated_queue_before.id = 3
-        updated_queue_before.penalty = 61
-        updated_queue_after = Mock()
-        updated_queue_after.id = 3
-        updated_queue_after.penalty = 39
+        queue_updated = Mock(id=1, penalty=61)
+        original_queue = Mock(id=1, penalty=37)
+        original_queue._replace = Mock(
+            side_effect=lambda penalty: Mock(id=1, penalty=penalty)
+        )
 
-        agent_id = 1
-        agent = Mock()
-        agent.id = agent_id
-        agent.queues = [new_queue, updated_queue_after]
-        agent_status = Mock()
-        agent_status.agent_id = agent_id
-        agent_status.queues = [old_queue, updated_queue_before]
+        agent = Mock(id=42, queues=[queue_updated])
+        agent_status = Mock(agent_id=42, queues=[original_queue])
 
         self.agent_status_dao.get_status.return_value = agent_status
 
         self.on_agent_updated_manager.on_agent_updated(agent)
 
-        self.add_to_queue_action.add_agent_to_queue.assert_called_once_with(
-            agent_status, new_queue
-        )
-        self.remove_from_queue_action.remove_agent_from_queue.assert_called_once_with(
-            agent_status, old_queue
-        )
-        self.update_penalty_action.update.assert_called_once_with(
-            agent_status, updated_queue_after
-        )
+        self.update_penalty_action.update.assert_called()
+        (arg1, arg2), _ = self.update_penalty_action.update.call_args
+
+        assert arg1 is agent_status
+        assert arg2.id == 1 and arg2.penalty == queue_updated.penalty
