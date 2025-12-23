@@ -40,7 +40,8 @@ class OnAgentUpdatedManager:
 
         for key in previous_queues.keys():
             queue = previous_queues[key]
-            updated = updated_queues[key]
+            if not (updated := updated_queues.get(key)):
+                continue
 
             if queue.penalty != updated.penalty:
                 queue = queue._replace(penalty=updated.penalty)
