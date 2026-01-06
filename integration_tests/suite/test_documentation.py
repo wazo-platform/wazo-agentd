@@ -1,15 +1,16 @@
-# Copyright 2019-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
 
 import requests
+import urllib3
 import yaml
 from openapi_spec_validator import openapi_v2_spec_validator, validate_spec
 
 from .helpers.base import BaseIntegrationTest
 
-requests.packages.urllib3.disable_warnings()
+urllib3.disable_warnings()
 
 logger = logging.getLogger('openapi_spec_validator')
 logger.setLevel(logging.INFO)
