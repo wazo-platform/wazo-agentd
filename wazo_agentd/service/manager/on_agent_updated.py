@@ -1,8 +1,9 @@
-# Copyright 2013-2025 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING, TypeAlias
 
 from xivo_dao.helpers import db_utils
@@ -16,6 +17,8 @@ if TYPE_CHECKING:
 
     QueueStatus: TypeAlias = AgentStatusDAO._Queue
     AgentStatus: TypeAlias = AgentStatusDAO._AgentStatus
+
+logger = logging.getLogger(__name__)
 
 
 class OnAgentUpdatedManager:
@@ -41,6 +44,11 @@ class OnAgentUpdatedManager:
         for key in previous_queues.keys():
             queue = previous_queues[key]
             if not (updated := updated_queues.get(key)):
+                logger.debug(
+                    'database desynchronization detected: queue %d not found for agent %d',
+                    key,
+                    agent.id,
+                )
                 continue
 
             if queue.penalty != updated.penalty:
