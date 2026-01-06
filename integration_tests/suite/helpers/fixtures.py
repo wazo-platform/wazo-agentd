@@ -1,4 +1,4 @@
-# Copyright 2019-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from functools import wraps
@@ -10,7 +10,7 @@ def agent(**agent):
         def wrapper(self, *args, **kwargs):
             with self.database.queries() as queries:
                 agent['id'] = queries.insert_agent(**agent)
-            args = list(args) + [agent]
+            args = (*args, agent)
             try:
                 return func(self, *args, **kwargs)
             finally:
@@ -28,7 +28,7 @@ def queue(**queue):
         def wrapper(self, *args, **kwargs):
             with self.database.queries() as queries:
                 queue['id'] = queries.insert_queue(**queue)
-            args = list(args) + [queue]
+            args = (*args, queue)
             try:
                 return func(self, *args, **kwargs)
             finally:
@@ -47,7 +47,7 @@ def user_line_extension(**ule):
             with self.database.queries() as queries:
                 resource_ids = queries.insert_user_line_extension(**ule)
                 ule.update(resource_ids)
-            args = list(args) + [ule]
+            args = (*args, ule)
             try:
                 return func(self, *args, **kwargs)
             finally:
