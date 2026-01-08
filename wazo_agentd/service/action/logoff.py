@@ -1,4 +1,4 @@
-# Copyright 2013-2026 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import datetime
@@ -51,9 +51,6 @@ class LogoffAction:
 
     def _update_asterisk(self, agent_status):
         for queue in agent_status.queues:
-            if not queue.logged:
-                continue
-
             try:
                 self._amid_client.action(
                     'QueueRemove',
@@ -107,6 +104,7 @@ class LogoffAction:
 
     def _update_agent_status(self, agent_status):
         with db_utils.session_scope():
+            self._agent_status_dao.remove_agent_from_all_queues(agent_status.agent_id)
             self._agent_status_dao.log_off_agent(agent_status.agent_id)
 
     def _send_bus_status_update(self, agent_status):

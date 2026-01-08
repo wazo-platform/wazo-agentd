@@ -1,10 +1,7 @@
-# Copyright 2013-2026 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import annotations
-
 import logging
-from typing import TYPE_CHECKING, TypeAlias
 
 from wazo_amid_client.exceptions import AmidProtocolError
 from wazo_bus.resources.agent.event import AgentStatusUpdatedEvent
@@ -13,21 +10,10 @@ from xivo_dao.helpers import db_utils
 from wazo_agentd.exception import NoSuchExtensionError, NoSuchLineError
 from wazo_agentd.service.helper import format_agent_member_name, format_agent_skills
 
-if TYPE_CHECKING:
-    from xivo_dao import agent_status_dao as AgentStatusDAO
-    from xivo_dao.agent_dao import _Agent as Agent
-
-    from wazo_agentd.dao import AgentDAOAdapter as AgentDAO
-
-    AgentStatus: TypeAlias = AgentStatusDAO._AgentStatus
-
 logger = logging.getLogger(__name__)
 
 
 class LoginAction:
-    _agent_dao: AgentDAO
-    _agent_status_dao: AgentStatusDAO
-
     def __init__(
         self,
         amid_client,
@@ -101,17 +87,15 @@ class LoginAction:
             self._agent_status_dao.log_in_agent(
                 agent.id, agent.number, extension, context, interface, state_interface
             )
+            self._agent_status_dao.add_agent_to_queues(agent.id, agent.queues)
 
     def _update_queue_log(self, agent, extension, context):
         self._queue_log_manager.on_agent_logged_in(agent.number, extension, context)
 
-    def _update_asterisk(self, agent: Agent, interface, state_interface):
-        with db_utils.session_scope():
-            enabled_queues = self._agent_dao.list_agent_enabled_queues(agent.id)
-
+    def _update_asterisk(self, agent, interface, state_interface):
         member_name = format_agent_member_name(agent.number)
         skills = format_agent_skills(agent.id)
-        for queue in enabled_queues:
+        for queue in agent.queues:
             try:
                 self._amid_client.action(
                     'QueueAdd',
