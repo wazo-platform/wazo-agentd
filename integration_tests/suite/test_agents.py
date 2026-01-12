@@ -1,6 +1,7 @@
 # Copyright 2019-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+import json
 import time
 
 from hamcrest import (
@@ -450,7 +451,7 @@ class TestAgents(BaseIntegrationTest):
     @fixtures.agent()
     @fixtures.queue()
     @fixtures.queue()
-    def test_user_agent_login_logoff_preserves_queue_status(
+    def test_agent_login_logoff_preserves_queue_status(
         self, user_line_extension, agent, queue_1, queue_2
     ):
         self.create_user_token(user_line_extension['user_uuid'])
@@ -491,3 +492,40 @@ class TestAgents(BaseIntegrationTest):
             assert status.logged is True
             assert status.queues[0]['logged'] is False
             assert status.queues[1]['logged'] is True
+
+    @fixtures.user_line_extension(exten='1001', context='default')
+    @fixtures.agent(number='1234')
+    @fixtures.queue(name='Queue1')
+    def test_adding_queue_to_logged_off_agent_enables_it_for_next_login(
+        self, user_line_extension, agent, queue
+    ):
+        with associations.user_agent(
+            self.database, user_line_extension['user_id'], agent['id']
+        ):
+            self.agentd.agents.add_agent_to_queue(agent['id'], queue['id'])
+
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert status.logged is False
+
+            self.amid.reset()
+
+            self.agentd.agents.login_agent(
+                agent['id'],
+                user_line_extension['exten'],
+                user_line_extension['context'],
+            )
+
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert status.logged is True
+            assert status.queues[0]['logged'] is True
+
+            for request in self.amid.get_requests()['requests']:
+                body = json.loads(request['body'])
+                if (
+                    request['path'].endswith('action/QueueAdd')
+                    and body.get('Queue') == queue['name']
+                    and body.get('MemberName') == f'Agent/{agent["number"]}'
+                ):
+                    break
+            else:
+                raise AssertionError('No such AMI QueueAdd event')
