@@ -1,4 +1,4 @@
-# Copyright 2013-2025 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import annotations
@@ -10,34 +10,28 @@ from xivo import debug
 from xivo_dao.helpers import db_utils
 
 if TYPE_CHECKING:
-    from xivo_dao import agent_status_dao as AgentStatusDAO
-
-    from wazo_agentd.dao import AgentDAOAdapter, QueueDAOAdapter
+    from wazo_agentd.dao import AgentDAOAdapter as AgentDAO
+    from wazo_agentd.dao import QueueDAOAdapter as QueueDAO
+    from wazo_agentd.service.manager.add_member import AddMemberManager
     from wazo_agentd.service.manager.queue import QueueManager
+    from wazo_agentd.service.manager.remove_member import RemoveMemberManager
 
 logger = logging.getLogger(__name__)
 
 
 class MembershipHandler:
-    _agent_dao: AgentDAOAdapter
-    _agent_status_dao: AgentStatusDAO
-    _queue_dao: QueueDAOAdapter
-    _queue_manager: QueueManager
-
     def __init__(
         self,
-        add_member_manager,
-        remove_member_manager,
-        queue_manager,
-        agent_dao,
-        agent_status_dao,
-        queue_dao,
+        add_member_manager: AddMemberManager,
+        remove_member_manager: RemoveMemberManager,
+        queue_manager: QueueManager,
+        agent_dao: AgentDAO,
+        queue_dao: QueueDAO,
     ):
         self._add_member_manager = add_member_manager
         self._remove_member_manager = remove_member_manager
         self._queue_manager = queue_manager
         self._agent_dao = agent_dao
-        self._agent_status_dao = agent_status_dao
         self._queue_dao = queue_dao
 
     @debug.trace_duration
@@ -72,10 +66,9 @@ class MembershipHandler:
             queue_id,
         )
         with db_utils.session_scope():
-            self._agent_dao.get_agent_by_user_uuid(user_uuid, tenant_uuids)
-            status = self._agent_status_dao.get_status_by_user(user_uuid, tenant_uuids)
+            agent = self._agent_dao.get_agent_by_user_uuid(user_uuid, tenant_uuids)
             queue = self._queue_dao.get_queue(queue_id, tenant_uuids)
-        self._queue_manager.login_to_queue(status, queue)
+        self._queue_manager.login_to_queue(agent, queue)
 
     @debug.trace_duration
     def handle_user_agent_queue_logoff(self, user_uuid, queue_id, tenant_uuids=None):
@@ -85,7 +78,6 @@ class MembershipHandler:
             queue_id,
         )
         with db_utils.session_scope():
-            self._agent_dao.get_agent_by_user_uuid(user_uuid, tenant_uuids)
-            status = self._agent_status_dao.get_status_by_user(user_uuid, tenant_uuids)
+            agent = self._agent_dao.get_agent_by_user_uuid(user_uuid, tenant_uuids)
             queue = self._queue_dao.get_queue(queue_id, tenant_uuids)
-        self._queue_manager.logoff_from_queue(status, queue)
+        self._queue_manager.logoff_from_queue(agent, queue)
