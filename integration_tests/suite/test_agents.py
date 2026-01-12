@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import json
-import time
 
 from hamcrest import (
     all_of,
@@ -176,9 +175,6 @@ class TestAgents(BaseIntegrationTest):
 
             # pause
             self.agentd.agents.pause_user_agent()
-            # NOTE(fblackburn): agentd may be still not connected to the bus to receive messages
-            # A best solution should be to create a /status and wait on it
-            time.sleep(8)
             self.bus.send_queue_member_pause('1234', agent['id'], paused=True)
 
             def test_on_msg_received():
