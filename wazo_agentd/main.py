@@ -1,4 +1,4 @@
-# Copyright 2012-2025 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -140,7 +140,7 @@ def _run(config):
     update_penalty_action = UpdatePenaltyAction(amid_client, agent_status_dao)
 
     add_member_manager = AddMemberManager(
-        add_to_queue_action, amid_client, agent_status_dao, queue_member_dao
+        add_to_queue_action, amid_client, queue_member_dao
     )
     login_manager = LoginManager(login_action, agent_status_dao, context_dao, line_dao)
     logoff_manager = LogoffManager(logoff_action, agent_dao, agent_status_dao)
@@ -160,28 +160,27 @@ def _run(config):
         login_action, logoff_action, agent_dao, agent_status_dao
     )
     remove_member_manager = RemoveMemberManager(
-        remove_from_queue_action, amid_client, agent_status_dao, queue_member_dao
+        remove_from_queue_action, amid_client, queue_member_dao
     )
     queue_manager = QueueManager(
-        add_to_queue_action, remove_from_queue_action, user_dao, bus_publisher
+        add_to_queue_action,
+        remove_from_queue_action,
+        agent_status_dao,
+        user_dao,
+        bus_publisher,
     )
     on_queue_member_associated_manager = OnQueueMemberAssociatedManager(
-        add_to_queue_action, agent_status_dao
+        add_to_queue_action
     )
     on_queue_member_dissociated_manager = OnQueueMemberDissociatedManager(
-        remove_from_queue_action, agent_status_dao
+        remove_from_queue_action
     )
 
     service_proxy = ServiceProxy()
     service_proxy.login_handler = LoginHandler(login_manager, agent_dao)
     service_proxy.logoff_handler = LogoffHandler(logoff_manager, agent_status_dao)
     service_proxy.membership_handler = MembershipHandler(
-        add_member_manager,
-        remove_member_manager,
-        queue_manager,
-        agent_dao,
-        agent_status_dao,
-        queue_dao,
+        add_member_manager, remove_member_manager, queue_manager, agent_dao, queue_dao
     )
     service_proxy.on_agent_handler = OnAgentHandler(
         on_agent_deleted_manager, on_agent_updated_manager, agent_dao
