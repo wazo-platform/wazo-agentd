@@ -1,4 +1,4 @@
-# Copyright 2019-2025 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import json
@@ -58,14 +58,17 @@ class TestEventHandler(BaseIntegrationTest):
         self.bus.send_agent_deleted_event(agent['id'])
         until.assert_(check_agent_status, tries=10)
 
+    @fixtures.user_line_extension(exten='1001', context='default')
     @fixtures.agent(number='1234')
     @fixtures.queue()
-    def test_on_queue_member_agent_associated(self, agent, queue):
+    def test_on_queue_member_agent_associated(self, user_line_extension, agent, queue):
         with self.database.queries() as queries:
             with queries.inserter() as inserter:
                 inserter.add_agent_login_status(
                     agent_id=agent['id'], agent_number=agent['number']
                 )
+            queries.associate_user_agent(user_line_extension['user_id'], agent['id'])
+            queries.associate_queue_agent(queue['id'], agent['id'])
 
         self.amid.reset()
         self.bus.send_queue_member_agent_associated(agent['id'], queue['id'], 1)
@@ -76,6 +79,8 @@ class TestEventHandler(BaseIntegrationTest):
                 if body := json.loads(request['body']):
                     if (
                         body['MemberName'] == f'Agent/{agent["number"]}'
+                        and body['Paused'] == '0'
+                        and 'Reason' not in body
                         and body['Penalty'] == 1
                         and request['path'].endswith('QueueAdd')
                     ):
@@ -84,11 +89,85 @@ class TestEventHandler(BaseIntegrationTest):
 
         until.assert_(assert_ami_command_received, tries=10)
 
-        # Check queue is logged in
+        status = self.agentd.agents.get_agent_status(agent['id'])
+        assert status.logged is True
+        assert status.queues[0]['logged'] is True
+
+    @fixtures.user_line_extension(exten='1001', context='default')
+    @fixtures.agent(number='1234')
+    @fixtures.queue()
+    def test_on_queue_member_agent_associated_while_paused(
+        self, user_line_extension, agent, queue
+    ):
         with self.database.queries() as queries:
+            with queries.inserter() as inserter:
+                inserter.add_agent_login_status(
+                    agent_id=agent['id'],
+                    agent_number=agent['number'],
+                    paused=True,
+                    paused_reason='for some reason',
+                )
+            queries.associate_user_agent(user_line_extension['user_id'], agent['id'])
+            queries.associate_queue_agent(queue['id'], agent['id'])
+
+        self.amid.reset()
+        self.bus.send_queue_member_agent_associated(agent['id'], queue['id'], 16)
+
+        def assert_ami_command_received():
+            requests = self.amid.get_requests().get('requests', [])
+            for request in requests:
+                if body := json.loads(request['body']):
+                    if (
+                        body['MemberName'] == f'Agent/{agent["number"]}'
+                        and body['Paused'] == '1'
+                        and body['Reason'] == 'for some reason'
+                        and body['Penalty'] == 16
+                        and request['path'].endswith('QueueAdd')
+                    ):
+                        return
+            raise AssertionError('AMI QueueAdd action not received')
+
+        until.assert_(assert_ami_command_received, tries=10)
+
+        status = self.agentd.agents.get_agent_status(agent['id'])
+        assert status.logged is True
+        assert status.queues[0]['logged'] is True
+        assert status.queues[0]['paused'] is True
+        assert status.queues[0]['paused_reason'] == 'for some reason'
+
+    @fixtures.user_line_extension(exten='1001', context='default')
+    @fixtures.agent(number='1234')
+    @fixtures.queue()
+    def test_on_queue_member_agent_associated_while_logged_off(
+        self, user_line_extension, agent, queue
+    ):
+        with self.database.queries() as queries:
+            queries.associate_user_agent(user_line_extension['user_id'], agent['id'])
+            queries.associate_queue_agent(queue['id'], agent['id'])
+
+        self.amid.reset()
+        self.bus.send_queue_member_agent_associated(agent['id'], queue['id'], 64)
+
+        def assert_queue_is_enabled(queries):
             membership = queries.get_agent_membership_status(queue['id'], agent['id'])
-            assert membership.agent_id == agent['id']
-            assert membership.queue_id == queue['id']
+            assert membership is not None
+
+        with self.database.queries() as queries:
+            until.assert_(assert_queue_is_enabled, queries, tries=10)
+
+        assert len(self.amid.get_requests()['requests']) == 0
+
+        status = self.agentd.agents.get_agent_status(agent['id'])
+        assert status.logged is False
+        assert len(status.queues) == 0
+
+        self.agentd.agents.login_agent(
+            agent['id'], user_line_extension['exten'], user_line_extension['context']
+        )
+
+        status = self.agentd.agents.get_agent_status(agent['id'])
+        assert status.logged is True
+        assert status.queues[0]['logged'] is True
 
     @fixtures.user_line_extension(exten='1001', context='default')
     @fixtures.agent(number='1234')
