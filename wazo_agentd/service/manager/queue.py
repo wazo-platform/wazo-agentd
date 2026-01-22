@@ -83,10 +83,11 @@ class QueueManager:
 
         agent_queue = self._get_agent_queue(agent_status, queue)
 
+        # NOTE: Since queue from wazo_agentd.dao penalty is hardcoded to 0, we must update it
+        queue = queue._replace(penalty=agent_queue.penalty)
+
         if not agent_queue.logged:
-            self._add_to_queue_action.add_agent_to_queue_by_status(
-                agent_status, agent_queue
-            )
+            self._add_to_queue_action.add_agent_to_queue_by_status(agent_status, queue)
             self._send_bus_event(UserAgentQueueLoggedInEvent, agent, agent_queue)
 
     def logoff_from_queue(self, agent: Agent, queue: Queue) -> None:
