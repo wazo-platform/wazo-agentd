@@ -1,7 +1,7 @@
-# Copyright 2019-2025 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import time
+import json
 
 from hamcrest import (
     all_of,
@@ -175,9 +175,6 @@ class TestAgents(BaseIntegrationTest):
 
             # pause
             self.agentd.agents.pause_user_agent()
-            # NOTE(fblackburn): agentd may be still not connected to the bus to receive messages
-            # A best solution should be to create a /status and wait on it
-            time.sleep(8)
             self.bus.send_queue_member_pause('1234', agent['id'], paused=True)
 
             def test_on_msg_received():
@@ -445,3 +442,86 @@ class TestAgents(BaseIntegrationTest):
             status = self.agentd.agents.get_agent_status(agent['id'])
             assert status.logged is True
             assert status.queues[0]['logged'] is False
+
+    @fixtures.user_line_extension(exten='1001', context='default')
+    @fixtures.agent()
+    @fixtures.queue()
+    @fixtures.queue()
+    def test_agent_login_logoff_preserves_queue_status(
+        self, user_line_extension, agent, queue_1, queue_2
+    ):
+        self.create_user_token(user_line_extension['user_uuid'])
+
+        with associations.user_agent(
+            self.database, user_line_extension['user_id'], agent['id']
+        ):
+            with self.database.queries() as db:
+                db.associate_queue_agent(queue_1['id'], agent['id'])
+                db.associate_queue_agent(queue_2['id'], agent['id'])
+                db.insert_agent_membership_status(queue_1['id'], agent['id'])
+
+            self.agentd.agents.login_agent(
+                agent['id'],
+                user_line_extension['exten'],
+                user_line_extension['context'],
+            )
+
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert status.logged is True
+            assert status.queues[0]['logged'] is True
+            assert status.queues[1]['logged'] is False
+
+            self.agentd.agents.user_agent_logoff_from_queue(queue_1['id'])
+            self.agentd.agents.user_agent_login_to_queue(queue_2['id'])
+            self.agentd.agents.logoff_agent(agent['id'])
+
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert status.logged is False
+
+            self.agentd.agents.login_agent(
+                agent['id'],
+                user_line_extension['exten'],
+                user_line_extension['context'],
+            )
+
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert status.logged is True
+            assert status.queues[0]['logged'] is False
+            assert status.queues[1]['logged'] is True
+
+    @fixtures.user_line_extension(exten='1001', context='default')
+    @fixtures.agent(number='1234')
+    @fixtures.queue(name='Queue1')
+    def test_adding_queue_to_logged_off_agent_enables_it_for_next_login(
+        self, user_line_extension, agent, queue
+    ):
+        with associations.user_agent(
+            self.database, user_line_extension['user_id'], agent['id']
+        ):
+            self.agentd.agents.add_agent_to_queue(agent['id'], queue['id'])
+
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert status.logged is False
+
+            self.amid.reset()
+
+            self.agentd.agents.login_agent(
+                agent['id'],
+                user_line_extension['exten'],
+                user_line_extension['context'],
+            )
+
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert status.logged is True
+            assert status.queues[0]['logged'] is True
+
+            for request in self.amid.get_requests()['requests']:
+                body = json.loads(request['body'])
+                if (
+                    request['path'].endswith('action/QueueAdd')
+                    and body.get('Queue') == queue['name']
+                    and body.get('MemberName') == f'Agent/{agent["number"]}'
+                ):
+                    break
+            else:
+                raise AssertionError('No such AMI QueueAdd event')

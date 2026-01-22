@@ -1,4 +1,4 @@
-# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from xivo_dao.helpers import db_utils
@@ -7,19 +7,16 @@ from wazo_agentd.exception import AgentNotInQueueError
 
 
 class RemoveMemberManager:
-    def __init__(
-        self, remove_from_queue_action, amid_client, agent_status_dao, queue_member_dao
-    ):
+    def __init__(self, remove_from_queue_action, amid_client, queue_member_dao):
         self._remove_from_queue_action = remove_from_queue_action
         self._amid_client = amid_client
-        self._agent_status_dao = agent_status_dao
         self._queue_member_dao = queue_member_dao
 
     def remove_agent_from_queue(self, agent, queue):
         self._check_agent_is_member_of_queue(agent, queue)
         self._remove_queue_member(agent, queue)
         self._send_agent_removed_event(agent, queue)
-        self._remove_from_queue_if_logged(agent, queue)
+        self._remove_from_queue(agent, queue)
 
     def _check_agent_is_member_of_queue(self, agent, queue):
         for agent_queue in agent.queues:
@@ -42,8 +39,5 @@ class RemoveMemberManager:
             },
         )
 
-    def _remove_from_queue_if_logged(self, agent, queue):
-        with db_utils.session_scope():
-            agent_status = self._agent_status_dao.get_status(agent.id)
-        if agent_status is not None:
-            self._remove_from_queue_action.remove_agent_from_queue(agent_status, queue)
+    def _remove_from_queue(self, agent, queue):
+        self._remove_from_queue_action.remove_agent_from_queue(agent, queue)

@@ -1,9 +1,8 @@
-# Copyright 2025 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2025-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import TYPE_CHECKING, TypeAlias
 
 from wazo_bus.resources.user_agent.event import (
@@ -19,8 +18,7 @@ from wazo_agentd.exception import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-
+    from xivo_dao import agent_dao as AgentDAO
     from xivo_dao import agent_status_dao as AgentStatusDAO
     from xivo_dao.resources.user import dao as UserDAO
 
@@ -29,40 +27,31 @@ if TYPE_CHECKING:
     from wazo_agentd.service.action.add import AddToQueueAction
     from wazo_agentd.service.action.remove import RemoveFromQueueAction
 
+    Agent: TypeAlias = AgentDAO._Agent
     AgentStatus: TypeAlias = AgentStatusDAO._AgentStatus
-    AgentQueue: TypeAlias = AgentStatusDAO._Queue
-
-
-@dataclass
-class _ActionsContainer:
-    add_agent_to_queue: Callable[[AgentStatus, AgentQueue], None]
-    remove_agent_from_queue: Callable[[AgentStatus, AgentQueue], None]
+    QueueStatus: TypeAlias = AgentStatusDAO._Queue
 
 
 class QueueManager:
-    _actions: _ActionsContainer
-    _bus_publisher: BusPublisher
-
     def __init__(
         self,
         add_to_queue_action: AddToQueueAction,
         remove_from_queue_action: RemoveFromQueueAction,
+        agent_status_dao: AgentStatusDAO,
         user_dao: UserDAO,
         bus_publisher: BusPublisher,
     ):
-        self._actions = _ActionsContainer(
-            add_to_queue_action.add_agent_to_queue,
-            remove_from_queue_action.remove_agent_from_queue,
-        )
+        self._add_to_queue_action = add_to_queue_action
+        self._remove_from_queue_action = remove_from_queue_action
+        self._agent_status_dao = agent_status_dao
         self._user_dao = user_dao
         self._bus_publisher = bus_publisher
 
-    def _get_agent_users_uuids(self, agent_status: AgentStatus) -> list[str]:
-        agent_id = agent_status.agent_id
+    def _get_agent_users_uuids(self, agent: Agent) -> list[str]:
         with db_utils.session_scope():
-            return [u.uuid for u in self._user_dao.find_all_by_agent_id(agent_id)]
+            return [u.uuid for u in self._user_dao.find_all_by_agent_id(agent.id)]
 
-    def _get_agent_queue(self, agent_status: AgentStatus, queue: Queue) -> AgentQueue:
+    def _get_agent_queue(self, agent_status: AgentStatus, queue: Queue) -> QueueStatus:
         for agent_queue in agent_status.queues:
             if agent_queue.name == queue.name:
                 return agent_queue
@@ -73,39 +62,48 @@ class QueueManager:
         event_cls: (
             type[UserAgentQueueLoggedInEvent] | type[UserAgentQueueLoggedOffEvent]
         ),
-        agent_status: AgentStatus,
-        queue: AgentQueue,
+        agent: Agent,
+        queue: QueueStatus,
     ) -> None:
-        tenant_uuid = agent_status.tenant_uuid
-        user_uuids = self._get_agent_users_uuids(agent_status)
+        tenant_uuid = agent.tenant_uuid
+        user_uuids = self._get_agent_users_uuids(agent)
 
-        event = event_cls(agent_status.agent_id, queue.id, tenant_uuid, user_uuids)
+        event = event_cls(agent.id, queue.id, tenant_uuid, user_uuids)
         self._bus_publisher.publish(event)
 
-    def login_to_queue(self, agent_status: AgentStatus | None, queue: Queue) -> None:
+    def login_to_queue(self, agent: Agent, queue: Queue) -> None:
+        with db_utils.session_scope():
+            agent_status = self._agent_status_dao.get_status(agent.id)
+
         if not agent_status:
             raise AgentNotLoggedError()
 
-        if agent_status.tenant_uuid != queue.tenant_uuid:
+        if agent.tenant_uuid != queue.tenant_uuid:
             raise QueueDifferentTenantError()
 
         agent_queue = self._get_agent_queue(agent_status, queue)
 
-        if not agent_queue.logged:
-            self._actions.add_agent_to_queue(agent_status, agent_queue)
-            self._send_bus_event(UserAgentQueueLoggedInEvent, agent_status, agent_queue)
+        # NOTE: Since queue from wazo_agentd.dao penalty is hardcoded to 0, we must update it
+        queue = queue._replace(penalty=agent_queue.penalty)
 
-    def logoff_from_queue(self, agent_status: AgentStatus | None, queue: Queue) -> None:
+        if not agent_queue.logged:
+            self._add_to_queue_action.add_agent_to_queue_by_status(agent_status, queue)
+            self._send_bus_event(UserAgentQueueLoggedInEvent, agent, agent_queue)
+
+    def logoff_from_queue(self, agent: Agent, queue: Queue) -> None:
+        with db_utils.session_scope():
+            agent_status = self._agent_status_dao.get_status(agent.id)
+
         if not agent_status:
             raise AgentNotLoggedError()
 
-        if agent_status.tenant_uuid != queue.tenant_uuid:
+        if agent.tenant_uuid != queue.tenant_uuid:
             raise QueueDifferentTenantError()
 
         agent_queue = self._get_agent_queue(agent_status, queue)
 
         if agent_queue.logged:
-            self._actions.remove_agent_from_queue(agent_status, agent_queue)
-            self._send_bus_event(
-                UserAgentQueueLoggedOffEvent, agent_status, agent_queue
+            self._remove_from_queue_action.remove_agent_from_queue_by_status(
+                agent_status, agent_queue
             )
+            self._send_bus_event(UserAgentQueueLoggedOffEvent, agent, agent_queue)

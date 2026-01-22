@@ -1,4 +1,4 @@
-# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from xivo_dao.helpers import db_utils
@@ -7,12 +7,9 @@ from wazo_agentd.exception import AgentAlreadyInQueueError, QueueDifferentTenant
 
 
 class AddMemberManager:
-    def __init__(
-        self, add_to_queue_action, amid_client, agent_status_dao, queue_member_dao
-    ):
+    def __init__(self, add_to_queue_action, amid_client, queue_member_dao):
         self._add_to_queue_action = add_to_queue_action
         self._amid_client = amid_client
-        self._agent_status_dao = agent_status_dao
         self._queue_member_dao = queue_member_dao
 
     def add_agent_to_queue(self, agent, queue):
@@ -20,7 +17,7 @@ class AddMemberManager:
         self._check_agent_is_not_member_of_queue(agent, queue)
         self._add_queue_member(agent, queue)
         self._send_agent_added_event(agent, queue)
-        self._add_to_queue_if_logged(agent, queue)
+        self._add_to_queue(agent, queue)
 
     def _check_agent_in_same_tenant_queue(self, agent, queue):
         if agent.tenant_uuid != queue.tenant_uuid:
@@ -48,8 +45,5 @@ class AddMemberManager:
             },
         )
 
-    def _add_to_queue_if_logged(self, agent, queue):
-        with db_utils.session_scope():
-            agent_status = self._agent_status_dao.get_status(agent.id)
-        if agent_status is not None:
-            self._add_to_queue_action.add_agent_to_queue(agent_status, queue)
+    def _add_to_queue(self, agent, queue):
+        self._add_to_queue_action.add_agent_to_queue(agent, queue)
