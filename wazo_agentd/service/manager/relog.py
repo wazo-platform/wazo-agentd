@@ -1,4 +1,4 @@
-# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -16,7 +16,7 @@ class RelogManager:
         self._agent_status_dao = agent_status_dao
 
     def relog_all_agents(self, tenant_uuids=None):
-        agent_statuses = self._get_agent_statuses(tenant_uuids=tenant_uuids)
+        agent_statuses = self._get_agent_statuses()
         for agent_status in agent_statuses:
             try:
                 self._relog_agent(agent_status)

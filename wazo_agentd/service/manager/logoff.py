@@ -26,7 +26,7 @@ class LogoffManager:
         self._logoff_action.logoff_agent(agent_status)
 
     def logoff_all_agents(self, tenant_uuids=None):
-        agent_statuses = self._get_agent_statuses(tenant_uuids=tenant_uuids)
+        agent_statuses = self._get_agent_statuses()
         logger.info(agent_statuses)
         for agent_status in agent_statuses:
             self._logoff_action.logoff_agent(agent_status)
