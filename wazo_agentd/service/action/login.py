@@ -97,16 +97,21 @@ class LoginAction:
     def _update_agent_status(
         self, agent, extension, context, interface, state_interface
     ):
-        with db_utils.session_scope():
-            self._agent_status_dao.log_in_agent(
-                agent.id, agent.number, extension, context, interface, state_interface
-            )
-            try:
-                self._agent_status_dao.add_agent_to_queues(agent.id, agent.queues)
-            except Exception as exc:
-                logging.debug(
-                    'an error occured when updating agent queue membership: %s', exc
+        try:
+            with db_utils.session_scope():
+                self._agent_status_dao.log_in_agent(
+                    agent.id,
+                    agent.number,
+                    extension,
+                    context,
+                    interface,
+                    state_interface,
                 )
+                self._agent_status_dao.add_agent_to_queues(agent.id, agent.queues)
+        except Exception as exc:
+            logging.debug(
+                'an error occured when updating agent queue membership: %s', exc
+            )
 
     def _update_queue_log(self, agent, extension, context):
         self._queue_log_manager.on_agent_logged_in(agent.number, extension, context)
