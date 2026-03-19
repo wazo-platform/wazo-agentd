@@ -103,8 +103,10 @@ class LoginAction:
             )
             try:
                 self._agent_status_dao.add_agent_to_queues(agent.id, agent.queues)
-            except Exception:
-                logging.debug('an error occured when updating agent queue membership')
+            except Exception as exc:
+                logging.debug(
+                    'an error occured when updating agent queue membership: %s', exc
+                )
 
     def _update_queue_log(self, agent, extension, context):
         self._queue_log_manager.on_agent_logged_in(agent.number, extension, context)
