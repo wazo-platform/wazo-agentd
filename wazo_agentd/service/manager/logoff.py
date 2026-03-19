@@ -1,13 +1,9 @@
 # Copyright 2013-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import logging
-
 from xivo_dao.helpers import db_utils
 
 from wazo_agentd.exception import AgentNotLoggedError, NoSuchAgentError
-
-logger = logging.getLogger(__name__)
 
 
 class LogoffManager:
@@ -27,7 +23,6 @@ class LogoffManager:
 
     def logoff_all_agents(self, tenant_uuids=None):
         agent_statuses = self._get_agent_statuses()
-        logger.info(agent_statuses)
         for agent_status in agent_statuses:
             self._logoff_action.logoff_agent(agent_status)
 
