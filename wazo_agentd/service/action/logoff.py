@@ -50,7 +50,10 @@ class LogoffAction:
         self._pause_manager.unpause_agent(agent_status)
 
     def _update_asterisk(self, agent_status):
-        for queue in agent_status.queues:
+        with db_utils.session_scope():
+            agent = self._agent_dao.agent_with_id(agent_status.agent_id)
+
+        for queue in agent.queues:
             try:
                 self._amid_client.action(
                     'QueueRemove',
