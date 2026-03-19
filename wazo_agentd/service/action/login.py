@@ -101,17 +101,16 @@ class LoginAction:
             self._agent_status_dao.log_in_agent(
                 agent.id, agent.number, extension, context, interface, state_interface
             )
+            self._agent_status_dao.add_agent_to_queues(agent.id, agent.queues)
 
     def _update_queue_log(self, agent, extension, context):
         self._queue_log_manager.on_agent_logged_in(agent.number, extension, context)
 
     def _update_asterisk(self, agent: Agent, interface, state_interface):
-        with db_utils.session_scope():
-            enabled_queues = self._agent_dao.list_agent_enabled_queues(agent.id)
-
         member_name = format_agent_member_name(agent.number)
         skills = format_agent_skills(agent.id)
-        for queue in enabled_queues:
+
+        for queue in agent.queues:
             try:
                 self._amid_client.action(
                     'QueueAdd',
