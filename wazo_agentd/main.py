@@ -131,6 +131,7 @@ def _run(config):
     queue_manager = QueueManager(
         add_to_queue_action,
         remove_from_queue_action,
+        logoff_action,
         agent_status_dao,
         user_dao,
         bus_publisher,

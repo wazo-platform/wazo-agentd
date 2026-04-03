@@ -509,8 +509,7 @@ class TestAgents(BaseIntegrationTest):
             )
 
             status = self.agentd.agents.get_agent_status(agent['id'])
-            assert status.logged is True
-            assert status.queues[0]['logged'] is False
+            assert status.logged is False
 
     @fixtures.user_line_extension(exten='1001', context='default')
     @fixtures.agent()
@@ -607,8 +606,8 @@ class TestAgents(BaseIntegrationTest):
             assert status.queues[0]['logged'] is True
             assert status.queues[1]['logged'] is False
 
-            self.agentd.agents.user_agent_logoff_from_queue(queue_1['id'])
             self.agentd.agents.user_agent_login_to_queue(queue_2['id'])
+            self.agentd.agents.user_agent_logoff_from_queue(queue_1['id'])
             self.agentd.agents.logoff_agent(agent['id'])
 
             status = self.agentd.agents.get_agent_status(agent['id'])
