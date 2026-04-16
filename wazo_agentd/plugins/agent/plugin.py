@@ -1,4 +1,4 @@
-# Copyright 2024-2025 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2024-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from .http import (
@@ -13,6 +13,7 @@ from .http import (
     LogoffUserAgent,
     PauseAgentByNumber,
     PauseUserAgent,
+    QueueLoginAgentById,
     QueueLoginUserAgent,
     QueueLogoffUserAgent,
     RemoveAgentFromQueue,
@@ -114,6 +115,11 @@ class Plugin:
         api.add_resource(
             UnpauseAgentByNumber,
             '/agents/by-number/<agent_number>/unpause',
+            resource_class_args=[service_proxy],
+        )
+        api.add_resource(
+            QueueLoginAgentById,
+            '/agents/<int:agent_id>/queues/<int:queue_id>/login',
             resource_class_args=[service_proxy],
         )
         api.add_resource(
