@@ -370,11 +370,7 @@ paths:
       parameters:
       - $ref: '#/parameters/tenantuuid'
       - $ref: '#/parameters/AgentID'
-      - name: queue_id
-        type: integer
-        in: path
-        required: true
-        description: Queue's ID
+      - $ref: '#/parameters/QueueID'
       responses:
         '204':
           description: The operation was performed succesfully
@@ -392,11 +388,7 @@ paths:
       - user
       parameters:
       - $ref: '#/parameters/tenantuuid'
-      - name: queue_id
-        type: integer
-        in: path
-        required: true
-        description: Queue's ID
+      - $ref: '#/parameters/QueueID'
       responses:
         '204':
           description: The operation was performed succesfully
@@ -418,11 +410,7 @@ paths:
       parameters:
       - $ref: '#/parameters/tenantuuid'
       - $ref: '#/parameters/AgentID'
-      - name: queue_id
-        type: integer
-        in: path
-        required: true
-        description: Queue's ID
+      - $ref: '#/parameters/QueueID'
       responses:
         '204':
           description: The operation was performed succesfully
@@ -440,11 +428,7 @@ paths:
       - user
       parameters:
       - $ref: '#/parameters/tenantuuid'
-      - name: queue_id
-        type: integer
-        in: path
-        required: true
-        description: Queue's ID
+      - $ref: '#/parameters/QueueID'
       responses:
         '204':
           description: The operation was performed succesfully
@@ -463,6 +447,12 @@ parameters:
     type: integer
     required: true
     description: Agent's ID
+  QueueID:
+    name: queue_id
+    in: path
+    type: integer
+    required: true
+    description: Queue's ID
   recurse:
     name: recurse
     in: query
