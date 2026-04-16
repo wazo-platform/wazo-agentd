@@ -15,6 +15,7 @@ from .http import (
     PauseUserAgent,
     QueueLoginAgentById,
     QueueLoginUserAgent,
+    QueueLogoffAgentById,
     QueueLogoffUserAgent,
     RemoveAgentFromQueue,
     UnpauseAgentByNumber,
@@ -125,6 +126,11 @@ class Plugin:
         api.add_resource(
             QueueLoginUserAgent,
             '/users/me/agents/queues/<int:queue_id>/login',
+            resource_class_args=[service_proxy],
+        )
+        api.add_resource(
+            QueueLogoffAgentById,
+            '/agents/<int:agent_id>/queues/<int:queue_id>/logoff',
             resource_class_args=[service_proxy],
         )
         api.add_resource(

@@ -483,6 +483,44 @@ class TestAgents(BaseIntegrationTest):
     @fixtures.user_line_extension(exten='1001', context='default')
     @fixtures.agent()
     @fixtures.queue()
+    def test_admin_logoff_agent_from_queue(self, user_line_extension, agent, queue):
+        self.agentd.agents.login_agent(
+            agent['id'],
+            user_line_extension['exten'],
+            user_line_extension['context'],
+        )
+
+        self.agentd.agents.add_agent_to_queue(agent['id'], queue['id'])
+
+        status = self.agentd.agents.get_agent_status(agent['id'])
+        assert status.logged is True
+        assert status.queues[0]['logged'] is True
+
+        accumulator = self.bus.accumulator(
+            headers={'name': 'user_agent_queue_logged_off'}
+        )
+        self.agentd.agents.user_agent_logoff_from_queue(
+            queue['id'], agent_id=agent['id']
+        )
+
+        accumulator.until_assert_that_accumulate(
+            has_items(
+                has_entries(
+                    data=has_entries(
+                        agent_id=agent['id'],
+                        queue_id=queue['id'],
+                    ),
+                ),
+            )
+        )
+
+        status = self.agentd.agents.get_agent_status(agent['id'])
+        assert status.logged is True
+        assert status.queues[0]['logged'] is False
+
+    @fixtures.user_line_extension(exten='1001', context='default')
+    @fixtures.agent()
+    @fixtures.queue()
     @fixtures.queue()
     def test_agent_login_logoff_preserves_queue_status(
         self, user_line_extension, agent, queue_1, queue_2

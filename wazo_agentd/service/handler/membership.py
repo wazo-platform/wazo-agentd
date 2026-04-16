@@ -83,6 +83,18 @@ class MembershipHandler:
         self._queue_manager.login_to_queue(agent, queue)
 
     @debug.trace_duration
+    def handle_agent_queue_logoff(self, agent_id, queue_id, tenant_uuids=None):
+        logger.info(
+            'Executing queue logoff command (agent ID %s, queue ID %s)',
+            agent_id,
+            queue_id,
+        )
+        with db_utils.session_scope():
+            agent = self._agent_dao.get_agent(agent_id, tenant_uuids=tenant_uuids)
+            queue = self._queue_dao.get_queue(queue_id, tenant_uuids=tenant_uuids)
+        self._queue_manager.logoff_from_queue(agent, queue)
+
+    @debug.trace_duration
     def handle_user_agent_queue_logoff(self, user_uuid, queue_id, tenant_uuids=None):
         logger.info(
             'Executing queue logoff command (agent of user %s, queue ID %s)',
