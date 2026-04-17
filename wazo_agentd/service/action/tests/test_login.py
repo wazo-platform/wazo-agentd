@@ -65,6 +65,7 @@ class TestLoginAction(unittest.TestCase):
         self.agent_status_dao.log_in_agent.assert_called_once_with(
             agent_id, agent_number, extension, context, ANY, state_interface_sip
         )
+        self.agent_status_dao.add_agent_to_queues.assert_not_called()
         self.queue_log_manager.on_agent_logged_in.assert_called_once_with(
             agent_number, extension, context
         )
@@ -191,3 +192,68 @@ class TestLoginAction(unittest.TestCase):
             ),
         )
         self.bus_publisher.publish.assert_called_once_with(event)
+
+    def test_login_agent_with_no_previously_logged_queues_enables_all_queues(self):
+        agent_id = 10
+        agent_number = '10'
+        queue1 = Mock()
+        queue1.id = 101
+        queue2 = Mock()
+        queue2.id = 102
+        agent = Mock(user_ids=[], tenant_uuid='fake-tenant')
+        agent.id = agent_id
+        agent.number = agent_number
+        agent.queues = [queue1, queue2]
+        extension = '1001'
+        context = 'default'
+        state_interface_sip = 'PJSIP/abcd'
+        tenant_uuid = '00000000-0000-4000-8000-000000001234'
+
+        self.line_dao.get_interface_from_exten_and_context.return_value = (
+            state_interface_sip
+        )
+        self.user_dao.find_all_by_agent_id.return_value = [
+            Mock(uuid='42'),
+            Mock(uuid='43'),
+        ]
+        self.amid_client.action.return_value = [{'Response': 'Ok'}]
+        self.agent_dao.agent_with_id.return_value = Mock(tenant_uuid=tenant_uuid)
+        # Fallback sequence: no enabled queues on first call (triggers fallback),
+        # then agent.queues after add_agent_to_queues populates them.
+        self.agent_dao.list_agent_enabled_queues.side_effect = [[], [queue1, queue2]]
+
+        self.login_action.login_agent(agent, extension, context)
+
+        self.agent_status_dao.add_agent_to_queues.assert_called_once_with(
+            agent_id, [queue1, queue2]
+        )
+
+        queue_names_added = [
+            c.args[1]['Queue'] for c in self.amid_client.action.call_args_list
+        ]
+        assert_that(queue_names_added, contains_inanyorder(queue1.name, queue2.name))
+
+    def test_login_agent_with_no_queues_assigned_does_not_enable_any(self):
+        agent_id = 10
+        agent_number = '10'
+        agent = Mock(user_ids=[])
+        agent.id = agent_id
+        agent.number = agent_number
+        agent.queues = []
+        extension = '1001'
+        context = 'default'
+        state_interface_sip = 'PJSIP/abcd'
+        tenant_uuid = '00000000-0000-4000-8000-000000001234'
+
+        self.line_dao.get_interface_from_exten_and_context.return_value = (
+            state_interface_sip
+        )
+        self.user_dao.find_all_by_agent_id.return_value = []
+        self.amid_client.action.return_value = [{'Response': 'Ok'}]
+        self.agent_dao.agent_with_id.return_value = Mock(tenant_uuid=tenant_uuid)
+        self.agent_dao.list_agent_enabled_queues.return_value = []
+
+        self.login_action.login_agent(agent, extension, context)
+
+        self.agent_status_dao.add_agent_to_queues.assert_not_called()
+        self.amid_client.action.assert_not_called()

@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, TypeAlias
 
 from wazo_amid_client.exceptions import AmidProtocolError
 from wazo_bus.resources.agent.event import AgentStatusUpdatedEvent
+from wazo_bus.resources.user_agent.event import UserAgentQueueLoggedInEvent
 from xivo_dao.helpers import db_utils
 
 from wazo_agentd.exception import NoSuchExtensionError, NoSuchLineError
@@ -71,9 +72,31 @@ class LoginAction:
     def _do_login(self, agent, extension, context, interface, state_interface):
         self._update_agent_status(agent, extension, context, interface, state_interface)
         self._update_queue_log(agent, extension, context)
+        self._ensure_queues_logged_in(agent)
         self._update_asterisk(agent, interface, state_interface)
         self._update_blf(agent)
         self._send_bus_status_update(agent)
+
+    def _ensure_queues_logged_in(self, agent: Agent):
+        with db_utils.session_scope():
+            enabled_queues = self._agent_dao.list_agent_enabled_queues(agent.id)
+            if enabled_queues or not agent.queues:
+                return
+            logger.info(
+                'Agent %s has no previously logged queues, '
+                'logging into all assigned queues',
+                agent.id,
+            )
+            self._agent_status_dao.add_agent_to_queues(agent.id, agent.queues)
+            user_uuids = [
+                user.uuid for user in self._user_dao.find_all_by_agent_id(agent.id)
+            ]
+
+        for queue in agent.queues:
+            event = UserAgentQueueLoggedInEvent(
+                agent.id, queue.id, agent.tenant_uuid, user_uuids
+            )
+            self._bus_publisher.publish(event)
 
     def _get_interface(self, agent):
         return f'Local/id-{agent.id}@agentcallback'
