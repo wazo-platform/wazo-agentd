@@ -33,5 +33,6 @@ class RelogAgents(_BaseAgentResource):
     def post(self):
         params = self.parse_params()
         tenant_uuids = self._build_tenant_list(params)
-        self.service_proxy.relog_all(tenant_uuids=tenant_uuids)
+        all_queues = params.get('all_queues', 'false').lower() == 'true'
+        self.service_proxy.relog_all(tenant_uuids=tenant_uuids, all_queues=all_queues)
         return '', 204
