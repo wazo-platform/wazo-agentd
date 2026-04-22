@@ -23,6 +23,7 @@ class TestLoginAction(unittest.TestCase):
         self.user_dao = Mock()
         self.agent_dao = Mock()
         self.bus_publisher = Mock()
+        self.queue_manager = Mock()
         self.login_action = LoginAction(
             self.amid_client,
             self.queue_log_manager,
@@ -32,6 +33,7 @@ class TestLoginAction(unittest.TestCase):
             self.user_dao,
             self.agent_dao,
             self.bus_publisher,
+            self.queue_manager,
         )
 
     def test_login_agent(self):
@@ -218,20 +220,14 @@ class TestLoginAction(unittest.TestCase):
         ]
         self.amid_client.action.return_value = [{'Response': 'Ok'}]
         self.agent_dao.agent_with_id.return_value = Mock(tenant_uuid=tenant_uuid)
-        # Fallback sequence: no enabled queues on first call (triggers fallback),
-        # then agent.queues after add_agent_to_queues populates them.
-        self.agent_dao.list_agent_enabled_queues.side_effect = [[], [queue1, queue2]]
+        self.agent_dao.list_agent_enabled_queues.return_value = []
 
         self.login_action.login_agent(agent, extension, context)
 
-        self.agent_status_dao.add_agent_to_queues.assert_called_once_with(
-            agent_id, [queue1, queue2]
+        assert_that(
+            self.queue_manager.login_to_queue.call_args_list,
+            contains_inanyorder(call(agent, queue1), call(agent, queue2)),
         )
-
-        queue_names_added = [
-            c.args[1]['Queue'] for c in self.amid_client.action.call_args_list
-        ]
-        assert_that(queue_names_added, contains_inanyorder(queue1.name, queue2.name))
 
     def test_login_agent_with_no_queues_assigned_does_not_enable_any(self):
         agent_id = 10
