@@ -91,7 +91,15 @@ class LoginAction:
             agent.id,
         )
         for queue in agent.queues:
-            self._queue_manager.login_to_queue(agent, queue)
+            try:
+                self._queue_manager.login_to_queue(agent, queue)
+            except Exception as e:
+                logger.warning(
+                    'Failure to login agent %r to queue %r: %s',
+                    agent.id,
+                    queue.name,
+                    e,
+                )
 
     def _get_interface(self, agent):
         return f'Local/id-{agent.id}@agentcallback'
