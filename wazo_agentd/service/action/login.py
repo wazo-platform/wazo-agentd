@@ -75,14 +75,14 @@ class LoginAction:
     def _do_login(self, agent, extension, context, interface, state_interface):
         self._update_agent_status(agent, extension, context, interface, state_interface)
         self._update_queue_log(agent, extension, context)
-        self._update_asterisk(agent, interface, state_interface)
-        self._update_blf(agent)
-        self._ensure_queues_logged_in(agent)
-        self._send_bus_status_update(agent)
-
-    def _ensure_queues_logged_in(self, agent: Agent):
         with db_utils.session_scope():
             enabled_queues = self._agent_dao.list_agent_enabled_queues(agent.id)
+        self._update_asterisk(agent, interface, state_interface, enabled_queues)
+        self._update_blf(agent)
+        self._ensure_queues_logged_in(agent, enabled_queues)
+        self._send_bus_status_update(agent)
+
+    def _ensure_queues_logged_in(self, agent: Agent, enabled_queues):
         if enabled_queues or not agent.queues:
             return
         logger.info(
@@ -131,10 +131,9 @@ class LoginAction:
     def _update_queue_log(self, agent, extension, context):
         self._queue_log_manager.on_agent_logged_in(agent.number, extension, context)
 
-    def _update_asterisk(self, agent: Agent, interface, state_interface):
-        with db_utils.session_scope():
-            enabled_queues = self._agent_dao.list_agent_enabled_queues(agent.id)
-
+    def _update_asterisk(
+        self, agent: Agent, interface, state_interface, enabled_queues
+    ):
         member_name = format_agent_member_name(agent.number)
         skills = format_agent_skills(agent.id)
         for queue in enabled_queues:

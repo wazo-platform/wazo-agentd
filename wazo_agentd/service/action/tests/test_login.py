@@ -68,6 +68,7 @@ class TestLoginAction(unittest.TestCase):
             agent_id, agent_number, extension, context, ANY, state_interface_sip
         )
         self.agent_status_dao.add_agent_to_queues.assert_not_called()
+        self.agent_dao.list_agent_enabled_queues.assert_called_once_with(agent_id)
         self.queue_log_manager.on_agent_logged_in.assert_called_once_with(
             agent_number, extension, context
         )
