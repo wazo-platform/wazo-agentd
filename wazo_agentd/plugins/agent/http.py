@@ -1,4 +1,4 @@
-# Copyright 2024-2025 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2024-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from __future__ import annotations
@@ -192,12 +192,28 @@ class UnpauseUserAgent(_BaseAgentResource):
         return '', 204
 
 
+class QueueLoginAgentById(_BaseAgentResource):
+    @required_acl('agentd.agents.{agent_id}.queues.{queue_id}.login.update')
+    def put(self, agent_id: int, queue_id: int):
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        self.service_proxy.login_agent_to_queue(agent_id, queue_id, tenant_uuids)
+        return '', 204
+
+
 class QueueLoginUserAgent(_BaseAgentResource):
     @required_acl('agentd.users.me.agents.queues.{queue_id}.login.update')
     def put(self, queue_id: int):
         tenant_uuids = self._build_tenant_list({'recurse': True})
         user_uuid = token.user_uuid
         self.service_proxy.login_user_agent_to_queue(user_uuid, queue_id, tenant_uuids)
+        return '', 204
+
+
+class QueueLogoffAgentById(_BaseAgentResource):
+    @required_acl('agentd.agents.{agent_id}.queues.{queue_id}.logoff.update')
+    def put(self, agent_id: int, queue_id: int):
+        tenant_uuids = self._build_tenant_list({'recurse': True})
+        self.service_proxy.logoff_agent_from_queue(agent_id, queue_id, tenant_uuids)
         return '', 204
 
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 26.05
+
+* Added admin endpoints for per-queue agent login/logoff
+
+  * PUT `/agents/{agent_id}/queues/{queue_id}/login`
+  * PUT `/agents/{agent_id}/queues/{queue_id}/logoff`
+
 ## 25.17
 
 * Added endpoints for user agents to login/logoff of its queues
