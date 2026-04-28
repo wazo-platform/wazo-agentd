@@ -525,3 +525,58 @@ class TestAgents(BaseIntegrationTest):
                     break
             else:
                 raise AssertionError('No such AMI QueueAdd event')
+
+    @fixtures.user_line_extension(exten='1001', context='default')
+    @fixtures.agent()
+    @fixtures.queue()
+    @fixtures.queue()
+    def test_login_with_no_previously_logged_queues_logs_into_all(
+        self, user_line_extension, agent, queue_1, queue_2
+    ):
+        with associations.user_agent(
+            self.database, user_line_extension['user_id'], agent['id']
+        ):
+            with self.database.queries() as db:
+                db.associate_queue_agent(queue_1['id'], agent['id'])
+                db.associate_queue_agent(queue_2['id'], agent['id'])
+                assert (
+                    db.get_agent_membership_status(queue_1['id'], agent['id']) is None
+                )
+                assert (
+                    db.get_agent_membership_status(queue_2['id'], agent['id']) is None
+                )
+
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert status.logged is False
+
+            accumulator = self.bus.accumulator(
+                headers={'name': 'user_agent_queue_logged_in'}
+            )
+
+            self.agentd.agents.login_agent(
+                agent['id'],
+                user_line_extension['exten'],
+                user_line_extension['context'],
+            )
+
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert status.logged is True
+            assert status.queues[0]['logged'] is True
+            assert status.queues[1]['logged'] is True
+
+            accumulator.until_assert_that_accumulate(
+                has_items(
+                    has_entries(
+                        data=has_entries(
+                            agent_id=agent['id'],
+                            queue_id=queue_1['id'],
+                        ),
+                    ),
+                    has_entries(
+                        data=has_entries(
+                            agent_id=agent['id'],
+                            queue_id=queue_2['id'],
+                        ),
+                    ),
+                )
+            )

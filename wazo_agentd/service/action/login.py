@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from xivo_dao.agent_dao import _Agent as Agent
 
     from wazo_agentd.dao import AgentDAOAdapter as AgentDAO
+    from wazo_agentd.service.manager.queue import QueueManager
 
     AgentStatus: TypeAlias = AgentStatusDAO._AgentStatus
 
@@ -27,6 +28,7 @@ logger = logging.getLogger(__name__)
 class LoginAction:
     _agent_dao: AgentDAO
     _agent_status_dao: AgentStatusDAO
+    _queue_manager: QueueManager
 
     def __init__(
         self,
@@ -38,6 +40,7 @@ class LoginAction:
         user_dao,
         agent_dao,
         bus_publisher,
+        queue_manager,
     ):
         self._amid_client = amid_client
         self._blf_manager = blf_manager
@@ -47,6 +50,7 @@ class LoginAction:
         self._user_dao = user_dao
         self._agent_dao = agent_dao
         self._bus_publisher = bus_publisher
+        self._queue_manager = queue_manager
 
     def login_agent(self, agent, extension, context, endpoint=None):
         # Precondition:
@@ -71,9 +75,31 @@ class LoginAction:
     def _do_login(self, agent, extension, context, interface, state_interface):
         self._update_agent_status(agent, extension, context, interface, state_interface)
         self._update_queue_log(agent, extension, context)
-        self._update_asterisk(agent, interface, state_interface)
+        with db_utils.session_scope():
+            enabled_queues = self._agent_dao.list_agent_enabled_queues(agent.id)
+        self._update_asterisk(agent, interface, state_interface, enabled_queues)
         self._update_blf(agent)
         self._send_bus_status_update(agent)
+        self._ensure_queues_logged_in(agent, enabled_queues)
+
+    def _ensure_queues_logged_in(self, agent: Agent, enabled_queues):
+        if enabled_queues or not agent.queues:
+            return
+        logger.info(
+            'Agent %s has no previously logged queues, '
+            'logging into all assigned queues',
+            agent.id,
+        )
+        for queue in agent.queues:
+            try:
+                self._queue_manager.login_to_queue(agent, queue)
+            except Exception as e:
+                logger.warning(
+                    'Failure to login agent %r to queue %r: %s',
+                    agent.id,
+                    queue.name,
+                    e,
+                )
 
     def _get_interface(self, agent):
         return f'Local/id-{agent.id}@agentcallback'
@@ -105,10 +131,9 @@ class LoginAction:
     def _update_queue_log(self, agent, extension, context):
         self._queue_log_manager.on_agent_logged_in(agent.number, extension, context)
 
-    def _update_asterisk(self, agent: Agent, interface, state_interface):
-        with db_utils.session_scope():
-            enabled_queues = self._agent_dao.list_agent_enabled_queues(agent.id)
-
+    def _update_asterisk(
+        self, agent: Agent, interface, state_interface, enabled_queues
+    ):
         member_name = format_agent_member_name(agent.number)
         skills = format_agent_skills(agent.id)
         for queue in enabled_queues:

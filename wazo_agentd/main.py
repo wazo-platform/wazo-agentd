@@ -114,16 +114,8 @@ def _run(config):
     queue_log_manager = QueueLogManager(queue_log_dao)
 
     add_to_queue_action = AddToQueueAction(amid_client, agent_status_dao)
-    login_action = LoginAction(
-        amid_client,
-        queue_log_manager,
-        blf_manager,
-        agent_status_dao,
-        line_dao,
-        user_dao,
-        agent_dao,
-        bus_publisher,
-    )
+    remove_from_queue_action = RemoveFromQueueAction(amid_client, agent_status_dao)
+    update_penalty_action = UpdatePenaltyAction(amid_client, agent_status_dao)
     pause_action = PauseAction(amid_client)
     pause_manager = PauseManager(pause_action, agent_dao)
     logoff_action = LogoffAction(
@@ -136,12 +128,28 @@ def _run(config):
         agent_dao,
         bus_publisher,
     )
-    remove_from_queue_action = RemoveFromQueueAction(amid_client, agent_status_dao)
-    update_penalty_action = UpdatePenaltyAction(amid_client, agent_status_dao)
-
+    queue_manager = QueueManager(
+        add_to_queue_action,
+        remove_from_queue_action,
+        agent_status_dao,
+        user_dao,
+        bus_publisher,
+    )
+    login_action = LoginAction(
+        amid_client,
+        queue_log_manager,
+        blf_manager,
+        agent_status_dao,
+        line_dao,
+        user_dao,
+        agent_dao,
+        bus_publisher,
+        queue_manager,
+    )
     add_member_manager = AddMemberManager(
         add_to_queue_action, amid_client, queue_member_dao
     )
+
     login_manager = LoginManager(login_action, agent_status_dao, context_dao, line_dao)
     logoff_manager = LogoffManager(logoff_action, agent_dao, agent_status_dao)
     on_agent_deleted_manager = OnAgentDeletedManager(logoff_manager, agent_status_dao)
@@ -161,13 +169,6 @@ def _run(config):
     )
     remove_member_manager = RemoveMemberManager(
         remove_from_queue_action, amid_client, queue_member_dao
-    )
-    queue_manager = QueueManager(
-        add_to_queue_action,
-        remove_from_queue_action,
-        agent_status_dao,
-        user_dao,
-        bus_publisher,
     )
     on_queue_member_associated_manager = OnQueueMemberAssociatedManager(
         add_to_queue_action
