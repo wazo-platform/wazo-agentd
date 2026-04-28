@@ -79,8 +79,8 @@ class LoginAction:
             enabled_queues = self._agent_dao.list_agent_enabled_queues(agent.id)
         self._update_asterisk(agent, interface, state_interface, enabled_queues)
         self._update_blf(agent)
-        self._ensure_queues_logged_in(agent, enabled_queues)
         self._send_bus_status_update(agent)
+        self._ensure_queues_logged_in(agent, enabled_queues)
 
     def _ensure_queues_logged_in(self, agent: Agent, enabled_queues):
         if enabled_queues or not agent.queues:
