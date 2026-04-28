@@ -55,7 +55,7 @@ paths:
           $ref: '#/definitions/LoginInfo'
       responses:
         '204':
-          description: The operation was performed succesfully
+          description: The operation was performed successfully
         '400':
           description: The context and extension are not in the same tenant as the agent
           schema:
@@ -87,7 +87,7 @@ paths:
           $ref: '#/definitions/LoginInfo'
       responses:
         '204':
-          description: The operation was performed succesfully
+          description: The operation was performed successfully
         '400':
           description: The context and extension are not in the same tenant as the agent
           schema:
@@ -160,7 +160,7 @@ paths:
       - $ref: '#/parameters/AgentID'
       responses:
         '204':
-          description: The operation was performed succesfully
+          description: The operation was performed successfully
         '409':
           description: Agent does not exist or is not logged
           schema:
@@ -177,7 +177,7 @@ paths:
       - $ref: '#/parameters/AgentNumber'
       responses:
         '204':
-          description: The operation was performed succesfully
+          description: The operation was performed successfully
         '409':
           description: Agent does not exist or is not logged
           schema:
@@ -194,7 +194,7 @@ paths:
       - $ref: '#/parameters/tenantuuid'
       responses:
         '204':
-          description: The operation was performed succesfully
+          description: The operation was performed successfully
         '400':
           description: The token has no user; or wrong tenant; or the user has no agent
           schema:
@@ -222,7 +222,7 @@ paths:
           $ref: '#/definitions/AgentPauseReason'
       responses:
         '204':
-          description: The operation was performed succesfully
+          description: The operation was performed successfully
         '404':
           description: Agent does not exist
           schema:
@@ -249,7 +249,7 @@ paths:
           $ref: '#/definitions/AgentPauseReason'
       responses:
         '204':
-          description: The operation was performed succesfully
+          description: The operation was performed successfully
         '400':
           description: The token has no user; or wrong tenant; or the user has no agent
           schema:
@@ -271,7 +271,7 @@ paths:
       - $ref: '#/parameters/AgentNumber'
       responses:
         '204':
-          description: The operation was performed succesfully
+          description: The operation was performed successfully
         '404':
           description: Agent does not exist
           schema:
@@ -292,7 +292,7 @@ paths:
       - $ref: '#/parameters/tenantuuid'
       responses:
         '204':
-          description: The operation was performed succesfully
+          description: The operation was performed successfully
         '400':
           description: The token has no user; or wrong tenant; or the user has no agent
           schema:
@@ -320,7 +320,7 @@ paths:
           $ref: '#/definitions/Queue'
       responses:
         '204':
-          description: The operation was performed succesfully
+          description: The operation was performed successfully
         '400':
           description: The agent and the queue are not in the same tenant
           schema:
@@ -351,7 +351,7 @@ paths:
           $ref: '#/definitions/Queue'
       responses:
         '204':
-          description: The operation was performed succesfully
+          description: The operation was performed successfully
         '404':
           description: Agent or queue does not exist
           schema:
@@ -373,7 +373,7 @@ paths:
       - $ref: '#/parameters/QueueID'
       responses:
         '204':
-          description: The operation was performed succesfully
+          description: The operation was performed successfully
         '404':
           description: Agent or queue does not exist
           schema:
@@ -391,7 +391,7 @@ paths:
       - $ref: '#/parameters/QueueID'
       responses:
         '204':
-          description: The operation was performed succesfully
+          description: The operation was performed successfully
         '400':
           description: The token has no user; or wrong tenant; or the user has no agent
           schema:
@@ -413,7 +413,7 @@ paths:
       - $ref: '#/parameters/QueueID'
       responses:
         '204':
-          description: The operation was performed succesfully
+          description: The operation was performed successfully
         '404':
           description: Agent or queue does not exist
           schema:
@@ -431,7 +431,7 @@ paths:
       - $ref: '#/parameters/QueueID'
       responses:
         '204':
-          description: The operation was performed succesfully
+          description: The operation was performed successfully
         '400':
           description: The token has no user; or wrong tenant; or the user has no agent
           schema:
