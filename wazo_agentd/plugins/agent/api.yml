@@ -374,8 +374,16 @@ paths:
       responses:
         '204':
           description: The operation was performed successfully
+        '400':
+          description: The agent and the queue are not in the same tenant
+          schema:
+            $ref: '#/definitions/Error'
         '404':
           description: Agent or queue does not exist
+          schema:
+            $ref: '#/definitions/Error'
+        '409':
+          description: Agent is not logged
           schema:
             $ref: '#/definitions/Error'
   /users/me/agents/queues/{queue_id}/login:
@@ -400,6 +408,10 @@ paths:
           description: Agent or queue does not exist
           schema:
             $ref: '#/definitions/Error'
+        '409':
+          description: Agent is not logged
+          schema:
+            $ref: '#/definitions/Error'
   /agents/{agent_id}/queues/{queue_id}/logoff:
     put:
       summary: Logoff agent from queue
@@ -414,8 +426,16 @@ paths:
       responses:
         '204':
           description: The operation was performed successfully
+        '400':
+          description: The agent and the queue are not in the same tenant
+          schema:
+            $ref: '#/definitions/Error'
         '404':
           description: Agent or queue does not exist
+          schema:
+            $ref: '#/definitions/Error'
+        '409':
+          description: Agent is not logged
           schema:
             $ref: '#/definitions/Error'
   /users/me/agents/queues/{queue_id}/logoff:
@@ -438,6 +458,10 @@ paths:
             $ref: '#/definitions/Error'
         '404':
           description: Agent or queue does not exist
+          schema:
+            $ref: '#/definitions/Error'
+        '409':
+          description: Agent is not logged
           schema:
             $ref: '#/definitions/Error'
 parameters:
