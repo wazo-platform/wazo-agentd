@@ -406,7 +406,7 @@ class TestAgents(BaseIntegrationTest):
     @fixtures.user_line_extension(exten='1001', context='default')
     @fixtures.agent()
     @fixtures.queue()
-    def test_admin_login_agent_to_queue(self, user_line_extension, agent, queue):
+    def test_login_agent_to_queue(self, user_line_extension, agent, queue):
         self.agentd.agents.login_agent(
             agent['id'],
             user_line_extension['exten'],
@@ -441,7 +441,7 @@ class TestAgents(BaseIntegrationTest):
         assert status.queues[0]['logged'] is True
 
     @fixtures.queue()
-    def test_admin_login_agent_to_queue_unknown_agent(self, queue):
+    def test_login_agent_to_queue_unknown_agent(self, queue):
         assert_that(
             calling(self.agentd.agents.agent_login_to_queue).with_args(
                 UNKNOWN_ID, queue['id']
@@ -450,12 +450,25 @@ class TestAgents(BaseIntegrationTest):
         )
 
     @fixtures.agent()
-    def test_admin_login_agent_to_queue_unknown_queue(self, agent):
+    def test_login_agent_to_queue_unknown_queue(self, agent):
         assert_that(
             calling(self.agentd.agents.agent_login_to_queue).with_args(
                 agent['id'], UNKNOWN_ID
             ),
             raises(AgentdClientError, has_properties(error=NO_SUCH_QUEUE)),
+        )
+
+    @fixtures.agent()
+    @fixtures.queue()
+    def test_login_agent_to_queue_not_logged(self, agent, queue):
+        with self.database.queries() as db:
+            db.associate_queue_agent(queue['id'], agent['id'])
+
+        assert_that(
+            calling(self.agentd.agents.agent_login_to_queue).with_args(
+                agent['id'], queue['id']
+            ),
+            raises(AgentdClientError, has_properties(error=NOT_LOGGED)),
         )
 
     @fixtures.user_line_extension(exten='1001', context='default')
@@ -502,7 +515,7 @@ class TestAgents(BaseIntegrationTest):
     @fixtures.user_line_extension(exten='1001', context='default')
     @fixtures.agent()
     @fixtures.queue()
-    def test_admin_logoff_agent_from_queue(self, user_line_extension, agent, queue):
+    def test_logoff_agent_from_queue(self, user_line_extension, agent, queue):
         self.agentd.agents.login_agent(
             agent['id'],
             user_line_extension['exten'],
@@ -536,7 +549,7 @@ class TestAgents(BaseIntegrationTest):
         assert status.queues[0]['logged'] is False
 
     @fixtures.queue()
-    def test_admin_logoff_agent_from_queue_unknown_agent(self, queue):
+    def test_logoff_agent_from_queue_unknown_agent(self, queue):
         assert_that(
             calling(self.agentd.agents.agent_logoff_from_queue).with_args(
                 UNKNOWN_ID, queue['id']
@@ -545,12 +558,25 @@ class TestAgents(BaseIntegrationTest):
         )
 
     @fixtures.agent()
-    def test_admin_logoff_agent_from_queue_unknown_queue(self, agent):
+    def test_logoff_agent_from_queue_unknown_queue(self, agent):
         assert_that(
             calling(self.agentd.agents.agent_logoff_from_queue).with_args(
                 agent['id'], UNKNOWN_ID
             ),
             raises(AgentdClientError, has_properties(error=NO_SUCH_QUEUE)),
+        )
+
+    @fixtures.agent()
+    @fixtures.queue()
+    def test_logoff_agent_from_queue_not_logged(self, agent, queue):
+        with self.database.queries() as db:
+            db.associate_queue_agent(queue['id'], agent['id'])
+
+        assert_that(
+            calling(self.agentd.agents.agent_logoff_from_queue).with_args(
+                agent['id'], queue['id']
+            ),
+            raises(AgentdClientError, has_properties(error=NOT_LOGGED)),
         )
 
     @fixtures.user_line_extension(exten='1001', context='default')
