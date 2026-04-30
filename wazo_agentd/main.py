@@ -165,7 +165,12 @@ def _run(config):
         agent_status_dao, user_dao, agent_dao, bus_publisher
     )
     relog_manager = RelogManager(
-        login_action, logoff_action, agent_dao, agent_status_dao
+        login_action,
+        logoff_action,
+        agent_dao,
+        agent_status_dao,
+        user_dao,
+        bus_publisher,
     )
     remove_member_manager = RemoveMemberManager(
         remove_from_queue_action, amid_client, queue_member_dao

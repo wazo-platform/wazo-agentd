@@ -626,6 +626,83 @@ class TestAgents(BaseIntegrationTest):
             assert status.queues[1]['logged'] is True
 
     @fixtures.user_line_extension(exten='1001', context='default')
+    @fixtures.agent()
+    @fixtures.queue()
+    @fixtures.queue()
+    def test_relog_all_agents_all_queues_flag(
+        self, user_line_extension, agent, queue_1, queue_2
+    ):
+        with associations.user_agent(
+            self.database, user_line_extension['user_id'], agent['id']
+        ):
+            with self.database.queries() as db:
+                db.associate_queue_agent(queue_1['id'], agent['id'])
+                db.associate_queue_agent(queue_2['id'], agent['id'])
+                db.insert_agent_membership_status(queue_1['id'], agent['id'])
+
+            self.agentd.agents.login_agent(
+                agent['id'],
+                user_line_extension['exten'],
+                user_line_extension['context'],
+            )
+
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert status.logged is True
+            assert status.queues[0]['logged'] is True
+            assert status.queues[1]['logged'] is False
+
+            accumulator = self.bus.accumulator(
+                headers={'name': 'user_agent_queue_logged_in'}
+            )
+
+            self.agentd.agents.relog_all_agents(all_queues=True)
+
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert status.logged is True
+            assert status.queues[0]['logged'] is True
+            assert status.queues[1]['logged'] is True
+
+            accumulator.until_assert_that_accumulate(
+                has_items(
+                    has_entries(
+                        {f'user_uuid:{user_line_extension["user_uuid"]}': True},
+                        data=has_entries(
+                            agent_id=agent['id'],
+                            queue_id=queue_2['id'],
+                        ),
+                    ),
+                )
+            )
+
+    @fixtures.user_line_extension(exten='1001', context='default')
+    @fixtures.agent()
+    @fixtures.queue()
+    @fixtures.queue()
+    def test_relog_all_agents_preserves_queue_status_by_default(
+        self, user_line_extension, agent, queue_1, queue_2
+    ):
+        with associations.user_agent(
+            self.database, user_line_extension['user_id'], agent['id']
+        ):
+            with self.database.queries() as db:
+                db.associate_queue_agent(queue_1['id'], agent['id'])
+                db.associate_queue_agent(queue_2['id'], agent['id'])
+                db.insert_agent_membership_status(queue_1['id'], agent['id'])
+
+            self.agentd.agents.login_agent(
+                agent['id'],
+                user_line_extension['exten'],
+                user_line_extension['context'],
+            )
+
+            self.agentd.agents.relog_all_agents()
+
+            status = self.agentd.agents.get_agent_status(agent['id'])
+            assert status.logged is True
+            assert status.queues[0]['logged'] is True
+            assert status.queues[1]['logged'] is False
+
+    @fixtures.user_line_extension(exten='1001', context='default')
     @fixtures.agent(number='1234')
     @fixtures.queue(name='Queue1')
     def test_adding_queue_to_logged_off_agent_enables_it_for_next_login(

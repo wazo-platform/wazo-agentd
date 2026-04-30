@@ -38,6 +38,14 @@ paths:
       - agents
       parameters:
       - $ref: '#/parameters/tenantuuid'
+      - name: all_queues
+        in: query
+        type: boolean
+        description: If true, relog each agent into all of its assigned queues,
+          restoring membership for queues from which the agent was previously
+          logged off individually.
+        default: false
+        required: false
       responses:
         '204':
           description: The operation was performed succesfully

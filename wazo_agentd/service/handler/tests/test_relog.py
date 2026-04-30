@@ -19,5 +19,12 @@ class TestRelogHandler(unittest.TestCase):
         self.relog_handler.handle_relog_all(tenant_uuids=self.tenants)
 
         self.relog_manager.relog_all_agents.assert_called_once_with(
-            tenant_uuids=self.tenants
+            tenant_uuids=self.tenants, all_queues=False
+        )
+
+    def test_handle_relog_all_all_queues(self):
+        self.relog_handler.handle_relog_all(tenant_uuids=self.tenants, all_queues=True)
+
+        self.relog_manager.relog_all_agents.assert_called_once_with(
+            tenant_uuids=self.tenants, all_queues=True
         )

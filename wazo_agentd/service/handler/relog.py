@@ -13,6 +13,8 @@ class RelogHandler:
         self._relog_manager = relog_manager
 
     @debug.trace_duration
-    def handle_relog_all(self, tenant_uuids=None):
-        logger.info('Executing relog all command')
-        self._relog_manager.relog_all_agents(tenant_uuids=tenant_uuids)
+    def handle_relog_all(self, tenant_uuids=None, all_queues=False):
+        logger.info('Executing relog all command (all_queues=%s)', all_queues)
+        self._relog_manager.relog_all_agents(
+            tenant_uuids=tenant_uuids, all_queues=all_queues
+        )

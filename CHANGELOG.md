@@ -7,6 +7,12 @@
   * PUT `/agents/{agent_id}/queues/{queue_id}/login`
   * PUT `/agents/{agent_id}/queues/{queue_id}/logoff`
 
+* Added `all_queues` query parameter to force relogging an agent into all of
+  its assigned queues, restoring membership for queues the agent was previously
+  logged off from individually.
+
+  * POST `/agents/relog`
+
 ## 25.17
 
 * Added endpoints for user agents to login/logoff of its queues

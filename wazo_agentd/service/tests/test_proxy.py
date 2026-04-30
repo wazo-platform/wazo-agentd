@@ -127,7 +127,14 @@ class TestServiceProxy(unittest.TestCase):
         self.proxy.relog_all(tenant_uuids=self.tenants)
 
         self.relog_handler.handle_relog_all.assert_called_once_with(
-            tenant_uuids=self.tenants
+            tenant_uuids=self.tenants, all_queues=False
+        )
+
+    def test_relog_all_with_all_queues(self):
+        self.proxy.relog_all(tenant_uuids=self.tenants, all_queues=True)
+
+        self.relog_handler.handle_relog_all.assert_called_once_with(
+            tenant_uuids=self.tenants, all_queues=True
         )
 
     def test_pause_agent_by_number(self):
