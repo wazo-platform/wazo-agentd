@@ -509,20 +509,21 @@ class TestAgents(BaseIntegrationTest):
             )
 
             status = self.agentd.agents.get_agent_status(agent['id'])
-            assert status.logged is True
-            assert status.queues[0]['logged'] is False
+            assert status.logged is False
 
     @fixtures.user_line_extension(exten='1001', context='default')
     @fixtures.agent()
     @fixtures.queue()
-    def test_logoff_agent_from_queue(self, user_line_extension, agent, queue):
+    @fixtures.queue()
+    def test_logoff_agent_from_queue(self, user_line_extension, agent, queue1, queue2):
         self.agentd.agents.login_agent(
             agent['id'],
             user_line_extension['exten'],
             user_line_extension['context'],
         )
 
-        self.agentd.agents.add_agent_to_queue(agent['id'], queue['id'])
+        self.agentd.agents.add_agent_to_queue(agent['id'], queue1['id'])
+        self.agentd.agents.add_agent_to_queue(agent['id'], queue2['id'])
 
         status = self.agentd.agents.get_agent_status(agent['id'])
         assert status.logged is True
@@ -531,14 +532,14 @@ class TestAgents(BaseIntegrationTest):
         accumulator = self.bus.accumulator(
             headers={'name': 'user_agent_queue_logged_off'}
         )
-        self.agentd.agents.agent_logoff_from_queue(agent['id'], queue['id'])
+        self.agentd.agents.agent_logoff_from_queue(agent['id'], queue1['id'])
 
         accumulator.until_assert_that_accumulate(
             has_items(
                 has_entries(
                     data=has_entries(
                         agent_id=agent['id'],
-                        queue_id=queue['id'],
+                        queue_id=queue1['id'],
                     ),
                 ),
             )
@@ -607,8 +608,8 @@ class TestAgents(BaseIntegrationTest):
             assert status.queues[0]['logged'] is True
             assert status.queues[1]['logged'] is False
 
-            self.agentd.agents.user_agent_logoff_from_queue(queue_1['id'])
             self.agentd.agents.user_agent_login_to_queue(queue_2['id'])
+            self.agentd.agents.user_agent_logoff_from_queue(queue_1['id'])
             self.agentd.agents.logoff_agent(agent['id'])
 
             status = self.agentd.agents.get_agent_status(agent['id'])

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING, TypeAlias
 
 from wazo_bus.resources.user_agent.event import (
@@ -25,11 +26,14 @@ if TYPE_CHECKING:
     from wazo_agentd.bus import BusPublisher
     from wazo_agentd.dao import _Queue as Queue
     from wazo_agentd.service.action.add import AddToQueueAction
+    from wazo_agentd.service.action.logoff import LogoffAction
     from wazo_agentd.service.action.remove import RemoveFromQueueAction
 
     Agent: TypeAlias = AgentDAO._Agent
     AgentStatus: TypeAlias = AgentStatusDAO._AgentStatus
     QueueStatus: TypeAlias = AgentStatusDAO._Queue
+
+logger = logging.getLogger(__name__)
 
 
 class QueueManager:
@@ -37,12 +41,14 @@ class QueueManager:
         self,
         add_to_queue_action: AddToQueueAction,
         remove_from_queue_action: RemoveFromQueueAction,
+        logoff_action: LogoffAction,
         agent_status_dao: AgentStatusDAO,
         user_dao: UserDAO,
         bus_publisher: BusPublisher,
     ):
         self._add_to_queue_action = add_to_queue_action
         self._remove_from_queue_action = remove_from_queue_action
+        self._logoff_action = logoff_action
         self._agent_status_dao = agent_status_dao
         self._user_dao = user_dao
         self._bus_publisher = bus_publisher
@@ -107,3 +113,12 @@ class QueueManager:
                 agent_status, agent_queue
             )
             self._send_bus_event(UserAgentQueueLoggedOffEvent, agent, agent_queue)
+
+            with db_utils.session_scope():
+                agent_status = self._agent_status_dao.get_status(agent.id)
+
+            if agent_status and not any(q.logged for q in agent_status.queues):
+                logger.info(
+                    'Agent %s has no remaining logged queues, logging off', agent.id
+                )
+                self._logoff_action.logoff_agent(agent_status)

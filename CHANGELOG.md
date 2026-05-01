@@ -13,6 +13,12 @@
 
   * POST `/agents/relog`
 
+* Logging an agent off from their last remaining queue now also logs the agent
+  off entirely.
+
+  * PUT `/agents/{agent_id}/queues/{queue_id}/logoff`
+  * PUT `/users/me/agents/queues/{queue_id}/logoff`
+
 ## 25.17
 
 * Added endpoints for user agents to login/logoff of its queues
