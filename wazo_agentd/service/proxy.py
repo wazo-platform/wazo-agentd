@@ -187,7 +187,9 @@ class ServiceProxy:
 
     def on_agent_deleted(self, agent):
         with self._lock:
-            return self.on_agent_handler.handle_on_agent_deleted(agent['id'])
+            return self.on_agent_handler.handle_on_agent_deleted(
+                agent['id'], agent['tenant_uuid']
+            )
 
     def on_queue_updated(self, queue):
         with self._lock:

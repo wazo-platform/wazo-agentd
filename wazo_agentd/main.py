@@ -125,7 +125,6 @@ def _run(config):
         pause_manager,
         agent_status_dao,
         user_dao,
-        agent_dao,
         bus_publisher,
     )
     queue_manager = QueueManager(

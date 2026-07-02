@@ -10,6 +10,7 @@ from wazo_test_helpers import until
 
 from .helpers import fixtures
 from .helpers.base import BaseIntegrationTest
+from .helpers.database import TENANT_UUID
 
 
 class TestEventHandler(BaseIntegrationTest):
@@ -55,7 +56,7 @@ class TestEventHandler(BaseIntegrationTest):
 
         with self.database.queries() as queries:
             queries.delete_only_agent(agent['id'])
-        self.bus.send_agent_deleted_event(agent['id'])
+        self.bus.send_agent_deleted_event(agent['id'], TENANT_UUID)
         until.assert_(check_agent_status, tries=10)
 
     @fixtures.user_line_extension(exten='1001', context='default')

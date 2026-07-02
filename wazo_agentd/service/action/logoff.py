@@ -20,7 +20,6 @@ class LogoffAction:
         pause_manager,
         agent_status_dao,
         user_dao,
-        agent_dao,
         bus_publisher,
     ):
         self._amid_client = amid_client
@@ -29,7 +28,6 @@ class LogoffAction:
         self._pause_manager = pause_manager
         self._agent_status_dao = agent_status_dao
         self._user_dao = user_dao
-        self._agent_dao = agent_dao
         self._bus_publisher = bus_publisher
 
     def logoff_agent(self, agent_status):
@@ -112,21 +110,11 @@ class LogoffAction:
     def _send_bus_status_update(self, agent_status):
         agent_id = agent_status.agent_id
         with db_utils.session_scope():
-            try:
-                tenant_uuid = self._agent_dao.agent_with_id(agent_id).tenant_uuid
-            except LookupError:
-                # TODO(ITEM-424): temporary workaround. The agent no longer
-                # exists (logoff triggered by its deletion), so the status
-                # update event is skipped. The right fix is to extract
-                # tenant_uuid from the agent_deleted event and pass it down
-                # here so the event can still be published.
-                logger.debug(
-                    'agent %s not found, skipping status update event', agent_id
-                )
-                return
             users = [
                 user.uuid for user in self._user_dao.find_all_by_agent_id(agent_id)
             ]
             logger.debug('Found %s users.', len(users))
-            event = AgentStatusUpdatedEvent(agent_id, 'logged_out', tenant_uuid, users)
+            event = AgentStatusUpdatedEvent(
+                agent_id, 'logged_out', agent_status.tenant_uuid, users
+            )
             self._bus_publisher.publish(event)

@@ -20,7 +20,6 @@ class TestLogoffAction(unittest.TestCase):
         self.pause_manager = Mock()
         self.agent_status_dao = Mock()
         self.user_dao = Mock()
-        self.agent_dao = Mock()
         self.bus_publisher = Mock()
         self.logoff_action = LogoffAction(
             self.amid_client,
@@ -29,7 +28,6 @@ class TestLogoffAction(unittest.TestCase):
             self.pause_manager,
             self.agent_status_dao,
             self.user_dao,
-            self.agent_dao,
             self.bus_publisher,
         )
 
@@ -46,11 +44,11 @@ class TestLogoffAction(unittest.TestCase):
         agent_status.login_at = datetime.datetime.utcnow()
         agent_status.queues = [queue]
         tenant_uuid = '00000000-0000-4000-8000-000000001ebc'
+        agent_status.tenant_uuid = tenant_uuid
         self.user_dao.find_all_by_agent_id.return_value = [
             Mock(uuid='42'),
             Mock(uuid='43'),
         ]
-        self.agent_dao.agent_with_id.return_value = Mock(tenant_uuid=tenant_uuid)
         event = AgentStatusUpdatedEvent(10, 'logged_out', tenant_uuid, ['42', '43'])
         self.pause_manager.unpause_agent.side_effect = AmidProtocolError(
             Mock(json=Mock(return_value=[{'Message': 'Interface not found'}]))
@@ -103,11 +101,11 @@ class TestLogoffAction(unittest.TestCase):
         agent_status.login_at = datetime.datetime.utcnow()
         agent_status.queues = [queue]
         tenant_uuid = '00000000-0000-4000-8000-000000001ebc'
+        agent_status.tenant_uuid = tenant_uuid
         self.user_dao.find_all_by_agent_id.return_value = [
             Mock(uuid='42'),
             Mock(uuid='43'),
         ]
-        self.agent_dao.agent_with_id.return_value = Mock(tenant_uuid=tenant_uuid)
         event = AgentStatusUpdatedEvent(10, 'logged_out', tenant_uuid, ['42', '43'])
 
         self.logoff_action.logoff_agent(agent_status)
@@ -144,22 +142,6 @@ class TestLogoffAction(unittest.TestCase):
         )
         self.bus_publisher.publish.assert_called_once_with(event)
 
-    def test_logoff_agent_deleted_skips_status_update(self):
-        agent_id = 10
-        queue = Mock()
-        queue.name = 'q1'
-        agent_status = Mock(user_ids=[])
-        agent_status.agent_id = agent_id
-        agent_status.agent_number = '10'
-        agent_status.login_at = datetime.datetime.utcnow()
-        agent_status.queues = [queue]
-        self.agent_dao.agent_with_id.side_effect = LookupError('no agent found')
-
-        self.logoff_action.logoff_agent(agent_status)
-
-        self.agent_status_dao.log_off_agent.assert_called_once_with(agent_id)
-        self.bus_publisher.publish.assert_not_called()
-
     def test_logoff_agent_already_off_on_asterisk(self):
         agent_id = 10
         agent_number = '10'
@@ -176,7 +158,7 @@ class TestLogoffAction(unittest.TestCase):
             Mock(uuid='43'),
         ]
         tenant_uuid = '00000000-0000-4000-8000-000000001ebc'
-        self.agent_dao.agent_with_id.return_value = Mock(tenant_uuid=tenant_uuid)
+        agent_status.tenant_uuid = tenant_uuid
         event = AgentStatusUpdatedEvent(10, 'logged_out', tenant_uuid, ['42', '43'])
 
         response = Mock()
