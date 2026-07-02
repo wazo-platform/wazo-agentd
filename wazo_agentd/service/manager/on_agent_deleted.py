@@ -1,4 +1,4 @@
-# Copyright 2013-2025 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -20,6 +20,8 @@ class OnAgentDeletedManager:
             )
         if agent_status is None:
             logger.debug('agent %d has no active status requiring logoff', agent_id)
-            return
+        else:
+            self._logoff_action.logoff_agent(agent_status)
 
-        self._logoff_action.logoff_agent(agent_status)
+        with db_utils.session_scope():
+            self._agent_status_dao.remove_agent_from_all_queues(agent_id)

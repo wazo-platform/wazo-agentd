@@ -144,6 +144,22 @@ class TestLogoffAction(unittest.TestCase):
         )
         self.bus_publisher.publish.assert_called_once_with(event)
 
+    def test_logoff_agent_deleted_skips_status_update(self):
+        agent_id = 10
+        queue = Mock()
+        queue.name = 'q1'
+        agent_status = Mock(user_ids=[])
+        agent_status.agent_id = agent_id
+        agent_status.agent_number = '10'
+        agent_status.login_at = datetime.datetime.utcnow()
+        agent_status.queues = [queue]
+        self.agent_dao.agent_with_id.side_effect = LookupError('no agent found')
+
+        self.logoff_action.logoff_agent(agent_status)
+
+        self.agent_status_dao.log_off_agent.assert_called_once_with(agent_id)
+        self.bus_publisher.publish.assert_not_called()
+
     def test_logoff_agent_already_off_on_asterisk(self):
         agent_id = 10
         agent_number = '10'
