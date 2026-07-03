@@ -1,4 +1,4 @@
-# Copyright 2017-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2017-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -81,3 +81,13 @@ class TestOnQueueAgentPausedManager(unittest.TestCase):
             10, False, s.reason
         )
         self.bus_publisher.publish.assert_called_once_with(expected_event)
+
+    def test_on_queue_agent_unpaused_agent_deleted(self):
+        self.agent_dao.agent_with_id.side_effect = LookupError('no agent found')
+
+        self.manager.on_queue_agent_unpaused(10, s.number, s.reason, s.queue)
+
+        self.agent_status_dao.update_pause_status.assert_called_once_with(
+            10, False, s.reason
+        )
+        self.bus_publisher.publish.assert_not_called()
