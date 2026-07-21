@@ -60,6 +60,54 @@ class TestEventHandler(BaseIntegrationTest):
         until.assert_(check_agent_status, tries=10)
 
     @fixtures.user_line_extension(exten='1001', context='default')
+    @fixtures.agent(number='1001')
+    @fixtures.agent(number='1002')
+    @fixtures.queue()
+    def test_login_on_same_extension_after_agent_deleted(
+        self, user_line_extension, deleted_agent, agent, queue
+    ):
+        # Non-regression test: a logged agent whose phone is unreachable is
+        # deleted; its statuses must be cleaned up so another agent can log in
+        # on the same extension
+        with self.database.queries() as queries:
+            queries.associate_queue_agent(queue['id'], deleted_agent['id'])
+            queries.insert_agent_membership_status(queue['id'], deleted_agent['id'])
+            with queries.inserter() as inserter:
+                inserter.add_agent_login_status(
+                    agent_id=deleted_agent['id'],
+                    agent_number=deleted_agent['number'],
+                    extension=user_line_extension['exten'],
+                    context=user_line_extension['context'],
+                )
+
+        self.amid.set_queueremove_error('Unable to remove interface: Not there')
+        self.addCleanup(self.amid.set_queueremove)
+
+        with self.database.queries() as queries:
+            queries.delete_only_agent(deleted_agent['id'])
+        self.bus.send_agent_deleted_event(deleted_agent['id'], TENANT_UUID)
+
+        def check_deleted_agent_cleanup():
+            with self.database.queries() as queries:
+                status = queries.get_agent_login_status_by_id(deleted_agent['id'])
+                assert_that(status, is_(None))
+                membership = queries.get_agent_membership_status(
+                    queue['id'], deleted_agent['id']
+                )
+                assert_that(membership, is_(None))
+
+        until.assert_(check_deleted_agent_cleanup, tries=10)
+
+        self.agentd.agents.login_agent(
+            agent['id'],
+            user_line_extension['exten'],
+            user_line_extension['context'],
+        )
+
+        status = self.agentd.agents.get_agent_status(agent['id'])
+        assert_that(status.logged, is_(True))
+
+    @fixtures.user_line_extension(exten='1001', context='default')
     @fixtures.agent(number='1234')
     @fixtures.queue()
     def test_on_queue_member_agent_associated(self, user_line_extension, agent, queue):
