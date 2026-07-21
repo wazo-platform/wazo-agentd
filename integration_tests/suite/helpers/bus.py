@@ -1,4 +1,4 @@
-# Copyright 2019-2025 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from wazo_test_helpers import bus as bus_helper
@@ -28,9 +28,12 @@ class BusClient(bus_helper.BusClient):
             headers={'name': 'QueueMemberPause'},
         )
 
-    def send_agent_deleted_event(self, agent_id):
+    def send_agent_deleted_event(self, agent_id, tenant_uuid):
         self.publish(
-            {'data': {'id': agent_id}, 'name': 'agent_deleted'},
+            {
+                'data': {'id': agent_id, 'tenant_uuid': tenant_uuid},
+                'name': 'agent_deleted',
+            },
             headers={'name': 'agent_deleted'},
             routing_key='config.agent.deleted',
         )

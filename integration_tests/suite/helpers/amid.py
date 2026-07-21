@@ -1,4 +1,4 @@
-# Copyright 2019-2025 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import requests
@@ -25,6 +25,14 @@ class AmidClient:
     def set_queueremove(self):
         url = self.url('_set_response_action')
         body = {'response': 'QueueRemove', 'content': [{'Response': 'Success'}]}
+        requests.post(url, json=body)
+
+    def set_queueremove_error(self, message):
+        url = self.url('_set_response_action')
+        body = {
+            'response': 'QueueRemove',
+            'content': [{'Response': 'Error', 'Message': message}],
+        }
         requests.post(url, json=body)
 
     def set_userevent(self):

@@ -1,4 +1,4 @@
-# Copyright 2017-2024 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2017-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -34,7 +34,16 @@ class OnQueueAgentPausedManager:
     def _send_bus_status_update(self, partial_event, agent_id):
         with db_utils.session_scope():
             logger.debug('Looking for users with agent id %s...', agent_id)
-            tenant_uuid = self._agent_dao.agent_with_id(agent_id).tenant_uuid
+            try:
+                tenant_uuid = self._agent_dao.agent_with_id(agent_id).tenant_uuid
+            except LookupError:
+                # Deleting a logged agent unpauses it in asterisk, so the
+                # resulting QueueMemberPause events reference an agent that no
+                # longer exists
+                logger.warning(
+                    'agent %s not found, ignoring pause status update', agent_id
+                )
+                return
             users = [
                 user.uuid for user in self._user_dao.find_all_by_agent_id(agent_id)
             ]

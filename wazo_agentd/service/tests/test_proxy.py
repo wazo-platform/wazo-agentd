@@ -1,4 +1,4 @@
-# Copyright 2015-2025 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2015-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import unittest
@@ -35,7 +35,7 @@ class TestServiceProxy(unittest.TestCase):
         self.proxy.pause_handler = self.pause_handler
         self.proxy.relog_handler = self.relog_handler
         self.proxy.status_handler = self.status_handler
-        self.agent = {'id': s.agent_id}
+        self.agent = {'id': s.agent_id, 'tenant_uuid': s.tenant_uuid}
         self.queue = {'id': s.queue_id}
         self.tenants = ['fake-tenant']
 
@@ -185,7 +185,7 @@ class TestServiceProxy(unittest.TestCase):
         self.proxy.on_agent_deleted(self.agent)
 
         self.on_agent_handler.handle_on_agent_deleted.assert_called_once_with(
-            self.agent['id']
+            self.agent['id'], self.agent['tenant_uuid']
         )
 
     def test_on_agent_paused(self):

@@ -1,4 +1,4 @@
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -23,6 +23,6 @@ class OnAgentHandler:
         self._on_agent_updated_manager.on_agent_updated(agent)
 
     @debug.trace_duration
-    def handle_on_agent_deleted(self, agent_id):
+    def handle_on_agent_deleted(self, agent_id, tenant_uuid):
         logger.info('Executing on agent deleted command (ID %s)', agent_id)
-        self._on_agent_deleted_manager.on_agent_deleted(agent_id)
+        self._on_agent_deleted_manager.on_agent_deleted(agent_id, tenant_uuid)
