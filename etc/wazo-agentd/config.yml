@@ -25,8 +25,7 @@ amid:
 
 auth:
   host: localhost
-  port: 9497
-  prefix: null
+  port: 80
   https: false
 
 # Bus connection to the AMQP server
