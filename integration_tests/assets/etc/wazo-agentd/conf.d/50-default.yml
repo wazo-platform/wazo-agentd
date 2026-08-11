@@ -6,6 +6,8 @@ amid:
   host: amid
 auth:
   host: auth
+  port: 9497
+  prefix: null
   username: agentd-service
   password: agentd-password
 bus:

@@ -16,8 +16,7 @@ _DEFAULT_CONFIG = {
     'amid': {'host': 'localhost', 'port': 9491, 'prefix': None, 'https': False},
     'auth': {
         'host': 'localhost',
-        'port': 9497,
-        'prefix': None,
+        'port': 80,
         'https': False,
         'key_file': '/var/lib/wazo-auth-keys/wazo-agentd-key.yml',
     },
