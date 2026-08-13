@@ -3,6 +3,7 @@
 
 import logging
 import os
+import threading
 
 from flask import Flask, request
 from flask_cors import CORS
@@ -123,6 +124,7 @@ class HTTPInterface:
         self._app.secret_key = os.urandom(24)
         self._load_cors()
         self.server = None
+        self._stopped = threading.Event()
 
         self.api = Api(self._app, prefix=f'/{self.VERSION}')
 
@@ -149,8 +151,13 @@ class HTTPInterface:
             self.server.ssl_adapter = http_helpers.ssl_adapter(
                 self._config['certificate'], self._config['private_key']
             )
+        if self._stopped.is_set():
+            logger.warning('stop requested during startup: not starting the server')
+            return
+
         self.server.start()
 
     def stop(self):
+        self._stopped.set()
         if self.server:
             self.server.stop()
