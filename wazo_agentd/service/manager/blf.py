@@ -1,4 +1,4 @@
-# Copyright 2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2021-2025 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -34,4 +34,4 @@ class BLFManager:
         hint = fkey_extension(exten_prefix, (user_id, feature_exten, target))
         cli_command = f'devstate change Custom:{hint} {state}'
         result = self._amid_client.command(cli_command)
-        logger.debug('devstate change result: %s', result['response'][0])
+        logger.debug('devstate change result: %s', result['response'])
