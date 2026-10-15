@@ -60,6 +60,9 @@ _DEFAULT_CONFIG = {
         'retry_interval': 2,
         'ttl_interval': 30,
     },
+    'metrics': {
+        'enabled': True,
+    },
 }
 
 
