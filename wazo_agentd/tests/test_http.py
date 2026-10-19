@@ -20,7 +20,6 @@ def http_interface():
             'private_key': None,
             'cors': {'enabled': False},
         },
-        'metrics': {'enabled': False},
     }
     return HTTPInterface(config, Mock(), Mock(), Mock())
 
@@ -45,27 +44,3 @@ def test_stop_after_run_stops_the_server(wsgi, http_interface):
     http_interface.stop()
 
     wsgi.DynamicWSGIServer.return_value.stop.assert_called_once_with()
-
-
-@patch('wazo_agentd.http.init_flask_metrics')
-def test_metrics_enabled_instruments_the_app(init_flask_metrics):
-    config = {
-        'rest_api': {'cors': {'enabled': False}},
-        'metrics': {'enabled': True},
-    }
-
-    http_interface = HTTPInterface(config, Mock(), Mock(), Mock())
-
-    init_flask_metrics.assert_called_once_with(http_interface._app, http_interface.api)
-
-
-@patch('wazo_agentd.http.init_flask_metrics')
-def test_metrics_disabled_does_not_instrument_the_app(init_flask_metrics):
-    config = {
-        'rest_api': {'cors': {'enabled': False}},
-        'metrics': {'enabled': False},
-    }
-
-    HTTPInterface(config, Mock(), Mock(), Mock())
-
-    init_flask_metrics.assert_not_called()

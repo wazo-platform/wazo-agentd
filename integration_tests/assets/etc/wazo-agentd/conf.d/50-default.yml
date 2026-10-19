@@ -12,3 +12,5 @@ auth:
   password: agentd-password
 bus:
   host: rabbitmq
+enabled_plugins:
+  metrics: true

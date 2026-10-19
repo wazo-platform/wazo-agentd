@@ -48,6 +48,7 @@ _DEFAULT_CONFIG = {
         'agent': True,
         'agents': True,
         'api': True,
+        'metrics': False,
         'status': True,
     },
     'service_discovery': {
@@ -59,9 +60,6 @@ _DEFAULT_CONFIG = {
         'refresh_interval': 27,
         'retry_interval': 2,
         'ttl_interval': 30,
-    },
-    'metrics': {
-        'enabled': True,
     },
 }
 
