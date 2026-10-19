@@ -17,7 +17,6 @@ from xivo.auth_verifier import (
     MissingPermissionsTokenAPIException,
 )
 from xivo.flask.auth_verifier import AuthVerifierFlask
-from xivo.flask.metrics import init_flask_metrics
 from xivo.http_helpers import ReverseProxied
 from xivo.tenant_flask_helpers import Tenant, token
 from xivo.tenant_helpers import UnauthorizedTenant
@@ -128,8 +127,6 @@ class HTTPInterface:
         self._stopped = threading.Event()
 
         self.api = Api(self._app, prefix=f'/{self.VERSION}')
-        if config['metrics']['enabled']:
-            init_flask_metrics(self._app, self.api)
 
     def _load_cors(self):
         cors_config = dict(self._config.get('cors', {}))

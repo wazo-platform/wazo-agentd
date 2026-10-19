@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2012-2024 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2012-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from setuptools import find_packages, setup
@@ -23,6 +23,7 @@ setup(
             'agents = wazo_agentd.plugins.agents.plugin:Plugin',
             'agent = wazo_agentd.plugins.agent.plugin:Plugin',
             'api = wazo_agentd.plugins.api.plugin:Plugin',
+            'metrics = wazo_agentd.plugins.metrics.plugin:Plugin',
             'status = wazo_agentd.plugins.status.plugin:Plugin',
         ],
     },
