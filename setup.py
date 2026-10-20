@@ -23,7 +23,7 @@ setup(
             'agents = wazo_agentd.plugins.agents.plugin:Plugin',
             'agent = wazo_agentd.plugins.agent.plugin:Plugin',
             'api = wazo_agentd.plugins.api.plugin:Plugin',
-            'metrics = wazo_agentd.plugins.metrics.plugin:Plugin',
+            'metrics = xivo.flask.metrics:Plugin',
             'status = wazo_agentd.plugins.status.plugin:Plugin',
         ],
     },
