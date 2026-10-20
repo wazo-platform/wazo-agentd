@@ -48,6 +48,7 @@ _DEFAULT_CONFIG = {
         'agent': True,
         'agents': True,
         'api': True,
+        'metrics': False,
         'status': True,
     },
     'service_discovery': {
