@@ -1,4 +1,4 @@
-# Copyright 2019-2025 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import logging
@@ -18,8 +18,8 @@ from .database import TENANT_UUID as TOKEN_TENANT_UUID
 from .database import DbHelper
 from .wait_strategy import EverythingOkWaitStrategy
 
-TOKEN_UUID = '00000000-0000-0000-0000-000000000101'
-TOKEN_USER_UUID = '00000000-0000-0000-0000-000000000301'
+TOKEN_UUID = '00000000-0000-4000-a000-000000000101'
+TOKEN_USER_UUID = '00000000-0000-4000-a000-000000000301'
 
 UNKNOWN_UUID = '00000000-0000-0000-0000-000000000000'
 UNKNOWN_ID = 9999999999999
