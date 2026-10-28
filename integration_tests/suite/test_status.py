@@ -1,9 +1,10 @@
-# Copyright 2022-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2022-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import requests
 from hamcrest import assert_that, has_entries, has_entry
 from wazo_test_helpers import until
+from wazo_test_helpers.auth import MockCredentials
 
 from .helpers.base import BaseIntegrationTest
 
@@ -42,12 +43,12 @@ class TestStatus(BaseIntegrationTest):
         self.start_service('rabbitmq')
         self.wait_strategy.wait(self)
 
-    def test_given_wazo_auth_client_stops_when_status_then_status_fail(self):
-        self.restart_service('auth')
+    def test_given_service_credentials_rejected_when_status_then_status_fail(self):
+        self.auth.set_invalid_credentials(
+            MockCredentials('agentd-service', 'agentd-password')
+        )
         self.restart_service('agentd')
         self.reset_clients()
-        until.true(self.auth.is_up, tries=10)
-        self.create_token()
 
         def _service_token_fail():
             try:
@@ -63,5 +64,8 @@ class TestStatus(BaseIntegrationTest):
 
         until.assert_(_service_token_fail, tries=10)
 
-        self.create_service_token()
+        self.restart_service('auth')
+        self.reset_clients()
+        until.true(self.auth.is_up, tries=10)
+        self.create_tenants()
         self.wait_strategy.wait(self)

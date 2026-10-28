@@ -10,7 +10,7 @@ from wazo_test_helpers.asset_launching_test_case import (
     AssetLaunchingTestCase,
     NoSuchService,
 )
-from wazo_test_helpers.auth import AuthClient, MockCredentials, MockUserToken
+from wazo_test_helpers.auth import AuthClient, MockUserToken
 
 from .amid import AmidClient
 from .bus import BusClient
@@ -19,7 +19,6 @@ from .database import DbHelper
 from .wait_strategy import EverythingOkWaitStrategy
 
 TOKEN_UUID = '00000000-0000-4000-a000-000000000101'
-TOKEN_USER_UUID = '00000000-0000-4000-a000-000000000301'
 
 UNKNOWN_UUID = '00000000-0000-0000-0000-000000000000'
 UNKNOWN_ID = 9999999999999
@@ -37,23 +36,16 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.create_token()
-        cls.create_service_token()
+        cls.create_tenants()
         cls.reset_clients()
         cls.wait_strategy.wait(cls)
 
     @classmethod
-    def create_token(cls):
+    def create_tenants(cls):
         cls.auth = cls.make_auth()
         if not cls.auth:
             return
 
-        token = MockUserToken(
-            TOKEN_UUID,
-            TOKEN_USER_UUID,
-            metadata={'uuid': TOKEN_USER_UUID, 'tenant_uuid': TOKEN_TENANT_UUID},
-        )
-        cls.auth.set_token(token)
         cls.auth.set_tenants(
             {
                 'uuid': TOKEN_TENANT_UUID,
@@ -61,15 +53,6 @@ class BaseIntegrationTest(AssetLaunchingTestCase):
                 'parent_uuid': TOKEN_TENANT_UUID,
             }
         )
-
-    @classmethod
-    def create_service_token(cls):
-        cls.auth = cls.make_auth()
-        if not cls.auth:
-            return
-
-        credential = MockCredentials('agentd-service', 'agentd-password')
-        cls.auth.set_valid_credentials(credential, str(TOKEN_UUID))
 
     @classmethod
     def create_user_token(cls, user_uuid):

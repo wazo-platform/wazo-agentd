@@ -1,0 +1,11 @@
+tokens:
+  - token: 00000000-0000-4000-a000-000000000101
+    auth_id: 00000000-0000-4000-a000-000000000301
+    metadata:
+      uuid: 00000000-0000-4000-a000-000000000301
+      tenant_uuid: eeeeeeee-eeee-eeee-eeee-eeeeeeeeeee1
+
+valid_credentials:
+  - username: agentd-service
+    password: agentd-password
+    token: 00000000-0000-4000-a000-000000000101
