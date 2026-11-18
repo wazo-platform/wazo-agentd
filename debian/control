@@ -23,6 +23,7 @@ Depends:
  python3-flask-restful,
  python3-kombu,
  python3-marshmallow,
+ python3-prometheus-flask-exporter,
  python3-werkzeug,
  wazo-auth-client-python3,
  wazo-amid-client-python3,
